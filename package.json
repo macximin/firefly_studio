@@ -1,0 +1,13 @@
+{
+  "name": "firefly-studio-hq",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "bootstrap:links": "node scripts/bootstrap-links.mjs",
+    "validate": "node scripts/validate-manifest.mjs",
+    "status": "node scripts/status-edge-repos.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "npm run validate && npm test && npm run status"
+  }
+}

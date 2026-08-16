@@ -1,0 +1,5 @@
+.DS_Store
+node_modules/
+config/local-edge-paths.json
+edge_repos/*
+!edge_repos/README.md

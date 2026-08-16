@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "family": "firefly-studio",
+  "restoreRoot": "edge_repos",
+  "policy": {
+    "role": "thin-longform-production-hq",
+    "sourceFlow": [
+      "v3_ff_sources",
+      "firefly_reference_lab",
+      "inkos"
+    ],
+    "defaultProductionEngine": "inkos",
+    "noAutomaticWriteback": true,
+    "manifestIsScopeAuthority": true
+  },
+  "repos": [
+    {
+      "name": "inkos",
+      "displayName": "InkOS Engine",
+      "path": "edge_repos/inkos",
+      "remoteUrl": "git@github.com:macximin/inkos.git",
+      "upstreamUrl": "https://github.com/Narcooo/inkos.git",
+      "branch": "master",
+      "managementState": "active",
+      "adoptionState": "ready",
+      "pullAllowed": true,
+      "writeAllowed": true,
+      "role": "production engine for long fiction, short fiction, scripts, interactive narrative, Arc and Rail state"
+    },
+    {
+      "name": "firefly_reference_lab",
+      "displayName": "Firefly Reference Lab",
+      "path": "edge_repos/firefly_reference_lab",
+      "remoteUrl": "git@github.com:macximin/firefly_reference_lab.git",
+      "branch": "main",
+      "managementState": "active",
+      "adoptionState": "ready",
+      "pullAllowed": true,
+      "writeAllowed": true,
+      "role": "derived pitches, character cores, Arc, event, reward and Gold routing references"
+    },
+    {
+      "name": "v3_ff_sources",
+      "displayName": "Firefly Sources",
+      "futureAlias": "firefly_sources",
+      "path": "edge_repos/v3_ff_sources",
+      "remoteUrl": "git@github.com:macximin/v3_ff_sources.git",
+      "branch": "main",
+      "managementState": "active",
+      "adoptionState": "pending-clean-closeout",
+      "pullAllowed": false,
+      "writeAllowed": false,
+      "role": "rights-aware raw-source custody, provenance and source-grounded observations"
+    },
+    {
+      "name": "v3_ff_foundry",
+      "displayName": "V3 Foundry Legacy Authority",
+      "path": "edge_repos/v3_ff_foundry",
+      "remoteUrl": "git@github.com:macximin/v3_ff_foundry.git",
+      "branch": "main",
+      "managementState": "parked",
+      "adoptionState": "legacy-preserved",
+      "pullAllowed": false,
+      "writeAllowed": false,
+      "role": "read-only legacy canon and owner-approved migration source for existing Firefly works"
+    }
+  ],
+  "excluded": [
+    "shortform_hq and all shortform children",
+    "v3_ff_command_center",
+    "v3_ff_marketintel"
+  ]
+}
