@@ -2,56 +2,56 @@
 
 ## Purpose
 
-Firefly Studio routes evidence and work. It does not merge all repositories into
-one authority or copy raw source into a writing prompt by default.
+Firefly Studio routes advisory signals into production decisions. It does not
+merge all repositories into one authority or let an advisory edge write into a
+production project.
 
 ## Route
 
-### 1. Sources
+### 1. Market Radar
 
-`v3_ff_sources` may provide:
+`firefly_market_radar` may provide dated public signals:
 
-- source identity and provenance
-- rights or access status
-- exact evidence locations
-- source-grounded observations
+- ranking and release snapshots
+- public title, logline, genre, tag, and display metrics
+- reviewed deltas and bounded market briefs
 
-It may not provide manuscript approval or write new prose.
+It may not provide source prose, structural Gold judgment, pitches, or production
+orders. A baseline snapshot is evidence, not a market conclusion.
 
 ### 2. Reference Lab
 
-`firefly_reference_lab` may transform admitted evidence into:
+`firefly_reference_lab` may provide:
 
 - project pitches and work introductions
 - character-core and character-utility observations
 - event, reward, relationship, pacing, and Arc references
 - Gold cards and bounded routing recommendations
 
-A reference is evidence for a creative decision, not text to reproduce. Raw
-source, copied event order, names, protected expression, and unsupported facts do
-not pass through this boundary.
+A reference is evidence for a creative decision, not text to reproduce. Copied
+event order, names, protected expression, and unsupported facts do not pass
+through this boundary.
 
 ### 3. InkOS
 
-InkOS receives an original project premise plus selected abstract references. It
-owns:
+InkOS receives an original project premise plus owner-selected market signals and
+abstract references. It owns:
 
 - project and series contracts
 - active Arc and A/B Rail truth
 - chapter packets, manuscript state, review, and revision
 - continuation and runtime receipts
 
-InkOS never writes back into Sources or silently promotes Reference Lab output.
+InkOS never writes back into Market Radar or Reference Lab and never silently
+promotes either edge's output.
 
-## Legacy Foundry
+## Owner gate
 
-Existing V3 works remain authoritative in `v3_ff_foundry` until the owner selects
-one work for migration. Migration is per work and must include:
+Only the owner combines the two advisory lanes into a production direction:
 
-1. current V3 status and approved-manuscript receipt
-2. explicit InkOS target project
-3. canon and chronology comparison
-4. owner approval of the cutover point
-5. a receipt naming which authority is active after cutover
+```text
+dated market signal + selected structural reference + original premise
+  -> owner decision -> InkOS project
+```
 
-Bulk migration and bidirectional synchronization are prohibited.
+No score, ranking, Gold label, or automated router replaces that decision.

@@ -7,7 +7,7 @@ function validManifest() {
     schemaVersion: 1,
     family: "firefly-studio",
     policy: {
-      sourceFlow: ["writer"],
+      routingInputs: ["writer"],
       defaultProductionEngine: "writer",
     },
     repos: [{

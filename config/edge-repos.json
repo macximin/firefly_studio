@@ -4,10 +4,9 @@
   "restoreRoot": "edge_repos",
   "policy": {
     "role": "thin-longform-production-hq",
-    "sourceFlow": [
-      "v3_ff_sources",
-      "firefly_reference_lab",
-      "inkos"
+    "routingInputs": [
+      "firefly_market_radar",
+      "firefly_reference_lab"
     ],
     "defaultProductionEngine": "inkos",
     "noAutomaticWriteback": true,
@@ -40,34 +39,22 @@
       "role": "derived pitches, character cores, Arc, event, reward and Gold routing references"
     },
     {
-      "name": "v3_ff_sources",
-      "displayName": "Firefly Sources",
-      "futureAlias": "firefly_sources",
-      "path": "edge_repos/v3_ff_sources",
-      "remoteUrl": "git@github.com:macximin/v3_ff_sources.git",
+      "name": "firefly_market_radar",
+      "displayName": "Firefly Market Radar",
+      "path": "edge_repos/firefly_market_radar",
+      "remoteUrl": "git@github.com:macximin/firefly_market_radar.git",
       "branch": "main",
       "managementState": "active",
-      "adoptionState": "pending-clean-closeout",
-      "pullAllowed": false,
-      "writeAllowed": false,
-      "role": "rights-aware raw-source custody, provenance and source-grounded observations"
-    },
-    {
-      "name": "v3_ff_foundry",
-      "displayName": "V3 Foundry Legacy Authority",
-      "path": "edge_repos/v3_ff_foundry",
-      "remoteUrl": "git@github.com:macximin/v3_ff_foundry.git",
-      "branch": "main",
-      "managementState": "parked",
-      "adoptionState": "legacy-preserved",
-      "pullAllowed": false,
-      "writeAllowed": false,
-      "role": "read-only legacy canon and owner-approved migration source for existing Firefly works"
+      "adoptionState": "ready",
+      "pullAllowed": true,
+      "writeAllowed": true,
+      "role": "dated public-metadata market evidence, demand signals and reviewed market briefs"
     }
   ],
   "excluded": [
     "shortform_hq and all shortform children",
     "v3_ff_command_center",
-    "v3_ff_marketintel"
+    "v3_ff_sources",
+    "v3_ff_foundry"
   ]
 }

@@ -7,19 +7,12 @@ it keeps explicit boundaries and routes work across independent edge repositorie
 ## Production flow
 
 ```text
-Firefly Sources
-  raw-source custody, rights, provenance, observations
-        ↓
-Firefly Reference Lab
-  pitches, character cores, Arc/event/reward reference cards
-        ↓
-InkOS
-  planning, A/B Rails, drafting, review, revision, continuation
+Firefly Market Radar ─┐
+  dated market signals │
+                       ├─> InkOS
+Firefly Reference Lab ─┘   planning, A/B Rails, drafting, review, revision
+  structural references
 ```
-
-`v3_ff_foundry` is retained as a parked legacy authority for existing Firefly
-works. It is not the default engine for new writing and is never written back to
-automatically.
 
 ## Repository model
 
@@ -51,11 +44,8 @@ Active:
 
 - `inkos` — production engine
 - `firefly_reference_lab` — derived reference compiler
-- `v3_ff_sources` — source custody, pending clean closeout before HQ writes
+- `firefly_market_radar` — dated public-metadata market signals
 
-Parked:
-
-- `v3_ff_foundry` — legacy canon and migration source
-
-Explicitly out of scope: shortform repositories, V3 Command Center, and V3
-Market Intel. They can be proposed later, but are not silently inherited.
+Explicitly out of scope: shortform repositories, V3 Command Center, V3 Sources,
+and V3 Foundry. They remain in their original systems and are not silently
+inherited.

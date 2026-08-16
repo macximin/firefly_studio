@@ -59,12 +59,12 @@ export function validateManifest(manifest) {
     }
   }
 
-  const route = manifest?.policy?.sourceFlow;
+  const route = manifest?.policy?.routingInputs;
   if (!Array.isArray(route) || route.length === 0) {
-    errors.push("policy.sourceFlow must be a non-empty array");
+    errors.push("policy.routingInputs must be a non-empty array");
   } else {
     for (const name of route) {
-      if (!names.has(name)) errors.push(`policy.sourceFlow references unknown repo: ${name}`);
+      if (!names.has(name)) errors.push(`policy.routingInputs references unknown repo: ${name}`);
     }
   }
   if (!names.has(manifest?.policy?.defaultProductionEngine)) {

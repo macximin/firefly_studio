@@ -25,7 +25,12 @@ for (const repo of manifest.repos) {
   }
   if (existing) {
     if (!existing.isSymbolicLink()) {
-      throw new Error(`Refusing to overwrite non-link path: ${linkPath}`);
+      if (resolve(linkPath) !== resolve(target)) {
+        throw new Error(`Refusing to overwrite non-link path: ${linkPath}`);
+      }
+      inspectGitRepo(linkPath);
+      console.log(`OK   ${repo.name} checkout already present`);
+      continue;
     }
     const current = resolve(dirname(linkPath), await readlink(linkPath));
     if (current !== resolve(target)) {

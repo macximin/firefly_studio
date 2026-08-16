@@ -1,14 +1,14 @@
 # Bootstrap status — 2026-08-16
 
-Firefly Studio was bootstrapped without moving, copying, resetting, or renaming
-any existing repository.
+Firefly Studio began as a linked, non-destructive HQ. The clean V3 Market Intel
+child was then renamed and moved with its Git history intact as Firefly Market
+Radar.
 
 | Repository | Bootstrap HEAD | Worktree | HQ state |
 |---|---|---|---|
 | InkOS | `029a787ea138163075fc1c16ad61b99f40eaf675` | clean | active / ready |
 | Firefly Reference Lab | `ea3845e6b18cf4693a3b799c68fc1cff53db75f7` | clean | active / ready |
-| V3 Sources | `b27d236bd0413a8086822c4262a0d4774615481f` | dirty: `.gitignore` | active / pending clean closeout |
-| V3 Foundry | `f11c9025877e9f03d51e2ea8dbd2bb063832642d` | dirty: inherited tracked and untracked work | parked / legacy preserved |
+| Firefly Market Radar | `b0c2c34cc0b7db1bdf57ded7f61d10d7518eaa5a` | clean | active / ready |
 
 ## Decisions
 
@@ -18,17 +18,14 @@ any existing repository.
   attempted as part of HQ creation.
 - Firefly Reference Lab is a sibling role in the new HQ, even though its current
   physical checkout remains nested under the old InkOS path.
-- V3 Sources is admitted by role but receives no HQ write or pull authorization
-  until its inherited `.gitignore` change is intentionally closed out.
-- Its existing child contract still routes material mining to V3 Foundry; this
-  must be explicitly amended to route derived analysis to Reference Lab before
-  Sources becomes write-enabled.
-- V3 Foundry is visible for legacy migration only.
-- V3 Command Center, V3 Market Intel, and all shortform repositories are excluded.
+- V3 Market Intel becomes `firefly_market_radar`; the GitHub repository and local
+  Git root use the new name while historical evidence paths remain compatible.
+- V3 Sources, V3 Foundry, V3 Command Center, and all shortform repositories are
+  excluded from this HQ and remain untouched in their original systems.
 
 ## Next migration gate
 
-Physical relocation under this HQ is deferred. Before moving a checkout:
+Physical relocation of another linked checkout is deferred. Before moving one:
 
 1. close out or intentionally preserve its dirty worktree
 2. inventory absolute path references

@@ -1,38 +1,32 @@
 # Edge adoption plan
 
-## Phase 0 — linked HQ (current)
+## Current shape
 
-- Keep every existing checkout at its current path.
-- Use machine-local links under `edge_repos/`.
-- Permit normal production in clean `inkos` and `firefly_reference_lab` only.
-- Preserve dirty V3 worktrees without staging, stashing, resetting, or moving.
+- InkOS remains at its existing checkout and is linked into the HQ.
+- Firefly Reference Lab remains at its existing checkout and is linked into the HQ.
+- Firefly Market Radar is a physical independent Git root under `edge_repos/`.
+- V3 Sources, V3 Foundry, V3 Command Center, and shortform repos remain outside
+  this family.
 
-## Phase 1 — Sources closeout and contract amendment
+## Market Radar adoption
 
-`v3_ff_sources` currently routes QRP/ESM/block material mining to
-`v3_ff_foundry/30_materials`. That is a V3 contract and cannot silently become a
-Firefly Studio route.
+The clean `v3_ff_marketintel` repository is adopted with full Git history as
+`firefly_market_radar`. Existing `market-intel-evidence-*` artifact paths and
+collector command names remain compatible; the repository identity and
+human-facing contract use the new name.
 
-Before `writeAllowed` may become true:
+Market Radar remains independent:
 
-1. inspect and intentionally close out the inherited `.gitignore` change
-2. update the Sources charter so raw-source custody and observations remain in
-   Sources while derived reusable analysis routes to `firefly_reference_lab`
-3. preserve rights/provenance fields and local ignored corpus rules
-4. validate, commit, and push Sources independently
-5. update the HQ manifest adoption receipt
+- no production writes
+- no source-prose or paid/full-text collection
+- no Reference Lab Gold or structural analysis
+- no trend conclusion from a baseline-only snapshot
 
-## Phase 2 — legacy work migration
+## Linked-checkout policy
 
-Keep `v3_ff_foundry` parked. Select one work at a time and use the migration gate
-in `contracts/production-routing.md`. Do not bulk-copy `40_works/`, automatically
-rewrite A/B Rails, or infer owner approval from file presence.
-
-## Phase 3 — optional physical relocation
-
-Physical relocation is optional. Linked checkouts are sufficient for HQ status
-and routing. Move a Git root only after its worktree is clean and all absolute
-path references have been inventoried and updated.
+Physical relocation of InkOS and Reference Lab remains optional. Linked
+checkouts are sufficient for HQ status and routing. Move a Git root only after
+its worktree is clean and all absolute path references have been inventoried.
 
 ## Upstream policy for InkOS
 

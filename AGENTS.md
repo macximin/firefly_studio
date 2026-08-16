@@ -14,10 +14,8 @@
   revision, and continuation.
 - `firefly_reference_lab` owns derived work analysis, pitches, character cores,
   Arc/event/reward references, and Gold routing evidence.
-- `v3_ff_sources` owns raw-source custody, rights/provenance, and source-grounded
-  observations. It does not write manuscripts or approve candidates.
-- `v3_ff_foundry` is parked legacy authority. Do not create new canonical work
-  there or migrate a work without explicit owner approval.
+- `firefly_market_radar` owns dated public-metadata evidence and reviewed market
+  signals. It does not own pitches, reference analysis, or production decisions.
 
 ## Safety
 
@@ -29,10 +27,10 @@
 - Keep InkOS upstream compatibility: avoid mass package/path/identifier renames.
   Firefly-specific behavior should enter through contracts, adapters, or new
   modules unless a core change is genuinely required.
-- Raw source never routes directly into a generator merely because it exists.
-  Source rights/provenance and Reference Lab promotion gates remain explicit.
+- Market Radar and Reference Lab are advisory inputs. Neither may write directly
+  into an InkOS project or promote a production decision.
 
 ## Excluded families
 
-Shortform repositories, V3 Command Center, and V3 Market Intel are not members
-of this HQ unless the owner explicitly adds them to the manifest.
+Shortform repositories, V3 Command Center, V3 Sources, and V3 Foundry are not
+members of this HQ unless the owner explicitly adds them to the manifest.

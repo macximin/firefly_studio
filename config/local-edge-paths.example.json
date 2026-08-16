@@ -1,6 +1,5 @@
 {
   "inkos": "/absolute/path/to/inkos",
   "firefly_reference_lab": "/absolute/path/to/firefly_reference_lab",
-  "v3_ff_sources": "/absolute/path/to/v3_ff_sources",
-  "v3_ff_foundry": "/absolute/path/to/v3_ff_foundry"
+  "firefly_market_radar": "/absolute/path/to/firefly_market_radar"
 }
