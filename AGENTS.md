@@ -21,7 +21,8 @@
 
 - Never reset, stash, overwrite, or auto-commit a dirty child.
 - Never stage across Git roots. Do not use `git add .` for family closeout.
-- A linked checkout is not a vendored copy. Do not replace it with copied files.
+- A child checkout is an independent Git root, whether it is a physical directory
+  or a bootstrap-created link. Do not replace it with copied files.
 - Do not move or rename existing child directories while handoff documents still
   contain absolute paths. Migration requires a path audit and validation receipt.
 - Keep InkOS upstream compatibility: avoid mass package/path/identifier renames.

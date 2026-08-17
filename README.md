@@ -19,8 +19,9 @@ Firefly Reference Lab ─┘   planning, A/B Rails, drafting, review, revision
 - This root owns family boundaries, routing contracts, and repository status.
 - Every `edge_repos/` entry is an independent Git repository.
 - Child repository bodies are ignored by this root.
-- Existing checkouts are linked non-destructively during bootstrap; no child is
-  copied, moved, reset, or renamed.
+- The current three children are physical sibling checkouts under `edge_repos/`.
+  Bootstrap can still link an existing checkout on another machine; it never
+  copies, resets, or silently replaces a child.
 - InkOS keeps its existing package names, file formats, Git history, and upstream
   fork relationship.
 
@@ -36,7 +37,8 @@ npm test
 ```
 
 `bootstrap:links` reads the ignored machine-local
-`config/local-edge-paths.json`. It refuses to overwrite an existing path.
+`config/local-edge-paths.json`. A physical checkout already at its canonical path
+is accepted as-is; the command refuses to overwrite any mismatched path.
 
 ## Current scope
 

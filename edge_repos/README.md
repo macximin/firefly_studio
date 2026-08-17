@@ -1,8 +1,9 @@
 # Edge repositories
 
-This directory contains machine-local links or independent child Git checkouts.
-The HQ repository does not track their bodies.
+This directory contains independent child Git checkouts. The current InkOS,
+Reference Lab, and Market Radar children are physical sibling directories; the HQ
+repository does not track their bodies.
 
-Run `npm run bootstrap:links` to create links from the ignored
-`config/local-edge-paths.json`. The bootstrap refuses to overwrite an existing
-file, directory, or mismatched link.
+On another machine, `npm run bootstrap:links` can create links from the ignored
+`config/local-edge-paths.json`. It accepts a checkout already at the canonical
+path and refuses to overwrite an existing file, directory, or mismatched link.
