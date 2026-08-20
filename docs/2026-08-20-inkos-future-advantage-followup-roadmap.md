@@ -2,7 +2,7 @@
 
 - 작성일: 2026-08-20
 - 대상 하위 레포: `edge_repos/inkos`
-- 현재 기준: P0·P1 구현 완료, P2 이후 미착수
+- 현재 기준: P0·P1 저장 완료, P2-A·P2-B 구현 및 검증 완료
 - 현재 작품 적용: 금지. 별도 카나리와 사람 승인 전에는 《IMF를 독식한 재벌 3세》를 자동 마이그레이션하지 않는다.
 
 ## 2026-08-20 저장 완료 영수증
@@ -15,7 +15,7 @@
 - 전체 프로덕션 빌드: PASS
 - `git diff --check`: PASS
 - 원고·Tavily 키·자격 증명: 변경 없음
-- P2 이후: 미착수
+- P2-A·P2-B: 2026-08-20 구현 완료. 현재 작품 자동 적용 없음
 
 ## 현재 완료 범위
 
@@ -49,20 +49,38 @@
 
 ### 2. P2-A — Architect 미래 선점 계약 생성
 
-- 회귀·빙의·예지·미래 기억이 핵심 재미인지 판별
-- 해당 작품만 `book_rules.md#미래 선점` 생성
-- 기술·금융·경영·유통·문화·인재·정책을 동일 계약으로 표현
-- `알고 있는 것 / 모르는 것 / 금지된 지름길 / 기억 원칙` 생성
-- 일반 작품의 기존 결과를 바꾸지 않는 회귀 테스트
-- 한국어 네이티브 기획 언어 감리
+상태: 2026-08-20 완료.
+
+- 호스트가 제목·장르·사용자 브리프에서 명시된 회귀·빙의·예지·미래 기억·미래 당겨오기를 판별
+- 해당 작품만 `book_rules.md#미래 선점`을 요구하고 일반 작품에서는 섹션 생성을 금지
+- 기존 계약을 수정할 때는 `preserve` 모드로 정보 경계와 핵심 약속 유지
+- 기준 시점·핵심 재미·허용 분야·known/unknown·금지 지름길·기억 원칙 완전성 검사와 1회 형식 복구
+- 기술·금융·경영·유통·문화·인재·정책을 분야 중립 계약으로 표현
+- 한국어·영어·중국어 생성 경로와 일반 작품 하위 호환 유지
 
 ### 3. P2-B — Arc 생성·편집 연결
 
-- Architect 계약을 Arc 생성기가 읽게 함
-- `mode / target / rememberedOutcome / bridgeSteps / resistance / proof / reward` 생성
-- A 레일에 선점 실행·보상, B 레일에 저항·후폭풍·역사 변화·기억 열화 배치
-- ready 전환에서 구현 다리·증거·보상 누락 차단
-- Core 계약을 먼저 완성하고 Studio 편집은 최소 표시만 추가
+상태: 2026-08-20 완료.
+
+- Forecast 정사 컨텍스트와 fingerprint에 `book_rules.md` 포함
+- 미래 선점 계약이 있는 작품의 모든 후보 분기에 구조화된 `futureAdvantageMove` 요구
+- `mode / target / rememberedOutcome / bridgeSteps / resistance / proof / reward / downstreamConsequences` 생성 검증
+- A 레일은 구현 다리·가시적 증거·독자 보상, B 레일은 저항·후폭풍·역사 변화·기억 열화로 분리
+- 일반 작품이 move를 발명하거나 미래 선점 작품이 move를 누락하면 1회 재생성 후 차단
+- 선택한 Forecast 분기의 move만 비정사 Arc 초안과 회차 provenance에 복사
+- 기존 ready 전환의 구현 다리·증거·보상 gate 유지
+- Studio Arc 지도 상세 패널에 A/B 레일 최소 읽기 전용 표시 추가
+
+### 2026-08-20 P2 검증 영수증
+
+- 전체 테스트: Core 2007 + Studio 639 + CLI 243 = 2889 PASS
+- Core·Studio·CLI 타입 검사: PASS
+- Core·Studio·CLI 프로덕션 빌드: PASS
+- 패키지 manifest 검증: PASS
+- 변경문법 검사: PASS
+- semantic pattern audit: 신규 후보 없음(기존 후보 26개만 보고)
+- 원고·작품 데이터·Tavily 키·자격 증명: 변경 없음
+- 《IMF를 독식한 재벌 3세》: 자동 생성·마이그레이션·원고 변경 없음
 
 ### 4. P3 — Context·Planner·Writer 전달
 
