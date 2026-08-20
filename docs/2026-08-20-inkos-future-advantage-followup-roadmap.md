@@ -2,7 +2,7 @@
 
 - 작성일: 2026-08-20
 - 대상 하위 레포: `edge_repos/inkos`
-- 현재 기준: P0·P1 저장 완료, P2-A·P2-B 구현 및 검증 완료
+- 현재 기준: P0·P1 저장 완료, P2-A·P2-B·P3 구현 및 검증 완료
 - 현재 작품 적용: 금지. 별도 카나리와 사람 승인 전에는 《IMF를 독식한 재벌 3세》를 자동 마이그레이션하지 않는다.
 
 ## 2026-08-20 저장 완료 영수증
@@ -84,10 +84,27 @@
 
 ### 4. P3 — Context·Planner·Writer 전달
 
+상태: 2026-08-20 완료.
+
 - 회차별 관련 move만 context package에 선택
 - `futureAdvantageMoveIds`, `researchClaimIds`, `authorizedDivergences`를 intent와 trace에 기록
 - Writer가 미래 결과와 현재 구현 방법을 구분
 - 실제 역사 연구 근거가 작가 의도나 허용 분기보다 높은 규칙이 되지 않게 고정
+
+### 2026-08-20 P3 검증 영수증
+
+- 활성 Arc가 소유한 현재 회차의 move 하나만 보호 context로 선택
+- move·claim·허용 분기 라우팅을 intent, 저장 plan, trace에 동일하게 기록
+- 실제 역사 리서치를 작가 의도보다 낮은 `L5 research_evidence`로 고정
+- Writer에 미래 결과와 현재 구현법의 구분, 구현 다리·저항·증거·보상 원칙 전달
+- 일반 작품에서는 새 라우팅 필드와 L5가 생성되지 않음
+- 전체 테스트: Core 2009 + Studio 639 + CLI 243 = 2891 PASS
+- Core·Studio·CLI 타입 검사: PASS
+- Core·Studio·CLI 프로덕션 빌드: PASS
+- 패키지 manifest 검증 및 변경문법 검사: PASS
+- semantic pattern audit: 신규 후보 없음(기존 후보 26개만 보고)
+- 원고·작품 데이터·Tavily 키·자격 증명: 변경 없음
+- 《IMF를 독식한 재벌 3세》: 자동 생성·마이그레이션·원고 변경 없음
 
 ### 5. P4 — 창작 감리·고증 상태·수정 분리
 
