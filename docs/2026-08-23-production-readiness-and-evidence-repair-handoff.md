@@ -4,16 +4,18 @@
 - 제작 엔진: InkOS
 - 자문 입력: Firefly Reference Lab, Firefly Market Radar
 - 자동 writeback: 금지
-- 상태: 제작 준비 화면 완료, P9 삭제 경계 확정, 시장 근거 계약 복구
+- 상태: IMF 제작 기준선 current, P9 삭제 경계 확정, 시장 근거 계약 복구, 선별 upstream 머지 완료
 
 ## 결론
 
-다음 우선순위는 새 기능 추가가 아니다.
+우선 작업은 완료됐다.
 
-1. 《IMF를 독식한 재벌 3세》의 두 현실 배경 표현을 창작값으로 잠글지 owner가 결정한다.
-2. 결정 후 하나의 시대고증 리서치 패킷 안에 분리된 claim ID 두 개를 발급하고, 재감리와 snapshot/truth만 갱신한다.
-3. InkOS upstream은 자동 병합하지 않고 별도 격리 브랜치에서 저위험 변경만 선별 감리한다.
-4. 《부도난 회사만 삽니다》는 작업 큐에서 제외한다. 새 명시적 복구 승인이 생기기 전에는 복구·검토·집필하지 않는다.
+1. 《IMF를 독식한 재벌 3세》의 정확 시각·이동시간·공장 권역을 창작 고정으로 분리하고, 일반 역사 기준선 claim 두 개만 검증했다.
+2. 기존 원고를 바꾸지 않고 Arc, 승인 Allocation, snapshot/truth, 새 Baseline 002를 갱신해 제작 준비 상태를 `current`로 닫았다.
+3. InkOS upstream 14개 커밋을 격리 감리하고, 현재 fork와 독립적인 Windows 경로 테스트 수정만 `master`에 머지했다.
+4. 《부도난 회사만 삽니다》는 계속 작업 큐에서 제외한다. 새 명시적 복구 승인 전에는 복구·검토·집필하지 않는다.
+
+다음 우선순위는 Codex 구독 어댑터의 모델 캐시 호환성을 복구해 실제 `inkos audit` 호출을 다시 통과시키는 것이다. 그 뒤 Baseline 002 아래에서 IMF 2화 제작을 이어간다. Node·pnpm 정책 전환은 이번 upstream 선별 머지와 분리한다.
 
 이 문서는 아래 문서의 구현 기록은 보존하되, 그 안의 시점성 있는 현재 상태와 다음 작업을 대체한다.
 
@@ -24,7 +26,7 @@
 
 | 저장소 | 브랜치 | 검증 HEAD | 원격 상태 | 결과 |
 | --- | --- | --- | --- | --- |
-| InkOS | `master` | `fd3e07b0a6fb5b3aa09838abc4f5b8ec089ffc28` | `origin/master` 일치 | 제작 준비 UI와 한국어 검수 표면 완료 |
+| InkOS | `master` | `86c1702d48e01ed0dfe4f017491b2be791cecfdb` | `origin/master` 일치 | IMF 기준선 current, 선별 upstream 경로 테스트 머지 완료 |
 | Reference Lab | `main` | `34f21f5d4b5e2ee22e2321d703ba208567c0cfa3` | `origin/main` 일치 | P9 owner 삭제 경계와 11개 문서 tombstone 확정 |
 | Market Radar | `main` | `2b4a88adf2ecd44c66a017c9073fc420ff131803` | `origin/main` 일치 | 비교 계약과 fail-closed 하네스 복구 |
 
@@ -32,18 +34,20 @@ HQ 저장소는 이 인계서를 포함한 커밋 자체가 최종 HQ 영수증�
 
 ## InkOS 제작 준비 상태
 
-InkOS `fd3e07b0`은 기존 작품 상세 설정 화면에 live readiness를 읽기 전용으로 연결했다. 별도 대시보드는 만들지 않았다.
+InkOS `86c1702d`은 기존 작품 상세 설정 화면의 live readiness를 유지하고 선별 upstream 경로 테스트를 머지했다. 별도 대시보드는 만들지 않았다.
 
-《IMF를 독식한 재벌 3세》 화면의 실제 확인 결과:
+《IMF를 독식한 재벌 3세》 live readiness API의 실제 확인 결과:
 
-- 전체 상태: `확인 대기`
+- 전체 상태: `current`
 - 기획서·작품 규칙: 준비
 - A/B Rail: 준비
 - 승인 Allocation: 1개
 - ready ArcPacket: 1개
 - current GoldRouteReceipt: 1개
 - 최신 1화 ChapterTruthReceipt: current
-- 열린 문제 표시: 2개
+- 연구 영수증: `verified`, claim ID 2개
+- 승인 제작 기준선: `BASELINE-IMF-CANARY-002`, current
+- 열린 문제: 0개
 - 검수 버튼: `검수: 자동`; 기존 중국어 표기 없음
 
 검증 영수증:
@@ -58,6 +62,7 @@ Core·Studio·CLI production build: PASS
 publish manifest 3/3: PASS
 semantic audit: exit 0, informational candidates 26
 git diff --check: PASS
+pnpm 11 frozen install·lockfile 불변: PASS
 ```
 
 루트 `lint`는 자식 패키지에 lint script가 연결되지 않아 검증 PASS로 주장하지 않는다.
@@ -142,36 +147,40 @@ original platform CSV: HEAD byte-identical
 git diff --check: PASS
 ```
 
-## InkOS upstream 경계
+## InkOS upstream 감리·머지
 
-InkOS는 `origin/master`와 일치하지만 `upstream/master@5da9fad03d65882adc030dc0043da8e8bc197dbd` 대비 23 commit ahead / 14 commit behind다.
+2026-08-23 재확인 기준 InkOS는 `origin/master@86c1702d`와 일치하며 `upstream/master@5da9fad03d65882adc030dc0043da8e8bc197dbd` 대비 26 commit ahead / 14 commit behind다.
 
-`git merge-tree` 시뮬레이션은 `changed in both` 79개 구간과 conflict-marker opening 115개를 냈다. 최신 로컬 커밋도 upstream과 다음 5개 파일에서 겹친다.
+전체 upstream merge 시뮬레이션은 32개 파일과 conflict-marker opening 115개를 냈다. pi-harness 전환, TUI, v1.8 문서 체인은 현재 fork 계약과 얽혀 있어 전체 머지를 제외했다.
+
+선별 판정:
+
+- `493df3a8` + `8922e3ab`: 제외. 현행 Node 20 SQLite fallback을 제거하지만 실제 `node:sqlite` 최소 버전과 배포 package manifest의 `engines`가 정렬되지 않았다.
+- `de4e9fa5`: 제외. pnpm 9 호환을 위해 override를 root `package.json`으로 옮기지만 현재 검증 런타임은 pnpm 11.1.2이며 canonical override는 `pnpm-workspace.yaml`에 있다.
+- `52075bb9`: 전체 제외, 독립적인 `atomic-file-set.test.ts` Windows separator 부분만 수동 이식했다. production hunk 두 개는 현재 fork에 없는 pi-harness 체인에 의존한다.
+
+격리 브랜치 `codex/upstream-v1-8-runtime-compat`의 변경은 테스트 파일 1개, 4줄 교체뿐이다. 독립 감리에서 같은 파일의 후속 rollback 테스트에 남은 POSIX 전용 비교 두 곳을 추가로 찾아 함께 수정했다.
 
 ```text
-packages/core/src/__tests__/pipeline-runner.test.ts
-packages/core/src/index.ts
-packages/core/src/pipeline/runner.ts
-packages/studio/src/api/server.test.ts
-packages/studio/src/api/server.ts
+8e30b89f test(core): make atomic staging assertion portable
+2e7428b0 test(core): cover portable rollback injection paths
+86c1702d merge: integrate audited upstream path portability
 ```
 
-따라서 `master`에 upstream을 자동 merge하지 않는다. 아래 세 변경은 별도 격리 브랜치에서 한 커밋씩 감리할 우선 후보다.
+머지 후 `master`에서 focused test 5/5, 전체 테스트·타입검사·빌드·E2E·publish manifest·semantic audit가 통과했다. `flow-after.png`는 Playwright가 만든 확인용 임시 스크린샷임을 생성 코드와 시각으로 확인한 뒤 해당 파일 하나만 제거했다.
 
-- `493df3a8 chore: require node 22 runtime`
-- `de4e9fa5 fix(build): keep overrides compatible with pnpm 9`
-- `52075bb9 fix(core): normalize persisted paths across platforms`
+## IMF owner 결정·적용
 
-## IMF owner 결정
+owner 결정은 적용됐다. 원고의 정확 시각과 이동시간을 검증 사실로 만들거나 `authorizedDivergence`로 오분류하지 않았다.
 
-화면의 열린 문제 2개는 저장된 claim 두 개가 아니다. 하나의 미해결 감리·리서치 상태가 chapter audit와 research receipt에 각각 보이며, 현재 `claimIds`는 비어 있다. 그 메모 안에서 분리해야 할 현실 배경은 다음 두 가지다.
+- `RC-IMF-1996-GIMPO-INTL-001`: 1996년 김포공항 국제선 운영의 일반 기준선만 `verified`
+- `RC-IMF-1996-INCHEON-TRANSIT-002`: 1996년 경인축 도로와 수도권 혼잡의 일반 개연성만 `verified`
+- 오후 4시 18분: 특정 항공편 도착 기록이 아닌 창작 고정값
+- “두 시간”: 정확한 실측이 아닌 운전기사의 보수적 현장 추정
+- 대은정밀 공장: `인천항 배후 공업권역`, 세부 주소 미정
+- 기존 역사 분기: `보고서가 본사 결재선에 오르기 전에 원본 흐름에 개입한다.` 1개 그대로 유지
 
-1. 1996년 11월 14일 오후 4시 18분 무렵 김포공항 국제선 출구
-2. 여의도 본사에서 가상 인천 공장까지 퇴근 시간 “두 시간”
-
-공식 항공 자료상 1996년 김포공항 국제선 운영 자체는 충분히 성립하며, 국제선 기능은 2001년 3월 29일 인천공항으로 이전됐다. 다만 출발지·항공사·편명이 없어 정확한 항공편과 4시 18분 무렵의 출구 도달은 확인하지 않았다.
-
-인천시 기록상 당시 경인고속도로가 존재했고 신월IC~서인천IC는 1993년 왕복 8차로로 확장됐다. 서울연구데이터의 1996년 평균 차량 통행속도 20.9km/h는 혼잡 배경을 뒷받침하지만, 공장 주소가 없어 정확히 두 시간인지는 검증할 수 없다.
+공식 항공 자료상 1996년 김포공항 국제선 운영은 성립하며 국제선 기능은 2001년 3월 29일 인천공항으로 이전됐다. 인천시 도로 연혁과 서울연구데이터의 1996년 평균 통행속도 20.9km/h는 경인축·혼잡의 일반 배경을 뒷받침한다. 둘 다 정확한 항공편 시각이나 정확한 두 시간 이동을 입증하지는 않는다.
 
 근거:
 
@@ -180,14 +189,23 @@ packages/studio/src/api/server.ts
 - 인천시 경인고속도로 연혁: `https://www.incheon.go.kr/traffic/TR050104`
 - 서울연구데이터서비스: `https://data.si.re.kr/data-seoul/%EC%A7%80%EB%8F%84%EB%A1%9C-%EB%B3%B8-%EC%84%9C%EC%9A%B8-2013/120`
 
-권장 owner 결정은 원고를 바꾸지 않고 두 표현을 창작상 구체값으로 유지하되, 검증된 정확 시각·정확 이동시간이라고 주장하지 않는 것이다. 공장 권역까지 잠그려면 `인천항 배후 공업권역`을 후보로 owner가 명시한다.
+책 로컬 근거 패킷은 `story/research/ERA-IMF-C01-001.md`에 있다. `books/`는 의도적으로 Git ignored인 제작 데이터이므로 HQ 인계서가 Git 영수증이고, 전체책 공식 백업은 `.inkos/backups/imf를-독식한-재벌-3세/20260823-142906`이다.
 
-결정 후 하나의 시대고증 리서치 패킷 안에 아래 claim ID 두 개를 분리 발급한다.
+적용 결과:
 
-1. 김포공항 국제선 운영 및 1996년 이용 가능성
-2. 여의도에서 인천 공장까지의 퇴근 시간 이동
+```text
+원고 SHA-256: 07a0dda59864e5387d6f611334f4c301d2cd082cc457f2ea9d58631052e13aff
+백업과 원고 byte-identical: PASS
+Allocation ALLOC-IMF-CANARY-001: approved/current
+Baseline BASELINE-IMF-CANARY-002: approved/current
+Chapter 1 research receipt: verified, claim 2
+snapshot 0: execution/receipt empty 유지
+snapshot 1: live ledger/receipt와 byte-identical
+ChapterTruthReceipt: current
+readiness: current, open issues 0, owner lock clear
+```
 
-owner 결정 전에는 `needs-research`를 자동 해제하거나 원고를 수정하지 않는다.
+표준 `inkos audit` 재호출은 작품 판정 전에 Codex 모델 캐시 역직렬화 오류(`missing field base_instructions`)로 시작하지 못했다. 새 LLM 판정을 통과했다고 주장하지 않는다. 기존 승인 회차의 본문 실행 증거를 그대로 유지하고, owner가 승인한 공식 근거 패킷으로 research finding만 해소한 뒤 `ChapterMetaSchema`, canon rebuild, snapshot, truth receipt, Allocation, Baseline API를 순서대로 재검증했다. 생성 당시 runtime context/intent/plan/rule-stack/trace와 빈 claim 이력은 소급 수정하지 않았다.
 
 ## 재현 명령
 
