@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://firefly.local/contracts/run-receipt-v1.schema.json",
+  "title": "Firefly HQ RunReceipt v1",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schemaVersion",
+    "receiptId",
+    "workOrderId",
+    "workOrderSha256",
+    "idempotencyKey",
+    "repo",
+    "capability",
+    "status",
+    "mutating",
+    "startedAt",
+    "approval",
+    "inputVerification",
+    "artifacts"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "receiptId": { "type": "string", "minLength": 1 },
+    "workOrderId": { "type": "string", "minLength": 1 },
+    "workOrderSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "idempotencyKey": { "type": "string", "minLength": 1 },
+    "repo": { "type": "string", "minLength": 1 },
+    "capability": { "type": "string", "minLength": 1 },
+    "status": { "enum": ["running", "succeeded", "failed", "needs-attention"] },
+    "mutating": { "type": "boolean" },
+    "startedAt": { "type": "string", "format": "date-time" },
+    "finishedAt": { "type": "string", "format": "date-time" },
+    "approval": {
+      "type": "object",
+      "required": ["required", "status"],
+      "properties": {
+        "required": { "type": "boolean" },
+        "status": { "enum": ["not-required", "pending", "blocked"] }
+      }
+    },
+    "inputVerification": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["repo", "commit", "path", "sha256", "role", "status"],
+        "properties": {
+          "repo": { "type": "string", "minLength": 1 },
+          "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+          "path": { "type": "string", "minLength": 1 },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "role": { "type": "string", "minLength": 1 },
+          "status": { "const": "verified" }
+        }
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["repo", "path", "sha256", "role"],
+        "properties": {
+          "repo": { "type": "string", "minLength": 1 },
+          "path": { "type": "string", "minLength": 1 },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "role": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

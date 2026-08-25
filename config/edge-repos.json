@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "family": "firefly-studio",
   "restoreRoot": "edge_repos",
   "policy": {
@@ -24,7 +24,28 @@
       "adoptionState": "ready",
       "pullAllowed": true,
       "writeAllowed": true,
-      "role": "production engine for long fiction, short fiction, scripts, interactive narrative, Arc and Rail state"
+      "role": "production engine for long fiction, short fiction, scripts, interactive narrative, Arc and Rail state",
+      "execution": {
+        "kind": "worker",
+        "adapter": "inkos-cli-v1",
+        "entrypoint": "packages/cli/dist/index.js",
+        "receiptContract": "run-receipt/v1",
+        "writeScopes": [
+          "books/"
+        ],
+        "capabilities": [
+          {
+            "name": "status",
+            "mode": "read-only",
+            "approval": "none"
+          },
+          {
+            "name": "interact",
+            "mode": "mutating",
+            "approval": "human"
+          }
+        ]
+      }
     },
     {
       "name": "firefly_reference_lab",
@@ -36,7 +57,11 @@
       "adoptionState": "ready",
       "pullAllowed": true,
       "writeAllowed": true,
-      "role": "derived pitches, character cores, Arc, event, reward and Gold routing references"
+      "role": "derived pitches, character cores, Arc, event, reward and Gold routing references",
+      "execution": {
+        "kind": "library",
+        "capabilities": []
+      }
     },
     {
       "name": "firefly_market_radar",
@@ -48,7 +73,11 @@
       "adoptionState": "ready",
       "pullAllowed": true,
       "writeAllowed": true,
-      "role": "dated public-metadata market evidence, demand signals and reviewed market briefs"
+      "role": "dated public-metadata market evidence, demand signals and reviewed market briefs",
+      "execution": {
+        "kind": "tool",
+        "capabilities": []
+      }
     }
   ],
   "excluded": [

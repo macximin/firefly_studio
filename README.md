@@ -36,6 +36,24 @@ npm run status
 npm test
 ```
 
+## HQ dispatch boundary
+
+The HQ may choose a child, issue a versioned work order, and aggregate the
+result. It does not write a child's production files itself. Registered worker
+adapters run with the child repository as their working directory and return a
+local `RunReceipt` under ignored `.firefly/runs/`.
+
+```bash
+npm run dispatch -- --work-order /absolute/path/to/work-order.json --dry-run
+npm run dispatch -- --work-order /absolute/path/to/work-order.json
+```
+
+The v1 contracts are [`contracts/work-order-v1.schema.json`](contracts/work-order-v1.schema.json)
+and [`contracts/run-receipt-v1.schema.json`](contracts/run-receipt-v1.schema.json).
+Only manifest-declared, adapter-implemented capabilities can run. Mutating
+capabilities require a clean child checkout, a per-target lock, an idempotency
+key, and human approval of the resulting creative state.
+
 `bootstrap:links` reads the ignored machine-local
 `config/local-edge-paths.json`. A physical checkout already at its canonical path
 is accepted as-is; the command refuses to overwrite any mismatched path.

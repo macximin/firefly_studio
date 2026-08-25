@@ -4,6 +4,9 @@ import { isAbsolute, normalize, sep } from "node:path";
 
 const MANAGEMENT_STATES = new Set(["active", "parked"]);
 const ADOPTION_STATES = new Set(["ready", "pending-clean-closeout", "legacy-preserved"]);
+const EXECUTION_KINDS = new Set(["worker", "tool", "library"]);
+const CAPABILITY_MODES = new Set(["read-only", "mutating"]);
+const APPROVAL_MODES = new Set(["none", "human"]);
 
 export async function readJson(path) {
   return JSON.parse(await readFile(path, "utf8"));
@@ -11,7 +14,7 @@ export async function readJson(path) {
 
 export function validateManifest(manifest) {
   const errors = [];
-  if (manifest?.schemaVersion !== 1) errors.push("schemaVersion must be 1");
+  if (manifest?.schemaVersion !== 2) errors.push("schemaVersion must be 2");
   if (manifest?.family !== "firefly-studio") errors.push("family must be firefly-studio");
   if (!Array.isArray(manifest?.repos) || manifest.repos.length === 0) {
     errors.push("repos must be a non-empty array");
@@ -57,6 +60,72 @@ export function validateManifest(manifest) {
     if (repo?.adoptionState !== "ready" && repo.writeAllowed) {
       errors.push(`${label} non-ready repos cannot allow write`);
     }
+
+    const execution = repo?.execution;
+    if (!execution || !EXECUTION_KINDS.has(execution.kind)) {
+      errors.push(`${label}.execution.kind is invalid`);
+      continue;
+    }
+    if (!Array.isArray(execution.capabilities)) {
+      errors.push(`${label}.execution.capabilities must be an array`);
+      continue;
+    }
+
+    const capabilityNames = new Set();
+    for (const [capabilityIndex, capability] of execution.capabilities.entries()) {
+      const capabilityLabel = `${label}.execution.capabilities[${capabilityIndex}]`;
+      if (!capability?.name || typeof capability.name !== "string") {
+        errors.push(`${capabilityLabel}.name is required`);
+      } else if (capabilityNames.has(capability.name)) {
+        errors.push(`${label}.execution has duplicate capability: ${capability.name}`);
+      } else {
+        capabilityNames.add(capability.name);
+      }
+      if (!CAPABILITY_MODES.has(capability?.mode)) {
+        errors.push(`${capabilityLabel}.mode is invalid`);
+      }
+      if (!APPROVAL_MODES.has(capability?.approval)) {
+        errors.push(`${capabilityLabel}.approval is invalid`);
+      }
+      if (capability?.mode === "mutating" && capability?.approval !== "human") {
+        errors.push(`${capabilityLabel} mutating capabilities require human approval`);
+      }
+    }
+
+    if (execution.kind === "worker") {
+      if (!execution.adapter || typeof execution.adapter !== "string") {
+        errors.push(`${label}.execution.adapter is required for workers`);
+      }
+      if (!execution.entrypoint || typeof execution.entrypoint !== "string") {
+        errors.push(`${label}.execution.entrypoint is required for workers`);
+      } else {
+        const normalizedEntrypoint = normalize(execution.entrypoint);
+        if (isAbsolute(normalizedEntrypoint) || normalizedEntrypoint === ".." || normalizedEntrypoint.startsWith(`..${sep}`) || execution.entrypoint.split(/[\\/]+/).includes("..")) {
+          errors.push(`${label}.execution.entrypoint must stay inside the child repository`);
+        }
+      }
+      if (execution.receiptContract !== "run-receipt/v1") {
+        errors.push(`${label}.execution.receiptContract must be run-receipt/v1`);
+      }
+      if (!Array.isArray(execution.writeScopes)) {
+        errors.push(`${label}.execution.writeScopes must be an array`);
+      } else {
+        for (const [scopeIndex, scope] of execution.writeScopes.entries()) {
+          const normalizedScope = typeof scope === "string" ? normalize(scope) : "";
+          if (!normalizedScope || isAbsolute(normalizedScope) || normalizedScope === ".." || normalizedScope.startsWith(`..${sep}`) || String(scope).split(/[\\/]+/).includes("..")) {
+            errors.push(`${label}.execution.writeScopes[${scopeIndex}] must stay inside the child repository`);
+          }
+        }
+        if (execution.capabilities.some((capability) => capability.mode === "mutating") && execution.writeScopes.length === 0) {
+          errors.push(`${label}.execution.writeScopes must not be empty for mutating workers`);
+        }
+      }
+      if (execution.capabilities.length === 0) {
+        errors.push(`${label}.execution.capabilities must not be empty for workers`);
+      }
+    } else if (execution.adapter || execution.entrypoint || execution.writeScopes || execution.receiptContract) {
+      errors.push(`${label}.execution ${execution.kind} repositories cannot declare a worker adapter`);
+    }
   }
 
   const route = manifest?.policy?.routingInputs;
@@ -69,6 +138,11 @@ export function validateManifest(manifest) {
   }
   if (!names.has(manifest?.policy?.defaultProductionEngine)) {
     errors.push("policy.defaultProductionEngine must reference a registered repo");
+  } else {
+    const productionRepo = manifest.repos.find((repo) => repo.name === manifest.policy.defaultProductionEngine);
+    if (productionRepo?.execution?.kind !== "worker") {
+      errors.push("policy.defaultProductionEngine must reference a worker repository");
+    }
   }
   return errors;
 }
@@ -117,6 +191,7 @@ export function inspectGitRepo(repoPath, options = {}) {
     tracking,
     dirty: changes.length > 0,
     changeCount: changes.length,
+    changes,
     ahead,
     behind,
     upstream,

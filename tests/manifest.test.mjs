@@ -4,7 +4,7 @@ import { validateManifest } from "../scripts/edge-lib.mjs";
 
 function validManifest() {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     family: "firefly-studio",
     policy: {
       routingInputs: ["writer"],
@@ -20,6 +20,17 @@ function validManifest() {
       pullAllowed: true,
       writeAllowed: true,
       role: "writer",
+      execution: {
+        kind: "worker",
+        adapter: "inkos-cli-v1",
+        entrypoint: "packages/cli/dist/index.js",
+        receiptContract: "run-receipt/v1",
+        writeScopes: ["books/"],
+        capabilities: [
+          { name: "status", mode: "read-only", approval: "none" },
+          { name: "interact", mode: "mutating", approval: "human" },
+        ],
+      },
     }],
   };
 }
@@ -44,4 +55,33 @@ test("rejects writes to parked or non-ready repositories", () => {
   const errors = validateManifest(manifest);
   assert.ok(errors.some((error) => error.includes("parked repos cannot allow")));
   assert.ok(errors.some((error) => error.includes("non-ready repos cannot allow write")));
+});
+
+test("requires an executable worker for the default production engine", () => {
+  const manifest = validManifest();
+  manifest.repos[0].execution = { kind: "library", capabilities: [] };
+  const errors = validateManifest(manifest);
+  assert.ok(errors.some((error) => error.includes("defaultProductionEngine must reference a worker")));
+});
+
+test("rejects unsafe worker entrypoints and duplicate capabilities", () => {
+  const manifest = validManifest();
+  manifest.repos[0].execution.entrypoint = "../outside.js";
+  manifest.repos[0].execution.capabilities.push({
+    name: "status",
+    mode: "read-only",
+    approval: "none",
+  });
+  const errors = validateManifest(manifest);
+  assert.ok(errors.some((error) => error.includes("entrypoint must stay inside")));
+  assert.ok(errors.some((error) => error.includes("duplicate capability")));
+});
+
+test("requires human approval and bounded write scopes for mutating capabilities", () => {
+  const manifest = validManifest();
+  manifest.repos[0].execution.capabilities[1].approval = "none";
+  manifest.repos[0].execution.writeScopes = ["../outside"];
+  const errors = validateManifest(manifest);
+  assert.ok(errors.some((error) => error.includes("mutating capabilities require human approval")));
+  assert.ok(errors.some((error) => error.includes("writeScopes[0] must stay inside")));
 });

@@ -1,4 +1,5 @@
 .DS_Store
+.firefly/
 node_modules/
 config/local-edge-paths.json
 edge_repos/*
