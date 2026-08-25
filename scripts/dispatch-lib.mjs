@@ -440,6 +440,22 @@ export function validateChildArtifacts(value, repoName) {
   return { artifacts, errors };
 }
 
+export function validateCapabilityArtifacts(capability, report) {
+  if (capability !== "reference-bind") return report;
+  const requiredRoles = [
+    "book-config",
+    "reference-binding",
+    "reference-transformation",
+    "story-rail-plan",
+  ];
+  const reportedRoles = new Set(report.artifacts.map((artifact) => artifact.role));
+  const errors = [...report.errors];
+  for (const role of requiredRoles) {
+    if (!reportedRoles.has(role)) errors.push(`reference-bind child report is missing required artifact role: ${role}`);
+  }
+  return { artifacts: report.artifacts, errors };
+}
+
 async function verifyChildArtifacts(repoPath, report) {
   const artifacts = [];
   const errors = [...report.errors];
@@ -562,7 +578,10 @@ export async function executeWorkOrder({ root, manifest, workOrder, spawn = spaw
       const trackedWorktreeUnchanged = sameTrackedState(before, after);
       const childArtifactReport = await verifyChildArtifacts(
         plan.repoPath,
-        validateChildArtifacts(parsed.value?.artifacts, workOrder.repo),
+        validateCapabilityArtifacts(
+          workOrder.capability,
+          validateChildArtifacts(parsed.value?.artifacts, workOrder.repo),
+        ),
       );
       const scopeViolations = writeScopeViolations(plan, before, after);
       const succeeded = child.status === 0 && parsed.error === null;

@@ -18,6 +18,7 @@ import {
   executeWorkOrder,
   publicDispatchPlan,
   sha256Json,
+  validateCapabilityArtifacts,
   validateChildArtifacts,
   verifyApprovedInputs,
   verifyPrivateInputs,
@@ -262,6 +263,24 @@ test("rejects unbounded or unverifiable child artifact reports", () => {
   assert.equal(report.artifacts.length, 0);
   assert.ok(report.errors.some((error) => error.includes("must stay inside")));
   assert.ok(report.errors.some((error) => error.includes("SHA-256")));
+});
+
+test("requires a complete Book artifact set for reference-bind receipts", () => {
+  const digest = "a".repeat(64);
+  const partial = validateCapabilityArtifacts("reference-bind", validateChildArtifacts([
+    { repo: "inkos", path: "books/demo/book.json", sha256: digest, role: "book-config" },
+  ], "inkos"));
+  assert.ok(partial.errors.some((error) => error.includes("reference-binding")));
+  assert.ok(partial.errors.some((error) => error.includes("reference-transformation")));
+  assert.ok(partial.errors.some((error) => error.includes("story-rail-plan")));
+
+  const complete = validateCapabilityArtifacts("reference-bind", validateChildArtifacts([
+    { repo: "inkos", path: "books/demo/book.json", sha256: digest, role: "book-config" },
+    { repo: "inkos", path: "books/demo/story/reference_binding.json", sha256: digest, role: "reference-binding" },
+    { repo: "inkos", path: "books/demo/story/reference_transformation.json", sha256: digest, role: "reference-transformation" },
+    { repo: "inkos", path: "books/demo/story/rails/plan.json", sha256: digest, role: "story-rail-plan" },
+  ], "inkos"));
+  assert.deepEqual(complete.errors, []);
 });
 
 test("executes a read-only child, persists a receipt, and replays idempotently", async () => {

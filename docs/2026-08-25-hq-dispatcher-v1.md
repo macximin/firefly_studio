@@ -24,7 +24,10 @@ v1은 그래프 런타임이 아니다. 나중에 계보 그래프로 승격할 
 
 따라서 `worker | tool | library`를 분리했다. v1에서 실행 가능한 것은
 InkOS의 `status`, `interact`, `reference-bind`다. 자식이 보고하지 않은
-artifact를 HQ가 추정해서 영수증에 넣지 않는다.
+artifact를 HQ가 추정해서 영수증에 넣지 않는다. `reference-bind`는 예외적으로
+Book config, reference binding, transformation, Rail plan 네 역할을 자식이
+반드시 보고해야 하며, HQ가 파일 바이트와 SHA-256을 다시 확인하지 못하면
+완료 영수증을 내지 않는다.
 
 ### 2차 반례 감리
 

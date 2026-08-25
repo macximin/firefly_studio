@@ -758,3 +758,70 @@ system policy 마지막에 붙인다. 기존 문체 지침보다 reference-deriv
 - HQ manifest validate: PASS
 - 각 루트 `git diff --check`: PASS
 - Market Radar 변경 없음
+
+## 12. 내부 감리 후 최종 경로 보강
+
+앞선 v3 카나리는 Writer의 Reference Context가 system policy로 승격되기 전에
+생성됐다. 따라서 위 v3 점수와 candidate B는 역사적 비교 자료로 보존하되,
+최종 런타임의 승인 후보로 사용하지 않는다.
+
+내부 감리에서 다음 운영 결함을 확인하고 보강했다.
+
+- `author_intent.md`, `brief.md`, `style_profile.json`의 IMF 승인 1화 전용
+  지시를 전작 전체 Reference Pack 계약으로 교체
+- active Arc가 `ready`가 아니면 Firefly production preflight를 실패 처리
+- active Arc와 정확히 연결된 source segment가 없으면 첫 segment로 폴백하지
+  않고 실패 처리
+- ready A/B Rail이 active Arc에 결속되지 않으면 실패 처리
+- HIL 비교 보고서를 후보별로 보존하고 apply/reject와 같은 원자적 쓰기에서
+  `accepted/rejected`로 갱신
+- 상업성 다섯 축 평균 70%, reference 세 축 평균 30%를
+  `dopamine70-reference30-v1` 코드 산식으로 고정
+- `reference-bind`의 Book config, binding, transformation, Rail plan을 InkOS가
+  artifact로 보고하고 HQ가 실제 바이트와 SHA-256을 재검증
+- bind 후 preflight 실패 시 Book·binding·installed pack을 이전 바이트로 복구
+
+### 최종 governed 카나리 v4
+
+두 후보를 각각 격리된 Book 복제본에서 `PipelineRunner.writeDraft`의 Planner →
+Composer → Writer governed 경로로 생성했다. 기존 1화는 생성·평가·HIL 준비
+전후 같은 SHA-256이며, 2화는 만들지 않았다.
+
+| 원고 | 종합 | 오프닝 | 주도성 | 저항 | 지급 | 훅 | 엔진 | 변형 | 문체 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| baseline | 87.2 | 91 | 88 | 88 | 68 | 87 | 94 | 96 | 91 |
+| candidate A | 93.2 | 90 | 95 | 93 | 95 | 91 | 97 | 95 | 90 |
+| candidate B | 87.6 | 89 | 89 | 88 | 76 | 90 | 93 | 89 | 89 |
+
+최종 사람 검토 후보는 candidate A `마지막 출고`다.
+
+- candidate ID: `doksik-canary-a-20260826-v4`
+- HIL 상태: `prepared/unreviewed`
+- 기존 1화 SHA-256:
+  `d6abb814d668d06c50149ef49738b906face33998091108a2e0718d5fefcd5f8`
+- 후보 SHA-256:
+  `cada98e7eaf128eaacb56ab08bb3da47ce1e6558e913eefabb1a3d04e38e36c7`
+- exact 12-token surface matches: 0
+- similarity penalty: false
+- automatic rewrite: false
+- 실제 2화 파일: 0
+
+사람 polishing에서는 한빛마트 당일 운임 지급의 정산 근거와 한성그룹이
+청라 인수 검토 자료에서 배송 기록을 보게 된 정보 접근 경로만 확인한다.
+이는 후보 자동 수정·거절 사유가 아니다. 현재 1화 교체는 아직 승인하지
+않았다.
+
+### 최종 실행 영수증
+
+- InkOS implementation HEAD: `137afcdeae2e38806193549c97aa924fb43c1e69`
+- WorkOrder: `wo-doksik-reference-bind-receipt-20260826-v3`
+- RunReceipt: `rr-8ce5a61819d36fa5ff98a831`
+- 상태: `succeeded`, 사람 승인: `pending`
+- `artifactEvidence`: `child-reported`
+- Book config, reference binding, transformation, Rail plan 네 artifact 모두
+  InkOS 보고 SHA-256과 HQ 재해시 일치
+- tracked worktree unchanged, write scope violation 0, artifact error 0
+- InkOS core: 205 files, 2,124 tests PASS
+- InkOS CLI: 45 files, 243 tests PASS
+- HQ: 16 tests, manifest/status PASS
+- Core·CLI typecheck/build와 각 Git diff check PASS

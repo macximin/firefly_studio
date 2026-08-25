@@ -60,7 +60,10 @@ source, 751-chapter story index, and style examples against hashes declared by
 that pack, and then asks InkOS to bind them. Raw prose is never copied into the
 WorkOrder or RunReceipt. InkOS owns the resulting reference binding,
 source-to-target transformation map, and automatically completed Story Rail;
-chapter replacement still requires a separate human HIL decision.
+chapter replacement still requires a separate human HIL decision. A successful
+`reference-bind` must report the Book config, binding, transformation, and Rail
+plan as hashed child artifacts; HQ reads those exact files back and refuses a
+complete receipt when any required role is absent.
 
 `bootstrap:links` reads the ignored machine-local
 `config/local-edge-paths.json`. A physical checkout already at its canonical path
