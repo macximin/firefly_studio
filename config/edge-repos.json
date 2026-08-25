@@ -43,6 +43,11 @@
             "name": "interact",
             "mode": "mutating",
             "approval": "human"
+          },
+          {
+            "name": "reference-bind",
+            "mode": "mutating",
+            "approval": "human"
           }
         ]
       }

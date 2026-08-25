@@ -7,6 +7,7 @@ import {
   readdir,
   readFile,
   rm,
+  symlink,
   writeFile,
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -19,6 +20,7 @@ import {
   sha256Json,
   validateChildArtifacts,
   verifyApprovedInputs,
+  verifyPrivateInputs,
   validateWorkOrder,
 } from "../scripts/dispatch-lib.mjs";
 
@@ -49,8 +51,20 @@ function manifestFixture(remoteUrl = "git@example.invalid:owner/inkos.git") {
         capabilities: [
           { name: "status", mode: "read-only", approval: "none" },
           { name: "interact", mode: "mutating", approval: "human" },
+          { name: "reference-bind", mode: "mutating", approval: "human" },
         ],
       },
+    }, {
+      name: "firefly_reference_lab",
+      path: "edge_repos/firefly_reference_lab",
+      remoteUrl: "git@example.invalid:owner/firefly_reference_lab.git",
+      branch: "main",
+      managementState: "active",
+      adoptionState: "ready",
+      pullAllowed: true,
+      writeAllowed: true,
+      role: "reference library",
+      execution: { kind: "library", capabilities: [] },
     }],
   };
 }
@@ -105,6 +119,135 @@ test("stable work order hashing ignores object key order", () => {
   const first = statusWorkOrder();
   const second = Object.fromEntries(Object.entries(first).reverse());
   assert.equal(sha256Json(first), sha256Json(second));
+});
+
+test("validates reference-bind roles and keeps private bytes out of process arguments", () => {
+  const digest = "a".repeat(64);
+  const workOrder = statusWorkOrder({
+    capability: "reference-bind",
+    approvalMode: "human",
+    approvedInputs: [{
+      repo: "firefly_reference_lab",
+      commit: "b".repeat(40),
+      path: "inkos_handoffs/reference-pack.json",
+      sha256: "c".repeat(64),
+      role: "reference-pack",
+    }],
+    privateInputs: [
+      { repo: "firefly_reference_lab", path: "private/source.txt", sha256: digest, role: "raw-source", declaredByRole: "reference-pack" },
+      { repo: "firefly_reference_lab", path: "exports/story.jsonl", sha256: digest, role: "story-index", declaredByRole: "reference-pack" },
+      { repo: "firefly_reference_lab", path: "exports/style.jsonl", sha256: digest, role: "style-examples", declaredByRole: "reference-pack" },
+    ],
+  });
+  assert.deepEqual(validateWorkOrder(workOrder, manifestFixture()), []);
+  const plan = buildDispatchPlan({ root: "/tmp/firefly", manifest: manifestFixture(), workOrder });
+  assert.ok(plan.invocation.args.includes("reference"));
+  assert.ok(plan.invocation.args.includes("bind"));
+  assert.equal(plan.invocation.args.some((arg) => arg === digest), false);
+  assert.equal(publicDispatchPlan(plan, workOrder).privateInputCount, 3);
+});
+
+test("rejects duplicate private roles and declaration-repository drift", () => {
+  const base = statusWorkOrder({
+    capability: "reference-bind",
+    approvalMode: "human",
+    approvedInputs: [{
+      repo: "firefly_reference_lab",
+      commit: "b".repeat(40),
+      path: "inkos_handoffs/reference-pack.json",
+      sha256: "c".repeat(64),
+      role: "reference-pack",
+    }],
+    privateInputs: [
+      { repo: "firefly_reference_lab", path: "private/source.txt", sha256: "a".repeat(64), role: "raw-source", declaredByRole: "reference-pack" },
+      { repo: "firefly_reference_lab", path: "exports/story.jsonl", sha256: "d".repeat(64), role: "story-index", declaredByRole: "reference-pack" },
+      { repo: "firefly_reference_lab", path: "exports/style.jsonl", sha256: "e".repeat(64), role: "style-examples", declaredByRole: "reference-pack" },
+    ],
+  });
+  const duplicateErrors = validateWorkOrder({
+    ...base,
+    privateInputs: [...base.privateInputs, { ...base.privateInputs[0], path: "private/other.txt" }],
+  }, manifestFixture());
+  assert.ok(duplicateErrors.some((error) => error.includes("role must be unique")));
+
+  const repoDriftErrors = validateWorkOrder({
+    ...base,
+    privateInputs: [{ ...base.privateInputs[0], repo: "inkos" }, ...base.privateInputs.slice(1)],
+  }, manifestFixture());
+  assert.ok(repoDriftErrors.some((error) => error.includes("approved declaration repository")));
+});
+
+test("verifies private inputs against a tracked declaration and rejects symlinks", async () => {
+  const root = await mkdtemp(join(tmpdir(), "firefly-private-input-"));
+  const repoPath = join(root, "edge_repos", "firefly_reference_lab");
+  try {
+    await mkdir(join(repoPath, "inkos_handoffs"), { recursive: true });
+    await mkdir(join(repoPath, "private"), { recursive: true });
+    await mkdir(join(repoPath, "exports"), { recursive: true });
+    const privateFiles = {
+      "private/source.txt": "raw source\n",
+      "exports/story.jsonl": "story index\n",
+      "exports/style.jsonl": "style examples\n",
+    };
+    const digests = {};
+    for (const [path, body] of Object.entries(privateFiles)) {
+      await writeFile(join(repoPath, path), body, "utf8");
+      digests[path] = createHash("sha256").update(body).digest("hex");
+    }
+    const declaration = {
+      sourceSha256: digests["private/source.txt"],
+      privateInputs: {
+        storyIndexSha256: digests["exports/story.jsonl"],
+        styleExamplesSha256: digests["exports/style.jsonl"],
+      },
+    };
+    const declarationPath = join(repoPath, "inkos_handoffs", "reference-pack.json");
+    await writeFile(declarationPath, `${JSON.stringify(declaration)}\n`, "utf8");
+    execFileSync("git", ["init", "-b", "main"], { cwd: repoPath, stdio: "ignore" });
+    execFileSync("git", ["config", "user.email", "dispatch@example.invalid"], { cwd: repoPath });
+    execFileSync("git", ["config", "user.name", "Dispatch Test"], { cwd: repoPath });
+    execFileSync("git", ["add", "inkos_handoffs/reference-pack.json"], { cwd: repoPath });
+    execFileSync("git", ["commit", "-m", "fixture"], { cwd: repoPath, stdio: "ignore" });
+    const commit = execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoPath, encoding: "utf8" }).trim();
+    const approvedSha = createHash("sha256").update(await readFile(declarationPath)).digest("hex");
+    const workOrder = statusWorkOrder({
+      capability: "reference-bind",
+      approvalMode: "human",
+      approvedInputs: [{
+        repo: "firefly_reference_lab",
+        commit,
+        path: "inkos_handoffs/reference-pack.json",
+        sha256: approvedSha,
+        role: "reference-pack",
+      }],
+      privateInputs: [
+        { repo: "firefly_reference_lab", path: "private/source.txt", sha256: digests["private/source.txt"], role: "raw-source", declaredByRole: "reference-pack" },
+        { repo: "firefly_reference_lab", path: "exports/story.jsonl", sha256: digests["exports/story.jsonl"], role: "story-index", declaredByRole: "reference-pack" },
+        { repo: "firefly_reference_lab", path: "exports/style.jsonl", sha256: digests["exports/style.jsonl"], role: "style-examples", declaredByRole: "reference-pack" },
+      ],
+    });
+    const verified = await verifyPrivateInputs({ root, manifest: manifestFixture(), workOrder });
+    assert.equal(verified.length, 3);
+    assert.ok(verified.every((input) => input.status === "verified"));
+
+    await symlink(join(repoPath, "private", "source.txt"), join(repoPath, "private", "source-link.txt"));
+    await assert.rejects(
+      verifyPrivateInputs({
+        root,
+        manifest: manifestFixture(),
+        workOrder: {
+          ...workOrder,
+          privateInputs: [{
+            ...workOrder.privateInputs[0],
+            path: "private/source-link.txt",
+          }],
+        },
+      }),
+      /must not use symlinks/,
+    );
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
 });
 
 test("rejects unbounded or unverifiable child artifact reports", () => {

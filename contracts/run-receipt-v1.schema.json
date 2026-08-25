@@ -55,6 +55,34 @@
         }
       }
     },
+    "privateInputVerification": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["repo", "path", "sha256", "role", "declaredByRole", "status"],
+        "properties": {
+          "repo": { "type": "string", "minLength": 1 },
+          "path": { "type": "string", "minLength": 1 },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "role": { "type": "string", "minLength": 1 },
+          "declaredByRole": { "type": "string", "minLength": 1 },
+          "status": { "const": "verified" }
+        }
+      }
+    },
+    "referenceProvenance": {
+      "type": ["object", "null"],
+      "properties": {
+        "referencePackId": { "type": ["string", "null"] },
+        "spineReference": { "type": ["string", "null"] },
+        "transformationCreated": { "type": ["boolean", "null"] },
+        "railCreated": { "type": ["boolean", "null"] },
+        "transformationSha256": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$" },
+        "railPlanSha256": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$" },
+        "arcId": { "type": ["string", "null"] }
+      }
+    },
     "artifacts": {
       "type": "array",
       "items": {

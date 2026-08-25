@@ -39,6 +39,22 @@
         }
       }
     },
+    "privateInputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["repo", "path", "sha256", "role", "declaredByRole"],
+        "properties": {
+          "repo": { "type": "string", "minLength": 1 },
+          "path": { "type": "string", "minLength": 1 },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "role": { "type": "string", "minLength": 1 },
+          "declaredByRole": { "type": "string", "minLength": 1 }
+        }
+      },
+      "default": []
+    },
     "requestedAt": { "type": "string", "format": "date-time" },
     "timeoutMs": { "type": "integer", "minimum": 1000, "maximum": 3600000 }
   }

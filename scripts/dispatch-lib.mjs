@@ -1,9 +1,12 @@
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import {
+  lstat,
   mkdir,
   open,
   readFile,
+  realpath,
   rename,
   rm,
   writeFile,
@@ -22,11 +25,13 @@ const WORK_ORDER_KEYS = new Set([
   "instruction",
   "approvalMode",
   "approvedInputs",
+  "privateInputs",
   "requestedAt",
   "timeoutMs",
 ]);
 
 const INPUT_KEYS = new Set(["repo", "commit", "path", "sha256", "role"]);
+const PRIVATE_INPUT_KEYS = new Set(["repo", "path", "sha256", "role", "declaredByRole"]);
 const SHA1 = /^[0-9a-f]{40}$/;
 const SHA256 = /^[0-9a-f]{64}$/;
 
@@ -83,6 +88,9 @@ export function validateWorkOrder(workOrder, manifest) {
     }
   }
   if (!Array.isArray(workOrder.approvedInputs)) errors.push("approvedInputs must be an array");
+  if (workOrder.privateInputs !== undefined && !Array.isArray(workOrder.privateInputs)) {
+    errors.push("privateInputs must be an array when provided");
+  }
   if (!hasText(workOrder.requestedAt) || Number.isNaN(Date.parse(workOrder.requestedAt))) {
     errors.push("requestedAt must be an ISO date-time");
   }
@@ -122,6 +130,17 @@ export function validateWorkOrder(workOrder, manifest) {
   if (workOrder.capability === "status" && workOrder.instruction !== undefined) {
     errors.push("status does not accept instruction");
   }
+  if (workOrder.capability === "reference-bind") {
+    if (!hasText(workOrder.bookId)) errors.push("bookId is required for reference-bind v1");
+    const privateInputs = Array.isArray(workOrder.privateInputs) ? workOrder.privateInputs : [];
+    const roles = new Set(privateInputs.map((input) => input?.role));
+    for (const role of ["raw-source", "story-index", "style-examples"]) {
+      if (!roles.has(role)) errors.push(`reference-bind requires private input role: ${role}`);
+    }
+    if (!workOrder.approvedInputs?.some((input) => input.role === "reference-pack")) {
+      errors.push("reference-bind requires approved input role: reference-pack");
+    }
+  }
 
   if (Array.isArray(workOrder.approvedInputs)) {
     for (const [index, input] of workOrder.approvedInputs.entries()) {
@@ -143,10 +162,39 @@ export function validateWorkOrder(workOrder, manifest) {
     }
   }
 
+  if (Array.isArray(workOrder.privateInputs)) {
+    const seenPrivateRoles = new Set();
+    for (const [index, input] of workOrder.privateInputs.entries()) {
+      const label = `privateInputs[${index}]`;
+      if (!isPlainObject(input)) {
+        errors.push(`${label} must be an object`);
+        continue;
+      }
+      for (const key of Object.keys(input)) {
+        if (!PRIVATE_INPUT_KEYS.has(key)) errors.push(`${label} has unknown field: ${key}`);
+      }
+      if (!manifest.repos.some((candidate) => candidate.name === input.repo)) {
+        errors.push(`${label}.repo is not registered: ${input.repo}`);
+      }
+      if (!SHA256.test(input.sha256 ?? "")) errors.push(`${label}.sha256 must be a SHA-256 digest`);
+      validateRelativePath(input.path, `${label}.path`, errors);
+      if (!hasText(input.role)) errors.push(`${label}.role is required`);
+      if (seenPrivateRoles.has(input.role)) errors.push(`${label}.role must be unique`);
+      seenPrivateRoles.add(input.role);
+      if (!hasText(input.declaredByRole)) errors.push(`${label}.declaredByRole is required`);
+      const declaration = workOrder.approvedInputs?.find((approved) => approved.role === input.declaredByRole);
+      if (!declaration) {
+        errors.push(`${label}.declaredByRole does not match an approved input role`);
+      } else if (input.repo !== declaration.repo) {
+        errors.push(`${label}.repo must match its approved declaration repository`);
+      }
+    }
+  }
+
   return errors;
 }
 
-function buildInkosCliPlan({ repoPath, repo, capability, workOrder }) {
+function buildInkosCliPlan({ root, manifest, repoPath, repo, capability, workOrder }) {
   const entrypoint = join(repoPath, repo.execution.entrypoint);
   const args = [entrypoint];
   let stdin = null;
@@ -159,6 +207,27 @@ function buildInkosCliPlan({ repoPath, repo, capability, workOrder }) {
     args.push("interact", "--json", "--book", workOrder.bookId);
     if (workOrder.sessionId) args.push("--session", workOrder.sessionId);
     stdin = `${workOrder.instruction.trim()}\n`;
+  } else if (capability.name === "reference-bind") {
+    const approvedPack = workOrder.approvedInputs.find((input) => input.role === "reference-pack");
+    const privateByRole = new Map(workOrder.privateInputs.map((input) => [input.role, input]));
+    const absoluteInput = (input) => {
+      const sourceRepo = manifest.repos.find((candidate) => candidate.name === input.repo);
+      return join(root, sourceRepo.path, input.path);
+    };
+    args.push(
+      "reference",
+      "bind",
+      workOrder.bookId,
+      "--pack",
+      absoluteInput(approvedPack),
+      "--story-index",
+      absoluteInput(privateByRole.get("story-index")),
+      "--style-examples",
+      absoluteInput(privateByRole.get("style-examples")),
+      "--source",
+      absoluteInput(privateByRole.get("raw-source")),
+      "--json",
+    );
   } else {
     throw new Error(`inkos-cli-v1 does not implement capability: ${capability.name}`);
   }
@@ -182,7 +251,7 @@ export function buildDispatchPlan({ root, manifest, workOrder }) {
   const repoPath = join(root, repo.path);
   let invocation;
   if (repo.execution.adapter === "inkos-cli-v1") {
-    invocation = buildInkosCliPlan({ repoPath, repo, capability, workOrder });
+    invocation = buildInkosCliPlan({ root, manifest, repoPath, repo, capability, workOrder });
   } else {
     throw new Error(`unsupported worker adapter: ${repo.execution.adapter}`);
   }
@@ -226,11 +295,78 @@ export function verifyApprovedInputs({ root, manifest, workOrder, spawn = spawnS
     if (actualSha256 !== input.sha256) {
       throw new Error(`approved input hash mismatch: ${input.repo}@${input.commit}:${input.path}`);
     }
+    const workingTreeBytes = readFileSync(join(sourcePath, input.path));
+    const workingTreeSha256 = createHash("sha256").update(workingTreeBytes).digest("hex");
+    if (workingTreeSha256 !== input.sha256) {
+      throw new Error(`approved input working-tree drift: ${input.repo}:${input.path}`);
+    }
     return {
       ...input,
       status: "verified",
     };
   });
+}
+
+function containsDigest(value, digest) {
+  if (value === digest) return true;
+  if (Array.isArray(value)) return value.some((item) => containsDigest(item, digest));
+  if (isPlainObject(value)) return Object.values(value).some((item) => containsDigest(item, digest));
+  return false;
+}
+
+async function assertNoSymlink(repoPath, relativePath) {
+  let cursor = repoPath;
+  for (const part of relativePath.split(/[\\/]+/).filter(Boolean)) {
+    cursor = join(cursor, part);
+    const metadata = await lstat(cursor);
+    if (metadata.isSymbolicLink()) throw new Error(`private input must not use symlinks: ${relativePath}`);
+  }
+}
+
+export async function verifyPrivateInputs({ root, manifest, workOrder, spawn = spawnSync }) {
+  const approved = new Map(workOrder.approvedInputs.map((input) => [input.role, input]));
+  const declaredReceipts = new Map();
+  for (const input of workOrder.privateInputs ?? []) {
+    const receiptInput = approved.get(input.declaredByRole);
+    if (!receiptInput) throw new Error(`private input declaration is unavailable: ${input.declaredByRole}`);
+    let declaration = declaredReceipts.get(receiptInput.role);
+    if (!declaration) {
+      const sourceRepo = manifest.repos.find((candidate) => candidate.name === receiptInput.repo);
+      const sourcePath = join(root, sourceRepo.path);
+      const blob = spawn("git", ["-C", sourcePath, "show", `${receiptInput.commit}:${receiptInput.path}`], {
+        encoding: "utf8",
+        maxBuffer: 16 * 1024 * 1024,
+      });
+      if (blob.status !== 0) throw new Error(`private input declaration is unavailable: ${receiptInput.role}`);
+      try {
+        declaration = JSON.parse(blob.stdout);
+      } catch {
+        throw new Error(`private input declaration is not JSON: ${receiptInput.role}`);
+      }
+      declaredReceipts.set(receiptInput.role, declaration);
+    }
+    if (!containsDigest(declaration, input.sha256)) {
+      throw new Error(`private input SHA-256 is not declared by approved input: ${input.role}`);
+    }
+    const sourceRepo = manifest.repos.find((candidate) => candidate.name === input.repo);
+    const repoPath = join(root, sourceRepo.path);
+    await assertNoSymlink(repoPath, input.path);
+    const [resolvedRepo, resolvedFile] = await Promise.all([realpath(repoPath), realpath(join(repoPath, input.path))]);
+    if (resolvedFile !== resolvedRepo && !resolvedFile.startsWith(`${resolvedRepo}${sep}`)) {
+      throw new Error(`private input escaped its repository: ${input.role}`);
+    }
+    const bytes = await readFile(resolvedFile);
+    const actualSha256 = createHash("sha256").update(bytes).digest("hex");
+    if (actualSha256 !== input.sha256) throw new Error(`private input hash mismatch: ${input.role}`);
+  }
+  return (workOrder.privateInputs ?? []).map((input) => ({
+    repo: input.repo,
+    path: input.path,
+    sha256: input.sha256,
+    role: input.role,
+    declaredByRole: input.declaredByRole,
+    status: "verified",
+  }));
 }
 
 function receiptFileName(idempotencyKey) {
@@ -344,7 +480,8 @@ function writeScopeViolations(plan, before, after) {
 
 export async function executeWorkOrder({ root, manifest, workOrder, spawn = spawnSync }) {
   const plan = buildDispatchPlan({ root, manifest, workOrder });
-  const inputVerification = verifyApprovedInputs({ root, manifest, workOrder });
+  const inputVerification = verifyApprovedInputs({ root, manifest, workOrder, spawn });
+  const privateInputVerification = await verifyPrivateInputs({ root, manifest, workOrder, spawn });
   const workOrderSha256 = sha256Json(workOrder);
   const runtimeRoot = join(root, ".firefly");
   const runsDir = join(runtimeRoot, "runs");
@@ -394,6 +531,7 @@ export async function executeWorkOrder({ root, manifest, workOrder, spawn = spaw
         status: plan.approvalRequired ? "pending" : "not-required",
       },
       inputVerification,
+      privateInputVerification,
       artifacts: [],
     };
     await writeJsonAtomic(receiptPath, runningReceipt);
@@ -475,6 +613,17 @@ export async function executeWorkOrder({ root, manifest, workOrder, spawn = spaw
           : childArtifacts.length > 0 ? "child-reported" : "not-reported-by-child",
         artifactErrors: childArtifactReport.errors,
         childResult: parsed.value,
+        referenceProvenance: workOrder.capability === "reference-bind"
+          ? {
+              referencePackId: parsed.value?.binding?.referencePackId ?? null,
+              spineReference: parsed.value?.binding?.spineReference ?? null,
+              transformationCreated: parsed.value?.preflight?.transformationCreated ?? null,
+              railCreated: parsed.value?.preflight?.railCreated ?? null,
+              transformationSha256: parsed.value?.preflight?.transformationSha256 ?? null,
+              railPlanSha256: parsed.value?.preflight?.railPlanSha256 ?? null,
+              arcId: parsed.value?.preflight?.arcId ?? null,
+            }
+          : null,
         error: status === "failed"
           ? {
               message: child.error?.message ?? parsed.error ?? `child exited with code ${child.status}`,
@@ -520,6 +669,7 @@ export function publicDispatchPlan(plan, workOrder) {
     mutating: plan.mutating,
     approvalRequired: plan.approvalRequired,
     approvedInputCount: workOrder.approvedInputs.length,
+    privateInputCount: workOrder.privateInputs?.length ?? 0,
     childPath: plan.repo.path,
     adapter: plan.repo.execution.adapter,
     command: [plan.invocation.executable, ...plan.invocation.args],

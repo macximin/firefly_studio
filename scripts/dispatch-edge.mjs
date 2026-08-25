@@ -7,6 +7,7 @@ import {
   inspectDispatchTarget,
   publicDispatchPlan,
   verifyApprovedInputs,
+  verifyPrivateInputs,
 } from "./dispatch-lib.mjs";
 
 function parseArgs(argv) {
@@ -55,9 +56,11 @@ try {
     const plan = buildDispatchPlan({ root, manifest, workOrder });
     inspectDispatchTarget(plan);
     const inputVerification = verifyApprovedInputs({ root, manifest, workOrder });
+    const privateInputVerification = await verifyPrivateInputs({ root, manifest, workOrder });
     console.log(JSON.stringify({
       ...publicDispatchPlan(plan, workOrder),
       inputVerification,
+      privateInputVerification,
     }, null, 2));
   } else {
     const receipt = await executeWorkOrder({ root, manifest, workOrder });

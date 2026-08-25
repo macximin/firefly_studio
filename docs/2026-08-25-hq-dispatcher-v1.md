@@ -23,8 +23,8 @@ v1은 그래프 런타임이 아니다. 나중에 계보 그래프로 승격할 
   라이브러리다.
 
 따라서 `worker | tool | library`를 분리했다. v1에서 실행 가능한 것은
-InkOS의 `status`와 `interact`뿐이다. 자식이 보고하지 않은 artifact를
-HQ가 추정해서 영수증에 넣지 않는다.
+InkOS의 `status`, `interact`, `reference-bind`다. 자식이 보고하지 않은
+artifact를 HQ가 추정해서 영수증에 넣지 않는다.
 
 ### 2차 반례 감리
 
@@ -50,9 +50,10 @@ HQ가 추정해서 영수증에 넣지 않는다.
 - 로컬 변경 잠금: `.firefly/locks/*.lock` (Git ignored)
 
 `approvedInputs`는 계보 참조다. Dispatcher는 지정한 자식 Git 커밋의
-파일 바이트를 읽기 전용으로 확인하고 SHA-256이 일치해야 실행한다.
-v1 Dispatcher가 다른 자식의 파일을 InkOS에 자동 복사하거나 import하지
-않는다.
+파일 바이트와 현재 working-tree 바이트를 읽기 전용으로 확인하고 둘 다
+SHA-256이 일치해야 실행한다. `privateInputs`는 tracked 승인 입력이 선언한
+SHA, 같은 레포 경계, 실제 파일 경로, symlink 부재를 모두 검증한다. 원문
+본문은 WorkOrder나 RunReceipt에 복사하지 않고 경로·역할·SHA만 남긴다.
 
 자식이 산출물을 보고하면 Dispatcher는 경로와 해시 형식만 믿지 않고
 실제 자식 파일 바이트의 SHA-256을 다시 확인한다. 변경 작업의 새 경로가
@@ -109,6 +110,40 @@ Dispatcher는 instruction을 명령행에 노출하지 않고 stdin으로 InkOS
 `interact --json`에 전달한다. 프로세스 성공은 작품 승인과 다르다.
 `interact` 영수증은 성공 후에도 `approval.status=pending`이다.
 
+### 장편 Reference bind
+
+`reference-bind`는 Reference Lab의 tracked pack 하나와 그 팩이 SHA로 선언한
+세 private 입력(`raw-source`, `story-index`, `style-examples`)을 InkOS Book에
+결속한다. HQ는 입력만 검증·라우팅하고 Book 파일을 직접 쓰지 않는다.
+InkOS가 활성 Arc를 기준으로 source→target 변형 지도와 6-anchor Story Rail을
+보완한다. 실행 성공 후에도 `approval.status=pending`이며, 1화 후보를 현재
+원고에 적용하는 HIL과는 별개다.
+
+```json
+{
+  "schemaVersion": 1,
+  "workOrderId": "wo-reference-bind-example",
+  "idempotencyKey": "reference-bind-example-001",
+  "repo": "inkos",
+  "capability": "reference-bind",
+  "bookId": "book-id",
+  "approvalMode": "human",
+  "approvedInputs": [{
+    "repo": "firefly_reference_lab",
+    "commit": "0000000000000000000000000000000000000000",
+    "path": "inkos_handoffs/example/v1/reference-pack.json",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "role": "reference-pack"
+  }],
+  "privateInputs": [
+    { "repo": "firefly_reference_lab", "path": "private_sources/source.txt", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "role": "raw-source", "declaredByRole": "reference-pack" },
+    { "repo": "firefly_reference_lab", "path": "exports/reference-packs/example/story-index.jsonl", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "role": "story-index", "declaredByRole": "reference-pack" },
+    { "repo": "firefly_reference_lab", "path": "exports/reference-packs/example/style-examples.jsonl", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "role": "style-examples", "declaredByRole": "reference-pack" }
+  ],
+  "requestedAt": "2026-08-26T00:00:00.000Z"
+}
+```
+
 ## v1 비범위
 
 - HQ의 임의 파일 편집을 운영체제 권한으로 차단하는 sandbox
@@ -128,8 +163,8 @@ Dispatcher 위에 얇은 artifact-lineage graph를 추가한다.
 ## 검증 영수증
 
 - manifest v2 검증: PASS, 3개 자식 등록
-- HQ 단위·통합 테스트: 12/12 PASS
-- 전체 `npm run check`: PASS
+- HQ 단위·통합 테스트: 15/15 PASS
+- `npm run validate`: PASS
 - `git diff --check`: PASS
 - InkOS 읽기 전용 실제 호출: `status=succeeded`
 - 실행 cwd: `edge_repos/inkos`

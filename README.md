@@ -54,6 +54,14 @@ Only manifest-declared, adapter-implemented capabilities can run. Mutating
 capabilities require a clean child checkout, a per-target lock, an idempotency
 key, and human approval of the resulting creative state.
 
+`reference-bind` is the Firefly longform bootstrap capability. HQ verifies the
+tracked Reference Lab pack at an exact Git commit, verifies the local-only raw
+source, 751-chapter story index, and style examples against hashes declared by
+that pack, and then asks InkOS to bind them. Raw prose is never copied into the
+WorkOrder or RunReceipt. InkOS owns the resulting reference binding,
+source-to-target transformation map, and automatically completed Story Rail;
+chapter replacement still requires a separate human HIL decision.
+
 `bootstrap:links` reads the ignored machine-local
 `config/local-edge-paths.json`. A physical checkout already at its canonical path
 is accepted as-is; the command refuses to overwrite any mismatched path.
