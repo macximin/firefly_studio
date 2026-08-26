@@ -23,7 +23,7 @@ v1은 그래프 런타임이 아니다. 나중에 계보 그래프로 승격할 
   라이브러리다.
 
 따라서 `worker | tool | library`를 분리했다. v1에서 실행 가능한 것은
-InkOS의 `status`, `interact`, `reference-bind`다. 자식이 보고하지 않은
+InkOS의 `status`, `interact`, `reference-bind`, `pitch-slate`다. 자식이 보고하지 않은
 artifact를 HQ가 추정해서 영수증에 넣지 않는다. `reference-bind`는 예외적으로
 Book config, reference binding, transformation, Rail plan 네 역할을 자식이
 반드시 보고해야 하며, HQ가 파일 바이트와 SHA-256을 다시 확인하지 못하면
@@ -154,6 +154,50 @@ InkOS가 활성 Arc를 기준으로 source→target 변형 지도와 6-anchor St
 }
 ```
 
+### Book 생성 전 N개 피치 슬레이트
+
+`pitch-slate`는 후보를 작품으로 만들기 전에 죽이고 살리는 비정본 제작
+경로다. `candidateCount`는 1~20이며 10은 운영 예시일 뿐 고정값이 아니다.
+InkOS는 검증된 `pitch-reference-pack`을 읽고 후보를 한 개씩 생성·검증한
+뒤, 전 후보가 유효할 때만 다음 두 파일을 원자적으로 공개한다.
+
+```text
+.inkos/pitch-slates/<slateId>/slate.json
+.inkos/pitch-slates/<slateId>/review.md
+```
+
+후보는 제목·상업 약속, 주축 골격, 주인공의 반복 동사와 첫 자산, 1~4화
+지급, A/B Rail, 6개 Arc, 보조 레퍼런스 라우팅, 장기 위험과 상업성 점수를
+같은 형식으로 가진다. 독창성·원작과의 거리·표면 유사성은 점수에 넣지
+않는다.
+
+HQ는 두 파일의 경로와 SHA-256뿐 아니라 `canonStatus=non-canonical`,
+`reviewStatus=pending`, 요청한 N과 실제 배열 길이, `p01..pNN` 순서,
+후보별 `decision=pending`, 리뷰 문서의 후보 포함 여부를 다시 읽어
+확인한다. 후보 생성은 Book, Rail, Arc, 원고를 만들지 않는다.
+
+```json
+{
+  "schemaVersion": 1,
+  "workOrderId": "wo-pitch-slate-example",
+  "idempotencyKey": "pitch-slate-example-001",
+  "repo": "inkos",
+  "capability": "pitch-slate",
+  "slateId": "chaebol-modern-fantasy-001",
+  "candidateCount": 10,
+  "instruction": "현대판타지 재벌물 후보를 상업성 최우선으로 설계한다.",
+  "approvalMode": "human",
+  "approvedInputs": [{
+    "repo": "firefly_reference_lab",
+    "commit": "0000000000000000000000000000000000000000",
+    "path": "analyses/doksik-chaebol3/gold_reference_card.md",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "role": "pitch-reference-pack"
+  }],
+  "requestedAt": "2026-08-26T00:00:00.000Z"
+}
+```
+
 ## v1 비범위
 
 - HQ의 임의 파일 편집을 운영체제 권한으로 차단하는 sandbox
@@ -172,8 +216,8 @@ Dispatcher 위에 얇은 artifact-lineage graph를 추가한다.
 
 ## 검증 영수증
 
-- manifest v2 검증: PASS, 3개 자식 등록
-- HQ 단위·통합 테스트: 15/15 PASS
+- manifest v2 검증: PASS, 4개 자식 등록
+- HQ 단위·통합 테스트: 21/21 PASS
 - `npm run validate`: PASS
 - `git diff --check`: PASS
 - InkOS 읽기 전용 실제 호출: `status=succeeded`

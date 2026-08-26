@@ -20,6 +20,7 @@ import {
   sha256Json,
   validateCapabilityArtifacts,
   validateChildArtifacts,
+  validatePitchSlateData,
   verifyApprovedInputs,
   verifyPrivateInputs,
   validateWorkOrder,
@@ -54,6 +55,7 @@ function manifestFixture(remoteUrl = "git@example.invalid:owner/inkos.git") {
           { name: "status", mode: "read-only", approval: "none" },
           { name: "interact", mode: "mutating", approval: "human" },
           { name: "reference-bind", mode: "mutating", approval: "human" },
+          { name: "pitch-slate", mode: "mutating", approval: "human" },
         ],
       },
     }, {
@@ -84,6 +86,27 @@ function statusWorkOrder(overrides = {}) {
     requestedAt: "2026-08-25T00:00:00.000Z",
     ...overrides,
   };
+}
+
+function pitchSlateWorkOrder(overrides = {}) {
+  return statusWorkOrder({
+    workOrderId: "wo-pitch-slate-1",
+    idempotencyKey: "pitch-slate-1",
+    capability: "pitch-slate",
+    bookId: undefined,
+    slateId: "chaebol-canary",
+    candidateCount: 10,
+    instruction: "현대판타지 재벌물 후보를 상업성 최우선으로 설계해.",
+    approvalMode: "human",
+    approvedInputs: [{
+      repo: "firefly_reference_lab",
+      commit: "b".repeat(40),
+      path: "analyses/doksik-chaebol3/gold_reference_card.md",
+      sha256: "c".repeat(64),
+      role: "pitch-reference-pack",
+    }],
+    ...overrides,
+  });
 }
 
 test("validates a bounded status work order", () => {
@@ -149,6 +172,32 @@ test("stable work order hashing ignores object key order", () => {
   const first = statusWorkOrder();
   const second = Object.fromEntries(Object.entries(first).reverse());
   assert.equal(sha256Json(first), sha256Json(second));
+});
+
+test("validates a bounded bookless N-candidate pitch slate", () => {
+  assert.deepEqual(validateWorkOrder(pitchSlateWorkOrder(), manifestFixture()), []);
+  assert.ok(validateWorkOrder(pitchSlateWorkOrder({ candidateCount: 21 }), manifestFixture())
+    .some((error) => error.includes("between 1 and 20")));
+  assert.ok(validateWorkOrder(pitchSlateWorkOrder({ bookId: "must-not-exist" }), manifestFixture())
+    .some((error) => error.includes("must not bind a bookId")));
+  assert.ok(validateWorkOrder(pitchSlateWorkOrder({ approvedInputs: [] }), manifestFixture())
+    .some((error) => error.includes("pitch-reference-pack")));
+  assert.ok(validateWorkOrder(statusWorkOrder({ slateId: "drift", candidateCount: 2 }), manifestFixture())
+    .some((error) => error.includes("only valid for pitch-slate")));
+});
+
+test("routes pitch slate instructions on stdin and references as verified file paths", () => {
+  const workOrder = pitchSlateWorkOrder({ sessionId: "hq-pitch-canary" });
+  const plan = buildDispatchPlan({ root: "/tmp/firefly", manifest: manifestFixture(), workOrder });
+  const publicPlan = publicDispatchPlan(plan, workOrder);
+  assert.deepEqual(plan.invocation.args.slice(1, 3), ["pitch", "slate"]);
+  assert.ok(plan.invocation.args.includes("--count"));
+  assert.ok(plan.invocation.args.includes("10"));
+  assert.ok(plan.invocation.args.includes("/tmp/firefly/edge_repos/firefly_reference_lab/analyses/doksik-chaebol3/gold_reference_card.md"));
+  assert.equal(plan.invocation.args.includes(workOrder.instruction), false);
+  assert.equal(plan.invocation.stdin, `${workOrder.instruction}\n`);
+  assert.equal(plan.invocation.sessionId, "hq-pitch-canary");
+  assert.equal(publicPlan.instructionExcludedFromArgs, true);
 });
 
 test("validates reference-bind roles and keeps private bytes out of process arguments", () => {
@@ -310,6 +359,47 @@ test("requires a complete Book artifact set for reference-bind receipts", () => 
     { repo: "inkos", path: "books/demo/story/rails/plan.json", sha256: digest, role: "story-rail-plan" },
   ], "inkos"));
   assert.deepEqual(complete.errors, []);
+});
+
+test("requires both machine and review artifacts for pitch-slate receipts", () => {
+  const digest = "a".repeat(64);
+  const partial = validateCapabilityArtifacts("pitch-slate", validateChildArtifacts([
+    { repo: "inkos", path: ".inkos/pitch-slates/demo/slate.json", sha256: digest, role: "pitch-slate-data" },
+  ], "inkos"));
+  assert.ok(partial.errors.some((error) => error.includes("pitch-slate-review")));
+
+  const workOrder = pitchSlateWorkOrder({ slateId: "demo", candidateCount: 2 });
+  const complete = validateCapabilityArtifacts("pitch-slate", validateChildArtifacts([
+    { repo: "inkos", path: ".inkos/pitch-slates/demo/slate.json", sha256: digest, role: "pitch-slate-data" },
+    { repo: "inkos", path: ".inkos/pitch-slates/demo/review.md", sha256: digest, role: "pitch-slate-review" },
+  ], "inkos"), workOrder);
+  assert.deepEqual(complete.errors, []);
+
+  const wrongPath = validateCapabilityArtifacts("pitch-slate", validateChildArtifacts([
+    { repo: "inkos", path: ".inkos/pitch-slates/old/slate.json", sha256: digest, role: "pitch-slate-data" },
+    { repo: "inkos", path: ".inkos/pitch-slates/demo/review.md", sha256: digest, role: "pitch-slate-review" },
+  ], "inkos"), workOrder);
+  assert.ok(wrongPath.errors.some((error) => error.includes("exact path")));
+});
+
+test("revalidates N non-canonical pending candidates from pitch-slate data", () => {
+  const workOrder = pitchSlateWorkOrder({ slateId: "demo", candidateCount: 2 });
+  const valid = {
+    schemaVersion: 1,
+    slateId: "demo",
+    canonStatus: "non-canonical",
+    reviewStatus: "pending",
+    candidateCount: 2,
+    candidates: [
+      { candidateId: "p01", decision: "pending" },
+      { candidateId: "p02", decision: "pending" },
+    ],
+  };
+  assert.deepEqual(validatePitchSlateData(valid, workOrder), []);
+  assert.ok(validatePitchSlateData({
+    ...valid,
+    candidates: [{ candidateId: "p01", decision: "selected" }],
+  }, workOrder).some((error) => error.includes("length")));
 });
 
 test("executes a read-only child, persists a receipt, and replays idempotently", async () => {

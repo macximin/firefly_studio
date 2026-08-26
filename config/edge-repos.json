@@ -56,6 +56,11 @@
             "name": "reference-bind",
             "mode": "mutating",
             "approval": "human"
+          },
+          {
+            "name": "pitch-slate",
+            "mode": "mutating",
+            "approval": "human"
           }
         ]
       }

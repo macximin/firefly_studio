@@ -22,6 +22,8 @@ const WORK_ORDER_KEYS = new Set([
   "repo",
   "capability",
   "bookId",
+  "slateId",
+  "candidateCount",
   "sessionId",
   "instruction",
   "approvalMode",
@@ -36,6 +38,7 @@ const PRIVATE_INPUT_KEYS = new Set(["repo", "path", "sha256", "role", "declaredB
 const SHA1 = /^[0-9a-f]{40}$/;
 const SHA256 = /^[0-9a-f]{64}$/;
 const SAFE_SESSION_ID = /^[A-Za-z0-9][A-Za-z0-9._-]{0,159}$/;
+const SAFE_SLATE_ID = /^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/;
 
 function isPlainObject(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -84,13 +87,20 @@ export function validateWorkOrder(workOrder, manifest) {
   }
   if (!hasText(workOrder.repo)) errors.push("repo is required");
   if (!hasText(workOrder.capability)) errors.push("capability is required");
-  for (const field of ["bookId", "sessionId", "instruction"]) {
+  for (const field of ["bookId", "slateId", "sessionId", "instruction"]) {
     if (workOrder[field] !== undefined && !hasText(workOrder[field])) {
       errors.push(`${field} must be a non-empty string when provided`);
     }
   }
   if (workOrder.sessionId !== undefined && !SAFE_SESSION_ID.test(workOrder.sessionId)) {
     errors.push("sessionId must use 1-160 safe filename characters");
+  }
+  if (workOrder.slateId !== undefined && !SAFE_SLATE_ID.test(workOrder.slateId)) {
+    errors.push("slateId must use 1-80 safe filename characters");
+  }
+  if (workOrder.candidateCount !== undefined
+    && (!Number.isInteger(workOrder.candidateCount) || workOrder.candidateCount < 1 || workOrder.candidateCount > 20)) {
+    errors.push("candidateCount must be an integer between 1 and 20");
   }
   if (!Array.isArray(workOrder.approvedInputs)) errors.push("approvedInputs must be an array");
   if (workOrder.privateInputs !== undefined && !Array.isArray(workOrder.privateInputs)) {
@@ -145,6 +155,18 @@ export function validateWorkOrder(workOrder, manifest) {
     if (!workOrder.approvedInputs?.some((input) => input.role === "reference-pack")) {
       errors.push("reference-bind requires approved input role: reference-pack");
     }
+  }
+  if (workOrder.capability === "pitch-slate") {
+    if (workOrder.bookId !== undefined) errors.push("pitch-slate must not bind a bookId");
+    if (!hasText(workOrder.slateId)) errors.push("slateId is required for pitch-slate v1");
+    if (!Number.isInteger(workOrder.candidateCount)) errors.push("candidateCount is required for pitch-slate v1");
+    if (!hasText(workOrder.instruction)) errors.push("instruction is required for pitch-slate v1");
+    if (!workOrder.approvedInputs?.some((input) => input.role === "pitch-reference-pack")) {
+      errors.push("pitch-slate requires approved input role: pitch-reference-pack");
+    }
+  } else {
+    if (workOrder.slateId !== undefined) errors.push("slateId is only valid for pitch-slate v1");
+    if (workOrder.candidateCount !== undefined) errors.push("candidateCount is only valid for pitch-slate v1");
   }
 
   if (Array.isArray(workOrder.approvedInputs)) {
@@ -240,6 +262,36 @@ function buildInkosCliPlan({ root, manifest, repoPath, repo, capability, workOrd
       absoluteInput(privateByRole.get("raw-source")),
       "--json",
     );
+  } else if (capability.name === "pitch-slate") {
+    const readableSlate = workOrder.slateId
+      .normalize("NFKD")
+      .replace(/[^A-Za-z0-9._-]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 80) || "slate";
+    const sessionId = workOrder.sessionId
+      ?? `hq-pitch-${readableSlate}-${createHash("sha256").update(workOrder.slateId).digest("hex").slice(0, 10)}`;
+    const referenceInputs = [
+      ...workOrder.approvedInputs.filter((input) => input.role === "pitch-reference-pack" || input.role.startsWith("pitch-support-")),
+      ...(workOrder.privateInputs ?? []),
+    ];
+    const absoluteInput = (input) => {
+      const sourceRepo = manifest.repos.find((candidate) => candidate.name === input.repo);
+      return join(root, sourceRepo.path, input.path);
+    };
+    args.push(
+      "pitch",
+      "slate",
+      "--json",
+      "--id",
+      workOrder.slateId,
+      "--count",
+      String(workOrder.candidateCount),
+      "--session",
+      sessionId,
+      "--reference",
+      ...referenceInputs.map(absoluteInput),
+    );
+    stdin = `${workOrder.instruction.trim()}\n`;
   } else {
     throw new Error(`inkos-cli-v1 does not implement capability: ${capability.name}`);
   }
@@ -248,8 +300,8 @@ function buildInkosCliPlan({ root, manifest, repoPath, repo, capability, workOrd
     executable: process.execPath,
     args,
     stdin,
-    timeoutMs: workOrder.timeoutMs ?? (capability.mode === "mutating" ? 1800000 : 30000),
-    sessionId: capability.name === "interact" ? args[args.indexOf("--session") + 1] : null,
+    timeoutMs: workOrder.timeoutMs ?? (capability.name === "pitch-slate" ? 3600000 : capability.mode === "mutating" ? 1800000 : 30000),
+    sessionId: ["interact", "pitch-slate"].includes(capability.name) ? args[args.indexOf("--session") + 1] : null,
   };
 }
 
@@ -502,20 +554,57 @@ export function validateChildArtifacts(value, repoName) {
   return { artifacts, errors };
 }
 
-export function validateCapabilityArtifacts(capability, report) {
-  if (capability !== "reference-bind") return report;
-  const requiredRoles = [
-    "book-config",
-    "reference-binding",
-    "reference-transformation",
-    "story-rail-plan",
-  ];
+export function validateCapabilityArtifacts(capability, report, workOrder = null) {
+  if (!["reference-bind", "pitch-slate"].includes(capability)) return report;
+  const requiredRoles = capability === "reference-bind"
+    ? ["book-config", "reference-binding", "reference-transformation", "story-rail-plan"]
+    : ["pitch-slate-data", "pitch-slate-review"];
   const reportedRoles = new Set(report.artifacts.map((artifact) => artifact.role));
   const errors = [...report.errors];
   for (const role of requiredRoles) {
-    if (!reportedRoles.has(role)) errors.push(`reference-bind child report is missing required artifact role: ${role}`);
+    if (!reportedRoles.has(role)) errors.push(`${capability} child report is missing required artifact role: ${role}`);
+  }
+  if (capability === "pitch-slate" && workOrder?.slateId) {
+    const expectedPaths = new Map([
+      ["pitch-slate-data", `.inkos/pitch-slates/${workOrder.slateId}/slate.json`],
+      ["pitch-slate-review", `.inkos/pitch-slates/${workOrder.slateId}/review.md`],
+    ]);
+    for (const artifact of report.artifacts) {
+      const expectedPath = expectedPaths.get(artifact.role);
+      if (expectedPath && normalizedRelativePath(artifact.path) !== expectedPath) {
+        errors.push(`${artifact.role} must report exact path: ${expectedPath}`);
+      }
+    }
   }
   return { artifacts: report.artifacts, errors };
+}
+
+export function validatePitchSlateData(value, workOrder) {
+  const errors = [];
+  if (!isPlainObject(value)) return ["pitch slate data must be an object"];
+  if (value.schemaVersion !== 1) errors.push("pitch slate schemaVersion must be 1");
+  if (value.slateId !== workOrder.slateId) errors.push("pitch slate slateId does not match the work order");
+  if (value.canonStatus !== "non-canonical") errors.push("pitch slate canonStatus must be non-canonical");
+  if (value.reviewStatus !== "pending") errors.push("pitch slate reviewStatus must be pending");
+  if (value.candidateCount !== workOrder.candidateCount) errors.push("pitch slate candidateCount does not match the work order");
+  if (!Array.isArray(value.candidates) || value.candidates.length !== workOrder.candidateCount) {
+    errors.push("pitch slate candidates length does not match the work order");
+    return errors;
+  }
+  const expectedIds = value.candidates.map((_, index) => `p${String(index + 1).padStart(2, "0")}`);
+  value.candidates.forEach((candidate, index) => {
+    if (!isPlainObject(candidate)) {
+      errors.push(`pitch slate candidate ${expectedIds[index]} must be an object`);
+      return;
+    }
+    if (candidate.candidateId !== expectedIds[index]) {
+      errors.push(`pitch slate candidateId must be ${expectedIds[index]}`);
+    }
+    if (candidate.decision !== "pending") {
+      errors.push(`pitch slate ${expectedIds[index]} decision must be pending`);
+    }
+  });
+  return errors;
 }
 
 async function verifyChildArtifacts(repoPath, report) {
@@ -535,6 +624,32 @@ async function verifyChildArtifacts(repoPath, report) {
     }
   }
   return { artifacts, errors };
+}
+
+async function verifyCapabilityArtifactContents(repoPath, capability, workOrder, report) {
+  if (capability !== "pitch-slate" || report.errors.length > 0) return report;
+  const errors = [...report.errors];
+  const dataArtifact = report.artifacts.find((artifact) => artifact.role === "pitch-slate-data");
+  const reviewArtifact = report.artifacts.find((artifact) => artifact.role === "pitch-slate-review");
+  if (!dataArtifact || !reviewArtifact) return report;
+  let slate;
+  try {
+    slate = JSON.parse(await readFile(join(repoPath, dataArtifact.path), "utf8"));
+  } catch {
+    errors.push("pitch-slate-data is not valid JSON");
+    return { artifacts: report.artifacts, errors };
+  }
+  errors.push(...validatePitchSlateData(slate, workOrder));
+  try {
+    const review = await readFile(join(repoPath, reviewArtifact.path), "utf8");
+    for (let index = 1; index <= workOrder.candidateCount; index += 1) {
+      const candidateId = `p${String(index).padStart(2, "0")}`;
+      if (!review.includes(candidateId)) errors.push(`pitch-slate-review is missing candidate: ${candidateId}`);
+    }
+  } catch {
+    errors.push("pitch-slate-review is unreadable");
+  }
+  return { artifacts: report.artifacts, errors };
 }
 
 function changedPaths(changes) {
@@ -648,11 +763,17 @@ export async function executeWorkOrder({ root, manifest, workOrder, spawn = spaw
       const observedWrites = diffObservationSnapshots(observedBefore, observedAfter);
       const parsed = parseChildJson(child.stdout ?? "");
       const trackedWorktreeUnchanged = sameTrackedState(before, after);
-      const childArtifactReport = await verifyChildArtifacts(
+      const childArtifactReport = await verifyCapabilityArtifactContents(
         plan.repoPath,
-        validateCapabilityArtifacts(
-          workOrder.capability,
-          validateChildArtifacts(parsed.value?.artifacts, workOrder.repo),
+        workOrder.capability,
+        workOrder,
+        await verifyChildArtifacts(
+          plan.repoPath,
+          validateCapabilityArtifacts(
+            workOrder.capability,
+            validateChildArtifacts(parsed.value?.artifacts, workOrder.repo),
+            workOrder,
+          ),
         ),
       );
       const scopeViolations = writeScopeViolations(plan, before, after, observedWrites);

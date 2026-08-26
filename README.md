@@ -19,7 +19,7 @@ Firefly Reference Lab ─┘   planning, A/B Rails, drafting, review, revision
 - This root owns family boundaries, routing contracts, and repository status.
 - Every `edge_repos/` entry is an independent Git repository.
 - Child repository bodies are ignored by this root.
-- The current three children are physical sibling checkouts under `edge_repos/`.
+- The current four children are physical sibling checkouts under `edge_repos/`.
   Bootstrap can still link an existing checkout on another machine; it never
   copies, resets, or silently replaces a child.
 - InkOS keeps its existing package names, file formats, Git history, and upstream
@@ -65,6 +65,15 @@ chapter replacement still requires a separate human HIL decision. A successful
 plan as hashed child artifacts; HQ reads those exact files back and refuses a
 complete receipt when any required role is absent.
 
+`pitch-slate` is the Book-before-creation funnel. HQ sends a variable
+`candidateCount` (1-20), a safe `slateId`, a commercial instruction, and a
+commit-pinned `pitch-reference-pack`. InkOS generates candidates serially,
+validates the shared survival-pitch shape, and publishes only a complete
+non-canonical slate under `.inkos/pitch-slates/<slateId>/`. HQ reads the slate
+back and independently verifies the exact paths, hashes, requested candidate
+count, ordered candidate IDs, and pending human decisions. No Book, Rail, Arc,
+or manuscript is created until a later selection work order.
+
 `bootstrap:links` reads the ignored machine-local
 `config/local-edge-paths.json`. A physical checkout already at its canonical path
 is accepted as-is; the command refuses to overwrite any mismatched path.
@@ -76,6 +85,7 @@ Active:
 - `inkos` — production engine
 - `firefly_reference_lab` — derived reference compiler
 - `firefly_market_radar` — dated public-metadata market signals
+- `storyyard` — private mobile human-review projection
 
 Explicitly out of scope: shortform repositories, V3 Command Center, V3 Sources,
 and V3 Foundry. They remain in their original systems and are not silently
