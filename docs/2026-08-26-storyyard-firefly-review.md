@@ -29,7 +29,8 @@ labelled read-only legacy. No row or public URL is deleted by this migration.
 
 - `approve`: apply the exact candidate hash in InkOS.
 - `polish`: request a new InkOS candidate; do not edit the body in Storyyard.
-- `hold`: keep the packet pending without changing InkOS.
+- `hold`: close the pending transport decision with an InkOS `held` receipt,
+  without changing the canonical manuscript or candidate state.
 - `reject`: reject the selected candidate in InkOS.
 
 Every decision is bound to the packet, artifact, candidate, and SHA-256 values
@@ -41,9 +42,17 @@ visible at decision time. A changed InkOS chapter requires a new packet.
 inkos review export-storyyard <book-id> --out .inkos/exports/storyyard/current.json --json
 storyyard: npm run firefly:import-review -- ../inkos/.inkos/exports/storyyard/current.json
 inkos review apply-storyyard <decision.json> --packet .inkos/exports/storyyard/current.json --json
+storyyard: STORYYARD_APPLY_TOKEN=<runtime secret> npm run firefly:ack-review -- <InkOS applied receipt.json>
 ```
 
 The last command revalidates packet identity, candidate SHA-256, current chapter
 freshness, and the Book lock before invoking the existing InkOS HIL operation.
 An approval still returns the chapter to drafted state and requires state sync,
 audit, and normal chapter approval before continuation.
+
+The acknowledgement endpoint accepts only a dedicated bearer token and the
+full InkOS receipt. It matches the original decision UUID, packet and candidate
+hashes, work, artifact, action, comment, timestamps, and canonical receipt path
+before changing Storyyard from `pending` to `applied`. An identical replay is
+idempotent; a conflicting replay fails closed. This is a status projection only
+and grants Storyyard no write path into InkOS.

@@ -32,6 +32,19 @@
     "status": { "enum": ["pending", "applied", "superseded", "failed"] },
     "createdAt": { "type": "string", "format": "date-time" },
     "appliedAt": { "type": ["string", "null"], "format": "date-time" },
-    "applyReceiptPath": { "type": ["string", "null"] }
-  }
+    "applyReceiptPath": { "type": ["string", "null"] },
+    "result": {}
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "applied" } }, "required": ["status"] },
+      "then": {
+        "required": ["appliedAt", "applyReceiptPath", "result"],
+        "properties": {
+          "appliedAt": { "type": "string", "format": "date-time" },
+          "applyReceiptPath": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  ]
 }
