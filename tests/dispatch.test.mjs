@@ -21,6 +21,7 @@ import {
   validateCapabilityArtifacts,
   validateChildArtifacts,
   validatePitchSlateData,
+  validatePitchSurvivalReviewData,
   verifyApprovedInputs,
   verifyPrivateInputs,
   validateWorkOrder,
@@ -56,6 +57,7 @@ function manifestFixture(remoteUrl = "git@example.invalid:owner/inkos.git") {
           { name: "interact", mode: "mutating", approval: "human" },
           { name: "reference-bind", mode: "mutating", approval: "human" },
           { name: "pitch-slate", mode: "mutating", approval: "human" },
+          { name: "pitch-review", mode: "mutating", approval: "human" },
         ],
       },
     }, {
@@ -105,6 +107,19 @@ function pitchSlateWorkOrder(overrides = {}) {
       sha256: "c".repeat(64),
       role: "pitch-reference-pack",
     }],
+    ...overrides,
+  });
+}
+
+function pitchReviewWorkOrder(overrides = {}) {
+  return statusWorkOrder({
+    workOrderId: "wo-pitch-review-1",
+    idempotencyKey: "pitch-review-1",
+    capability: "pitch-review",
+    bookId: undefined,
+    slateId: "chaebol-canary",
+    approvalMode: "human",
+    approvedInputs: [],
     ...overrides,
   });
 }
@@ -198,6 +213,20 @@ test("routes pitch slate instructions on stdin and references as verified file p
   assert.equal(plan.invocation.stdin, `${workOrder.instruction}\n`);
   assert.equal(plan.invocation.sessionId, "hq-pitch-canary");
   assert.equal(publicPlan.instructionExcludedFromArgs, true);
+});
+
+test("routes independent pitch review without generation instructions or candidate counts", () => {
+  const workOrder = pitchReviewWorkOrder({ sessionId: "hq-pitch-review-canary" });
+  assert.deepEqual(validateWorkOrder(workOrder, manifestFixture()), []);
+  const plan = buildDispatchPlan({ root: "/tmp/firefly", manifest: manifestFixture(), workOrder });
+  assert.deepEqual(plan.invocation.args.slice(1, 3), ["pitch", "review"]);
+  assert.ok(plan.invocation.args.includes("chaebol-canary"));
+  assert.equal(plan.invocation.stdin, null);
+  assert.equal(plan.invocation.sessionId, "hq-pitch-review-canary");
+  assert.ok(validateWorkOrder(pitchReviewWorkOrder({ instruction: "점수를 높여" }), manifestFixture())
+    .some((error) => error.includes("does not accept instruction")));
+  assert.ok(validateWorkOrder(pitchReviewWorkOrder({ candidateCount: 2 }), manifestFixture())
+    .some((error) => error.includes("does not accept candidateCount")));
 });
 
 test("validates reference-bind roles and keeps private bytes out of process arguments", () => {
@@ -380,6 +409,37 @@ test("requires both machine and review artifacts for pitch-slate receipts", () =
     { repo: "inkos", path: ".inkos/pitch-slates/demo/review.md", sha256: digest, role: "pitch-slate-review" },
   ], "inkos"), workOrder);
   assert.ok(wrongPath.errors.some((error) => error.includes("exact path")));
+});
+
+test("requires exact independent review artifacts and validates one survivor", () => {
+  const digest = "a".repeat(64);
+  const partial = validateCapabilityArtifacts("pitch-review", validateChildArtifacts([
+    { repo: "inkos", path: ".inkos/pitch-slates/demo/survival-review/review.json", sha256: digest, role: "pitch-survival-review-data" },
+  ], "inkos"), { slateId: "demo" });
+  assert.ok(partial.errors.some((error) => error.includes("pitch-survival-review-readable")));
+
+  const complete = validateCapabilityArtifacts("pitch-review", validateChildArtifacts([
+    { repo: "inkos", path: ".inkos/pitch-slates/demo/survival-review/review.json", sha256: digest, role: "pitch-survival-review-data" },
+    { repo: "inkos", path: ".inkos/pitch-slates/demo/survival-review/review.md", sha256: digest, role: "pitch-survival-review-readable" },
+  ], "inkos"), { slateId: "demo" });
+  assert.deepEqual(complete.errors, []);
+
+  const sourceSlate = { candidates: [{ candidateId: "p01" }, { candidateId: "p02" }] };
+  const review = {
+    schemaVersion: 1,
+    reviewKind: "independent-blind-comparison",
+    slateId: "demo",
+    sourceSlateSha256: digest,
+    humanDecision: "pending",
+    winnerCandidateId: "p01",
+    ranking: ["p01", "p02"],
+    verdicts: [{ candidateId: "p01", verdict: "SURVIVE" }, { candidateId: "p02", verdict: "HOLD" }],
+  };
+  assert.deepEqual(validatePitchSurvivalReviewData(review, { slateId: "demo" }, sourceSlate), []);
+  const invalid = structuredClone(review);
+  invalid.verdicts[1].verdict = "SURVIVE";
+  assert.ok(validatePitchSurvivalReviewData(invalid, { slateId: "demo" }, sourceSlate)
+    .some((error) => error.includes("at most one SURVIVE")));
 });
 
 test("revalidates N non-canonical pending candidates from pitch-slate data", () => {

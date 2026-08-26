@@ -61,6 +61,11 @@
             "name": "pitch-slate",
             "mode": "mutating",
             "approval": "human"
+          },
+          {
+            "name": "pitch-review",
+            "mode": "mutating",
+            "approval": "human"
           }
         ]
       }

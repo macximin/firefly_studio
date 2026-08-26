@@ -198,6 +198,36 @@ HQ는 두 파일의 경로와 SHA-256뿐 아니라 `canonStatus=non-canonical`,
 }
 ```
 
+### 독립 피치 생존심사
+
+`pitch-review`는 기존 슬레이트의 생성자 자기점수와 `decision`을 모델
+입력에서 제거하고, 별도 생존심사 스킬과 감리표로 전 후보를 한 번에
+비교한다. 바로 제작할 후보가 있더라도 `SURVIVE` 추천은 최대 하나이며,
+추천 결과는 사람 결정과 Book 승격을 대신하지 않는다.
+
+```text
+.inkos/pitch-slates/<slateId>/survival-review/review.json
+.inkos/pitch-slates/<slateId>/survival-review/review.md
+```
+
+```json
+{
+  "schemaVersion": 1,
+  "workOrderId": "wo-pitch-review-example",
+  "idempotencyKey": "pitch-review-example-001",
+  "repo": "inkos",
+  "capability": "pitch-review",
+  "slateId": "chaebol-modern-fantasy-001",
+  "approvalMode": "human",
+  "approvedInputs": [],
+  "requestedAt": "2026-08-27T00:00:00.000Z"
+}
+```
+
+HQ는 두 결과 파일의 정확한 경로와 해시, 원본 슬레이트 해시, 후보 전체가
+한 번씩 포함된 순위, 최대 한 개의 `SURVIVE`, `humanDecision=pending`을
+다시 읽어 검증한다.
+
 ## v1 비범위
 
 - HQ의 임의 파일 편집을 운영체제 권한으로 차단하는 sandbox

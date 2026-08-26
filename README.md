@@ -74,6 +74,14 @@ back and independently verifies the exact paths, hashes, requested candidate
 count, ordered candidate IDs, and pending human decisions. No Book, Rail, Arc,
 or manuscript is created until a later selection work order.
 
+`pitch-review` is the independent survival pass for an existing slate. InkOS
+removes generator scores and pending decisions from the model input, loads the
+survival rubric explicitly, compares every candidate in one review session,
+and writes a separate recommendation under
+`.inkos/pitch-slates/<slateId>/survival-review/`. At most one candidate may be
+recommended `SURVIVE`; the result remains pending human decision and cannot
+create or promote a Book.
+
 `bootstrap:links` reads the ignored machine-local
 `config/local-edge-paths.json`. A physical checkout already at its canonical path
 is accepted as-is; the command refuses to overwrite any mismatched path.
