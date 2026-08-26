@@ -25,7 +25,8 @@ function validManifest() {
         adapter: "inkos-cli-v1",
         entrypoint: "packages/cli/dist/index.js",
         receiptContract: "run-receipt/v1",
-        writeScopes: ["books/"],
+        writeScopes: ["books/", ".inkos/"],
+        observationScopes: ["books/", ".inkos/"],
         capabilities: [
           { name: "status", mode: "read-only", approval: "none" },
           { name: "interact", mode: "mutating", approval: "human" },

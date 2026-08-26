@@ -6,6 +6,7 @@ import {
   mkdir,
   open,
   readFile,
+  readdir,
   realpath,
   rename,
   rm,
@@ -34,6 +35,7 @@ const INPUT_KEYS = new Set(["repo", "commit", "path", "sha256", "role"]);
 const PRIVATE_INPUT_KEYS = new Set(["repo", "path", "sha256", "role", "declaredByRole"]);
 const SHA1 = /^[0-9a-f]{40}$/;
 const SHA256 = /^[0-9a-f]{64}$/;
+const SAFE_SESSION_ID = /^[A-Za-z0-9][A-Za-z0-9._-]{0,159}$/;
 
 function isPlainObject(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -86,6 +88,9 @@ export function validateWorkOrder(workOrder, manifest) {
     if (workOrder[field] !== undefined && !hasText(workOrder[field])) {
       errors.push(`${field} must be a non-empty string when provided`);
     }
+  }
+  if (workOrder.sessionId !== undefined && !SAFE_SESSION_ID.test(workOrder.sessionId)) {
+    errors.push("sessionId must use 1-160 safe filename characters");
   }
   if (!Array.isArray(workOrder.approvedInputs)) errors.push("approvedInputs must be an array");
   if (workOrder.privateInputs !== undefined && !Array.isArray(workOrder.privateInputs)) {
@@ -204,8 +209,15 @@ function buildInkosCliPlan({ root, manifest, repoPath, repo, capability, workOrd
     if (workOrder.bookId) args.push(workOrder.bookId);
     args.push("--json");
   } else if (capability.name === "interact") {
+    const readableBook = workOrder.bookId
+      .normalize("NFKD")
+      .replace(/[^A-Za-z0-9._-]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 80) || "book";
+    const sessionId = workOrder.sessionId
+      ?? `hq-${readableBook}-${createHash("sha256").update(workOrder.bookId).digest("hex").slice(0, 12)}`;
     args.push("interact", "--json", "--book", workOrder.bookId);
-    if (workOrder.sessionId) args.push("--session", workOrder.sessionId);
+    args.push("--session", sessionId);
     stdin = `${workOrder.instruction.trim()}\n`;
   } else if (capability.name === "reference-bind") {
     const approvedPack = workOrder.approvedInputs.find((input) => input.role === "reference-pack");
@@ -237,6 +249,7 @@ function buildInkosCliPlan({ root, manifest, repoPath, repo, capability, workOrd
     args,
     stdin,
     timeoutMs: workOrder.timeoutMs ?? (capability.mode === "mutating" ? 1800000 : 30000),
+    sessionId: capability.name === "interact" ? args[args.indexOf("--session") + 1] : null,
   };
 }
 
@@ -400,6 +413,55 @@ function sameTrackedState(before, after) {
     && JSON.stringify(before.changes) === JSON.stringify(after.changes);
 }
 
+function normalizedRelativePath(value) {
+  return normalize(value).split(sep).join("/").replace(/^\.\//, "");
+}
+
+async function snapshotObservationScopes(plan) {
+  const snapshot = new Map();
+  async function visit(absolutePath, relativePath) {
+    let metadata;
+    try {
+      metadata = await lstat(absolutePath);
+    } catch (error) {
+      if (error?.code === "ENOENT") return;
+      throw error;
+    }
+    if (metadata.isSymbolicLink()) {
+      throw new Error(`observation scope contains a symlink: ${relativePath}`);
+    }
+    if (metadata.isDirectory()) {
+      const entries = await readdir(absolutePath, { withFileTypes: true });
+      for (const entry of entries.sort((left, right) => left.name.localeCompare(right.name))) {
+        await visit(join(absolutePath, entry.name), join(relativePath, entry.name));
+      }
+      return;
+    }
+    if (!metadata.isFile()) return;
+    const bytes = await readFile(absolutePath);
+    snapshot.set(normalizedRelativePath(relativePath), createHash("sha256").update(bytes).digest("hex"));
+  }
+  for (const scope of plan.repo.execution.observationScopes ?? []) {
+    await visit(join(plan.repoPath, scope), scope);
+  }
+  return snapshot;
+}
+
+function diffObservationSnapshots(before, after) {
+  const paths = [...new Set([...before.keys(), ...after.keys()])].sort();
+  return paths.flatMap((path) => {
+    const beforeSha256 = before.get(path) ?? null;
+    const afterSha256 = after.get(path) ?? null;
+    if (beforeSha256 === afterSha256) return [];
+    return [{
+      path,
+      change: beforeSha256 === null ? "created" : afterSha256 === null ? "deleted" : "modified",
+      beforeSha256,
+      afterSha256,
+    }];
+  });
+}
+
 function parseChildJson(stdout) {
   const trimmed = stdout.trim();
   if (!trimmed) return { value: null, error: "child returned empty stdout" };
@@ -483,15 +545,22 @@ function changedPaths(changes) {
   });
 }
 
-function writeScopeViolations(plan, before, after) {
+function pathIsWithinWriteScope(plan, path) {
+  return plan.repo.execution.writeScopes.some((scope) => {
+    const normalizedScope = normalizedRelativePath(scope).replace(/\/+$/, "");
+    const normalizedPath = normalizedRelativePath(path);
+    return normalizedPath === normalizedScope || normalizedPath.startsWith(`${normalizedScope}/`);
+  });
+}
+
+function writeScopeViolations(plan, before, after, observedWrites = []) {
   if (!plan.mutating) return [];
   const beforePaths = new Set(changedPaths(before.changes));
   const newPaths = changedPaths(after.changes).filter((path) => !beforePaths.has(path));
-  return newPaths.filter((path) => !plan.repo.execution.writeScopes.some((scope) => {
-    const normalizedScope = normalize(scope).replace(/[\\/]+$/, "");
-    const normalizedPath = normalize(path);
-    return normalizedPath === normalizedScope || normalizedPath.startsWith(`${normalizedScope}${sep}`);
-  }));
+  return [...new Set([
+    ...newPaths.filter((path) => !pathIsWithinWriteScope(plan, path)),
+    ...observedWrites.map((change) => change.path).filter((path) => !pathIsWithinWriteScope(plan, path)),
+  ])].sort();
 }
 
 export async function executeWorkOrder({ root, manifest, workOrder, spawn = spawnSync }) {
@@ -529,6 +598,7 @@ export async function executeWorkOrder({ root, manifest, workOrder, spawn = spaw
     }
 
     const before = inspectDispatchTarget(plan);
+    const observedBefore = plan.mutating ? await snapshotObservationScopes(plan) : new Map();
     const startedAt = new Date().toISOString();
     const receiptId = `rr-${createHash("sha256").update(`${workOrder.idempotencyKey}:${workOrderSha256}`).digest("hex").slice(0, 24)}`;
     const runningReceipt = {
@@ -574,6 +644,8 @@ export async function executeWorkOrder({ root, manifest, workOrder, spawn = spaw
         timeout: plan.invocation.timeoutMs,
       });
       const after = inspectGitRepo(plan.repoPath);
+      const observedAfter = plan.mutating ? await snapshotObservationScopes(plan) : new Map();
+      const observedWrites = diffObservationSnapshots(observedBefore, observedAfter);
       const parsed = parseChildJson(child.stdout ?? "");
       const trackedWorktreeUnchanged = sameTrackedState(before, after);
       const childArtifactReport = await verifyChildArtifacts(
@@ -583,7 +655,7 @@ export async function executeWorkOrder({ root, manifest, workOrder, spawn = spaw
           validateChildArtifacts(parsed.value?.artifacts, workOrder.repo),
         ),
       );
-      const scopeViolations = writeScopeViolations(plan, before, after);
+      const scopeViolations = writeScopeViolations(plan, before, after, observedWrites);
       const succeeded = child.status === 0 && parsed.error === null;
       const boundariesPassed = trackedWorktreeUnchanged
         && childArtifactReport.errors.length === 0
@@ -609,17 +681,20 @@ export async function executeWorkOrder({ root, manifest, workOrder, spawn = spaw
           args: plan.invocation.args,
           cwd: relative(root, plan.repoPath),
           instructionTransport: plan.invocation.stdin === null ? "none" : "stdin",
+          sessionId: plan.invocation.sessionId,
           exitCode: child.status,
           signal: child.signal ?? null,
         },
         boundaryChecks: {
           trackedWorktreeUnchanged,
           artifactReportsValid: childArtifactReport.errors.length === 0,
+          observationComplete: true,
           writesWithinDeclaredScopes: scopeViolations.length === 0,
           instructionExcludedFromArgs: plan.invocation.stdin === null
             || !plan.invocation.args.includes(workOrder.instruction),
         },
         writeScopeViolations: scopeViolations,
+        observedWrites,
         approval: {
           required: plan.approvalRequired,
           status: status === "failed"
@@ -629,7 +704,10 @@ export async function executeWorkOrder({ root, manifest, workOrder, spawn = spaw
         artifacts: childArtifacts,
         artifactEvidence: childArtifactReport.errors.length > 0
           ? "invalid-child-report"
-          : childArtifacts.length > 0 ? "child-reported" : "not-reported-by-child",
+          : childArtifacts.length > 0
+            ? "child-reported"
+            : plan.mutating ? (observedWrites.length > 0 ? "dispatcher-observed" : "dispatcher-observed-no-change")
+            : "not-reported-by-child",
         artifactErrors: childArtifactReport.errors,
         childResult: parsed.value,
         referenceProvenance: workOrder.capability === "reference-bind"
@@ -693,6 +771,7 @@ export function publicDispatchPlan(plan, workOrder) {
     adapter: plan.repo.execution.adapter,
     command: [plan.invocation.executable, ...plan.invocation.args],
     instructionTransport: plan.invocation.stdin === null ? "none" : "stdin",
+    sessionId: plan.invocation.sessionId,
     instructionExcludedFromArgs: plan.invocation.stdin === null
       || !plan.invocation.args.includes(workOrder.instruction),
     timeoutMs: plan.invocation.timeoutMs,

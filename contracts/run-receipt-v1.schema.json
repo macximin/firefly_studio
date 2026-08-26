@@ -83,6 +83,29 @@
         "arcId": { "type": ["string", "null"] }
       }
     },
+    "observedWrites": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "change", "beforeSha256", "afterSha256"],
+        "properties": {
+          "path": { "type": "string", "minLength": 1 },
+          "change": { "enum": ["created", "modified", "deleted"] },
+          "beforeSha256": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$" },
+          "afterSha256": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$" }
+        }
+      }
+    },
+    "artifactEvidence": {
+      "enum": [
+        "invalid-child-report",
+        "child-reported",
+        "dispatcher-observed",
+        "dispatcher-observed-no-change",
+        "not-reported-by-child"
+      ]
+    },
     "artifacts": {
       "type": "array",
       "items": {

@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://firefly.local/contracts/firefly-review-packet-v1.schema.json",
+  "title": "Firefly Review Packet v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "packetId",
+    "packetSha256",
+    "generatedAt",
+    "source",
+    "work",
+    "artifact",
+    "candidates",
+    "actions",
+    "authority"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "firefly_review_packet/v1" },
+    "packetId": { "type": "string", "pattern": "^frp-[0-9a-f]{24}$" },
+    "packetSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["system", "bookId", "sourceRevision"],
+      "properties": {
+        "system": { "const": "inkos" },
+        "bookId": { "type": "string", "minLength": 1 },
+        "sourceRevision": { "type": "string", "minLength": 1 }
+      }
+    },
+    "work": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "genre", "status", "targetChapters"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "genre": { "type": "string", "minLength": 1 },
+        "status": { "type": "string", "minLength": 1 },
+        "targetChapters": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "chapterNumber", "title", "status", "currentContent", "currentContentSha256"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "kind": { "const": "chapter" },
+        "chapterNumber": { "type": "integer", "minimum": 1 },
+        "title": { "type": "string" },
+        "status": { "type": "string", "minLength": 1 },
+        "currentContent": { "type": "string" },
+        "currentContentSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    "candidates": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "status", "body", "sha256", "preparedAt", "review"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "status": { "type": "string", "minLength": 1 },
+          "body": { "type": "string" },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "preparedAt": { "type": "string", "format": "date-time" },
+          "commercialScore": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+          "commercialEvaluation": { "type": ["object", "null"] },
+          "review": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["status", "retained", "variedSurface", "linkedConsequences", "exactSurfaceMatches"],
+            "properties": {
+              "status": { "type": "string", "minLength": 1 },
+              "retained": { "type": "array", "items": { "type": "string" } },
+              "variedSurface": { "type": "array", "items": { "type": "string" } },
+              "linkedConsequences": { "type": "array", "items": { "type": "string" } },
+              "exactSurfaceMatches": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["tokenCount", "text"],
+                  "properties": {
+                    "tokenCount": { "type": "integer", "minimum": 1 },
+                    "text": { "type": "string", "minLength": 1 }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "recommendation": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["candidateId", "reason"],
+      "properties": {
+        "candidateId": { "type": "string", "minLength": 1 },
+        "reason": { "type": "string", "minLength": 1 }
+      }
+    },
+    "actions": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": { "enum": ["approve", "polish", "hold", "reject"] }
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["canon", "decisionSurface", "apply", "reverseSync"],
+      "properties": {
+        "canon": { "const": "inkos" },
+        "decisionSurface": { "const": "storyyard" },
+        "apply": { "const": "inkos" },
+        "reverseSync": { "const": false }
+      }
+    }
+  }
+}

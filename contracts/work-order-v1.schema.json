@@ -21,7 +21,12 @@
     "repo": { "type": "string", "minLength": 1 },
     "capability": { "type": "string", "minLength": 1 },
     "bookId": { "type": "string", "minLength": 1 },
-    "sessionId": { "type": "string", "minLength": 1 },
+    "sessionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,159}$"
+    },
     "instruction": { "type": "string", "minLength": 1 },
     "approvalMode": { "enum": ["none", "human"] },
     "approvedInputs": {

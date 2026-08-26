@@ -101,7 +101,6 @@ clean worktree, bounded `writeScopes`, `human` approval을 모두 요구한다.
   "repo": "inkos",
   "capability": "interact",
   "bookId": "book-id",
-  "sessionId": "hq-book-id",
   "instruction": "다음 Arc를 기획하되 사람 승인 전에는 캐논으로 승인하지 마.",
   "approvalMode": "human",
   "approvedInputs": [],
@@ -112,6 +111,14 @@ clean worktree, bounded `writeScopes`, `human` approval을 모두 요구한다.
 Dispatcher는 instruction을 명령행에 노출하지 않고 stdin으로 InkOS
 `interact --json`에 전달한다. 프로세스 성공은 작품 승인과 다르다.
 `interact` 영수증은 성공 후에도 `approval.status=pending`이다.
+`sessionId`를 생략하면 Dispatcher가 Book ID에서 안정적인 세션 ID를 만들어
+같은 작품의 다음 지시에도 재사용한다. Arc 종료나 의도적 분기처럼 새 세션이
+필요한 경우에만 안전한 `sessionId`를 명시한다.
+
+InkOS의 `books/`와 `.inkos/`는 Git 무시 여부와 무관하게 Dispatcher가 실행
+전후 SHA-256을 비교한다. 실제 변경은 `observedWrites`에 남고, 자식이 artifact를
+보고하지 않아도 영수증은 `dispatcher-observed` 또는
+`dispatcher-observed-no-change`로 사실을 구분한다.
 
 ### 장편 Reference bind
 

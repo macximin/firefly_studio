@@ -120,10 +120,25 @@ export function validateManifest(manifest) {
           errors.push(`${label}.execution.writeScopes must not be empty for mutating workers`);
         }
       }
+      if (!Array.isArray(execution.observationScopes)) {
+        errors.push(`${label}.execution.observationScopes must be an array`);
+      } else {
+        for (const [scopeIndex, scope] of execution.observationScopes.entries()) {
+          const normalizedScope = typeof scope === "string" ? normalize(scope) : "";
+          if (!normalizedScope || isAbsolute(normalizedScope) || normalizedScope === ".." || normalizedScope.startsWith(`..${sep}`) || String(scope).split(/[\\/]+/).includes("..")) {
+            errors.push(`${label}.execution.observationScopes[${scopeIndex}] must stay inside the child repository`);
+          }
+        }
+        for (const writeScope of execution.writeScopes ?? []) {
+          if (!execution.observationScopes.includes(writeScope)) {
+            errors.push(`${label}.execution.observationScopes must include write scope: ${writeScope}`);
+          }
+        }
+      }
       if (execution.capabilities.length === 0) {
         errors.push(`${label}.execution.capabilities must not be empty for workers`);
       }
-    } else if (execution.adapter || execution.entrypoint || execution.writeScopes || execution.receiptContract) {
+    } else if (execution.adapter || execution.entrypoint || execution.writeScopes || execution.observationScopes || execution.receiptContract) {
       errors.push(`${label}.execution ${execution.kind} repositories cannot declare a worker adapter`);
     }
   }

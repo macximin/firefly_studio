@@ -16,6 +16,9 @@
   Arc/event/reward references, and Gold routing evidence.
 - `firefly_market_radar` owns dated public-metadata evidence and reviewed market
   signals. It does not own pitches, reference analysis, or production decisions.
+- `storyyard` owns private human-review projection, decision receipts, and
+  explicitly approved publication snapshots. It never owns InkOS canon and may
+  not write directly into an InkOS project.
 
 ## Safety
 
@@ -30,6 +33,8 @@
   modules unless a core change is genuinely required.
 - Market Radar and Reference Lab are advisory inputs. Neither may write directly
   into an InkOS project or promote a production decision.
+- Storyyard receives immutable review packets and emits pending human decisions.
+  Only InkOS may apply an approved candidate or produce a polished replacement.
 
 ## Excluded families
 

@@ -31,7 +31,15 @@
         "entrypoint": "packages/cli/dist/index.js",
         "receiptContract": "run-receipt/v1",
         "writeScopes": [
-          "books/"
+          "books/",
+          ".inkos/"
+        ],
+        "observationScopes": [
+          "books/",
+          ".inkos/",
+          "worlds/",
+          "interactive-films/",
+          "inkos.json"
         ],
         "capabilities": [
           {
@@ -79,6 +87,22 @@
       "pullAllowed": true,
       "writeAllowed": true,
       "role": "dated public-metadata market evidence, demand signals and reviewed market briefs",
+      "execution": {
+        "kind": "tool",
+        "capabilities": []
+      }
+    },
+    {
+      "name": "storyyard",
+      "displayName": "Storyyard Review Surface",
+      "path": "edge_repos/storyyard",
+      "remoteUrl": "git@github.com:macximin/storyyard.git",
+      "branch": "main",
+      "managementState": "active",
+      "adoptionState": "ready",
+      "pullAllowed": true,
+      "writeAllowed": true,
+      "role": "private mobile human-review projection, decision receipts, and approved publication snapshots",
       "execution": {
         "kind": "tool",
         "capabilities": []

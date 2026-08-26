@@ -48,7 +48,8 @@ function manifestFixture(remoteUrl = "git@example.invalid:owner/inkos.git") {
         adapter: "inkos-cli-v1",
         entrypoint: "packages/cli/dist/index.js",
         receiptContract: "run-receipt/v1",
-        writeScopes: ["books/"],
+        writeScopes: ["books/", ".inkos/"],
+        observationScopes: ["books/", ".inkos/", "worlds/", "interactive-films/", "inkos.json"],
         capabilities: [
           { name: "status", mode: "read-only", approval: "none" },
           { name: "interact", mode: "mutating", approval: "human" },
@@ -114,6 +115,34 @@ test("keeps InkOS instructions on stdin and out of process arguments", () => {
   assert.equal(plan.invocation.args.includes(instruction), false);
   assert.equal(publicPlan.instructionExcludedFromArgs, true);
   assert.equal(publicPlan.approvalRequired, true);
+});
+
+test("reuses one deterministic HQ session per Book unless a safe explicit fork is requested", () => {
+  const base = statusWorkOrder({
+    workOrderId: "wo-interact-session-1",
+    idempotencyKey: "interact-session-1",
+    capability: "interact",
+    approvalMode: "human",
+    instruction: "기획을 이어서 진행해.",
+    bookId: "처가에서-쫓겨난-날-재벌가가-나를-찾았다",
+  });
+  const first = buildDispatchPlan({ root: "/tmp/firefly", manifest: manifestFixture(), workOrder: base });
+  const second = buildDispatchPlan({
+    root: "/tmp/firefly",
+    manifest: manifestFixture(),
+    workOrder: { ...base, workOrderId: "wo-interact-session-2", idempotencyKey: "interact-session-2" },
+  });
+  assert.equal(first.invocation.sessionId, second.invocation.sessionId);
+  assert.match(first.invocation.sessionId, /^hq-/);
+
+  const forked = buildDispatchPlan({
+    root: "/tmp/firefly",
+    manifest: manifestFixture(),
+    workOrder: { ...base, sessionId: "hq-arc-2-fork" },
+  });
+  assert.equal(forked.invocation.sessionId, "hq-arc-2-fork");
+  assert.ok(validateWorkOrder({ ...base, sessionId: "../escape" }, manifestFixture())
+    .some((error) => error.includes("safe filename")));
 });
 
 test("stable work order hashing ignores object key order", () => {
@@ -298,7 +327,7 @@ test("executes a read-only child, persists a receipt, and replays idempotently",
       cliPath,
       [
         "const fs = require('node:fs');",
-        "if (process.argv.includes('interact')) fs.writeFileSync('outside.txt', 'scope violation\\n');",
+        "if (process.argv.includes('interact')) { fs.writeFileSync('outside.txt', 'scope violation\\n'); fs.writeFileSync('books/runtime.txt', 'observed runtime write\\n'); }",
         `process.stdout.write(JSON.stringify({ project: process.cwd(), books: [], artifacts: [{ repo: "inkos", path: "books/demo.txt", sha256: "${artifactSha256}", role: "canary" }] }) + '\\n');`,
         "",
       ].join("\n"),
@@ -369,6 +398,7 @@ test("executes a read-only child, persists a receipt, and replays idempotently",
     assert.equal(interactReceipt.execution.instructionTransport, "stdin");
     assert.equal(interactReceipt.boundaryChecks.writesWithinDeclaredScopes, false);
     assert.deepEqual(interactReceipt.writeScopeViolations, ["outside.txt"]);
+    assert.deepEqual(interactReceipt.observedWrites, [expectObservedWrite("books/runtime.txt", "created")]);
 
     const lockedOrder = statusWorkOrder({
       workOrderId: "wo-locked-1",
@@ -400,3 +430,12 @@ test("executes a read-only child, persists a receipt, and replays idempotently",
     await rm(root, { recursive: true, force: true });
   }
 });
+
+function expectObservedWrite(path, change) {
+  return {
+    path,
+    change,
+    beforeSha256: null,
+    afterSha256: createHash("sha256").update("observed runtime write\n").digest("hex"),
+  };
+}
