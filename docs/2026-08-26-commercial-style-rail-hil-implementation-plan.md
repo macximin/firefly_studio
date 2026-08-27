@@ -1,7 +1,7 @@
 # 상업성 우선 레퍼런스 변형·전작 문체·Rail·Polishing HIL 구현 계획
 
 - 작성일: 2026-08-26
-- 상태: 계획 확정 / 구현 미시작
+- 상태: 구현 완료 / governed canary v4 운영 왕복 HOLD 적용 / 정본 미교체 / 편집 채택 미결정 / 단일 작품 이력
 - 대상 작품: `처가에서-쫓겨난-날-재벌가가-나를-찾았다`
 - 문체 원천: 《독식하는 재벌 3세》 751화 합본
 - 원천 SHA-256: `66f3e7df3123343c14a7134108dc59940511f40372493a549cba8ae709df4b45`
@@ -825,3 +825,21 @@ Composer → Writer governed 경로로 생성했다. 기존 1화는 생성·평�
 - InkOS CLI: 45 files, 243 tests PASS
 - HQ: 16 tests, manifest/status PASS
 - Core·CLI typecheck/build와 각 Git diff check PASS
+
+## 13. 후속 사람 결정 readback
+
+Storyyard 운영 왕복 카나리에서 candidate A에 `hold` 결정을 기록했고 InkOS가
+decision receipt를 적용했다. 목적은 정본 변경 없이
+`Storyyard -> HQ -> InkOS` 영수증 경로를 검증하는 것이었다.
+
+- decision ID: `9a63d4c0-b828-4c2e-a545-e6b3a4d583bd`
+- candidate ID: `doksik-canary-a-20260826-v4`
+- decision: `hold`
+- decision status: `applied`
+- result: `held`
+- 현재 원고 교체: 없음
+- candidate meta: `prepared`
+- transformation comparison: `unreviewed`
+
+따라서 사람 결정 왕복은 끝났지만 후보를 편집 채택하거나 현재 1화에
+적용한 상태는 아니다.
