@@ -95,3 +95,20 @@ HQ 발주와 입력 검증
 주입된 생존심사표만 받아 전 후보를 비교한다. 결과는 별도
 `survival-review/` 아래 저장하며 원본 `slate.json`과 Book 정본을 바꾸지
 않는다. 제작 추천은 최대 한 후보이고 최종 결정은 계속 사람에게 남는다.
+
+## 구현된 선택과 승격 전이
+
+```text
+pitch decision
+  -> .inkos/pitch-slates/<slateId>/human-decision/{decision.json,decision.md}
+pitch promote
+  -> books/<bookId>/book.json
+  -> books/<bookId>/story/pitch-selection.{json,md}
+  -> .inkos/pitch-slates/<slateId>/promotion.json
+```
+
+판정은 한 번만 기록하며 슬레이트·생존심사 해시에 묶인다. 인간은 심사
+추천과 다른 후보도 선택할 수 있다. 승격은 `select`만 허용하고 표준 InkOS
+기획 생성 파이프라인을 사용한다. 생성 Book은 `outlining`과 수동 검토로
+시작하며 회차 원고는 생성하지 않는다. 승격 영수증의 `selects`와
+`promotes_to`는 추후 read-only 계보 인덱스가 읽을 최소 간선이다.

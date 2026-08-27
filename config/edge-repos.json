@@ -66,6 +66,16 @@
             "name": "pitch-review",
             "mode": "mutating",
             "approval": "human"
+          },
+          {
+            "name": "pitch-decision",
+            "mode": "mutating",
+            "approval": "human"
+          },
+          {
+            "name": "pitch-promote",
+            "mode": "mutating",
+            "approval": "human"
           }
         ]
       }

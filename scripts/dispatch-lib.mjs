@@ -23,6 +23,9 @@ const WORK_ORDER_KEYS = new Set([
   "capability",
   "bookId",
   "slateId",
+  "candidateId",
+  "humanDecision",
+  "comment",
   "candidateCount",
   "sessionId",
   "instruction",
@@ -87,7 +90,7 @@ export function validateWorkOrder(workOrder, manifest) {
   }
   if (!hasText(workOrder.repo)) errors.push("repo is required");
   if (!hasText(workOrder.capability)) errors.push("capability is required");
-  for (const field of ["bookId", "slateId", "sessionId", "instruction"]) {
+  for (const field of ["bookId", "slateId", "candidateId", "humanDecision", "comment", "sessionId", "instruction"]) {
     if (workOrder[field] !== undefined && !hasText(workOrder[field])) {
       errors.push(`${field} must be a non-empty string when provided`);
     }
@@ -97,6 +100,9 @@ export function validateWorkOrder(workOrder, manifest) {
   }
   if (workOrder.slateId !== undefined && !SAFE_SLATE_ID.test(workOrder.slateId)) {
     errors.push("slateId must use 1-80 safe filename characters");
+  }
+  if (workOrder.comment !== undefined && workOrder.comment.length > 2000) {
+    errors.push("comment must be 2,000 characters or fewer");
   }
   if (workOrder.candidateCount !== undefined
     && (!Number.isInteger(workOrder.candidateCount) || workOrder.candidateCount < 1 || workOrder.candidateCount > 20)) {
@@ -171,11 +177,33 @@ export function validateWorkOrder(workOrder, manifest) {
     if (workOrder.candidateCount !== undefined) errors.push("pitch-review does not accept candidateCount");
     if (workOrder.instruction !== undefined) errors.push("pitch-review does not accept instruction");
   }
-  if (!["pitch-slate", "pitch-review"].includes(workOrder.capability) && workOrder.slateId !== undefined) {
-    errors.push("slateId is only valid for pitch-slate or pitch-review v1");
+  if (workOrder.capability === "pitch-decision") {
+    if (workOrder.bookId !== undefined) errors.push("pitch-decision must not bind a bookId");
+    if (!hasText(workOrder.slateId)) errors.push("slateId is required for pitch-decision v1");
+    if (!/^p\d{2}$/.test(workOrder.candidateId ?? "")) errors.push("candidateId must use pNN format for pitch-decision v1");
+    if (!["select", "hold", "reject"].includes(workOrder.humanDecision)) {
+      errors.push("humanDecision must be select, hold, or reject for pitch-decision v1");
+    }
+    if (["hold", "reject"].includes(workOrder.humanDecision) && !hasText(workOrder.comment)) {
+      errors.push("pitch-decision hold or reject requires comment");
+    }
+    if (workOrder.instruction !== undefined) errors.push("pitch-decision does not accept instruction");
+  }
+  if (workOrder.capability === "pitch-promote") {
+    if (!hasText(workOrder.bookId)) errors.push("bookId is required for pitch-promote v1");
+    if (!hasText(workOrder.slateId)) errors.push("slateId is required for pitch-promote v1");
+    if (workOrder.instruction !== undefined) errors.push("pitch-promote does not accept instruction");
+  }
+  if (!["pitch-slate", "pitch-review", "pitch-decision", "pitch-promote"].includes(workOrder.capability) && workOrder.slateId !== undefined) {
+    errors.push("slateId is only valid for pitch capabilities v1");
   }
   if (workOrder.capability !== "pitch-slate" && workOrder.candidateCount !== undefined) {
     errors.push("candidateCount is only valid for pitch-slate v1");
+  }
+  if (workOrder.capability !== "pitch-decision") {
+    if (workOrder.candidateId !== undefined) errors.push("candidateId is only valid for pitch-decision v1");
+    if (workOrder.humanDecision !== undefined) errors.push("humanDecision is only valid for pitch-decision v1");
+    if (workOrder.comment !== undefined) errors.push("comment is only valid for pitch-decision v1");
   }
 
   if (Array.isArray(workOrder.approvedInputs)) {
@@ -310,6 +338,21 @@ function buildInkosCliPlan({ root, manifest, repoPath, repo, capability, workOrd
     const sessionId = workOrder.sessionId
       ?? `hq-pitch-review-${readableSlate}-${createHash("sha256").update(workOrder.slateId).digest("hex").slice(0, 10)}`;
     args.push("pitch", "review", "--json", "--id", workOrder.slateId, "--session", sessionId);
+  } else if (capability.name === "pitch-decision") {
+    args.push(
+      "pitch",
+      "decision",
+      "--json",
+      "--id",
+      workOrder.slateId,
+      "--candidate",
+      workOrder.candidateId,
+      "--decision",
+      workOrder.humanDecision,
+    );
+    stdin = workOrder.comment === undefined ? null : `${workOrder.comment.trim()}\n`;
+  } else if (capability.name === "pitch-promote") {
+    args.push("pitch", "promote", "--json", "--id", workOrder.slateId, "--book", workOrder.bookId);
   } else {
     throw new Error(`inkos-cli-v1 does not implement capability: ${capability.name}`);
   }
@@ -318,7 +361,7 @@ function buildInkosCliPlan({ root, manifest, repoPath, repo, capability, workOrd
     executable: process.execPath,
     args,
     stdin,
-    timeoutMs: workOrder.timeoutMs ?? (["pitch-slate", "pitch-review"].includes(capability.name) ? 3600000 : capability.mode === "mutating" ? 1800000 : 30000),
+    timeoutMs: workOrder.timeoutMs ?? (["pitch-slate", "pitch-review", "pitch-promote"].includes(capability.name) ? 3600000 : capability.mode === "mutating" ? 1800000 : 30000),
     sessionId: ["interact", "pitch-slate", "pitch-review"].includes(capability.name) ? args[args.indexOf("--session") + 1] : null,
   };
 }
@@ -573,12 +616,16 @@ export function validateChildArtifacts(value, repoName) {
 }
 
 export function validateCapabilityArtifacts(capability, report, workOrder = null) {
-  if (!["reference-bind", "pitch-slate", "pitch-review"].includes(capability)) return report;
+  if (!["reference-bind", "pitch-slate", "pitch-review", "pitch-decision", "pitch-promote"].includes(capability)) return report;
   const requiredRoles = capability === "reference-bind"
     ? ["book-config", "reference-binding", "reference-transformation", "story-rail-plan"]
     : capability === "pitch-slate"
       ? ["pitch-slate-data", "pitch-slate-review"]
-      : ["pitch-survival-review-data", "pitch-survival-review-readable"];
+      : capability === "pitch-review"
+        ? ["pitch-survival-review-data", "pitch-survival-review-readable"]
+        : capability === "pitch-decision"
+          ? ["pitch-human-decision-data", "pitch-human-decision-readable"]
+          : ["pitch-promotion-receipt", "book-config", "book-pitch-selection-data", "book-pitch-selection-readable"];
   const reportedRoles = new Set(report.artifacts.map((artifact) => artifact.role));
   const errors = [...report.errors];
   for (const role of requiredRoles) {
@@ -600,6 +647,32 @@ export function validateCapabilityArtifacts(capability, report, workOrder = null
     const expectedPaths = new Map([
       ["pitch-survival-review-data", `.inkos/pitch-slates/${workOrder.slateId}/survival-review/review.json`],
       ["pitch-survival-review-readable", `.inkos/pitch-slates/${workOrder.slateId}/survival-review/review.md`],
+    ]);
+    for (const artifact of report.artifacts) {
+      const expectedPath = expectedPaths.get(artifact.role);
+      if (expectedPath && normalizedRelativePath(artifact.path) !== expectedPath) {
+        errors.push(`${artifact.role} must report exact path: ${expectedPath}`);
+      }
+    }
+  }
+  if (capability === "pitch-decision" && workOrder?.slateId) {
+    const expectedPaths = new Map([
+      ["pitch-human-decision-data", `.inkos/pitch-slates/${workOrder.slateId}/human-decision/decision.json`],
+      ["pitch-human-decision-readable", `.inkos/pitch-slates/${workOrder.slateId}/human-decision/decision.md`],
+    ]);
+    for (const artifact of report.artifacts) {
+      const expectedPath = expectedPaths.get(artifact.role);
+      if (expectedPath && normalizedRelativePath(artifact.path) !== expectedPath) {
+        errors.push(`${artifact.role} must report exact path: ${expectedPath}`);
+      }
+    }
+  }
+  if (capability === "pitch-promote" && workOrder?.slateId && workOrder?.bookId) {
+    const expectedPaths = new Map([
+      ["pitch-promotion-receipt", `.inkos/pitch-slates/${workOrder.slateId}/promotion.json`],
+      ["book-config", `books/${workOrder.bookId}/book.json`],
+      ["book-pitch-selection-data", `books/${workOrder.bookId}/story/pitch-selection.json`],
+      ["book-pitch-selection-readable", `books/${workOrder.bookId}/story/pitch-selection.md`],
     ]);
     for (const artifact of report.artifacts) {
       const expectedPath = expectedPaths.get(artifact.role);
@@ -696,8 +769,45 @@ async function verifyChildArtifacts(repoPath, report) {
 }
 
 async function verifyCapabilityArtifactContents(repoPath, capability, workOrder, report) {
-  if (!["pitch-slate", "pitch-review"].includes(capability) || report.errors.length > 0) return report;
+  if (!["pitch-slate", "pitch-review", "pitch-decision", "pitch-promote"].includes(capability) || report.errors.length > 0) return report;
   const errors = [...report.errors];
+  if (capability === "pitch-decision") {
+    const dataArtifact = report.artifacts.find((artifact) => artifact.role === "pitch-human-decision-data");
+    if (!dataArtifact) return report;
+    try {
+      const decision = JSON.parse(await readFile(join(repoPath, dataArtifact.path), "utf8"));
+      const slateBytes = await readFile(join(repoPath, ".inkos", "pitch-slates", workOrder.slateId, "slate.json"));
+      const reviewBytes = await readFile(join(repoPath, ".inkos", "pitch-slates", workOrder.slateId, "survival-review", "review.json"));
+      if (decision.slateId !== workOrder.slateId) errors.push("pitch human decision slateId does not match the work order");
+      if (decision.candidateId !== workOrder.candidateId) errors.push("pitch human decision candidateId does not match the work order");
+      if (decision.decision !== workOrder.humanDecision) errors.push("pitch human decision does not match the work order");
+      if (decision.sourceSlateSha256 !== createHash("sha256").update(slateBytes).digest("hex")) errors.push("pitch human decision source slate hash does not match");
+      if (decision.sourceReviewSha256 !== createHash("sha256").update(reviewBytes).digest("hex")) errors.push("pitch human decision source review hash does not match");
+      if (decision.manuscriptAuthorized !== false) errors.push("pitch human decision must not authorize manuscript");
+    } catch {
+      errors.push("pitch human decision or its sources are not valid JSON");
+    }
+    return { artifacts: report.artifacts, errors };
+  }
+  if (capability === "pitch-promote") {
+    const receiptArtifact = report.artifacts.find((artifact) => artifact.role === "pitch-promotion-receipt");
+    const selectionArtifact = report.artifacts.find((artifact) => artifact.role === "book-pitch-selection-data");
+    if (!receiptArtifact || !selectionArtifact) return report;
+    try {
+      const receipt = JSON.parse(await readFile(join(repoPath, receiptArtifact.path), "utf8"));
+      const selection = JSON.parse(await readFile(join(repoPath, selectionArtifact.path), "utf8"));
+      if (receipt.slateId !== workOrder.slateId || selection.slateId !== workOrder.slateId) errors.push("pitch promotion slateId does not match the work order");
+      if (receipt.bookId !== workOrder.bookId) errors.push("pitch promotion bookId does not match the work order");
+      if (receipt.canonEffect !== "planning-seed-created") errors.push("pitch promotion canon effect must be planning-seed-created");
+      if (receipt.manuscriptCreated !== false) errors.push("pitch promotion must not create manuscript");
+      if (receipt.sourceDecisionSha256 !== selection.sourceDecisionSha256) errors.push("pitch promotion decision lineage does not match selection data");
+      const edgeTypes = new Set((receipt.lineageEdges ?? []).map((edge) => edge?.type));
+      if (!edgeTypes.has("selects") || !edgeTypes.has("promotes_to")) errors.push("pitch promotion is missing required lineage edges");
+    } catch {
+      errors.push("pitch promotion receipt or selection data is not valid JSON");
+    }
+    return { artifacts: report.artifacts, errors };
+  }
   if (capability === "pitch-review") {
     const dataArtifact = report.artifacts.find((artifact) => artifact.role === "pitch-survival-review-data");
     const readableArtifact = report.artifacts.find((artifact) => artifact.role === "pitch-survival-review-readable");

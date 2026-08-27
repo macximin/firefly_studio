@@ -82,6 +82,16 @@ and writes a separate recommendation under
 recommended `SURVIVE`; the result remains pending human decision and cannot
 create or promote a Book.
 
+`pitch-decision` records exactly one immutable, hash-bound human `select`,
+`hold`, or `reject` decision without rewriting the slate or its independent
+review. A `select` authorizes planning promotion only. `pitch-promote` then
+revalidates the slate, review, and decision hashes and creates a standard InkOS
+Book in `outlining` state with the selected pitch preserved under
+`story/pitch-selection.*`. It creates no chapter manuscript and leaves writing
+in manual-review mode. The promotion receipt records the minimal `selects` and
+`promotes_to` lineage edges; it is evidence over the existing filesystem
+authority, not a second source of truth or a graph runtime.
+
 `bootstrap:links` reads the ignored machine-local
 `config/local-edge-paths.json`. A physical checkout already at its canonical path
 is accepted as-is; the command refuses to overwrite any mismatched path.

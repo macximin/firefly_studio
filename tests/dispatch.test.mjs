@@ -58,6 +58,8 @@ function manifestFixture(remoteUrl = "git@example.invalid:owner/inkos.git") {
           { name: "reference-bind", mode: "mutating", approval: "human" },
           { name: "pitch-slate", mode: "mutating", approval: "human" },
           { name: "pitch-review", mode: "mutating", approval: "human" },
+          { name: "pitch-decision", mode: "mutating", approval: "human" },
+          { name: "pitch-promote", mode: "mutating", approval: "human" },
         ],
       },
     }, {
@@ -117,6 +119,34 @@ function pitchReviewWorkOrder(overrides = {}) {
     idempotencyKey: "pitch-review-1",
     capability: "pitch-review",
     bookId: undefined,
+    slateId: "chaebol-canary",
+    approvalMode: "human",
+    approvedInputs: [],
+    ...overrides,
+  });
+}
+
+function pitchDecisionWorkOrder(overrides = {}) {
+  return statusWorkOrder({
+    workOrderId: "wo-pitch-decision-1",
+    idempotencyKey: "pitch-decision-1",
+    capability: "pitch-decision",
+    bookId: undefined,
+    slateId: "chaebol-canary",
+    candidateId: "p02",
+    humanDecision: "select",
+    approvalMode: "human",
+    approvedInputs: [],
+    ...overrides,
+  });
+}
+
+function pitchPromoteWorkOrder(overrides = {}) {
+  return statusWorkOrder({
+    workOrderId: "wo-pitch-promote-1",
+    idempotencyKey: "pitch-promote-1",
+    capability: "pitch-promote",
+    bookId: "selected-chaebol",
     slateId: "chaebol-canary",
     approvalMode: "human",
     approvedInputs: [],
@@ -227,6 +257,31 @@ test("routes independent pitch review without generation instructions or candida
     .some((error) => error.includes("does not accept instruction")));
   assert.ok(validateWorkOrder(pitchReviewWorkOrder({ candidateCount: 2 }), manifestFixture())
     .some((error) => error.includes("does not accept candidateCount")));
+});
+
+test("routes a human pitch decision with the comment on stdin", () => {
+  const workOrder = pitchDecisionWorkOrder({ comment: "p02를 상업성 우선으로 선택" });
+  assert.deepEqual(validateWorkOrder(workOrder, manifestFixture()), []);
+  const plan = buildDispatchPlan({ root: "/tmp/firefly", manifest: manifestFixture(), workOrder });
+  assert.deepEqual(plan.invocation.args.slice(1, 3), ["pitch", "decision"]);
+  assert.ok(plan.invocation.args.includes("p02"));
+  assert.ok(plan.invocation.args.includes("select"));
+  assert.equal(plan.invocation.args.includes(workOrder.comment), false);
+  assert.equal(plan.invocation.stdin, `${workOrder.comment}\n`);
+  assert.ok(validateWorkOrder(pitchDecisionWorkOrder({ humanDecision: "hold", comment: undefined }), manifestFixture())
+    .some((error) => error.includes("requires comment")));
+});
+
+test("routes selected pitch promotion only into the requested Book", () => {
+  const workOrder = pitchPromoteWorkOrder();
+  assert.deepEqual(validateWorkOrder(workOrder, manifestFixture()), []);
+  const plan = buildDispatchPlan({ root: "/tmp/firefly", manifest: manifestFixture(), workOrder });
+  assert.deepEqual(plan.invocation.args.slice(1, 3), ["pitch", "promote"]);
+  assert.ok(plan.invocation.args.includes("chaebol-canary"));
+  assert.ok(plan.invocation.args.includes("selected-chaebol"));
+  assert.equal(plan.invocation.stdin, null);
+  assert.ok(validateWorkOrder(pitchPromoteWorkOrder({ candidateId: "p02" }), manifestFixture())
+    .some((error) => error.includes("only valid for pitch-decision")));
 });
 
 test("validates reference-bind roles and keeps private bytes out of process arguments", () => {
@@ -440,6 +495,29 @@ test("requires exact independent review artifacts and validates one survivor", (
   invalid.verdicts[1].verdict = "SURVIVE";
   assert.ok(validatePitchSurvivalReviewData(invalid, { slateId: "demo" }, sourceSlate)
     .some((error) => error.includes("at most one SURVIVE")));
+});
+
+test("requires exact decision and planning-promotion artifact sets", () => {
+  const digest = "a".repeat(64);
+  const decision = validateCapabilityArtifacts("pitch-decision", validateChildArtifacts([
+    { repo: "inkos", path: ".inkos/pitch-slates/demo/human-decision/decision.json", sha256: digest, role: "pitch-human-decision-data" },
+    { repo: "inkos", path: ".inkos/pitch-slates/demo/human-decision/decision.md", sha256: digest, role: "pitch-human-decision-readable" },
+  ], "inkos"), { slateId: "demo" });
+  assert.deepEqual(decision.errors, []);
+
+  const promotion = validateCapabilityArtifacts("pitch-promote", validateChildArtifacts([
+    { repo: "inkos", path: ".inkos/pitch-slates/demo/promotion.json", sha256: digest, role: "pitch-promotion-receipt" },
+    { repo: "inkos", path: "books/selected/book.json", sha256: digest, role: "book-config" },
+    { repo: "inkos", path: "books/selected/story/pitch-selection.json", sha256: digest, role: "book-pitch-selection-data" },
+    { repo: "inkos", path: "books/selected/story/pitch-selection.md", sha256: digest, role: "book-pitch-selection-readable" },
+  ], "inkos"), { slateId: "demo", bookId: "selected" });
+  assert.deepEqual(promotion.errors, []);
+
+  const partial = validateCapabilityArtifacts("pitch-promote", validateChildArtifacts([
+    { repo: "inkos", path: ".inkos/pitch-slates/demo/promotion.json", sha256: digest, role: "pitch-promotion-receipt" },
+  ], "inkos"), { slateId: "demo", bookId: "selected" });
+  assert.ok(partial.errors.some((error) => error.includes("book-config")));
+  assert.ok(partial.errors.some((error) => error.includes("book-pitch-selection")));
 });
 
 test("revalidates N non-canonical pending candidates from pitch-slate data", () => {

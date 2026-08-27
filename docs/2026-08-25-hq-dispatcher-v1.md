@@ -228,6 +228,23 @@ HQ는 두 결과 파일의 정확한 경로와 해시, 원본 슬레이트 해�
 한 번씩 포함된 순위, 최대 한 개의 `SURVIVE`, `humanDecision=pending`을
 다시 읽어 검증한다.
 
+### 인간 판정과 기획 승격
+
+`pitch-decision`은 `select | hold | reject` 가운데 하나를 한 번만 불변
+영수증으로 기록한다. 독립심사의 추천과 다른 후보를 고를 수 있으며,
+원본 슬레이트와 심사 파일은 계속 그대로 둔다. `hold`와 `reject`에는
+근거 메모가 필수다.
+
+`pitch-promote`는 `select` 판정의 원본 슬레이트·심사·판정 SHA-256을 모두
+재검증한 뒤 선택 후보만 표준 InkOS Book의 기획 기반으로 승격한다.
+Book은 `outlining`, 수동 검토 모드로 시작하며 `story/pitch-selection.*`에
+선택 근거를 남긴다. 이 명령은 회차 원고를 만들거나 자동 연재를 시작하지
+않는다.
+
+승격 영수증에는 `selects`, `promotes_to` 계보 간선만 기록한다. 이는 기존
+파일·영수증을 읽는 얇은 계보 근거이며 별도 그래프 DB나 실행 런타임이
+아니다.
+
 ## v1 비범위
 
 - HQ의 임의 파일 편집을 운영체제 권한으로 차단하는 sandbox
@@ -235,19 +252,21 @@ HQ는 두 결과 파일의 정확한 경로와 해시, 원본 슬레이트 해�
 - Reference Lab 자동 분석
 - 자식 간 자동 writeback
 - 자식이 보고하지 않은 artifact 추정
-- 그래프 실행·스케줄·분산 큐
+- 그래프 실행·스케줄·분산 큐와 별도 그래프 SSOT
 - 창작 결과 자동 승인
 
 ## 승격 조건
 
-두 번째 실행형 자식이 안정된 `WorkOrder/RunReceipt`를 제공하거나,
-재시작·stale 전파·동시 실행이 반복적인 실제 비용으로 확인될 때
-Dispatcher 위에 얇은 artifact-lineage graph를 추가한다.
+현재 피치 판정·승격 영수증은 필요한 계보 간선만 생산한다. 여러 전이에서
+stale·다음 행동 조회가 실제 비용이 되면 이 영수증을 읽는 read-only
+artifact-lineage index를 추가한다. 두 번째 실행형 자식이 안정된 계약을
+제공하거나 재시작·동시 실행 비용이 반복되기 전에는 실행 그래프 런타임을
+도입하지 않는다.
 
 ## 검증 영수증
 
 - manifest v2 검증: PASS, 4개 자식 등록
-- HQ 단위·통합 테스트: 21/21 PASS
+- HQ 단위·통합 테스트: 26/26 PASS
 - `npm run validate`: PASS
 - `git diff --check`: PASS
 - InkOS 읽기 전용 실제 호출: `status=succeeded`

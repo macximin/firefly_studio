@@ -16,6 +16,8 @@ not draft, revise, approve, or publish an InkOS chapter by itself.
 4. InkOS applies or replaces the candidate under its Book lock, resynchronizes
    derived state, and emits its own receipt.
 5. Storyyard may mark the decision applied only after that InkOS receipt exists.
+6. Once any decision for a packet is `applied`, Storyyard removes that packet
+   from the active queue and rejects duplicate new decisions with HTTP 409.
 
 `reverseSync` is always false. A Storyyard text edit is never a canon edit.
 
@@ -56,3 +58,7 @@ hashes, work, artifact, action, comment, timestamps, and canonical receipt path
 before changing Storyyard from `pending` to `applied`. An identical replay is
 idempotent; a conflicting replay fails closed. This is a status projection only
 and grants Storyyard no write path into InkOS.
+
+An applied `hold` is terminal too: it means InkOS acknowledged that no canon
+change was requested. It must not remain in "today review" as if another human
+decision were still required.
