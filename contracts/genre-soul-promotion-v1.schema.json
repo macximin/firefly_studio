@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://firefly.local/contracts/genre-soul-promotion-v1.schema.json",
+  "title": "Firefly HQ genre Soul promotion decision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "soulId", "soulVersion", "candidateSoulSha256", "promptPackSha256", "referenceLabEligibility", "inputReceiptSha256s", "decisionId", "decision", "decidedByActorId", "decidedByRole", "approvalReceiptSha256", "decidedAt"],
+  "properties": {
+    "schemaVersion": { "const": "genre_soul_promotion/v1" },
+    "soulId": { "$ref": "#/$defs/id" },
+    "soulVersion": { "$ref": "#/$defs/id" },
+    "candidateSoulSha256": { "$ref": "#/$defs/sha256" },
+    "promptPackSha256": { "$ref": "#/$defs/sha256" },
+    "referenceLabEligibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repo", "commit", "path", "sha256"],
+      "properties": {
+        "repo": { "const": "firefly_reference_lab" },
+        "commit": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "inputReceiptSha256s": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceManifest", "coverage", "managerQa", "pathCanary", "promotionCanary", "pairedGeneration", "blindReviews", "genreIdentity", "reviewPacket"],
+      "properties": {
+        "sourceManifest": { "$ref": "#/$defs/sha256" },
+        "coverage": { "$ref": "#/$defs/shaList1" },
+        "managerQa": { "$ref": "#/$defs/shaList1" },
+        "pathCanary": { "$ref": "#/$defs/sha256" },
+        "promotionCanary": { "$ref": "#/$defs/sha256" },
+        "pairedGeneration": { "$ref": "#/$defs/shaList3" },
+        "blindReviews": { "$ref": "#/$defs/shaList3" },
+        "genreIdentity": { "$ref": "#/$defs/shaList3" },
+        "reviewPacket": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "decisionId": { "type": "string", "minLength": 1, "maxLength": 240 },
+    "decision": { "enum": ["promote", "hold", "reject"] },
+    "decidedByActorId": { "type": "string", "minLength": 1, "maxLength": 240 },
+    "decidedByRole": { "const": "owner" },
+    "approvalReceiptSha256": { "$ref": "#/$defs/sha256" },
+    "decidedAt": { "type": "string", "format": "date-time" }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{0,239}$" },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "shaList1": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/sha256" } },
+    "shaList3": { "type": "array", "minItems": 3, "uniqueItems": true, "items": { "$ref": "#/$defs/sha256" } }
+  }
+}

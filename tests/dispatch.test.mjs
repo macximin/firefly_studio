@@ -314,7 +314,12 @@ test("executes WorkOrder v2 with verified child evidence and persists a bodyless
         projectionOrigin: "direct",
       },
       effectiveRuntime: {
-        orchestrator: workOrder.runtime,
+        hermesE2E: false,
+        orchestrator: {
+          ...workOrder.runtime,
+          invoked: false,
+          evidence: "work-order-declaration",
+        },
         inkos: { configMode: "project", model: "gpt-5.6-sol", reasoning: "high" },
       },
       modelCalls: [{
@@ -340,6 +345,9 @@ test("executes WorkOrder v2 with verified child evidence and persists a bodyless
     assert.equal(receipt.boundaryChecks.artifactReportsValid, true);
     assert.equal(receipt.boundaryChecks.privateBodyExcluded, true);
     assert.equal(receipt.productionRun.sha256, result.productionRun.sha256);
+    assert.equal(receipt.effectiveRuntime.hermesE2E, false);
+    assert.equal(receipt.effectiveRuntime.orchestrator.invoked, false);
+    assert.equal(receipt.effectiveRuntime.orchestrator.evidence, "work-order-declaration");
     assert.equal(receipt.modelCalls[0].receiptSha256, result.modelCalls[0].receiptSha256);
     assert.equal("childResult" in receipt, false);
     assert.equal("args" in receipt.execution, false);
@@ -357,7 +365,15 @@ test("executes WorkOrder v2 with verified child evidence and persists a bodyless
     const tamperedResult = {
       ...result,
       workOrder: { id: tamperedOrder.workOrderId, sha256: tamperedPlan.invocation.workOrderSha256 },
-      effectiveRuntime: { ...result.effectiveRuntime, orchestrator: tamperedOrder.runtime },
+      effectiveRuntime: {
+        ...result.effectiveRuntime,
+        hermesE2E: false,
+        orchestrator: {
+          ...tamperedOrder.runtime,
+          invoked: false,
+          evidence: "work-order-declaration",
+        },
+      },
       modelCalls: [{ ...result.modelCalls[0], receiptSha256: "0".repeat(64) }],
     };
     const tamperedReceipt = await executeWorkOrder({
@@ -368,6 +384,33 @@ test("executes WorkOrder v2 with verified child evidence and persists a bodyless
     });
     assert.equal(tamperedReceipt.status, "needs-attention");
     assert.equal(tamperedReceipt.boundaryChecks.artifactReportsValid, false);
+
+    const falseHermesOrder = writeNextV2WorkOrder({
+      workOrderId: "wo-write-next-v2-false-hermes",
+      idempotencyKey: "write-next-v2-false-hermes",
+    });
+    const falseHermesPlan = buildDispatchPlan({ root, manifest, workOrder: falseHermesOrder });
+    const falseHermesResult = {
+      ...result,
+      workOrder: { id: falseHermesOrder.workOrderId, sha256: falseHermesPlan.invocation.workOrderSha256 },
+      effectiveRuntime: {
+        ...result.effectiveRuntime,
+        hermesE2E: true,
+        orchestrator: {
+          ...falseHermesOrder.runtime,
+          invoked: true,
+          evidence: "self-reported",
+        },
+      },
+    };
+    const falseHermesReceipt = await executeWorkOrder({
+      root,
+      manifest,
+      workOrder: falseHermesOrder,
+      spawn: () => ({ status: 0, signal: null, stdout: `${JSON.stringify(falseHermesResult)}\n`, stderr: "" }),
+    });
+    assert.equal(falseHermesReceipt.status, "needs-attention");
+    assert.equal(falseHermesReceipt.boundaryChecks.artifactReportsValid, false);
   } finally {
     await rm(root, { recursive: true, force: true });
   }

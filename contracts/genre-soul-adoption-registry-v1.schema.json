@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://firefly.local/contracts/genre-soul-adoption-registry-v1.schema.json",
+  "title": "Firefly HQ active genre Soul adoption registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "active"],
+  "properties": {
+    "schemaVersion": { "const": "genre-soul-adoption-registry/v1" },
+    "active": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["soulId", "soulVersion", "soulSha256", "profileId", "profileConfigSha256", "decisionPath", "decisionSha256"],
+        "properties": {
+          "soulId": { "$ref": "#/$defs/id" },
+          "soulVersion": { "$ref": "#/$defs/id" },
+          "soulSha256": { "$ref": "#/$defs/sha256" },
+          "profileId": { "$ref": "#/$defs/id" },
+          "profileConfigSha256": { "$ref": "#/$defs/sha256" },
+          "decisionPath": { "type": "string", "minLength": 1 },
+          "decisionSha256": { "$ref": "#/$defs/sha256" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{0,239}$" },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  }
+}

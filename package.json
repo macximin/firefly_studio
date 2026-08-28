@@ -8,7 +8,7 @@
     "dispatch": "node scripts/dispatch-edge.mjs",
     "source-gateway": "node scripts/source-slice-gateway.mjs",
     "import:review-v2": "node scripts/import-review-packet-v2.mjs",
-    "validate": "node scripts/validate-manifest.mjs && node scripts/validate-hermes-profiles.mjs",
+    "validate": "node scripts/validate-manifest.mjs && node scripts/validate-hermes-profiles.mjs && node scripts/validate-genre-soul-adoptions.mjs",
     "status": "node scripts/status-edge-repos.mjs",
     "test": "node --test tests/*.test.mjs",
     "check": "npm run validate && npm test && npm run status"

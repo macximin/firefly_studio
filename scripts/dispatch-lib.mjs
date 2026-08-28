@@ -774,8 +774,31 @@ function validateProductionV2Child(value, workOrder, expectedWorkOrderSha256) {
   if (!isPlainObject(value.effectiveRuntime) || !isPlainObject(value.effectiveRuntime.orchestrator) || !isPlainObject(value.effectiveRuntime.inkos)) {
     errors.push("effectiveRuntime readback is required");
   } else {
-    if (stableStringify(value.effectiveRuntime.orchestrator) !== stableStringify(workOrder.runtime)) {
-      errors.push("orchestrator runtime readback does not match WorkOrder v2");
+    const allowedEffectiveRuntimeKeys = new Set(["hermesE2E", "orchestrator", "inkos"]);
+    for (const key of Object.keys(value.effectiveRuntime)) {
+      if (!allowedEffectiveRuntimeKeys.has(key)) errors.push(`unknown effectiveRuntime field: ${key}`);
+    }
+    if (workOrder.capability === "write-next" && value.effectiveRuntime.hermesE2E !== false) {
+      errors.push("write-next must report hermesE2E=false");
+    }
+    const orchestrator = value.effectiveRuntime.orchestrator;
+    const allowedOrchestratorKeys = new Set(["hermesProfile", "model", "reasoning", "invoked", "evidence"]);
+    for (const key of Object.keys(orchestrator)) {
+      if (!allowedOrchestratorKeys.has(key)) errors.push(`unknown orchestrator runtime field: ${key}`);
+    }
+    if (
+      orchestrator.hermesProfile !== workOrder.runtime.hermesProfile
+      || orchestrator.model !== workOrder.runtime.model
+      || orchestrator.reasoning !== workOrder.runtime.reasoning
+    ) {
+      errors.push("orchestrator runtime declaration does not match WorkOrder v2");
+    }
+    if (workOrder.capability === "write-next" && (orchestrator.invoked !== false || orchestrator.evidence !== "work-order-declaration")) {
+      errors.push("write-next must report that Hermes was not invoked");
+    }
+    const allowedInkosRuntimeKeys = new Set(["configMode", "model", "reasoning"]);
+    for (const key of Object.keys(value.effectiveRuntime.inkos)) {
+      if (!allowedInkosRuntimeKeys.has(key)) errors.push(`unknown InkOS runtime field: ${key}`);
     }
     if (!hasText(value.effectiveRuntime.inkos.model) || !hasText(value.effectiveRuntime.inkos.reasoning) || !hasText(value.effectiveRuntime.inkos.configMode)) {
       errors.push("InkOS effective model/reasoning readback is incomplete");
