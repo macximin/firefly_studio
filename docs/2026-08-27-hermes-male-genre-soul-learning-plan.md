@@ -1,7 +1,7 @@
 # Hermes 남성향 장르 Soul 원문 학습 계획
 
 - 작성일: 2026-08-27
-- 상태: Soul shell·런타임·Review v2 기반 완료 / survey·deep-read·승격 대기
+- 상태: Soul shell·런타임·Review v2·manager selection 완료 / survey·deep-read·승격 대기
 - 범위: 남성향 현대판타지, 판타지, 무협
 - 실행 기본값: Hermes와 InkOS에서 실제 호출된 agent 모두 `gpt-5.6-sol / high`
 - 프롬프트 정본: [Hermes 남성향 장르 Soul 프롬프트 v1](./2026-08-27-hermes-male-genre-soul-prompts-v1.md)
@@ -85,13 +85,13 @@ readback한다. 프로필 생성만으로 학습이나 production 승격이라�
   실제 Writer 예문 결속 경로가 이미 검증돼 있다.
 - Reference Lab의 현재 전작 생성기는 위 한 작품의 751화·131 Arc에
   맞춰져 있다. 세 장르 공용 Soul builder가 아니다.
-- Reference Lab에는 398개 재고와 21개 로컬 검증본을 결속한 canonical
-  private source registry와 tracked receipt가 있다. 현재 manager selection이
-  없어 `eligibleForSoulInput=0`이며, 기존 작품별 절대경로 receipt는 resolver
-  allowlist로 사용하지 않는다.
-- Reference Lab의 일부 README는 아직 `모사 없는 추상 인사이트`만
-  handoff한다고 적지만, 실제 reference pack은 raw 이야기·문체 예문을
-  전달한다. 장르 builder를 만들기 전에 child 문구도 HQ 계약과 맞춰야 한다.
+- Reference Lab에는 398개 재고와 27개 로컬 검증본을 결속한 canonical
+  private source registry와 tracked receipt가 있다. 관리자가 현대판타지·판타지·
+  무협에 3개씩 총 9개를 선택해 `eligibleForSoulInput=true`로 결속했고, 기존
+  작품별 절대경로 receipt는 resolver allowlist로 사용하지 않는다.
+- Reference Lab README는 실제 private 원문 전달과 tracked projection의 분리를
+  HQ 계약에 맞춰 정렬했다. manager selection은 survey/deep-read 입력 허가일 뿐
+  학습 완료나 Soul 승격 근거가 아니다.
 - InkOS에는 `modern-fantasy-ko`, `fantasy-ko`, `murim-ko` profile과 세
   versioned Soul이 있으며 실제 loaded byte SHA가 production input receipt에
   결속된다. 아직 deep-read에서 합성된 production Soul은 아니다.
@@ -865,12 +865,12 @@ grant 검증이며, adapter는 verified grant SHA를 access receipt에 기록한
 | 요구사항 | 소유 트랙 | 현재 상태 |
 | --- | --- | --- |
 | 1, 3, 4, 5와 6의 기존 profile 중립화 | InkOS runtime baseline | 완료·재구현 금지, 새 경로 회귀 검증만 수행 |
-| 2, 6의 신규 3 profile, 8 | Soul asset·Hermes | shell 완료; survey·deep-read 미완료 |
+| 2, 6의 신규 3 profile, 8 | Soul asset·Hermes | shell·장르별 3개 manager selection 완료; survey·deep-read 미완료 |
 | 7, 9 | Production Kernel·HQ v2 | HQ `write-next` 완료; session-less path canary·`agent-operate`·Hermes E2E 미완료 |
 | 10 | BookSoulBinding | 완료·회귀 green |
 | 11 | reference runtime | spine 동일-source만 현행, supporting reference는 미착수 |
 | 12 | Review Packet·private resolver·Storyyard | 코드·transport canary 완료; named TLS 배포·실제 HIL 미완료 |
-| 13 | promotion eligibility·owner adoption | Reference Lab eligibility와 HQ adoption schema·registry validator 완료; dispatch gate·실제 eligible source·owner promotion 0 |
+| 13 | promotion eligibility·owner adoption | Reference Lab eligibility와 HQ adoption schema·registry validator 완료; eligible source 9개, dispatch gate·owner promotion 0 |
 
 ### 상세 acceptance inventory
 
@@ -878,7 +878,9 @@ grant 검증이며, adapter는 verified grant SHA를 access receipt에 기록한
    정렬했다. 새 runtime이 이 계약을 되돌리지 않는지만 검증한다.
 2. **부분 완료.** Reference Lab의 inventory, private
    sourceId→repo-relative path→full SHA registry, tracked receipt, strict
-   study/promotion validator와 read-only resolver는 구현됐다. 잔여는 장르 공용
+   study/promotion validator와 read-only resolver는 구현됐다. 장르별 상업·장르 폭·
+   표면 앵커 3개씩을 manager selection으로 결속하고, 미선별·장르 오배정·선택
+   receipt 변조를 fail-closed한다. 잔여는 장르 공용
    survey·deep-read artifact, 실제 strict coverage와 manager QA다. 초기 독해는
    Reference Lab 안의 명시적 관리자 세션으로 수행한다. raw를 읽은 모든 tracked
    projection에는 full active corpus exact/long-common leak scanner,
