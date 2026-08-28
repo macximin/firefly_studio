@@ -65,6 +65,27 @@ test("requires an executable worker for the default production engine", () => {
   assert.ok(errors.some((error) => error.includes("defaultProductionEngine must reference a worker")));
 });
 
+test("accepts only bounded human-approved read-only tools", () => {
+  const manifest = validManifest();
+  manifest.policy.routingInputs.push("reference");
+  manifest.repos.push({
+    name: "reference", path: "edge_repos/reference", remoteUrl: "git@example.invalid:owner/reference.git",
+    branch: "main", managementState: "active", adoptionState: "ready", pullAllowed: true, writeAllowed: true,
+    role: "private source resolver",
+    execution: {
+      kind: "tool", adapter: "reference-lab-read-v1", entrypoint: "tools/private-source-slice.mjs",
+      receiptContract: "source-access-receipt/v1", readScopes: ["private_sources/", "exports/source-registry/"],
+      capabilities: [{ name: "private-source-slice", mode: "read-only", approval: "human" }],
+    },
+  });
+  assert.deepEqual(validateManifest(manifest), []);
+  manifest.repos[1].execution.readScopes = ["../outside"];
+  manifest.repos[1].execution.capabilities[0].mode = "mutating";
+  const errors = validateManifest(manifest);
+  assert.ok(errors.some((error) => error.includes("readScopes[0] must stay inside")));
+  assert.ok(errors.some((error) => error.includes("tool capabilities must be read-only")));
+});
+
 test("rejects unsafe worker entrypoints and duplicate capabilities", () => {
   const manifest = validManifest();
   manifest.repos[0].execution.entrypoint = "../outside.js";

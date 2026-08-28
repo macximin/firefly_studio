@@ -6,6 +6,8 @@
   "scripts": {
     "bootstrap:links": "node scripts/bootstrap-links.mjs",
     "dispatch": "node scripts/dispatch-edge.mjs",
+    "source-gateway": "node scripts/source-slice-gateway.mjs",
+    "import:review-v2": "node scripts/import-review-packet-v2.mjs",
     "validate": "node scripts/validate-manifest.mjs && node scripts/validate-hermes-profiles.mjs",
     "status": "node scripts/status-edge-repos.mjs",
     "test": "node --test tests/*.test.mjs",

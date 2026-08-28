@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://firefly.local/contracts/firefly-review-decision-v2.schema.json",
+  "title": "Firefly Review Decision v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "decisionId", "packetId", "packetSha256", "workId", "artifactId", "candidateId", "candidateSha256", "decision", "comment", "surfaceClassifications", "status", "createdAt"],
+  "properties": {
+    "schemaVersion": { "const": "firefly_review_decision/v2" },
+    "decisionId": { "type": "string", "minLength": 1 },
+    "packetId": { "type": "string", "pattern": "^frp-[0-9a-f]{24}$" },
+    "packetSha256": { "$ref": "#/$defs/sha256" },
+    "workId": { "type": "string", "minLength": 1 },
+    "artifactId": { "type": "string", "minLength": 1 },
+    "candidateId": { "type": "string", "pattern": "^candidate-[A-Z]$" },
+    "candidateSha256": { "$ref": "#/$defs/sha256" },
+    "decision": { "enum": ["approve", "polish", "hold", "reject"] },
+    "comment": { "type": "string", "maxLength": 2000 },
+    "surfaceClassifications": {
+      "type": "array", "uniqueItems": true,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["matchId", "selectorSha256", "classification", "classifiedByActorId", "classifiedByRole", "ownerScope", "classifiedAt"],
+        "properties": {
+          "matchId": { "type": "string", "pattern": "^fsm-[0-9a-f]{24}$" },
+          "selectorSha256": { "$ref": "#/$defs/sha256" },
+          "classification": { "enum": ["engine", "genre-convention", "source-surface", "canon-leak"] },
+          "classifiedByActorId": { "type": "string", "minLength": 1 },
+          "classifiedByRole": { "const": "admin" },
+          "ownerScope": { "type": "string", "minLength": 1 },
+          "classifiedAt": { "type": "string", "format": "date-time" }
+        }
+      }
+    },
+    "status": { "enum": ["pending", "applied", "superseded", "failed"] },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "appliedAt": { "type": ["string", "null"], "format": "date-time" },
+    "applyReceiptPath": { "type": ["string", "null"] },
+    "result": {}
+  },
+  "$defs": { "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" } },
+  "allOf": [{
+    "if": { "properties": { "status": { "const": "applied" } }, "required": ["status"] },
+    "then": {
+      "required": ["appliedAt", "applyReceiptPath", "result"],
+      "properties": { "appliedAt": { "type": "string", "format": "date-time" }, "applyReceiptPath": { "type": "string", "minLength": 1 } }
+    }
+  }]
+}

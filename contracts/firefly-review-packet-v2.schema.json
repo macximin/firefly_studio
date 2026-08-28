@@ -1,0 +1,211 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://firefly.local/contracts/firefly-review-packet-v2.schema.json",
+  "title": "Firefly Review Packet v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "packetId", "packetSha256", "generatedAt", "source", "work", "artifact", "comparison", "candidates", "sealedGenerationEvidence", "recommendation", "actions", "authority"],
+  "properties": {
+    "schemaVersion": { "const": "firefly_review_packet/v2" },
+    "packetId": { "type": "string", "pattern": "^frp-[0-9a-f]{24}$" },
+    "packetSha256": { "$ref": "#/$defs/sha256" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "source": {
+      "type": "object", "additionalProperties": false,
+      "required": ["system", "bookId", "sourceRevision"],
+      "properties": {
+        "system": { "const": "inkos" },
+        "bookId": { "type": "string", "minLength": 1 },
+        "sourceRevision": { "type": "string", "minLength": 1 }
+      }
+    },
+    "work": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "title", "genre", "status", "targetChapters"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "genre": { "type": "string", "minLength": 1 },
+        "status": { "type": "string", "minLength": 1 },
+        "targetChapters": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "artifact": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "kind", "chapterNumber", "title", "status", "currentContent", "currentContentSha256"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "kind": { "const": "chapter" },
+        "chapterNumber": { "type": "integer", "minimum": 1 },
+        "title": { "type": "string" },
+        "status": { "type": "string", "minLength": 1 },
+        "currentContent": { "type": "string" },
+        "currentContentSha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "comparison": {
+      "type": "object", "additionalProperties": false,
+      "required": ["reviewKind", "pairId", "round", "blindRunId", "blindSessionId", "commonInputReceiptSha256", "pairedGenerationReceiptSha256", "labelAssignmentReceiptSha256", "runtimeReceiptSha256", "candidateLabelsShuffled", "generatorMetadataExcluded", "runtime"],
+      "properties": {
+        "reviewKind": { "const": "independent-blind-comparison" },
+        "pairId": { "type": "string", "minLength": 1 },
+        "round": { "type": "integer", "minimum": 1, "maximum": 3 },
+        "blindRunId": { "type": "string", "minLength": 1 },
+        "blindSessionId": { "type": "string", "minLength": 1 },
+        "commonInputReceiptSha256": { "$ref": "#/$defs/sha256" },
+        "pairedGenerationReceiptSha256": { "$ref": "#/$defs/sha256" },
+        "labelAssignmentReceiptSha256": { "$ref": "#/$defs/sha256" },
+        "runtimeReceiptSha256": { "$ref": "#/$defs/sha256" },
+        "candidateLabelsShuffled": { "const": true },
+        "generatorMetadataExcluded": { "const": true },
+        "runtime": {
+          "type": "object", "additionalProperties": false,
+          "required": ["kernel", "piWorker", "retrieval", "fts", "model", "reasoning"],
+          "properties": {
+            "kernel": { "const": "enforce" },
+            "piWorker": { "const": "off" },
+            "retrieval": { "const": "legacy" },
+            "fts": { "const": "off" },
+            "model": { "const": "gpt-5.6-sol" },
+            "reasoning": { "const": "high" }
+          }
+        }
+      }
+    },
+    "candidates": {
+      "type": "array", "minItems": 2, "maxItems": 2, "uniqueItems": true,
+      "items": { "$ref": "#/$defs/candidate" }
+    },
+    "sealedGenerationEvidence": {
+      "type": "object", "additionalProperties": false,
+      "required": ["candidateEvidenceReceiptSha256s", "contentNeutralReceiptSha256s"],
+      "properties": {
+        "candidateEvidenceReceiptSha256s": { "$ref": "#/$defs/shaPair" },
+        "contentNeutralReceiptSha256s": { "$ref": "#/$defs/shaPair" }
+      }
+    },
+    "recommendation": { "type": "null" },
+    "actions": {
+      "type": "array", "prefixItems": [
+        { "const": "approve" }, { "const": "polish" }, { "const": "hold" }, { "const": "reject" }
+      ], "items": false, "minItems": 4, "maxItems": 4
+    },
+    "authority": {
+      "type": "object", "additionalProperties": false,
+      "required": ["canon", "decisionSurface", "apply", "reverseSync"],
+      "properties": {
+        "canon": { "const": "inkos" }, "decisionSurface": { "const": "storyyard" },
+        "apply": { "const": "inkos" }, "reverseSync": { "const": false }
+      }
+    }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "shaPair": { "type": "array", "minItems": 2, "maxItems": 2, "uniqueItems": true, "items": { "$ref": "#/$defs/sha256" } },
+    "candidateSpan": {
+      "type": "object", "additionalProperties": false,
+      "required": ["coordinateKind", "startByte", "endByte", "sliceSha256"],
+      "properties": {
+        "coordinateKind": { "const": "utf8-byte" },
+        "startByte": { "type": "integer", "minimum": 0 },
+        "endByte": { "type": "integer", "minimum": 1 },
+        "sliceSha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "surfaceMatch": {
+      "type": "object", "additionalProperties": false,
+      "required": ["matchId", "selectorSha256", "provenanceBridgeReceiptSha256", "matchMethod", "classification", "candidate", "source"],
+      "properties": {
+        "matchId": { "type": "string", "pattern": "^fsm-[0-9a-f]{24}$" },
+        "selectorSha256": { "$ref": "#/$defs/sha256" },
+        "provenanceBridgeReceiptSha256": { "$ref": "#/$defs/sha256" },
+        "matchMethod": { "enum": ["exact-token-12", "exact-byte-120", "long-common-substring", "near-string"] },
+        "classification": { "const": "pending" },
+        "candidate": {
+          "type": "object", "additionalProperties": false,
+          "required": ["coordinateKind", "candidateContentSha256", "startByte", "endByte", "candidateSliceSha256"],
+          "properties": {
+            "coordinateKind": { "const": "utf8-byte" }, "candidateContentSha256": { "$ref": "#/$defs/sha256" },
+            "startByte": { "type": "integer", "minimum": 0 }, "endByte": { "type": "integer", "minimum": 1 },
+            "candidateSliceSha256": { "$ref": "#/$defs/sha256" }
+          }
+        },
+        "source": {
+          "type": "object", "additionalProperties": false,
+          "required": ["coordinateKind", "sourceId", "sourceSha256", "startByte", "endByte", "sliceSha256"],
+          "properties": {
+            "coordinateKind": { "const": "utf8-byte" }, "sourceId": { "type": "string", "minLength": 1 },
+            "sourceSha256": { "$ref": "#/$defs/sha256" }, "startByte": { "type": "integer", "minimum": 0 },
+            "endByte": { "type": "integer", "minimum": 1 }, "sliceSha256": { "$ref": "#/$defs/sha256" }
+          }
+        }
+      }
+    },
+    "commercialEvaluation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["openingPressure", "protagonistAgency", "resistanceQuality", "visiblePayoff", "endingPropulsion", "referenceEngineRetention", "transformationIntegrity", "styleFidelity"],
+      "properties": {
+        "openingPressure": { "$ref": "#/$defs/score" }, "protagonistAgency": { "$ref": "#/$defs/score" },
+        "resistanceQuality": { "$ref": "#/$defs/score" }, "visiblePayoff": { "$ref": "#/$defs/score" },
+        "endingPropulsion": { "$ref": "#/$defs/score" }, "referenceEngineRetention": { "$ref": "#/$defs/score" },
+        "transformationIntegrity": { "$ref": "#/$defs/score" }, "styleFidelity": { "$ref": "#/$defs/score" }
+      }
+    },
+    "score": { "type": "number", "minimum": 0, "maximum": 100 },
+    "candidate": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "applicationBindingSha256", "status", "body", "sha256", "preparedAt", "commercialScore", "commercialEvaluation", "commercialEvaluationReceiptSha256", "review"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^candidate-[A-Z]$" },
+        "applicationBindingSha256": { "$ref": "#/$defs/sha256" },
+        "status": { "type": "string", "minLength": 1 }, "body": { "type": "string" },
+        "sha256": { "$ref": "#/$defs/sha256" }, "preparedAt": { "type": "string", "format": "date-time" },
+        "commercialScore": { "$ref": "#/$defs/score" },
+        "commercialEvaluation": { "$ref": "#/$defs/commercialEvaluation" },
+        "commercialEvaluationReceiptSha256": { "$ref": "#/$defs/sha256" },
+        "review": {
+          "type": "object", "additionalProperties": false,
+          "required": ["status", "retained", "variedSurface", "linkedConsequences", "emotionalCoherence", "contentNeutrality", "canonContradictions", "surfaceComparison"],
+          "properties": {
+            "status": { "type": "string", "minLength": 1 },
+            "retained": { "type": "array", "items": { "type": "string" } },
+            "variedSurface": { "type": "array", "items": { "type": "string" } },
+            "linkedConsequences": { "type": "array", "items": { "type": "string" } },
+            "emotionalCoherence": {
+              "type": "object", "additionalProperties": false, "required": ["score", "evidence"],
+              "properties": { "score": { "$ref": "#/$defs/score" }, "evidence": { "type": "array", "items": { "$ref": "#/$defs/candidateSpan" } } }
+            },
+            "contentNeutrality": {
+              "type": "object", "additionalProperties": false, "required": ["passed", "violations"],
+              "properties": {
+                "passed": { "type": "boolean" },
+                "violations": { "type": "array", "items": {
+                  "type": "object", "additionalProperties": false, "required": ["code", "evidence"],
+                  "properties": {
+                    "code": { "enum": ["unauthorized-softening", "unauthorized-escalation", "moral-lecture", "disclaimer", "forced-punishment", "forced-apology", "forced-redemption", "forced-cost", "forced-moral-growth", "forced-balance"] },
+                    "evidence": { "type": "array", "items": { "$ref": "#/$defs/candidateSpan" } }
+                  }
+                } }
+              }
+            },
+            "canonContradictions": { "type": "array", "items": {
+              "type": "object", "additionalProperties": false, "required": ["code", "evidence"],
+              "properties": { "code": { "const": "hard-canon-contradiction" }, "evidence": { "type": "array", "items": { "$ref": "#/$defs/candidateSpan" } } }
+            } },
+            "surfaceComparison": {
+              "type": "object", "additionalProperties": false,
+              "required": ["schemaVersion", "soulId", "soulVersion", "surfaceIndexSha256", "surfaceMatches", "similarityPenaltyApplied", "automaticRewriteApplied", "automaticRejectApplied", "humanDecision"],
+              "properties": {
+                "schemaVersion": { "const": "soul_corpus_comparison/v2" }, "soulId": { "type": "string", "minLength": 1 },
+                "soulVersion": { "type": "string", "minLength": 1 }, "surfaceIndexSha256": { "$ref": "#/$defs/sha256" },
+                "surfaceMatches": { "type": "array", "items": { "$ref": "#/$defs/surfaceMatch" } },
+                "similarityPenaltyApplied": { "const": false }, "automaticRewriteApplied": { "const": false },
+                "automaticRejectApplied": { "const": false }, "humanDecision": { "const": "pending" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -7,6 +7,14 @@ const ADOPTION_STATES = new Set(["ready", "pending-clean-closeout", "legacy-pres
 const EXECUTION_KINDS = new Set(["worker", "tool", "library"]);
 const CAPABILITY_MODES = new Set(["read-only", "mutating"]);
 const APPROVAL_MODES = new Set(["none", "human"]);
+const READ_ONLY_TOOL_ADAPTERS = new Set(["reference-lab-read-v1"]);
+
+function validateRelativePath(value, label, errors) {
+  const normalized = typeof value === "string" ? normalize(value) : "";
+  if (!normalized || isAbsolute(normalized) || normalized === ".." || normalized.startsWith(`..${sep}`) || String(value).split(/[\\/]+/).includes("..")) {
+    errors.push(`${label} must stay inside the child repository`);
+  }
+}
 
 export async function readJson(path) {
   return JSON.parse(await readFile(path, "utf8"));
@@ -98,12 +106,7 @@ export function validateManifest(manifest) {
       }
       if (!execution.entrypoint || typeof execution.entrypoint !== "string") {
         errors.push(`${label}.execution.entrypoint is required for workers`);
-      } else {
-        const normalizedEntrypoint = normalize(execution.entrypoint);
-        if (isAbsolute(normalizedEntrypoint) || normalizedEntrypoint === ".." || normalizedEntrypoint.startsWith(`..${sep}`) || execution.entrypoint.split(/[\\/]+/).includes("..")) {
-          errors.push(`${label}.execution.entrypoint must stay inside the child repository`);
-        }
-      }
+      } else validateRelativePath(execution.entrypoint, `${label}.execution.entrypoint`, errors);
       if (!["run-receipt/v1", "run-receipt/dual"].includes(execution.receiptContract)) {
         errors.push(`${label}.execution.receiptContract must be run-receipt/v1 or run-receipt/dual`);
       }
@@ -111,10 +114,7 @@ export function validateManifest(manifest) {
         errors.push(`${label}.execution.writeScopes must be an array`);
       } else {
         for (const [scopeIndex, scope] of execution.writeScopes.entries()) {
-          const normalizedScope = typeof scope === "string" ? normalize(scope) : "";
-          if (!normalizedScope || isAbsolute(normalizedScope) || normalizedScope === ".." || normalizedScope.startsWith(`..${sep}`) || String(scope).split(/[\\/]+/).includes("..")) {
-            errors.push(`${label}.execution.writeScopes[${scopeIndex}] must stay inside the child repository`);
-          }
+          validateRelativePath(scope, `${label}.execution.writeScopes[${scopeIndex}]`, errors);
         }
         if (execution.capabilities.some((capability) => capability.mode === "mutating") && execution.writeScopes.length === 0) {
           errors.push(`${label}.execution.writeScopes must not be empty for mutating workers`);
@@ -124,10 +124,7 @@ export function validateManifest(manifest) {
         errors.push(`${label}.execution.observationScopes must be an array`);
       } else {
         for (const [scopeIndex, scope] of execution.observationScopes.entries()) {
-          const normalizedScope = typeof scope === "string" ? normalize(scope) : "";
-          if (!normalizedScope || isAbsolute(normalizedScope) || normalizedScope === ".." || normalizedScope.startsWith(`..${sep}`) || String(scope).split(/[\\/]+/).includes("..")) {
-            errors.push(`${label}.execution.observationScopes[${scopeIndex}] must stay inside the child repository`);
-          }
+          validateRelativePath(scope, `${label}.execution.observationScopes[${scopeIndex}]`, errors);
         }
         for (const writeScope of execution.writeScopes ?? []) {
           if (!execution.observationScopes.includes(writeScope)) {
@@ -138,7 +135,22 @@ export function validateManifest(manifest) {
       if (execution.capabilities.length === 0) {
         errors.push(`${label}.execution.capabilities must not be empty for workers`);
       }
-    } else if (execution.adapter || execution.entrypoint || execution.writeScopes || execution.observationScopes || execution.receiptContract) {
+    } else if (execution.kind === "tool") {
+      const executable = execution.capabilities.length > 0 || execution.adapter || execution.entrypoint || execution.readScopes || execution.receiptContract;
+      if (executable) {
+        if (!READ_ONLY_TOOL_ADAPTERS.has(execution.adapter)) errors.push(`${label}.execution.adapter is not an approved read-only tool adapter`);
+        if (!execution.entrypoint || typeof execution.entrypoint !== "string") errors.push(`${label}.execution.entrypoint is required for tools`);
+        else validateRelativePath(execution.entrypoint, `${label}.execution.entrypoint`, errors);
+        if (execution.receiptContract !== "source-access-receipt/v1") errors.push(`${label}.execution.receiptContract must be source-access-receipt/v1 for tools`);
+        if (!Array.isArray(execution.readScopes) || execution.readScopes.length === 0) errors.push(`${label}.execution.readScopes must be a non-empty array for tools`);
+        else for (const [scopeIndex, scope] of execution.readScopes.entries()) validateRelativePath(scope, `${label}.execution.readScopes[${scopeIndex}]`, errors);
+        if (execution.writeScopes || execution.observationScopes) errors.push(`${label}.execution read-only tools cannot declare writeScopes or observationScopes`);
+        if (execution.capabilities.length === 0) errors.push(`${label}.execution.capabilities must not be empty for executable tools`);
+        for (const capability of execution.capabilities) {
+          if (capability.mode !== "read-only" || capability.approval !== "human") errors.push(`${label}.execution tool capabilities must be read-only and human-approved`);
+        }
+      }
+    } else if (execution.adapter || execution.entrypoint || execution.writeScopes || execution.observationScopes || execution.readScopes || execution.receiptContract) {
       errors.push(`${label}.execution ${execution.kind} repositories cannot declare a worker adapter`);
     }
   }

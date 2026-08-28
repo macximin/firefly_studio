@@ -97,8 +97,22 @@
       "writeAllowed": true,
       "role": "derived pitches, character cores, Arc, event, reward and Gold routing references",
       "execution": {
-        "kind": "library",
-        "capabilities": []
+        "kind": "tool",
+        "adapter": "reference-lab-read-v1",
+        "entrypoint": "tools/private-source-slice.mjs",
+        "receiptContract": "source-access-receipt/v1",
+        "readScopes": [
+          "private_sources/korean_webnovel_corpus/",
+          "exports/source-registry/",
+          "evidence/genre-souls/"
+        ],
+        "capabilities": [
+          {
+            "name": "private-source-slice",
+            "mode": "read-only",
+            "approval": "human"
+          }
+        ]
       }
     },
     {
