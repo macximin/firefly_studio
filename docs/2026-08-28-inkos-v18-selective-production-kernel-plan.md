@@ -15,9 +15,9 @@
 - Phase 5 InkOS commit: `b3a7b3ca` (`master`, origin push 확인)
 - Phase 6 InkOS commit: `97deb354` (`master`, origin push 확인)
 - Phase 7 Reference Lab commits: `822ec3d`, `a94ab1f`, `1c89819` (`main`, origin push 확인)
-- Phase 7 InkOS commits: `a66352fe`, `65936698`, `8ff9d72b`, `889eadc5` (`master`, origin push 확인)
+- Phase 7 InkOS commits: `a66352fe`, `65936698`, `8ff9d72b`, `889eadc5`, `77591412` (`master`, origin push 확인)
 - Phase 7 Storyyard commit: `f1c4e1e` (`main`, origin push 확인)
-- Phase 7 HQ commits: `f4130e7`, `92979f6` (`main`, origin push 확인)
+- Phase 7 HQ commits: `f4130e7`, `92979f6`, `e2dfe51`, `2ebf1d0`, `fe0643a` (`main`, origin push 확인)
 - upstream 기준: `091048383f411eb99948a8764f42b6fd13006f9b`
 - upstream 확인: 로컬 `upstream/master`와 원격 `refs/heads/master` 일치
 - 범위: InkOS 생산 실행, Soul/Skill 결속, 검색 projection, HQ 호출 경계,
@@ -80,13 +80,21 @@ source slice UI를 제공한다. 이는 기반 완료이지 학습·승격 완�
   총 3394 tests PASS; 실제 Doksik pack story/style가 동일 `32..138` byte로 수렴
 - Phase 7 Storyyard: build와 21 tests PASS
 - Phase 7 Reference Lab: 28 tests와 실제 resolver entrypoint 검사 PASS
-- Phase 7 HQ: manifest/Hermes profile validate, 39 tests, 4-child status PASS
+- Phase 7 HQ transport 시점: manifest/Hermes profile validate, 39 tests,
+  4-child status PASS
+- Phase 7 owner authority: strict promotion decision·active adoption registry
+  schema/readback을 추가하고 active 0, 세 Hermes candidate/disabled를 검증. HQ
+  44 tests PASS. 실제 promotion은 생성하지 않음
+- Phase 7 runtime evidence correction: direct `write-next`는 Hermes를 호출하지
+  않으므로 InkOS/HQ receipt가 `hermesE2E=false`, `orchestrator.invoked=false`,
+  `evidence=work-order-declaration`을 강제. InkOS CLI 257 tests와 typecheck/build,
+  HQ false-Hermes fixture PASS
 - private source transport canary: 실제 검증 원문 554 bytes를 signed grant,
   HQ packet selector, Reference Lab fd3, 반환 SHA 경로로 1회 통과. raw 영속 0.
   `source-slice-transport-canary/v1`이며 path/promotion/review 증거로 사용하지 않음
 - 품질 gate: typecheck, build, semantic audit, publish manifest, diff check PASS
 - Phase 5 HQ gate: manifest validate, 30 tests, 4-child status/contract/sync PASS
-- P0/P1 감리: 구현 범위의 잔여 결함 없음. Phase 1의 Studio Core binding 오류 HTTP 409
+- P0/P1 감리: 완료 처리된 구현 표면의 잔여 결함 없음. Phase 1의 Studio Core binding 오류 HTTP 409
   projection, Phase 2의 ready transition audit-receipt 재검증, Phase 3의 receipt
   body 중복 제거와 premature Skill activation 차단, Phase 4의 decision ID 단회
   사용과 production Skill identity drift 차단, Phase 5의 actual evidence byte·Soul
@@ -94,11 +102,16 @@ source slice UI를 제공한다. 이는 기반 완료이지 학습·승격 완�
   Phase 7 감리에서는 resolver 무기한 대기와 평문 비-loopback 바인딩 두 P1을
   발견해 각각 5초 kill boundary와 explicit loopback guard로 수정. 문서 대조에서
   context를 붙이면 `/write` 판정이 깨지는 P1도 찾아 exact detached lease로 분리
+  했다. 이어 direct `write-next`가 Hermes 요청값을 실효 runtime처럼 투영하는 P0를
+  찾아 명시적 non-E2E evidence로 수정했다. 문서가 완료로 표기했던
+  `agent-operate`는 manifest·Dispatcher에 없음을 확인해 미완료로 재분류했다
 - Phase 1은 dependency·Node floor·Soul·production Skill·LengthNormalizer와 HQ
   WorkOrder 계약을 변경하지 않음
 - 다음 재개점: **장르별 manager selection과 strict deep-read**. 현재
   `eligibleForSoulInput=0`이므로 격리 Book path canary와 promotion canary는
-  정직하게 차단되어 있다. Phase 8은 Phase 7 승격 완료 뒤 진행
+  정직하게 차단되어 있다. promotion pair 전에 HQ `agent-operate` adapter와
+  adoption dispatch gate, 문서 계약 그대로의 session-less path canary adapter도
+  별도 완료해야 한다. Phase 8은 Phase 7 승격 완료 뒤 진행
 
 ### Phase 1 구현 영수증
 

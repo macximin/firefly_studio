@@ -866,10 +866,11 @@ grant 검증이며, adapter는 verified grant SHA를 access receipt에 기록한
 | --- | --- | --- |
 | 1, 3, 4, 5와 6의 기존 profile 중립화 | InkOS runtime baseline | 완료·재구현 금지, 새 경로 회귀 검증만 수행 |
 | 2, 6의 신규 3 profile, 8 | Soul asset·Hermes | shell 완료; survey·deep-read 미완료 |
-| 7, 9, 10 | Production Kernel·HQ v2·BookSoulBinding | 완료·회귀 green |
+| 7, 9 | Production Kernel·HQ v2 | HQ `write-next` 완료; session-less path canary·`agent-operate`·Hermes E2E 미완료 |
+| 10 | BookSoulBinding | 완료·회귀 green |
 | 11 | reference runtime | spine 동일-source만 현행, supporting reference는 미착수 |
 | 12 | Review Packet·private resolver·Storyyard | 코드·transport canary 완료; named TLS 배포·실제 HIL 미완료 |
-| 13 | promotion eligibility·owner adoption | strict evidence validator 완료; 실제 eligible source와 owner promotion 0 |
+| 13 | promotion eligibility·owner adoption | Reference Lab eligibility와 HQ adoption schema·registry validator 완료; dispatch gate·실제 eligible source·owner promotion 0 |
 
 ### 상세 acceptance inventory
 
@@ -930,21 +931,26 @@ grant 검증이며, adapter는 verified grant SHA를 access receipt에 기록한
    협박·연줄 없이 절차가 사라지는 무상 해결만 막는다. 사용자가 Book
    rule로 지정한 금기와 수위는 그대로 존중한다. 기존 `urban.md`와
    `litrpg.md` 정렬은 회귀 기준선으로 유지한다.
-7. **runtime 완료.** 선택 이식 구현안 Phase 3~5에서 HQ manifest와
-   Dispatcher의 `write-next`/`inkos-write-next/v2`,
-   `agent-operate`/`inkos-agent-operate/v2`, RunReceipt v2 validator를 구현했다.
-   InkOS `interact --context-file`은 `/write` intent와 context를
-   분리 전달한다. 검증된 control-context SHA만 허용하며 어느 경로든 Writer
-   request의 externalContext hash와 Reference Pack system context hash를
-   따로 readback한다. direct-write는 session 없는 path canary이고
-   agent-operate만 Hermes/Agent promotion·production E2E다.
+7. **부분 완료.** 선택 이식 구현안 Phase 3~5에서 HQ manifest와
+   Dispatcher의 `write-next`/`inkos-write-next/v2`, RunReceipt v2 validator를
+   구현했다. InkOS `interact --context-file`도 `/write` intent와 context를
+   분리 전달한다. 다만 HQ manifest·Dispatcher에는 아직
+   `agent-operate`/`inkos-agent-operate/v2`가 없다. 현 `write-next`의
+   `sessionId`는 production correlation일 뿐 persisted Agent session은 아니지만,
+   이 문서가 정의한 literal-null session-less direct-write canary와도 다르다.
+   따라서 아직 Phase 7 path canary나 Hermes/Agent promotion E2E로 세지 않는다.
+   현 RunReceipt는 이를 `hermesE2E=false`, `orchestrator.invoked=false`,
+   `evidence=work-order-declaration`으로 명시한다. agent-operate 구현 전에는
+   WorkOrder의 Hermes 요청값을 실제 Hermes readback으로 해석하지 않는다.
 8. **shell 완료.** 새 Hermes 프로필 세 개를 격리 생성하고 `SOUL.md`,
    model, reasoning을 readback한다. 기존 v3 author Soul은 clone하지 않았다.
-9. **runtime 완료.** WorkOrder/RunReceipt v2와 Hermes adapter가 Hermes와
-   InkOS의 실제 `sol/high`를 각각 강제한다. 고정 agent 목록 대신 실행 trace에서 실제
-   호출된 agent 전부의 model·reasoning·count를 host가 수집한다. InkOS
-   `inkos.json` model, Studio default, service allowlist, effective model도
-   검증하며 LLM 자기신고 값은 사용하지 않는다.
+9. **부분 완료.** WorkOrder/RunReceipt v2는 InkOS가 실제 호출한 agent의
+   model·reasoning·count와 receipt를 readback한다. 별도 Hermes profile
+   validator도 설치된 candidate의 config·Soul·`sol/high`를 검증한다. 그러나
+   direct `write-next`는 Hermes를 호출하지 않으므로 WorkOrder의
+   `runtime.hermesProfile/model/reasoning`은 요청 선언일 뿐 실효 readback이 아니다.
+   실제 Hermes run/session·control-context receipt 검증은 agent-operate adapter와
+   함께 구현해야 한다.
 10. **runtime 완료.** Book의 append-only `soul-bindings/vNNNN.json` history,
    mutable `soul_binding.json` active pointer, persisted session↔Book↔binding 검사를
    구현한다. Soul version 변경은 사람 rebind와 새 session을 요구하고 교차
@@ -962,9 +968,14 @@ grant 검증이며, adapter는 verified grant SHA를 access receipt에 기록한
    이 capability를 직접 실행하지 않는다. story/style provenance typed selector
    converter와 실데이터 canary도 완료했다. 잔여는 deep-read 기반 production
    surface index 생성, named TLS tunnel 배포와 실제 사람 HIL이다.
-13. **owner gate 잔여.** Reference Lab의 promotion eligibility와 HQ의 사람
-    promotion decision·active adoption registry를 분리한다. `agent-operate` production은 HQ
-    decision/registry SHA가 없거나 `promote`가 아니면 거절한다.
+13. **owner authority shell 완료·dispatch gate 잔여.** Reference Lab의
+    promotion eligibility와 HQ의 사람 promotion decision·active adoption registry를
+    분리했다. HQ는 strict `genre_soul_promotion/v1`과
+    `genre-soul-adoption-registry/v1`을 검증하며, promoted Hermes profile과 active
+    registry가 서로 빠지거나 decision byte SHA·Soul identity·profile config가
+    어긋나면 거절한다. 현재 active registry는 비어 있고 세 profile은 모두
+    candidate/disabled다. 향후 `agent-operate` production은 이 validator의 실제
+    `promote` decision/registry SHA readback을 WorkOrder gate로 결속해야 한다.
 
 ### Soul 자산 제작과 카나리
 
