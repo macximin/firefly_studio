@@ -8,10 +8,11 @@ not draft, revise, approve, or publish an InkOS chapter by itself.
 
 ## Flow
 
-1. InkOS exports an immutable `firefly_review_packet/v1` for one chapter and
-   its prepared candidates.
-2. Storyyard renders the packet for an authenticated administrator and stores
-   one `firefly_review_decision/v1` as `pending`.
+1. InkOS exports an immutable `firefly_review_packet/v1` for the existing
+   single-candidate flow or a blind-pair `firefly_review_packet/v2`.
+2. Storyyard renders either packet for an authenticated administrator and
+   stores the matching v1/v2 decision as `pending`. V2 requires a human
+   classification for every surface match.
 3. HQ reads the pending receipt and invokes the matching InkOS HIL action.
 4. InkOS applies or replaces the candidate under its Book lock, resynchronizes
    derived state, and emits its own receipt.
@@ -37,6 +38,10 @@ labelled read-only legacy. No row or public URL is deleted by this migration.
 
 Every decision is bound to the packet, artifact, candidate, and SHA-256 values
 visible at decision time. A changed InkOS chapter requires a new packet.
+V2 exposes only opaque `candidate-A/B` labels before the decision. InkOS alone
+resolves the chosen label to a live internal HIL candidate. `canon-leak` blocks
+approval; other classifications remain human review information and do not
+trigger automatic rewriting or rejection.
 
 ## Operator path
 
@@ -46,6 +51,28 @@ storyyard: npm run firefly:import-review -- ../inkos/.inkos/exports/storyyard/cu
 inkos review apply-storyyard <decision.json> --packet .inkos/exports/storyyard/current.json --json
 storyyard: STORYYARD_APPLY_TOKEN=<runtime secret> npm run firefly:ack-review -- <InkOS applied receipt.json>
 ```
+
+For v2, InkOS first validates a host-prepared pointer-only body against the live
+Book and HIL candidates:
+
+```text
+inkos review export-storyyard-v2 <draft-body.json> <book-id> --out .inkos/exports/storyyard/current-v2.json --json
+firefly HQ: npm run import:review-v2 -- <InkOS current-v2.json>
+storyyard: npm run firefly:import-review -- <InkOS current-v2.json>
+```
+
+The optional source comparison is admin-only and transient. Storyyard signs a
+60-second Ed25519 grant from `STORYYARD_SOURCE_GRANT_PRIVATE_JWK` and sends it to
+the fixed HTTPS `STORYYARD_SOURCE_GATEWAY_URL`. HQ keeps only the public JWK,
+binds its plaintext listener to `127.0.0.1` or `::1`, consumes the JTI before
+the child call, and invokes the Reference Lab resolver with raw bytes on fd3.
+The browser keeps a slice in React memory for at most ten minutes. D1, packet,
+logs, localStorage, IndexedDB and service-worker cache do not receive it.
+
+The 2026-08-28 transport canary passed with one real 554-byte source slice and
+zero raw persistence. This is transport evidence only; it is not a Soul,
+commercial, Storyyard decision, or promotion receipt. A named TLS tunnel and a
+real human review remain deployment work.
 
 The last command revalidates packet identity, candidate SHA-256, current chapter
 freshness, and the Book lock before invoking the existing InkOS HIL operation.

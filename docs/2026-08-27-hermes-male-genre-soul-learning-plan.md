@@ -1,8 +1,7 @@
 # Hermes 남성향 장르 Soul 원문 학습 계획
 
 - 작성일: 2026-08-27
-- 상태: Soul 자산·프롬프트 계획 v1 확정 / 런타임 기반은 별도 선택 이식
-  구현안으로 정본화 / 코퍼스 학습·카나리 미착수
+- 상태: Soul shell·런타임·Review v2 기반 완료 / survey·deep-read·승격 대기
 - 범위: 남성향 현대판타지, 판타지, 무협
 - 실행 기본값: Hermes와 InkOS에서 실제 호출된 agent 모두 `gpt-5.6-sol / high`
 - 프롬프트 정본: [Hermes 남성향 장르 Soul 프롬프트 v1](./2026-08-27-hermes-male-genre-soul-prompts-v1.md)
@@ -65,9 +64,10 @@ reference, 작품 톤을 보존한다.
   문서가 장르 Soul 학습 부분만 구체화하며, InkOS의 캐논 소유권은 바꾸지
   않는다.
 
-현재 WorkOrder v1과 Dispatcher는 Hermes 프로필, 모델, reasoning을 받지
-않는다. 따라서 이 문서의 `sol-high`는 아직 실행 강제가 아니라 구현 목표다.
-프로필 생성만으로 완료라고 보고하지 않는다.
+WorkOrder/RunReceipt v2, BookSoulBinding과 production input receipt가 구현됐고,
+HQ는 세 격리 Hermes 프로필의 실제 Soul/config bytes와 `gpt-5.6-sol / high`를
+readback한다. 프로필 생성만으로 학습이나 production 승격이라고 보고하지
+않는 원칙은 유지한다.
 
 ## 현재 확인된 사실
 
@@ -85,25 +85,23 @@ reference, 작품 톤을 보존한다.
   실제 Writer 예문 결속 경로가 이미 검증돼 있다.
 - Reference Lab의 현재 전작 생성기는 위 한 작품의 751화·131 Arc에
   맞춰져 있다. 세 장르 공용 Soul builder가 아니다.
-- Reference Lab에는 resolver가 사용할 canonical source registry가 아직 없다.
-  현재 `evidence/source_manifest.json`의 works는 비어 있고, 기존 Doksik
-  `source_receipt.json`은 이전 절대 경로를 가리켜 sourceId resolver
-  allowlist로 쓸 수 없다.
+- Reference Lab에는 398개 재고와 21개 로컬 검증본을 결속한 canonical
+  private source registry와 tracked receipt가 있다. 현재 manager selection이
+  없어 `eligibleForSoulInput=0`이며, 기존 작품별 절대경로 receipt는 resolver
+  allowlist로 사용하지 않는다.
 - Reference Lab의 일부 README는 아직 `모사 없는 추상 인사이트`만
   handoff한다고 적지만, 실제 reference pack은 raw 이야기·문체 예문을
   전달한다. 장르 builder를 만들기 전에 child 문구도 HQ 계약과 맞춰야 한다.
-- InkOS의 한국어 장르 규칙은 재벌 현대판타지 전용과 `other-ko`만 있다.
-  판타지와 무협은 현재 같은 범용 규칙으로 폴백한다.
-- `inkos interact`에는 Soul이나 context file을 Writer까지 전달하는 옵션이
-  없다. Hermes 프로필에만 지시를 넣으면 실제 원고에는 반영되지 않을 수
-  있다. 현재 확인된 직접 경로는 `inkos write next --context-file`과
-  `inkos agent --context-file`의 `externalContext`다. canary는 더 좁은
-  `write next` 경로를 우선한다.
-- `sub_agent(writer)`가 받는 자유 지시는 현재 실제 `writeNextChapter()`
-  호출에서 사용되지 않는다. 정식 구현은 Soul context가 Writer system
-  prompt가 아니라 최종 Writer request의 per-chapter `externalContext`에
-  들어간 바이트와 hash를 증명해야 한다. Reference Pack context는 별도로
-  Writer system prompt에 붙는다.
+- InkOS에는 `modern-fantasy-ko`, `fantasy-ko`, `murim-ko` profile과 세
+  versioned Soul이 있으며 실제 loaded byte SHA가 production input receipt에
+  결속된다. 아직 deep-read에서 합성된 production Soul은 아니다.
+- `inkos write next`, `inkos agent`와 Book-bound
+  `inkos interact /write`는 context file을 명령 문자열과 분리해 exact detached
+  owner-direction lease로 전달한다. 빈 파일과 non-write interact 사용은
+  모델 호출 전에 거절한다.
+- `sub_agent(writer)`의 지시는 owner direction과 구분된 model-mediated
+  context로 Writer에 전달된다. Soul/Skill input은 host-bound bytes와 receipt로
+  결속되고 Reference Pack context는 별도 provenance를 유지한다.
 - InkOS `style import`는 파일 하나를 Book 단위 프로필로 덮어쓰는 기능이다.
   다작품 코퍼스 누적 학습기로 사용하지 않는다.
 - Reference Pack schema에는 supporting reference가 있지만 현재 retrieval은
@@ -113,9 +111,8 @@ reference, 작품 톤을 보존한다.
   exact match다. 장르 Soul 전체 코퍼스 비교라고 부를 수 없다.
 - 기존 Hermes `firefly-studio`와 `author_*` 프로필은 이번 Soul의 정본이
   아니다. 구 v3 문구와 `terra` 설정을 새 InkOS 운영에 재사용하지 않는다.
-- 현재 `firefly-studio` Hermes 프로필은 `gpt-5.6-terra / medium`, InkOS
-  기본값은 `gpt-5.6-terra / high`다. 어느 쪽도 이 계획의 `sol/high` 목표를
-  아직 충족하지 않는다.
+- 기존 `firefly-studio` 프로필은 계속 정본이 아니다. 신규 세 candidate
+  profile만 `gpt-5.6-sol / high`, skills 0, 격리 Soul/config hash를 통과했다.
 
 ## 허구 내용 중립 계약과 정적 감리
 
@@ -153,7 +150,7 @@ commercial/HIL reviewer, blind reviewer가 같은 계약 바이트와 SHA를 받
 | fiction-content-neutral control | 전 agent 계약·SHA와 free-form finding 자동 권위 제한이 없었음 | 완료·보존 기준선. Book-bound 호출, refusal/outcome, creative 자동 수정 경계와 호출 집합 receipt 구현 | 새 Soul/Skill/Pi 경로의 동일 contract byte·SHA 수신 검증 |
 | publication compatibility | 민감 표현이 creative pass·수정과 섞였음 | 완료·보존 기준선. `publicationCompatibility` advisory로 분리 | Storyyard·Soul review packet이 이를 상업 점수나 canon gate로 다시 합치지 않는 회귀 |
 | 기존 genre profile·Dimension 14 | 성별·도덕 규범과 플롯 기능 자체를 결함화할 수 있었음 | 완료·보존 기준선. 재벌·urban·litrpg 문구와 legacy current-state read projection을 인물 인과·능력 기준으로 정렬 | 신규 세 profile semantic lint에 같은 기준 적용 |
-| 신규 한국어 profile | 현대판타지·판타지·무협의 독립 alias/fallback이 없음 | 미완료 | `modern-fantasy-ko`, `fantasy-ko`, `murim-ko` profile·alias·loaded SHA 구현 |
+| 신규 한국어 profile | 현대판타지·판타지·무협의 독립 alias/fallback이 없었음 | shell 완료. 세 profile·Soul과 loaded SHA 회귀 구현 | deep-read 합성 뒤 production 승격 필요 |
 | Reference Lab `윤리 감리` | Gold 도덕 적합성 gate인지 정의가 불명확 | 미완료 | 원문 인과·후속 비용의 비점수 관찰로 좁히고 Gold 차단·장르 공통 hard rule 승격 금지 |
 
 완료된 네 runtime 경계를 Sol Max가 다시 설계하거나 교체하지 않는다. 선택
@@ -650,14 +647,15 @@ Book Soul binding ID와 선택된 immutable history SHA도 event와 receipt에
 기록한다.
 
 Hermes는 저장소가 아니므로 `config/edge-repos.json`에 가짜 child로 넣지
-않는다. 실행 어댑터와 프로필 registry를 HQ가 별도 계약으로 관리하고,
-Reference Lab이 library 상태인 동안에는 Soul builder를 HQ가 자동 실행할
-수 있다고 주장하지 않는다.
+않는다. 실행 어댑터와 프로필 registry는 HQ가 별도 계약으로 관리한다.
+Reference Lab은 bounded read-only tool이지만 학습·promotion 결정권은 없고,
+일반 Dispatcher CLI에서도 private resolver를 직접 실행할 수 없다.
 
 ## 출력 표면 HIL
 
-구현 목표는 현재 주입 예문 12-token exact match를 보존하면서 Soul 버전별
-전체 활성 코퍼스 인덱스 비교를 추가하는 것이다. 후보마다 다음을 표시한다.
+Review Packet v2와 Storyyard 비교 HIL은 구현됐다. 남은 목표는 Soul 버전별
+전체 활성 코퍼스 surface index를 실제 deep-read 산출물에서 만드는 것이다.
+후보마다 다음을 표시한다.
 
 - 실제 Writer 주입 source ID, chapter·byte 범위, excerpt SHA
 - 검사한 Soul ID·version과 surface index SHA
@@ -672,8 +670,8 @@ Reference Lab이 library 상태인 동안에는 Soul builder를 HQ가 자동 실
 Polisher에 전달하고 새 후보를 readback하는 adapter는 별도 구현 전까지
 작동한다고 주장하지 않는다.
 
-이 확장은 현행 InkOS `CommercialEvaluationSchema`, Storyyard review packet
-v1과 호환되지 않는다. Soul canary 전에 다음 버전 계약이 필요하다.
+v1은 그대로 유지하고 아래 v2 계약을 additive로 구현했다. 아직 corpus
+surface index 생성과 실제 사람 promotion 판정은 남아 있다.
 
 - 기존 8개 commercial field와 새 감정적 정합성 축의 명시적 mapping 또는
   Commercial Evaluation v2
@@ -723,10 +721,10 @@ manifest에 Reference Lab의 bounded read-only
 Reference Lab 로컬 path를 직접 읽는 경로는 만들지 않는다. 이 resolver
 capability는 Reference Lab의 production decision 권한을 늘리지 않는다.
 
-현재 manifest의 Reference Lab은 `execution.kind=library`, capabilities가
-비어 있고 HQ Dispatcher는 worker adapter만 실행한다. 따라서 capability
-이름만 추가하는 것은 구현이 아니다. P0에서 Reference Lab의 저장소 역할은
-그대로 두되 실행 kind를 read-only `tool`로 바꾸고 다음 계약을 함께 만든다.
+현재 manifest의 Reference Lab은 `execution.kind=tool`인 bounded read-only
+resolver다. 일반 Dispatcher는 계속 worker만 실행하고, private slice는
+Storyyard signed grant를 검증하는 전용 HQ gateway만 호출한다. 구현된 계약은
+다음과 같다.
 
 - child entrypoint: `tools/private-source-slice.mjs` 계획값
 - HQ adapter: `reference-lab-read-v1`
@@ -867,24 +865,21 @@ grant 검증이며, adapter는 verified grant SHA를 access receipt에 기록한
 | 요구사항 | 소유 트랙 | 현재 상태 |
 | --- | --- | --- |
 | 1, 3, 4, 5와 6의 기존 profile 중립화 | InkOS runtime baseline | 완료·재구현 금지, 새 경로 회귀 검증만 수행 |
-| 2, 6의 신규 3 profile, 8 | Soul asset·Hermes | 미착수 |
-| 7, 9, 10 | Production Kernel·HQ v2·BookSoulBinding | 새 선택 이식 구현안 Phase 3~5 소유 |
+| 2, 6의 신규 3 profile, 8 | Soul asset·Hermes | shell 완료; survey·deep-read 미완료 |
+| 7, 9, 10 | Production Kernel·HQ v2·BookSoulBinding | 완료·회귀 green |
 | 11 | reference runtime | spine 동일-source만 현행, supporting reference는 미착수 |
-| 12 | Review Packet·private resolver·Storyyard | 자산/런타임 분할 미착수 |
-| 13 | promotion eligibility·owner adoption | 미착수 |
+| 12 | Review Packet·private resolver·Storyyard | 코드·transport canary 완료; named TLS 배포·실제 HIL 미완료 |
+| 13 | promotion eligibility·owner adoption | strict evidence validator 완료; 실제 eligible source와 owner promotion 0 |
 
 ### 상세 acceptance inventory
 
 1. **완료·보존.** production routing 문구를 실제 raw private input 정책으로
    정렬했다. 새 runtime이 이 계약을 되돌리지 않는지만 검증한다.
-2. **Soul asset 잔여.** Reference Lab의 추상화 전용 README·분석 지침을 raw private input
-   정책과 정렬하고, 하드코딩된 단일 작품 builder와 별도로 장르 공용
-   inventory·survey·deep-read artifact schema, strict coverage validator,
-   manager QA receipt를 만든다. inventory에서 private sourceId→repo-relative
-   path→full SHA registry와 tracked registry receipt를 만들고 빈 manifest·
-   이전 절대경로 receipt를 resolver 입력으로 거절한다. 초기 독해는 Reference
-   Lab 안의 명시적 관리자 세션으로 수행한다. 자동화하려면 먼저 manifest에
-   bounded tool adapter와 capability를 추가한다. raw를 읽은 모든 tracked
+2. **부분 완료.** Reference Lab의 inventory, private
+   sourceId→repo-relative path→full SHA registry, tracked receipt, strict
+   study/promotion validator와 read-only resolver는 구현됐다. 잔여는 장르 공용
+   survey·deep-read artifact, 실제 strict coverage와 manager QA다. 초기 독해는
+   Reference Lab 안의 명시적 관리자 세션으로 수행한다. raw를 읽은 모든 tracked
    projection에는 full active corpus exact/long-common leak scanner,
    private quarantine, zero-match promotion receipt를 강제한다.
    후보 문서의 무정의 `윤리 감리`는 원문 인과·후속 비용의 비점수 관찰로
@@ -927,30 +922,30 @@ grant 검증이며, adapter는 verified grant SHA를 access receipt에 기록한
    sensitive finding은 creative pass, 상업성 점수, 캐논, Reviser 입력에
    영향을 주지 않아야 한다. 현행 정치 `block`과 성·폭력 완화 권고가
    creative path를 실패시키지 않는 회귀 테스트를 유지한다.
-6. **부분 완료.** 기존 재벌·urban·litrpg profile 중립화와 Dimension 14 경계는
-   완료됐다. 잔여 작업은 한국어 현대판타지, 판타지, 무협 전용 genre profile,
-   alias·fallback·Book.genre·실제 loaded profile SHA 테스트 추가다.
+6. **shell 완료.** 기존 재벌·urban·litrpg profile 중립화와 Dimension 14 경계,
+   한국어 현대판타지·판타지·무협 전용 genre profile, alias·fallback,
+   Book.genre와 실제 loaded profile SHA 테스트가 구현됐다.
    성별·도덕성 기본 금지를 넣지 않고 장면 인과와 상업 기능만 규정한다.
    재벌 profile의 전화 해결은 불법성 자체가 아니라 사전 구축된 권력·뇌물·
    협박·연줄 없이 절차가 사라지는 무상 해결만 막는다. 사용자가 Book
    rule로 지정한 금기와 수위는 그대로 존중한다. 기존 `urban.md`와
    `litrpg.md` 정렬은 회귀 기준선으로 유지한다.
-7. **runtime 잔여.** 새 선택 이식 구현안의 Phase 3~5에서 HQ manifest와
-   Dispatcher에 `write-next`/`inkos-write-next/v2`와
-   `agent-operate`/`inkos-agent-operate/v2`, RunReceipt v2 validator를 구현한다.
-   InkOS `interact`에는 `--context-file`을 추가해 `/write` intent와 context를
-   분리 전달한다. 검증된 control-context SHA만 허용하고 어느 경로든 Writer
+7. **runtime 완료.** 선택 이식 구현안 Phase 3~5에서 HQ manifest와
+   Dispatcher의 `write-next`/`inkos-write-next/v2`,
+   `agent-operate`/`inkos-agent-operate/v2`, RunReceipt v2 validator를 구현했다.
+   InkOS `interact --context-file`은 `/write` intent와 context를
+   분리 전달한다. 검증된 control-context SHA만 허용하며 어느 경로든 Writer
    request의 externalContext hash와 Reference Pack system context hash를
    따로 readback한다. direct-write는 session 없는 path canary이고
    agent-operate만 Hermes/Agent promotion·production E2E다.
-8. **Soul asset 잔여.** 새 Hermes 프로필 세 개를 격리 생성하고 `SOUL.md`,
-   model, reasoning을 readback한다. 기존 v3 author Soul은 clone하지 않는다.
-9. **runtime 잔여.** WorkOrder/RunReceipt v2와 Hermes adapter로 Hermes와
+8. **shell 완료.** 새 Hermes 프로필 세 개를 격리 생성하고 `SOUL.md`,
+   model, reasoning을 readback한다. 기존 v3 author Soul은 clone하지 않았다.
+9. **runtime 완료.** WorkOrder/RunReceipt v2와 Hermes adapter가 Hermes와
    InkOS의 실제 `sol/high`를 각각 강제한다. 고정 agent 목록 대신 실행 trace에서 실제
    호출된 agent 전부의 model·reasoning·count를 host가 수집한다. InkOS
    `inkos.json` model, Studio default, service allowlist, effective model도
    검증하며 LLM 자기신고 값은 사용하지 않는다.
-10. **runtime 잔여.** Book의 append-only `soul-bindings/vNNNN.json` history와
+10. **runtime 완료.** Book의 append-only `soul-bindings/vNNNN.json` history,
    mutable `soul_binding.json` active pointer, persisted session↔Book↔binding 검사를
    구현한다. Soul version 변경은 사람 rebind와 새 session을 요구하고 교차
    Book·Soul version 재사용을 거절하는 회귀 테스트를 추가한다.
@@ -959,18 +954,13 @@ grant 검증이며, adapter는 verified grant SHA를 access receipt에 기록한
    독립 style source는 별도 schema·store·retrieval·receipt·테스트가
    생긴 뒤에만 푼다. supporting reference는 `planned`만 허용하고 `active`
    입력을 거절한다.
-12. **자산·runtime 분할 잔여.** Commercial Evaluation/Review Packet v2와
-   Storyyard 비교 UI를 추가하고 v1 하위 호환을 검증한다. packet에는 source 좌표·SHA만 넣고 인증된
-   비추적 일회성 resolver로 raw 비교 slice를 제공한다. Reference Lab을
-   read-only executable `tool`로 전환하고 manifest validator, 전용 HQ adapter,
-   strict WorkOrder/access receipt, readScopes·registry·realpath guard, fd3
-   sensitive return, UTF-16 story range와 range 없는 style provenance를
-   UTF-8 byte selector로 잇는 fail-closed converter, host-owned typed selector,
-   사람 match classification, named TLS tunnel, Storyyard same-origin proxy와
-   signed admin/owner-scope grant, selector claim field equality, pre-call atomic
-   jti consume, tracked/private registry SHA equality, no-store와 source SHA
-   검증을 함께 구현한다. 일반 Dispatcher CLI raw 출력과 단순 capability
-   등록은 완료로 보지 않는다.
+12. **부분 완료.** Commercial Evaluation/Review Packet v2, Storyyard 비교 UI,
+   v1 하위 호환, read-only Reference Lab resolver와 전용 HQ transport gateway가
+   구현됐다. packet에는 source 좌표·SHA만 있고 raw slice는 signed
+   admin/owner-scope grant, atomic JTI consume, registry·realpath·source SHA
+   검증, fd3 sensitive channel과 no-store proxy를 거친다. 일반 Dispatcher는
+   이 capability를 직접 실행하지 않는다. 잔여는 production surface index에서
+   typed selector를 만드는 converter, named TLS tunnel 배포와 실제 사람 HIL이다.
 13. **owner gate 잔여.** Reference Lab의 promotion eligibility와 HQ의 사람
     promotion decision·active adoption registry를 분리한다. `agent-operate` production은 HQ
     decision/registry SHA가 없거나 `promote`가 아니면 거절한다.

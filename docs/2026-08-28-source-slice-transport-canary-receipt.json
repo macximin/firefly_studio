@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "source-slice-transport-canary/v1",
+  "generatedAt": "2026-08-28T05:31:06Z",
+  "result": "passed",
+  "scope": "transport-only",
+  "source": {
+    "sourceId": "gdrive-1BzfNJPOBwauB9HxQq6_HZIDLllb46vJN",
+    "sourceSha256": "66f3e7df3123343c14a7134108dc59940511f40372493a549cba8ae709df4b45",
+    "startByte": 0,
+    "endByte": 554,
+    "sliceSha256": "1e5cfd2dc84ce9e75ef03f3362bfa0bbd2fdfb63094022ddbdd7b37bc3334581"
+  },
+  "selector": {
+    "packetId": "frp-09f39e30ced785a5fb31817c",
+    "matchId": "fsm-fb4978b9f7be6a91638b5774"
+  },
+  "receipt": {
+    "accessReceiptSha256": "84eb513db215d261f53f1a7e8859a7c612e415b64417681edb885ee8e495557e",
+    "rawSourcePersisted": false
+  },
+  "code": {
+    "hqCommit": "92979f60cbdcc3354d4a3f66c25605bdfb93fa6a",
+    "referenceLabCommit": "1c898190bbaed3423b9b5d9353482f8a8b8592f8"
+  },
+  "nonClaims": {
+    "pathCanary": false,
+    "reviewEvidence": false,
+    "promotionEvidence": false,
+    "soulLearningEvidence": false
+  }
+}
