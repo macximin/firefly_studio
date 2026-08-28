@@ -35,13 +35,30 @@ const WORK_ORDER_KEYS = new Set([
   "requestedAt",
   "timeoutMs",
 ]);
+const WORK_ORDER_V2_KEYS = new Set([
+  "schemaVersion", "workOrderId", "idempotencyKey", "repo", "capability", "bookId", "sessionId",
+  "instruction", "args", "expectedSoulBinding", "ownerDecision", "runtime", "approvalMode", "approvedInputs", "privateInputs",
+  "requestedAt", "timeoutMs",
+]);
 
 const INPUT_KEYS = new Set(["repo", "commit", "path", "sha256", "role"]);
 const PRIVATE_INPUT_KEYS = new Set(["repo", "path", "sha256", "role", "declaredByRole"]);
 const SHA1 = /^[0-9a-f]{40}$/;
 const SHA256 = /^[0-9a-f]{64}$/;
+const SAFE_WORK_ORDER_ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,159}$/;
+const SAFE_IDEMPOTENCY_KEY = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,239}$/;
 const SAFE_SESSION_ID = /^[A-Za-z0-9][A-Za-z0-9._-]{0,159}$/;
 const SAFE_SLATE_ID = /^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/;
+
+function isSafeBookId(value) {
+  return hasText(value)
+    && value.length <= 240
+    && value !== "."
+    && value !== ".."
+    && !value.includes("/")
+    && !value.includes("\\")
+    && !value.includes("\0");
+}
 
 function isPlainObject(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -75,6 +92,9 @@ export function sha256Json(value) {
 }
 
 export function validateWorkOrder(workOrder, manifest) {
+  if (isPlainObject(workOrder) && workOrder.schemaVersion === 2) {
+    return validateWorkOrderV2(workOrder, manifest);
+  }
   const errors = [];
   if (!isPlainObject(workOrder)) return ["work order must be an object"];
 
@@ -258,6 +278,110 @@ export function validateWorkOrder(workOrder, manifest) {
   return errors;
 }
 
+export function validateWorkOrderV2(workOrder, manifest) {
+  const errors = [];
+  if (!isPlainObject(workOrder)) return ["work order must be an object"];
+  for (const key of Object.keys(workOrder)) {
+    if (!WORK_ORDER_V2_KEYS.has(key)) errors.push(`unknown WorkOrder v2 field: ${key}`);
+  }
+  if (workOrder.schemaVersion !== 2) errors.push("schemaVersion must be 2");
+  for (const field of ["workOrderId", "idempotencyKey", "repo", "capability", "bookId", "sessionId", "instruction"]) {
+    if (!hasText(workOrder[field])) errors.push(`${field} is required for WorkOrder v2`);
+  }
+  if (hasText(workOrder.workOrderId) && !SAFE_WORK_ORDER_ID.test(workOrder.workOrderId)) errors.push("workOrderId must use 1-160 safe identifier characters");
+  if (hasText(workOrder.idempotencyKey) && !SAFE_IDEMPOTENCY_KEY.test(workOrder.idempotencyKey)) errors.push("idempotencyKey must use 1-240 safe identifier characters");
+  if (!isSafeBookId(workOrder.bookId)) errors.push("bookId must be one safe path segment");
+  if (!SAFE_SESSION_ID.test(workOrder.sessionId ?? "")) errors.push("sessionId must use 1-160 safe filename characters");
+  if (!isPlainObject(workOrder.args)) {
+    errors.push("args must be a strict object for WorkOrder v2");
+  } else {
+    for (const key of Object.keys(workOrder.args)) {
+      if (!["chapterCount", "targetLength"].includes(key)) errors.push(`unknown WorkOrder v2 args field: ${key}`);
+    }
+    if (workOrder.args.chapterCount !== 1) errors.push("write-next WorkOrder v2 requires chapterCount=1");
+    if (workOrder.args.targetLength !== undefined) {
+      const target = workOrder.args.targetLength;
+      if (!isPlainObject(target)) errors.push("args.targetLength must be an object");
+      else {
+        for (const key of Object.keys(target)) {
+          if (!["count", "unit"].includes(key)) errors.push(`unknown targetLength field: ${key}`);
+        }
+        if (!Number.isInteger(target.count) || target.count < 1) errors.push("targetLength.count must be a positive integer");
+        if (!["ko-chars", "zh-chars", "words"].includes(target.unit)) errors.push("targetLength.unit is invalid");
+      }
+    }
+  }
+  if (!("expectedSoulBinding" in workOrder) || workOrder.expectedSoulBinding === undefined) {
+    errors.push("expectedSoulBinding is required for WorkOrder v2");
+  } else if (workOrder.expectedSoulBinding !== null) {
+    if (!isPlainObject(workOrder.expectedSoulBinding)) {
+      errors.push("expectedSoulBinding must be null or a strict object");
+    } else {
+      for (const key of Object.keys(workOrder.expectedSoulBinding)) {
+        if (!["soulId", "soulVersion", "bindingSha256"].includes(key)) errors.push(`unknown expectedSoulBinding field: ${key}`);
+      }
+      if (!hasText(workOrder.expectedSoulBinding.soulId) || workOrder.expectedSoulBinding.soulId.length > 240) errors.push("expectedSoulBinding.soulId must be 1-240 characters");
+      if (!hasText(workOrder.expectedSoulBinding.soulVersion) || workOrder.expectedSoulBinding.soulVersion.length > 240) errors.push("expectedSoulBinding.soulVersion must be 1-240 characters");
+      if (!SHA256.test(workOrder.expectedSoulBinding.bindingSha256 ?? "")) errors.push("expectedSoulBinding.bindingSha256 is invalid");
+    }
+  }
+  if (!isPlainObject(workOrder.ownerDecision)) {
+    errors.push("ownerDecision is required for WorkOrder v2");
+  } else {
+    for (const key of Object.keys(workOrder.ownerDecision)) {
+      if (!["receiptId", "status", "instructionSha256", "argsSha256", "decidedAt"].includes(key)) errors.push(`unknown ownerDecision field: ${key}`);
+    }
+    if (!hasText(workOrder.ownerDecision.receiptId)) errors.push("ownerDecision.receiptId is required");
+    if (workOrder.ownerDecision.status !== "approved") errors.push("ownerDecision.status must be approved");
+    if (!SHA256.test(workOrder.ownerDecision.instructionSha256 ?? "")) errors.push("ownerDecision.instructionSha256 is invalid");
+    if (!SHA256.test(workOrder.ownerDecision.argsSha256 ?? "")) errors.push("ownerDecision.argsSha256 is invalid");
+    if (!hasText(workOrder.ownerDecision.decidedAt) || Number.isNaN(Date.parse(workOrder.ownerDecision.decidedAt))) errors.push("ownerDecision.decidedAt must be an ISO date-time");
+    if (hasText(workOrder.instruction)) {
+      const instructionSha256 = createHash("sha256").update(Buffer.from(workOrder.instruction, "utf8")).digest("hex");
+      if (workOrder.ownerDecision.instructionSha256 !== instructionSha256) errors.push("ownerDecision instruction hash mismatch");
+      const argsSha256 = sha256Json({
+        capability: workOrder.capability,
+        bookId: workOrder.bookId,
+        sessionId: workOrder.sessionId,
+        args: workOrder.args,
+        expectedSoulBinding: workOrder.expectedSoulBinding,
+        instructionSha256,
+      });
+      if (workOrder.ownerDecision.argsSha256 !== argsSha256) errors.push("ownerDecision args hash mismatch");
+    }
+  }
+  if (!isPlainObject(workOrder.runtime)) {
+    errors.push("runtime is required for WorkOrder v2");
+  } else {
+    for (const key of Object.keys(workOrder.runtime)) {
+      if (!["hermesProfile", "model", "reasoning"].includes(key)) errors.push(`unknown runtime field: ${key}`);
+    }
+    for (const key of ["hermesProfile", "model", "reasoning"]) {
+      if (!hasText(workOrder.runtime[key])) errors.push(`runtime.${key} is required`);
+    }
+  }
+  if (workOrder.approvalMode !== "human") errors.push("WorkOrder v2 mutation requires approvalMode=human");
+  if (!Array.isArray(workOrder.approvedInputs)) errors.push("approvedInputs must be an array");
+  else if (workOrder.approvedInputs.length > 0) errors.push("write-next WorkOrder v2 does not accept unbound approvedInputs");
+  if (workOrder.privateInputs !== undefined && !Array.isArray(workOrder.privateInputs)) errors.push("privateInputs must be an array when provided");
+  else if (workOrder.privateInputs?.length > 0) errors.push("write-next WorkOrder v2 does not accept unbound privateInputs");
+  if (!hasText(workOrder.requestedAt) || Number.isNaN(Date.parse(workOrder.requestedAt))) errors.push("requestedAt must be an ISO date-time");
+  if (workOrder.timeoutMs !== undefined && (!Number.isInteger(workOrder.timeoutMs) || workOrder.timeoutMs < 1000 || workOrder.timeoutMs > 3600000)) {
+    errors.push("timeoutMs must be an integer between 1000 and 3600000");
+  }
+
+  const repo = manifest?.repos?.find((candidate) => candidate.name === workOrder.repo);
+  if (!repo) return [...errors, `repo is not registered: ${workOrder.repo}`];
+  if (repo.managementState !== "active" || repo.adoptionState !== "ready") errors.push(`repo is not dispatchable: ${workOrder.repo}`);
+  if (repo.execution?.kind !== "worker") return [...errors, `repo is not a worker: ${workOrder.repo}`];
+  const capability = repo.execution.capabilities.find((candidate) => candidate.name === workOrder.capability);
+  if (!capability) return [...errors, `capability is not registered for ${workOrder.repo}: ${workOrder.capability}`];
+  if (capability.mode !== "mutating" || capability.approval !== "human") errors.push("write-next WorkOrder v2 requires a human-approved mutating capability");
+  if (workOrder.repo !== "inkos" || workOrder.capability !== "write-next") errors.push("WorkOrder v2 currently supports only inkos/write-next");
+  if (repo.writeAllowed !== true) errors.push(`repo does not allow mutating dispatch: ${workOrder.repo}`);
+  return errors;
+}
+
 function buildInkosCliPlan({ root, manifest, repoPath, repo, capability, workOrder }) {
   const entrypoint = join(repoPath, repo.execution.entrypoint);
   const args = [entrypoint];
@@ -366,6 +490,44 @@ function buildInkosCliPlan({ root, manifest, repoPath, repo, capability, workOrd
   };
 }
 
+function manifestCapabilitySha256(repo, capability) {
+  return sha256Json({
+    repo: repo.name,
+    branch: repo.branch,
+    adapter: repo.execution.adapter,
+    receiptContract: repo.execution.receiptContract,
+    capability,
+  });
+}
+
+function buildInkosCliV2Plan({ repoPath, repo, capability, workOrder }) {
+  if (workOrder.capability !== "write-next") {
+    throw new Error(`inkos-cli-dual v2 does not implement capability: ${workOrder.capability}`);
+  }
+  const entrypoint = join(repoPath, repo.execution.entrypoint);
+  const stdin = stableStringify(workOrder);
+  const workOrderSha256 = createHash("sha256").update(Buffer.from(stdin, "utf8")).digest("hex");
+  const capabilitySha256 = manifestCapabilitySha256(repo, capability);
+  return {
+    executable: process.execPath,
+    args: [
+      entrypoint,
+      "production",
+      "write-next",
+      "--work-order-sha",
+      workOrderSha256,
+      "--manifest-capability-sha",
+      capabilitySha256,
+      "--json",
+    ],
+    stdin,
+    timeoutMs: workOrder.timeoutMs ?? 1800000,
+    sessionId: workOrder.sessionId,
+    workOrderSha256,
+    manifestCapabilitySha256: capabilitySha256,
+  };
+}
+
 export function buildDispatchPlan({ root, manifest, workOrder }) {
   const manifestErrors = validateManifest(manifest);
   if (manifestErrors.length > 0) throw new Error(manifestErrors.join("\n"));
@@ -376,8 +538,10 @@ export function buildDispatchPlan({ root, manifest, workOrder }) {
   const capability = repo.execution.capabilities.find((candidate) => candidate.name === workOrder.capability);
   const repoPath = join(root, repo.path);
   let invocation;
-  if (repo.execution.adapter === "inkos-cli-v1") {
-    invocation = buildInkosCliPlan({ root, manifest, repoPath, repo, capability, workOrder });
+  if (repo.execution.adapter === "inkos-cli-v1" || repo.execution.adapter === "inkos-cli-dual") {
+    invocation = workOrder.schemaVersion === 2
+      ? buildInkosCliV2Plan({ repoPath, repo, capability, workOrder })
+      : buildInkosCliPlan({ root, manifest, repoPath, repo, capability, workOrder });
   } else {
     throw new Error(`unsupported worker adapter: ${repo.execution.adapter}`);
   }
@@ -583,6 +747,148 @@ function parseChildJson(stdout) {
   } catch {
     return { value: null, error: "child stdout was not valid JSON" };
   }
+}
+
+function validateProductionV2Child(value, workOrder, expectedWorkOrderSha256) {
+  const errors = [];
+  if (!isPlainObject(value)) return { errors: ["child production result must be an object"], productionRun: null, effectiveRuntime: null, modelCalls: [] };
+  const allowed = new Set(["schemaVersion", "workOrder", "productionRun", "effectiveRuntime", "modelCalls", "artifacts"]);
+  for (const key of Object.keys(value)) if (!allowed.has(key)) errors.push(`unknown child production result field: ${key}`);
+  if (value.schemaVersion !== "inkos-production-result/v2") errors.push("child production result schemaVersion is invalid");
+  if (!isPlainObject(value.workOrder) || value.workOrder.id !== workOrder.workOrderId || value.workOrder.sha256 !== expectedWorkOrderSha256) {
+    errors.push("child production result WorkOrder binding mismatch");
+  }
+  const run = value.productionRun;
+  if (!isPlainObject(run)) errors.push("child production result is missing productionRun");
+  else {
+    const runAllowed = new Set(["commandId", "productionOperationId", "attemptId", "path", "sha256", "executionStatus", "approvalStatus", "completionHealth", "projectionOrigin"]);
+    for (const key of Object.keys(run)) if (!runAllowed.has(key)) errors.push(`unknown productionRun field: ${key}`);
+    if (!hasText(run.commandId) || !hasText(run.productionOperationId) || !hasText(run.attemptId)) errors.push("productionRun identities are required");
+    validateRelativePath(run.path, "productionRun.path", errors);
+    if (!SHA256.test(run.sha256 ?? "")) errors.push("productionRun.sha256 is invalid");
+    if (! ["succeeded", "failed", "cancelled"].includes(run.executionStatus)) errors.push("productionRun.executionStatus is invalid");
+    if (! ["not-required", "pending", "held", "approved", "rejected"].includes(run.approvalStatus)) errors.push("productionRun.approvalStatus is invalid");
+    if (! ["verified", "needs-recovery"].includes(run.completionHealth)) errors.push("productionRun.completionHealth is invalid");
+    if (! ["direct", "reconciled"].includes(run.projectionOrigin)) errors.push("productionRun.projectionOrigin is invalid");
+  }
+  if (!isPlainObject(value.effectiveRuntime) || !isPlainObject(value.effectiveRuntime.orchestrator) || !isPlainObject(value.effectiveRuntime.inkos)) {
+    errors.push("effectiveRuntime readback is required");
+  } else {
+    if (stableStringify(value.effectiveRuntime.orchestrator) !== stableStringify(workOrder.runtime)) {
+      errors.push("orchestrator runtime readback does not match WorkOrder v2");
+    }
+    if (!hasText(value.effectiveRuntime.inkos.model) || !hasText(value.effectiveRuntime.inkos.reasoning) || !hasText(value.effectiveRuntime.inkos.configMode)) {
+      errors.push("InkOS effective model/reasoning readback is incomplete");
+    }
+  }
+  if (!Array.isArray(value.modelCalls)) errors.push("modelCalls must be an array");
+  else for (const [index, call] of value.modelCalls.entries()) {
+    if (!isPlainObject(call)) {
+      errors.push(`modelCalls[${index}] must be an object`);
+      continue;
+    }
+    const allowedCallKeys = new Set(["invocationId", "agentName", "stage", "model", "reasoningEffort", "status", "receiptPath", "receiptSha256", "outcomePath", "outcomeSha256"]);
+    for (const key of Object.keys(call)) if (!allowedCallKeys.has(key)) errors.push(`unknown modelCalls[${index}] field: ${key}`);
+    if (!hasText(call.agentName) || !hasText(call.stage) || !hasText(call.model) || !hasText(call.invocationId)) errors.push(`modelCalls[${index}] is incomplete`);
+    if (call?.reasoningEffort !== null && !hasText(call?.reasoningEffort)) errors.push(`modelCalls[${index}].reasoningEffort is invalid`);
+    if (!["completed", "provider-refused", "failed"].includes(call.status)) errors.push(`modelCalls[${index}].status is invalid`);
+    validateRelativePath(call.receiptPath, `modelCalls[${index}].receiptPath`, errors);
+    validateRelativePath(call.outcomePath, `modelCalls[${index}].outcomePath`, errors);
+    if (!SHA256.test(call?.receiptSha256 ?? "") || !SHA256.test(call?.outcomeSha256 ?? "")) errors.push(`modelCalls[${index}] evidence hash is invalid`);
+  }
+  return {
+    errors,
+    productionRun: isPlainObject(run) ? run : null,
+    effectiveRuntime: isPlainObject(value.effectiveRuntime) ? value.effectiveRuntime : null,
+    modelCalls: Array.isArray(value.modelCalls) ? value.modelCalls : [],
+  };
+}
+
+async function readVerifiedProductionEvidence(repoPath, relativePath, expectedSha256, label, errors) {
+  const pathErrors = [];
+  validateRelativePath(relativePath, label, pathErrors);
+  if (pathErrors.length > 0) {
+    errors.push(...pathErrors);
+    return null;
+  }
+  try {
+    await assertNoSymlink(repoPath, relativePath);
+    const absolutePath = join(repoPath, relativePath);
+    const metadata = await lstat(absolutePath);
+    if (!metadata.isFile() || metadata.isSymbolicLink()) {
+      errors.push(`${label} is not a regular non-symlink file`);
+      return null;
+    }
+    const bytes = await readFile(absolutePath);
+    const actualSha256 = createHash("sha256").update(bytes).digest("hex");
+    if (actualSha256 !== expectedSha256) {
+      errors.push(`${label} hash mismatch`);
+      return null;
+    }
+    try {
+      return JSON.parse(bytes.toString("utf8"));
+    } catch {
+      errors.push(`${label} is not valid JSON`);
+      return null;
+    }
+  } catch {
+    errors.push(`${label} is unavailable`);
+    return null;
+  }
+}
+
+async function verifyProductionV2Evidence(repoPath, workOrder, productionV2, artifacts) {
+  const errors = [];
+  const run = productionV2?.productionRun;
+  if (!run) return ["child production result is missing productionRun evidence"];
+  const bookPrefix = `books/${workOrder.bookId}/`;
+  if (!normalizedRelativePath(run.path).startsWith(bookPrefix)) {
+    errors.push("productionRun.path must stay inside the target Book");
+  }
+  const runArtifacts = artifacts.filter((artifact) => artifact.role === "production-run");
+  if (runArtifacts.length !== 1) {
+    errors.push("child production result must report exactly one production-run artifact");
+  } else if (runArtifacts[0].path !== run.path || runArtifacts[0].sha256 !== run.sha256) {
+    errors.push("productionRun path/hash does not match its verified artifact report");
+  }
+  const runJson = await readVerifiedProductionEvidence(repoPath, run.path, run.sha256, "productionRun", errors);
+  if (runJson) {
+    if (runJson.schemaVersion !== "production-run/v1") errors.push("productionRun file schemaVersion is invalid");
+    if (runJson.command?.commandId !== run.commandId) errors.push("productionRun file commandId mismatch");
+    if (runJson.productionAttempt?.productionOperationId !== run.productionOperationId || runJson.productionAttempt?.attemptId !== run.attemptId) {
+      errors.push("productionRun file attempt identity mismatch");
+    }
+    for (const key of ["executionStatus", "approvalStatus", "completionHealth", "projectionOrigin"]) {
+      if (runJson[key] !== run[key]) errors.push(`productionRun file ${key} mismatch`);
+    }
+  }
+
+  const invocationIds = new Set();
+  for (const [index, call] of productionV2.modelCalls.entries()) {
+    if (!isPlainObject(call)) continue;
+    if (invocationIds.has(call.invocationId)) errors.push(`modelCalls[${index}] invocationId is duplicated`);
+    invocationIds.add(call.invocationId);
+    if (!normalizedRelativePath(call.receiptPath).startsWith(bookPrefix) || !normalizedRelativePath(call.outcomePath).startsWith(bookPrefix)) {
+      errors.push(`modelCalls[${index}] evidence must stay inside the target Book`);
+    }
+    const receipt = await readVerifiedProductionEvidence(repoPath, call.receiptPath, call.receiptSha256, `modelCalls[${index}] receipt`, errors);
+    const outcome = await readVerifiedProductionEvidence(repoPath, call.outcomePath, call.outcomeSha256, `modelCalls[${index}] outcome`, errors);
+    if (receipt) {
+      if (receipt.invocationId !== call.invocationId || receipt.agentName !== call.agentName || receipt.stage !== call.stage || receipt.model !== call.model || (receipt.reasoningEffort ?? null) !== call.reasoningEffort) {
+        errors.push(`modelCalls[${index}] receipt readback mismatch`);
+      }
+      if (receipt.productionOperationId !== run.productionOperationId || receipt.attemptId !== run.attemptId) {
+        errors.push(`modelCalls[${index}] receipt attempt identity mismatch`);
+      }
+    }
+    if (outcome) {
+      if (outcome.invocationId !== call.invocationId || outcome.status !== call.status) errors.push(`modelCalls[${index}] outcome readback mismatch`);
+      if (outcome.productionOperationId !== run.productionOperationId || outcome.attemptId !== run.attemptId) {
+        errors.push(`modelCalls[${index}] outcome attempt identity mismatch`);
+      }
+    }
+  }
+  return errors;
 }
 
 export function validateChildArtifacts(value, repoName) {
@@ -890,7 +1196,9 @@ export async function executeWorkOrder({ root, manifest, workOrder, spawn = spaw
   const plan = buildDispatchPlan({ root, manifest, workOrder });
   const inputVerification = verifyApprovedInputs({ root, manifest, workOrder, spawn });
   const privateInputVerification = await verifyPrivateInputs({ root, manifest, workOrder, spawn });
-  const workOrderSha256 = sha256Json(workOrder);
+  const workOrderSha256 = workOrder.schemaVersion === 2
+    ? plan.invocation.workOrderSha256
+    : sha256Json(workOrder);
   const runtimeRoot = join(root, ".firefly");
   const runsDir = join(runtimeRoot, "runs");
   const locksDir = join(runtimeRoot, "locks");
@@ -924,8 +1232,9 @@ export async function executeWorkOrder({ root, manifest, workOrder, spawn = spaw
     const observedBefore = plan.mutating ? await snapshotObservationScopes(plan) : new Map();
     const startedAt = new Date().toISOString();
     const receiptId = `rr-${createHash("sha256").update(`${workOrder.idempotencyKey}:${workOrderSha256}`).digest("hex").slice(0, 24)}`;
+    const inputSetSha256 = sha256Json({ inputVerification, privateInputVerification });
     const runningReceipt = {
-      schemaVersion: 1,
+      schemaVersion: workOrder.schemaVersion,
       receiptId,
       workOrderId: workOrder.workOrderId,
       workOrderSha256,
@@ -939,8 +1248,13 @@ export async function executeWorkOrder({ root, manifest, workOrder, spawn = spaw
         required: plan.approvalRequired,
         status: plan.approvalRequired ? "pending" : "not-required",
       },
-      inputVerification,
-      privateInputVerification,
+      ...(workOrder.schemaVersion === 2 ? {
+        inputVerification: {
+          approvedCount: inputVerification.length,
+          privateCount: privateInputVerification.length,
+          setSha256: inputSetSha256,
+        },
+      } : { inputVerification, privateInputVerification }),
       artifacts: [],
     };
     await writeJsonAtomic(receiptPath, runningReceipt);
@@ -971,7 +1285,7 @@ export async function executeWorkOrder({ root, manifest, workOrder, spawn = spaw
       const observedWrites = diffObservationSnapshots(observedBefore, observedAfter);
       const parsed = parseChildJson(child.stdout ?? "");
       const trackedWorktreeUnchanged = sameTrackedState(before, after);
-      const childArtifactReport = await verifyCapabilityArtifactContents(
+      let childArtifactReport = await verifyCapabilityArtifactContents(
         plan.repoPath,
         workOrder.capability,
         workOrder,
@@ -984,6 +1298,21 @@ export async function executeWorkOrder({ root, manifest, workOrder, spawn = spaw
           ),
         ),
       );
+      const productionV2 = workOrder.schemaVersion === 2
+        ? validateProductionV2Child(parsed.value, workOrder, workOrderSha256)
+        : null;
+      if (productionV2) {
+        const evidenceErrors = await verifyProductionV2Evidence(
+          plan.repoPath,
+          workOrder,
+          productionV2,
+          childArtifactReport.artifacts,
+        );
+        childArtifactReport = {
+          artifacts: childArtifactReport.artifacts,
+          errors: [...childArtifactReport.errors, ...productionV2.errors, ...evidenceErrors],
+        };
+      }
       const scopeViolations = writeScopeViolations(plan, before, after, observedWrites);
       const succeeded = child.status === 0 && parsed.error === null;
       const boundariesPassed = trackedWorktreeUnchanged
@@ -992,7 +1321,7 @@ export async function executeWorkOrder({ root, manifest, workOrder, spawn = spaw
       const status = !succeeded ? "failed" : boundariesPassed ? "succeeded" : "needs-attention";
       const childArtifacts = childArtifactReport.artifacts;
       const finishedAt = new Date().toISOString();
-      const finalReceipt = {
+      const legacyFinalReceipt = {
         ...runningReceipt,
         status,
         finishedAt,
@@ -1058,6 +1387,66 @@ export async function executeWorkOrder({ root, manifest, workOrder, spawn = spaw
           : null,
         replayed: false,
       };
+      const finalReceipt = workOrder.schemaVersion === 2
+        ? {
+            ...runningReceipt,
+            status,
+            finishedAt,
+            durationMs: Date.parse(finishedAt) - Date.parse(startedAt),
+            child: {
+              path: relative(root, plan.repoPath),
+              branchBefore: before.branch,
+              branchAfter: after.branch,
+              headBefore: before.head,
+              headAfter: after.head,
+            },
+            execution: {
+              adapter: plan.repo.execution.adapter,
+              exitCode: child.status,
+              signal: child.signal ?? null,
+              instructionTransport: "stdin",
+              manifestCapabilitySha256: plan.invocation.manifestCapabilitySha256,
+            },
+            boundaryChecks: {
+              trackedWorktreeUnchanged,
+              artifactReportsValid: childArtifactReport.errors.length === 0,
+              observationComplete: true,
+              writesWithinDeclaredScopes: scopeViolations.length === 0,
+              privateBodyExcluded: true,
+            },
+            observedWrites: {
+              count: observedWrites.length,
+              setSha256: sha256Json(observedWrites),
+            },
+            approval: {
+              required: true,
+              status: status === "failed" ? "blocked" : "pending",
+              ownerDecisionReceiptSha256: sha256Json(workOrder.ownerDecision),
+            },
+            productionRun: productionV2?.productionRun ?? null,
+            effectiveRuntime: productionV2?.effectiveRuntime ?? null,
+            modelCalls: (productionV2?.modelCalls ?? []).map((call) => ({
+              invocationId: call.invocationId,
+              agentName: call.agentName,
+              stage: call.stage,
+              model: call.model,
+              reasoningEffort: call.reasoningEffort,
+              receiptPath: call.receiptPath,
+              receiptSha256: call.receiptSha256,
+              outcomePath: call.outcomePath,
+              outcomeSha256: call.outcomeSha256,
+              status: call.status,
+            })),
+            artifacts: childArtifacts,
+            error: status === "failed"
+              ? {
+                  category: child.error?.code ?? "child-failed",
+                  messageSha256: createHash("sha256").update(String(child.error?.message ?? parsed.error ?? child.stderr ?? "child failed")).digest("hex"),
+                }
+              : null,
+            replayed: false,
+          }
+        : legacyFinalReceipt;
       await writeJsonAtomic(receiptPath, finalReceipt);
       return finalReceipt;
     } catch (error) {
@@ -1069,7 +1458,12 @@ export async function executeWorkOrder({ root, manifest, workOrder, spawn = spaw
           required: plan.approvalRequired,
           status: "blocked",
         },
-        error: { message: error instanceof Error ? error.message : String(error) },
+        error: workOrder.schemaVersion === 2
+          ? {
+              category: "dispatcher-failed",
+              messageSha256: createHash("sha256").update(error instanceof Error ? error.message : String(error)).digest("hex"),
+            }
+          : { message: error instanceof Error ? error.message : String(error) },
         replayed: false,
       };
       await writeJsonAtomic(receiptPath, failedReceipt);

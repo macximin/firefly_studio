@@ -32,8 +32,8 @@ function usage() {
   return [
     "Usage: npm run dispatch -- --work-order <path> [--dry-run]",
     "",
-    "The work order is validated against contracts/work-order-v1.schema.json",
-    "and the manifest-declared child adapter. Instructions are sent through stdin.",
+    "The work order is validated as strict v1 or v2 against the manifest-declared child adapter.",
+    "Instructions are sent through stdin; RunReceipt v2 stores only hashes and compact readback.",
   ].join("\n");
 }
 

@@ -27,9 +27,9 @@
       "role": "production engine for long fiction, short fiction, scripts, interactive narrative, Arc and Rail state",
       "execution": {
         "kind": "worker",
-        "adapter": "inkos-cli-v1",
+        "adapter": "inkos-cli-dual",
         "entrypoint": "packages/cli/dist/index.js",
-        "receiptContract": "run-receipt/v1",
+        "receiptContract": "run-receipt/dual",
         "writeScopes": [
           "books/",
           ".inkos/"
@@ -49,6 +49,11 @@
           },
           {
             "name": "interact",
+            "mode": "mutating",
+            "approval": "human"
+          },
+          {
+            "name": "write-next",
             "mode": "mutating",
             "approval": "human"
           },

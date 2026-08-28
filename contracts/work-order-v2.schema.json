@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://firefly.local/contracts/work-order-v2.schema.json",
+  "title": "Firefly HQ WorkOrder v2 - InkOS write-next",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "workOrderId", "idempotencyKey", "repo", "capability", "bookId", "sessionId", "instruction", "args", "expectedSoulBinding", "ownerDecision", "runtime", "approvalMode", "approvedInputs", "requestedAt"],
+  "properties": {
+    "schemaVersion": { "const": 2 },
+    "workOrderId": { "type": "string", "minLength": 1, "maxLength": 160, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,159}$" },
+    "idempotencyKey": { "type": "string", "minLength": 1, "maxLength": 240, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,239}$" },
+    "repo": { "const": "inkos" },
+    "capability": { "const": "write-next" },
+    "bookId": { "type": "string", "minLength": 1, "maxLength": 240, "pattern": "^(?!\\.{1,2}$)[^/\\\\\\u0000]+$" },
+    "sessionId": { "type": "string", "minLength": 1, "maxLength": 160, "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,159}$" },
+    "instruction": { "type": "string", "minLength": 1 },
+    "args": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["chapterCount"],
+      "properties": {
+        "chapterCount": { "const": 1 },
+        "targetLength": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["count", "unit"],
+          "properties": {
+            "count": { "type": "integer", "minimum": 1 },
+            "unit": { "enum": ["ko-chars", "zh-chars", "words"] }
+          }
+        }
+      }
+    },
+    "expectedSoulBinding": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["soulId", "soulVersion", "bindingSha256"],
+          "properties": {
+            "soulId": { "type": "string", "minLength": 1, "maxLength": 240 },
+            "soulVersion": { "type": "string", "minLength": 1, "maxLength": 240 },
+            "bindingSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+          }
+        }
+      ]
+    },
+    "ownerDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["receiptId", "status", "instructionSha256", "argsSha256", "decidedAt"],
+      "properties": {
+        "receiptId": { "type": "string", "minLength": 1, "maxLength": 240 },
+        "status": { "const": "approved" },
+        "instructionSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "argsSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "decidedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hermesProfile", "model", "reasoning"],
+      "properties": {
+        "hermesProfile": { "type": "string", "minLength": 1 },
+        "model": { "type": "string", "minLength": 1 },
+        "reasoning": { "type": "string", "minLength": 1 }
+      }
+    },
+    "approvalMode": { "const": "human" },
+    "approvedInputs": {
+      "type": "array",
+      "maxItems": 0,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["repo", "commit", "path", "sha256", "role"],
+        "properties": {
+          "repo": { "type": "string", "minLength": 1 },
+          "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+          "path": { "type": "string", "minLength": 1 },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "role": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "privateInputs": {
+      "type": "array",
+      "maxItems": 0,
+      "default": [],
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["repo", "path", "sha256", "role", "declaredByRole"],
+        "properties": {
+          "repo": { "type": "string", "minLength": 1 },
+          "path": { "type": "string", "minLength": 1 },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "role": { "type": "string", "minLength": 1 },
+          "declaredByRole": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "requestedAt": { "type": "string", "format": "date-time" },
+    "timeoutMs": { "type": "integer", "minimum": 1000, "maximum": 3600000 }
+  }
+}

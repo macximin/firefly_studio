@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://firefly.local/contracts/run-receipt-v2.schema.json",
+  "title": "Firefly HQ bodyless RunReceipt v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "receiptId", "workOrderId", "workOrderSha256", "idempotencyKey", "repo", "capability", "status", "mutating", "startedAt", "approval", "inputVerification", "artifacts"],
+  "properties": {
+    "schemaVersion": { "const": 2 },
+    "receiptId": { "type": "string", "minLength": 1 },
+    "workOrderId": { "type": "string", "minLength": 1 },
+    "workOrderSha256": { "$ref": "#/$defs/sha256" },
+    "idempotencyKey": { "type": "string", "minLength": 1 },
+    "repo": { "const": "inkos" },
+    "capability": { "const": "write-next" },
+    "status": { "enum": ["running", "succeeded", "failed", "needs-attention"] },
+    "mutating": { "const": true },
+    "startedAt": { "type": "string", "format": "date-time" },
+    "finishedAt": { "type": "string", "format": "date-time" },
+    "durationMs": { "type": "integer", "minimum": 0 },
+    "approval": { "type": "object", "additionalProperties": false, "required": ["required", "status"], "properties": { "required": { "const": true }, "status": { "enum": ["pending", "blocked"] }, "ownerDecisionReceiptSha256": { "$ref": "#/$defs/sha256" } } },
+    "inputVerification": { "type": "object", "additionalProperties": false, "required": ["approvedCount", "privateCount", "setSha256"], "properties": { "approvedCount": { "type": "integer", "minimum": 0 }, "privateCount": { "type": "integer", "minimum": 0 }, "setSha256": { "$ref": "#/$defs/sha256" } } },
+    "child": { "type": "object", "additionalProperties": false, "required": ["path", "branchBefore", "branchAfter", "headBefore", "headAfter"], "properties": { "path": { "type": "string" }, "branchBefore": { "type": "string" }, "branchAfter": { "type": "string" }, "headBefore": { "type": "string" }, "headAfter": { "type": "string" } } },
+    "execution": { "type": "object", "additionalProperties": false, "required": ["adapter", "exitCode", "signal", "instructionTransport", "manifestCapabilitySha256"], "properties": { "adapter": { "const": "inkos-cli-dual" }, "exitCode": { "type": ["integer", "null"] }, "signal": { "type": ["string", "null"] }, "instructionTransport": { "const": "stdin" }, "manifestCapabilitySha256": { "$ref": "#/$defs/sha256" } } },
+    "boundaryChecks": { "type": "object", "additionalProperties": false, "required": ["trackedWorktreeUnchanged", "artifactReportsValid", "observationComplete", "writesWithinDeclaredScopes", "privateBodyExcluded"], "properties": { "trackedWorktreeUnchanged": { "type": "boolean" }, "artifactReportsValid": { "type": "boolean" }, "observationComplete": { "type": "boolean" }, "writesWithinDeclaredScopes": { "type": "boolean" }, "privateBodyExcluded": { "const": true } } },
+    "observedWrites": { "type": "object", "additionalProperties": false, "required": ["count", "setSha256"], "properties": { "count": { "type": "integer", "minimum": 0 }, "setSha256": { "$ref": "#/$defs/sha256" } } },
+    "productionRun": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/productionRun" }] },
+    "effectiveRuntime": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/effectiveRuntime" }] },
+    "modelCalls": { "type": "array", "items": { "$ref": "#/$defs/modelCall" } },
+    "artifacts": { "type": "array", "items": { "$ref": "#/$defs/artifact" } },
+    "error": { "oneOf": [{ "type": "null" }, { "type": "object", "additionalProperties": false, "required": ["category", "messageSha256"], "properties": { "category": { "type": "string", "minLength": 1 }, "messageSha256": { "$ref": "#/$defs/sha256" } } }] },
+    "replayed": { "type": "boolean" }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "artifact": { "type": "object", "additionalProperties": false, "required": ["repo", "path", "sha256", "role"], "properties": { "repo": { "const": "inkos" }, "path": { "type": "string", "minLength": 1 }, "sha256": { "$ref": "#/$defs/sha256" }, "role": { "type": "string", "minLength": 1 } } },
+    "productionRun": { "type": "object", "additionalProperties": false, "required": ["commandId", "productionOperationId", "attemptId", "path", "sha256", "executionStatus", "approvalStatus", "completionHealth", "projectionOrigin"], "properties": { "commandId": { "type": "string", "minLength": 1 }, "productionOperationId": { "type": "string", "minLength": 1 }, "attemptId": { "type": "string", "minLength": 1 }, "path": { "type": "string", "minLength": 1 }, "sha256": { "$ref": "#/$defs/sha256" }, "executionStatus": { "enum": ["succeeded", "failed", "cancelled"] }, "approvalStatus": { "enum": ["not-required", "pending", "held", "approved", "rejected"] }, "completionHealth": { "enum": ["verified", "needs-recovery"] }, "projectionOrigin": { "enum": ["direct", "reconciled"] } } },
+    "effectiveRuntime": { "type": "object", "additionalProperties": false, "required": ["orchestrator", "inkos"], "properties": { "orchestrator": { "type": "object", "additionalProperties": false, "required": ["hermesProfile", "model", "reasoning"], "properties": { "hermesProfile": { "type": "string" }, "model": { "type": "string" }, "reasoning": { "type": "string" } } }, "inkos": { "type": "object", "additionalProperties": false, "required": ["configMode", "model", "reasoning"], "properties": { "configMode": { "type": "string" }, "model": { "type": "string" }, "reasoning": { "type": "string" } } } } },
+    "modelCall": { "type": "object", "additionalProperties": false, "required": ["invocationId", "agentName", "stage", "model", "reasoningEffort", "receiptPath", "receiptSha256", "outcomePath", "outcomeSha256", "status"], "properties": { "invocationId": { "type": "string" }, "agentName": { "type": "string" }, "stage": { "type": "string" }, "model": { "type": "string" }, "reasoningEffort": { "type": ["string", "null"] }, "receiptPath": { "type": "string" }, "receiptSha256": { "$ref": "#/$defs/sha256" }, "outcomePath": { "type": "string" }, "outcomeSha256": { "$ref": "#/$defs/sha256" }, "status": { "enum": ["completed", "provider-refused", "failed"] } } }
+  }
+}

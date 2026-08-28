@@ -9,8 +9,8 @@
   "approvedInputs": [],
   "requestedAt": "2026-08-28T00:00:00.000Z",
   "expected": {
-    "adapter": "inkos-cli-v1",
-    "receiptContract": "run-receipt/v1",
+    "adapter": "inkos-cli-dual",
+    "receiptContract": "run-receipt/dual",
     "branch": "master",
     "capabilityMode": "read-only",
     "capabilityApproval": "none"

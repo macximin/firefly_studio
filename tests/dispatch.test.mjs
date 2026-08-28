@@ -47,14 +47,15 @@ function manifestFixture(remoteUrl = "git@example.invalid:owner/inkos.git") {
       role: "writer",
       execution: {
         kind: "worker",
-        adapter: "inkos-cli-v1",
+        adapter: "inkos-cli-dual",
         entrypoint: "packages/cli/dist/index.js",
-        receiptContract: "run-receipt/v1",
+        receiptContract: "run-receipt/dual",
         writeScopes: ["books/", ".inkos/"],
         observationScopes: ["books/", ".inkos/", "worlds/", "interactive-films/", "inkos.json"],
         capabilities: [
           { name: "status", mode: "read-only", approval: "none" },
           { name: "interact", mode: "mutating", approval: "human" },
+          { name: "write-next", mode: "mutating", approval: "human" },
           { name: "reference-bind", mode: "mutating", approval: "human" },
           { name: "pitch-slate", mode: "mutating", approval: "human" },
           { name: "pitch-review", mode: "mutating", approval: "human" },
@@ -90,6 +91,37 @@ function statusWorkOrder(overrides = {}) {
     requestedAt: "2026-08-25T00:00:00.000Z",
     ...overrides,
   };
+}
+
+function writeNextV2WorkOrder(overrides = {}) {
+  const instruction = overrides.instruction ?? "상업성 우선으로 다음 회차를 집필해.";
+  const args = overrides.args ?? { chapterCount: 1, targetLength: { count: 5500, unit: "ko-chars" } };
+  const instructionSha256 = createHash("sha256").update(Buffer.from(instruction, "utf8")).digest("hex");
+  const base = {
+    schemaVersion: 2,
+    workOrderId: "wo-write-next-v2-1",
+    idempotencyKey: "write-next-v2-1",
+    repo: "inkos",
+    capability: "write-next",
+    bookId: "demo-book",
+    sessionId: "hq-demo-book",
+    instruction,
+    args,
+    expectedSoulBinding: null,
+    ownerDecision: {
+      receiptId: "owner-decision-1",
+      status: "approved",
+      instructionSha256,
+      argsSha256: sha256Json({ capability: "write-next", bookId: "demo-book", sessionId: "hq-demo-book", args, expectedSoulBinding: null, instructionSha256 }),
+      decidedAt: "2026-08-28T00:00:00.000Z",
+    },
+    runtime: { hermesProfile: "male-modern-fantasy-ko", model: "gpt-5.6-sol", reasoning: "high" },
+    approvalMode: "human",
+    approvedInputs: [],
+    privateInputs: [],
+    requestedAt: "2026-08-28T00:00:00.000Z",
+  };
+  return { ...base, ...overrides };
 }
 
 function pitchSlateWorkOrder(overrides = {}) {
@@ -154,7 +186,7 @@ function pitchPromoteWorkOrder(overrides = {}) {
   });
 }
 
-test("freezes the Phase 0 HQ to InkOS v1 dispatch boundary", async () => {
+test("preserves the Phase 0 v1 WorkOrder through the dual adapter", async () => {
   const fixture = JSON.parse(await readFile(join(
     process.cwd(),
     "tests/fixtures/production-kernel-phase0-hq-v1.json",
@@ -179,6 +211,166 @@ test("freezes the Phase 0 HQ to InkOS v1 dispatch boundary", async () => {
   assert.equal(plan.repo.execution.adapter, expected.adapter);
   assert.equal(plan.repo.execution.receiptContract, expected.receiptContract);
   assert.deepEqual(plan.invocation.args.slice(1, 2), ["status"]);
+});
+
+test("routes strict WorkOrder v2 to the bodyless ProductionCommand adapter", () => {
+  const workOrder = writeNextV2WorkOrder();
+  const manifest = manifestFixture();
+  assert.deepEqual(validateWorkOrder(workOrder, manifest), []);
+  const plan = buildDispatchPlan({ root: "/tmp/firefly", manifest, workOrder });
+  assert.deepEqual(plan.invocation.args.slice(1, 3), ["production", "write-next"]);
+  assert.equal(plan.invocation.args.filter((arg) => arg === "--work-order-sha").length, 1);
+  assert.equal(plan.invocation.args[plan.invocation.args.indexOf("--work-order-sha") + 1], plan.invocation.workOrderSha256);
+  assert.equal(plan.invocation.args.includes(workOrder.instruction), false);
+  assert.equal(plan.invocation.stdin.includes(workOrder.instruction), true);
+  assert.equal(createHash("sha256").update(plan.invocation.stdin).digest("hex"), plan.invocation.workOrderSha256);
+});
+
+test("rejects WorkOrder v2 owner-decision or batch drift before dispatch", () => {
+  const manifest = manifestFixture();
+  const hashDrift = writeNextV2WorkOrder({
+    ownerDecision: {
+      receiptId: "owner-decision-1",
+      status: "approved",
+      instructionSha256: "a".repeat(64),
+      argsSha256: "b".repeat(64),
+      decidedAt: "2026-08-28T00:00:00.000Z",
+    },
+  });
+  assert.ok(validateWorkOrder(hashDrift, manifest).some((error) => error.includes("hash mismatch")));
+  const batch = writeNextV2WorkOrder({ args: { chapterCount: 2 } });
+  assert.ok(validateWorkOrder(batch, manifest).some((error) => error.includes("chapterCount=1")));
+  assert.ok(validateWorkOrder(writeNextV2WorkOrder({ bookId: "../escape" }), manifest)
+    .some((error) => error.includes("safe path segment")));
+  assert.ok(validateWorkOrder(writeNextV2WorkOrder({ approvedInputs: [{ role: "unused" }] }), manifest)
+    .some((error) => error.includes("unbound approvedInputs")));
+  assert.ok(validateWorkOrder(writeNextV2WorkOrder({ expectedSoulBinding: undefined }), manifest)
+    .some((error) => error.includes("expectedSoulBinding is required")));
+});
+
+test("executes WorkOrder v2 with verified child evidence and persists a bodyless receipt", async () => {
+  const root = await mkdtemp(join(tmpdir(), "firefly-dispatch-v2-"));
+  const repoPath = join(root, "edge_repos", "inkos");
+  const cliPath = join(repoPath, "packages", "cli", "dist", "index.js");
+  const remoteUrl = "git@example.invalid:owner/inkos.git";
+  try {
+    await mkdir(join(repoPath, "packages", "cli", "dist"), { recursive: true });
+    await writeFile(cliPath, "// fixture entrypoint\n", "utf8");
+    await writeFile(join(repoPath, ".gitignore"), "books/\n", "utf8");
+    execFileSync("git", ["init", "-b", "master"], { cwd: repoPath, stdio: "ignore" });
+    execFileSync("git", ["config", "user.email", "dispatch@example.invalid"], { cwd: repoPath });
+    execFileSync("git", ["config", "user.name", "Dispatch Test"], { cwd: repoPath });
+    execFileSync("git", ["remote", "add", "origin", remoteUrl], { cwd: repoPath });
+    execFileSync("git", ["add", "packages/cli/dist/index.js", ".gitignore"], { cwd: repoPath });
+    execFileSync("git", ["commit", "-m", "fixture"], { cwd: repoPath, stdio: "ignore" });
+
+    const workOrder = writeNextV2WorkOrder();
+    const manifest = manifestFixture(remoteUrl);
+    const plan = buildDispatchPlan({ root, manifest, workOrder });
+    const runPath = "books/demo-book/story/runtime/production-runs/terminals/cmd-1.json";
+    const receiptPath = "books/demo-book/story/runtime/fiction-content-neutral/receipts/inv-1.json";
+    const outcomePath = "books/demo-book/story/runtime/fiction-content-neutral/outcomes/inv-1.json";
+    const run = {
+      schemaVersion: "production-run/v1",
+      command: { commandId: "cmd-1" },
+      productionAttempt: { productionOperationId: "prod-1", attemptId: "attempt-1" },
+      executionStatus: "succeeded",
+      approvalStatus: "pending",
+      completionHealth: "verified",
+      projectionOrigin: "direct",
+    };
+    const modelReceipt = {
+      invocationId: "inv-1",
+      agentName: "writer",
+      stage: "chapter-draft",
+      model: "gpt-5.6-sol",
+      reasoningEffort: "high",
+      productionOperationId: "prod-1",
+      attemptId: "attempt-1",
+    };
+    const modelOutcome = {
+      invocationId: "inv-1",
+      status: "completed",
+      productionOperationId: "prod-1",
+      attemptId: "attempt-1",
+    };
+    for (const [path, value] of [[runPath, run], [receiptPath, modelReceipt], [outcomePath, modelOutcome]]) {
+      await mkdir(join(repoPath, path, ".."), { recursive: true });
+      await writeFile(join(repoPath, path), `${JSON.stringify(value)}\n`, "utf8");
+    }
+    const fileSha = async (path) => createHash("sha256").update(await readFile(join(repoPath, path))).digest("hex");
+    const result = {
+      schemaVersion: "inkos-production-result/v2",
+      workOrder: { id: workOrder.workOrderId, sha256: plan.invocation.workOrderSha256 },
+      productionRun: {
+        commandId: "cmd-1",
+        productionOperationId: "prod-1",
+        attemptId: "attempt-1",
+        path: runPath,
+        sha256: await fileSha(runPath),
+        executionStatus: "succeeded",
+        approvalStatus: "pending",
+        completionHealth: "verified",
+        projectionOrigin: "direct",
+      },
+      effectiveRuntime: {
+        orchestrator: workOrder.runtime,
+        inkos: { configMode: "project", model: "gpt-5.6-sol", reasoning: "high" },
+      },
+      modelCalls: [{
+        invocationId: "inv-1",
+        agentName: "writer",
+        stage: "chapter-draft",
+        model: "gpt-5.6-sol",
+        reasoningEffort: "high",
+        status: "completed",
+        receiptPath,
+        receiptSha256: await fileSha(receiptPath),
+        outcomePath,
+        outcomeSha256: await fileSha(outcomePath),
+      }],
+      artifacts: [{ repo: "inkos", path: runPath, sha256: await fileSha(runPath), role: "production-run" }],
+    };
+    const spawn = (_executable, _args, options) => {
+      assert.equal(options.input, plan.invocation.stdin);
+      return { status: 0, signal: null, stdout: `${JSON.stringify(result)}\n`, stderr: "" };
+    };
+    const receipt = await executeWorkOrder({ root, manifest, workOrder, spawn });
+    assert.equal(receipt.status, "succeeded");
+    assert.equal(receipt.boundaryChecks.artifactReportsValid, true);
+    assert.equal(receipt.boundaryChecks.privateBodyExcluded, true);
+    assert.equal(receipt.productionRun.sha256, result.productionRun.sha256);
+    assert.equal(receipt.modelCalls[0].receiptSha256, result.modelCalls[0].receiptSha256);
+    assert.equal("childResult" in receipt, false);
+    assert.equal("args" in receipt.execution, false);
+    assert.equal("stderr" in (receipt.error ?? {}), false);
+    assert.equal(JSON.stringify(receipt).includes(workOrder.instruction), false);
+
+    const persisted = JSON.parse(await readFile(join(root, ".firefly", "runs", `${createHash("sha256").update(workOrder.idempotencyKey).digest("hex").slice(0, 32)}.json`), "utf8"));
+    assert.equal(JSON.stringify(persisted).includes(workOrder.instruction), false);
+
+    const tamperedOrder = writeNextV2WorkOrder({
+      workOrderId: "wo-write-next-v2-tampered",
+      idempotencyKey: "write-next-v2-tampered",
+    });
+    const tamperedPlan = buildDispatchPlan({ root, manifest, workOrder: tamperedOrder });
+    const tamperedResult = {
+      ...result,
+      workOrder: { id: tamperedOrder.workOrderId, sha256: tamperedPlan.invocation.workOrderSha256 },
+      effectiveRuntime: { ...result.effectiveRuntime, orchestrator: tamperedOrder.runtime },
+      modelCalls: [{ ...result.modelCalls[0], receiptSha256: "0".repeat(64) }],
+    };
+    const tamperedReceipt = await executeWorkOrder({
+      root,
+      manifest,
+      workOrder: tamperedOrder,
+      spawn: () => ({ status: 0, signal: null, stdout: `${JSON.stringify(tamperedResult)}\n`, stderr: "" }),
+    });
+    assert.equal(tamperedReceipt.status, "needs-attention");
+    assert.equal(tamperedReceipt.boundaryChecks.artifactReportsValid, false);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
 });
 
 test("validates a bounded status work order", () => {

@@ -104,8 +104,8 @@ export function validateManifest(manifest) {
           errors.push(`${label}.execution.entrypoint must stay inside the child repository`);
         }
       }
-      if (execution.receiptContract !== "run-receipt/v1") {
-        errors.push(`${label}.execution.receiptContract must be run-receipt/v1`);
+      if (!["run-receipt/v1", "run-receipt/dual"].includes(execution.receiptContract)) {
+        errors.push(`${label}.execution.receiptContract must be run-receipt/v1 or run-receipt/dual`);
       }
       if (!Array.isArray(execution.writeScopes)) {
         errors.push(`${label}.execution.writeScopes must be an array`);

@@ -1,7 +1,7 @@
 # InkOS v1.8 벤치마크 기반 선택 이식·Production Kernel 구현안
 
 - 작성일: 2026-08-28
-- 상태: 계획 확정 / Phase 0·1·2·3·4 완료 / Phase 5 미착수
+- 상태: 계획 확정 / Phase 0·1·2·3·4·5 완료 / Phase 6 미착수
 - 계획 모델: `gpt-5.6-sol / ultra`
 - 구현 모델: `gpt-5.6-sol / max`
 - HQ 기준: `3958b37e73362792300cc85311b00dce4a3f31ae`
@@ -12,6 +12,7 @@
 - Phase 2 InkOS commit: `8a923e7e` (`master`, origin push 확인)
 - Phase 3 InkOS commit: `d48fde2a` (`master`, origin push 확인)
 - Phase 4 InkOS commit: `e685a2ec` (`master`, origin push 확인)
+- Phase 5 InkOS commit: `b3a7b3ca` (`master`, origin push 확인)
 - upstream 기준: `091048383f411eb99948a8764f42b6fd13006f9b`
 - upstream 확인: 로컬 `upstream/master`와 원격 `refs/heads/master` 일치
 - 범위: InkOS 생산 실행, Soul/Skill 결속, 검색 projection, HQ 호출 경계,
@@ -23,7 +24,7 @@
 
 ## 구현 상태
 
-2026-08-28에 Phase 0부터 Phase 4까지 각각 독립 완료선으로 구현했다. Phase 0은
+2026-08-28에 Phase 0부터 Phase 5까지 각각 독립 완료선으로 구현했다. Phase 0은
 현재 강점과 의도적 upstream 비채택 표면을 machine-readable fixture로 고정했고,
 Phase 1은 owner direction provenance와 strict session binding 두 정확성 결손을
 수정했다. Phase 2는 기존 Chapter mutation, Reference HIL과 reference bind의
@@ -31,6 +32,8 @@ commit correlation·process-death recovery를 보강했다. Phase 3은 기존
 `PipelineRunner`를 그대로 둔 채 typed authority, observe-only execution context와
 receipt-reference run projection을 추가했다. Phase 4는 production Skill trusted
 namespace, append-only BookSoulBinding과 operation-scoped input receipt를 결속했다.
+Phase 5는 HQ v2와 Studio·CLI·TUI·Agent 실행 표면을 동일 Core gateway로 수렴하고
+bodyless evidence readback을 검증한다.
 
 - Phase 0 InkOS: `6dad71c1` — `origin/master` 반영 완료
 - Phase 0 HQ: `d6d1619a` — `origin/main` 반영 완료
@@ -46,6 +49,9 @@ namespace, append-only BookSoulBinding과 operation-scoped input receipt를 결�
   crash-after-commit terminal reconcile, Writer 재호출 0회 PASS
 - Phase 4 InkOS: `e685a2ec` — `origin/master` 반영 완료
 - Phase 4 회귀: Core 2459, Studio 653, CLI 251 — 총 3363 tests PASS
+- Phase 5 InkOS: `b3a7b3ca` — `origin/master` 반영 완료
+- Phase 5 회귀: Core 2469, Studio 654, CLI 252 — 총 3375 tests PASS
+- Phase 5 HQ: 30 tests, WorkOrder/RunReceipt v2 schema와 actual child evidence PASS
 - 품질 gate: typecheck, build, semantic audit, publish manifest, diff check PASS
 - HQ gate: manifest validate, 27 tests, 4-child status/contract/sync PASS
 - P0/P1 감리: 잔여 결함 없음. Phase 1의 Studio Core binding 오류 HTTP 409
@@ -54,7 +60,8 @@ namespace, append-only BookSoulBinding과 operation-scoped input receipt를 결�
   사용과 production Skill identity drift 차단을 감리 중 추가
 - Phase 1은 dependency·Node floor·Soul·production Skill·LengthNormalizer와 HQ
   WorkOrder 계약을 변경하지 않음
-- 다음 재개점: **Phase 5 하나만** 구현. Phase 6 이후는 계속 미착수
+- 다음 재개점: **Phase 6 neutral runtime canary 하나만** 실행. Phase 7 이후는
+  계속 미착수
 
 ### Phase 1 구현 영수증
 
@@ -1089,6 +1096,16 @@ manifest와 diff check를 통과했다. 감리 중 decision receipt overwrite �
 - pending confirmation을 재사용할 때 현재 binding·args가 바뀌면 실행 전 거절
 
 완료선: HQ는 receipt와 hash만 집계하며 Book 파일 직접 write 0.
+
+완료 판정: Core/Studio/CLI 3,375 tests와 HQ 30 tests, typecheck, build,
+semantic-pattern audit, publish manifest, v2 JSON Schema, actual child evidence tamper
+fixture와 diff check를 통과했다. 감리 중 evidence 실제 byte 재검증, filesystem 접근
+전 Book ID 차단, effective Writer model readback과 미구현 v2 input fail-closed를
+보강한 뒤 잔여 P0/P1 0으로 닫았다. 기본값은 계속 `kernel=off`,
+`surfaceGateway=legacy`이며 enforce canary는 실행하지 않았다.
+
+상세 검증: InkOS
+`docs/2026-08-28-production-kernel-phase5-hq-v2-surface-gateway.md`
 
 ### Optional Track A — Pi worker parity
 
