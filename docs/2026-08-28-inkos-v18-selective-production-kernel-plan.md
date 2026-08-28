@@ -1,7 +1,7 @@
 # InkOS v1.8 벤치마크 기반 선택 이식·Production Kernel 구현안
 
 - 작성일: 2026-08-28
-- 상태: 계획 확정 / Phase 0·1·2·3·4·5 완료 / Phase 6 미착수
+- 상태: 계획 확정 / Phase 0·1·2·3·4·5·6 완료 / Phase 7 미착수
 - 계획 모델: `gpt-5.6-sol / ultra`
 - 구현 모델: `gpt-5.6-sol / max`
 - HQ 기준: `3958b37e73362792300cc85311b00dce4a3f31ae`
@@ -13,6 +13,7 @@
 - Phase 3 InkOS commit: `d48fde2a` (`master`, origin push 확인)
 - Phase 4 InkOS commit: `e685a2ec` (`master`, origin push 확인)
 - Phase 5 InkOS commit: `b3a7b3ca` (`master`, origin push 확인)
+- Phase 6 InkOS commit: `97deb354` (`master`, origin push 확인)
 - upstream 기준: `091048383f411eb99948a8764f42b6fd13006f9b`
 - upstream 확인: 로컬 `upstream/master`와 원격 `refs/heads/master` 일치
 - 범위: InkOS 생산 실행, Soul/Skill 결속, 검색 projection, HQ 호출 경계,
@@ -24,7 +25,7 @@
 
 ## 구현 상태
 
-2026-08-28에 Phase 0부터 Phase 5까지 각각 독립 완료선으로 구현했다. Phase 0은
+2026-08-28에 Phase 0부터 Phase 6까지 각각 독립 완료선으로 구현했다. Phase 0은
 현재 강점과 의도적 upstream 비채택 표면을 machine-readable fixture로 고정했고,
 Phase 1은 owner direction provenance와 strict session binding 두 정확성 결손을
 수정했다. Phase 2는 기존 Chapter mutation, Reference HIL과 reference bind의
@@ -33,7 +34,9 @@ commit correlation·process-death recovery를 보강했다. Phase 3은 기존
 receipt-reference run projection을 추가했다. Phase 4는 production Skill trusted
 namespace, append-only BookSoulBinding과 operation-scoped input receipt를 결속했다.
 Phase 5는 HQ v2와 Studio·CLI·TUI·Agent 실행 표면을 동일 Core gateway로 수렴하고
-bodyless evidence readback을 검증한다.
+bodyless evidence readback을 검증한다. Phase 6은 strict Soul-null baseline에서
+legacy·observe·enforce와 CLI-direct·Agent·HQ의 canon/model-call/HIL parity를
+독립 canary로 검증한다.
 
 - Phase 0 InkOS: `6dad71c1` — `origin/master` 반영 완료
 - Phase 0 HQ: `d6d1619a` — `origin/main` 반영 완료
@@ -52,15 +55,19 @@ bodyless evidence readback을 검증한다.
 - Phase 5 InkOS: `b3a7b3ca` — `origin/master` 반영 완료
 - Phase 5 회귀: Core 2469, Studio 654, CLI 252 — 총 3375 tests PASS
 - Phase 5 HQ: 30 tests, WorkOrder/RunReceipt v2 schema와 actual child evidence PASS
+- Phase 6 InkOS: `97deb354` — `origin/master` 반영 완료
+- Phase 6 neutral canary: 동일 5-lane fixture 2회 연속 PASS, Core 2471,
+  Studio 654, CLI 252 — 총 3377 tests PASS
 - 품질 gate: typecheck, build, semantic audit, publish manifest, diff check PASS
-- HQ gate: manifest validate, 27 tests, 4-child status/contract/sync PASS
+- HQ gate: manifest validate, 30 tests, 4-child status/contract/sync PASS
 - P0/P1 감리: 잔여 결함 없음. Phase 1의 Studio Core binding 오류 HTTP 409
   projection, Phase 2의 ready transition audit-receipt 재검증, Phase 3의 receipt
   body 중복 제거와 premature Skill activation 차단, Phase 4의 decision ID 단회
-  사용과 production Skill identity drift 차단을 감리 중 추가
+  사용과 production Skill identity drift 차단, Phase 5의 actual evidence byte·Soul
+  expectation 검증, Phase 6의 actual surface canary와 Soul-null 해석을 감리 중 추가
 - Phase 1은 dependency·Node floor·Soul·production Skill·LengthNormalizer와 HQ
   WorkOrder 계약을 변경하지 않음
-- 다음 재개점: **Phase 6 neutral runtime canary 하나만** 실행. Phase 7 이후는
+- 다음 재개점: **Phase 7 Soul 자산 준비 상태 감사와 격리 path canary**. Phase 8은
   계속 미착수
 
 ### Phase 1 구현 영수증
@@ -1151,6 +1158,16 @@ Soul 효과를 보기 전에 새 실행 기반만 따로 검증한다.
 
 canon byte, 모델 호출 수와 HIL 결과가 baseline을 벗어나면 Soul canary로
 넘어가지 않는다. Optional Pi/FTS의 실제 prompt 전환은 이 canary와 별도다.
+
+완료 판정: strict Soul `null`, Pi off, retrieval legacy, FTS off와 manual review를
+고정한 동일 fixture에서 legacy baseline, observe-direct, enforce-direct,
+enforce-Agent, enforce-HQ 다섯 lane을 실행했다. canon 파일 3종 raw bytes, Writer
+호출 1회와 `ready-for-review/pending` projection이 모두 같았다. v2 command,
+execution context, attempt와 verified commit receipt correlation도 통과했고 canary를
+2회 연속 재실행했다. 기본값은 계속 off/legacy다.
+
+상세 검증: InkOS
+`docs/2026-08-28-production-kernel-phase6-neutral-runtime-canary.md`
 
 ### Phase 7 — Soul 자산 트랙과 promotion canary 결합
 
