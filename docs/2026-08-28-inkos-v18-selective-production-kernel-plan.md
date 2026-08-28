@@ -1,12 +1,14 @@
 # InkOS v1.8 벤치마크 기반 선택 이식·Production Kernel 구현안
 
 - 작성일: 2026-08-28
-- 상태: 계획 확정 / Phase 0 완료 / Phase 1 미착수
+- 상태: 계획 확정 / Phase 0·1 완료 / Phase 2 미착수
 - 계획 모델: `gpt-5.6-sol / ultra`
 - 구현 모델: `gpt-5.6-sol / max`
 - HQ 기준: `3958b37e73362792300cc85311b00dce4a3f31ae`
 - InkOS 기준: `44eeaeca508bf3aa6dffb1cf5a6a142e2b2042c8`
 - Phase 0 InkOS commit: `6dad71c1` (`master`, origin push 확인)
+- Phase 0 HQ commit: `d6d1619a` (`main`, origin push 확인)
+- Phase 1 InkOS commit: `06e08d07` (`master`, origin push 확인)
 - upstream 기준: `091048383f411eb99948a8764f42b6fd13006f9b`
 - upstream 확인: 로컬 `upstream/master`와 원격 `refs/heads/master` 일치
 - 범위: InkOS 생산 실행, Soul/Skill 결속, 검색 projection, HQ 호출 경계,
@@ -18,17 +20,39 @@
 
 ## 구현 상태
 
-2026-08-28에 Phase 0만 구현하고 독립 완료선을 닫았다. InkOS에는 현재 강점과
-의도적 upstream 비채택 표면을 고정하는 machine-readable fixture와 실행 테스트,
-검증 문서를 추가했다. HQ에는 현재 `inkos-cli-v1`·`run-receipt/v1`·read-only
-status dispatch 경계를 고정하는 회귀 fixture를 추가했다.
+2026-08-28에 Phase 0과 Phase 1을 각각 독립 완료선으로 구현했다. Phase 0은
+현재 강점과 의도적 upstream 비채택 표면을 machine-readable fixture로 고정했고,
+Phase 1은 owner direction provenance와 strict session binding 두 정확성 결손을
+수정했다.
 
-- InkOS: `6dad71c1` — `origin/master` 반영 완료
-- 최종 회귀: Core 2424, Studio 650, CLI 251 — 총 3325 tests PASS
-- 품질 gate: typecheck, build, semantic audit, publish manifest PASS
-- HQ gate: manifest validate, 27 tests PASS
-- production runtime·dependency·Node floor·prompt·Skill·LengthNormalizer 변경 없음
-- 다음 재개점: **Phase 1 하나만** 구현. Phase 2 이후는 계속 미착수
+- Phase 0 InkOS: `6dad71c1` — `origin/master` 반영 완료
+- Phase 0 HQ: `d6d1619a` — `origin/main` 반영 완료
+- Phase 1 InkOS: `06e08d07` — `origin/master` 반영 완료
+- Phase 1 회귀: Core 2433, Studio 651, CLI 251 — 총 3335 tests PASS
+- 품질 gate: typecheck, build, semantic audit, publish manifest, diff check PASS
+- HQ gate: manifest validate, 27 tests, 4-child status/contract/sync PASS
+- P0/P1 감리: 잔여 결함 없음. Studio Core binding 오류의 HTTP 409 projection
+  회귀 테스트를 감리 중 추가
+- Phase 1은 dependency·Node floor·Soul·production Skill·LengthNormalizer와 HQ
+  WorkOrder 계약을 변경하지 않음
+- 다음 재개점: **Phase 2 하나만** 구현. Phase 3 이후는 계속 미착수
+
+### Phase 1 구현 영수증
+
+- confirmed Studio·Agent owner 지시는 exact UTF-8 bytes를 ignored local-only
+  detached lease에 mode-restricted atomic write로 보관한다. action/result에는
+  본문 대신 lease·payload·receipt SHA, byte length와 expiry만 남긴다.
+- `sub_agent(writer).instruction`은 owner direction과 분리된 `model-mediated`
+  guidance로 단일·batch Writer에 전달한다. Writer prompt에서도 owner 최고 권위
+  block과 model subordinate block을 분리한다.
+- strict transcript reader는 leading header, schema, session ID, sequence와 전체
+  metadata chain을 검증한다. 명시적 null-to-Book 한 번만 허용하고 Book rebinding과
+  session kind drift를 cache/model보다 먼저 차단한다.
+- concurrent migration은 per-session append queue에서 직렬화되어 한 Book만
+  승리한다. Studio는 Core binding 오류를 HTTP 409로 투영하되 불변식은 Core가
+  소유한다.
+- 상세 검증: InkOS
+  `docs/2026-08-28-production-kernel-phase1-direction-session-binding.md`
 
 ## 최종 결론
 
