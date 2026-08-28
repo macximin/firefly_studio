@@ -694,17 +694,17 @@ surface match schema에는 free-text note를 두지 않고 enum/code, source ID,
 `approve|polish|hold|reject`를 쓴다. Soul 승격 결정은 별도
 `promote|hold|reject` schema를 쓴다.
 
-좌표 정본은 resolver와 surface index 모두 `utf8-byte`다. 현재 InkOS story
-provenance는 JavaScript UTF-16 code-unit `sourceCharacterRange`를
-`string.slice()`에 쓰고, style example은 prose SHA만 있어 이 좌표를 그대로
-resolver에 넘길 수 없다. P0 converter는 story range로 잘린 실제 prose와
-prose SHA를 먼저 검증한 뒤 canonical source의 UTF-8 byte start/end로
-변환한다. style example은 source ID·full source SHA·prose SHA와 함께 exact
-위치를 역매핑하되 단일 일치가 아니면 import 시 저장된 좌표를 요구한다.
-중복 일치, source SHA drift, prose SHA 불일치, UTF 경계 변환 실패에서는
-typed selector를 만들지 않는다. candidate 쪽 selector도 candidate 전체 body
-SHA, UTF-8 byte start/end, candidate slice SHA를 함께 결속하며 Storyyard는
-packet candidate SHA와 다시 대조한다.
+좌표 정본은 resolver와 surface index 모두 `utf8-byte`다. InkOS의
+`inkos-utf8-selector-bridge/1` converter는 story의 JavaScript UTF-16 code-unit
+`sourceCharacterRange`로 잘린 실제 prose와 prose SHA를 먼저 검증한 뒤
+canonical source의 UTF-8 byte start/end로 변환한다. range-less style example은
+source ID·full source SHA·prose SHA와 함께 exact 위치를 역매핑하며, 단일
+일치가 아니면 import 시 저장된 UTF-8 좌표를 요구한다. 중복 일치, source SHA
+drift, prose SHA 불일치, surrogate/UTF 경계 실패에서는 typed selector를 만들지
+않는다. candidate 쪽 selector도 candidate 전체 body SHA, UTF-8 byte start/end,
+candidate slice SHA와 함께 결속하며 Storyyard는 packet candidate SHA와 다시
+대조한다. 실제 Doksik pack canary에서 story와 style 경로가 같은 `32..138`
+byte selector로 수렴했다.
 
 surface match의 의미 분류는 raw를 보지 못하는 review model에게 맡기지
 않는다. deterministic scanner는 match ID·방법·양측 typed selector와 SHA만
@@ -959,8 +959,9 @@ grant 검증이며, adapter는 verified grant SHA를 access receipt에 기록한
    구현됐다. packet에는 source 좌표·SHA만 있고 raw slice는 signed
    admin/owner-scope grant, atomic JTI consume, registry·realpath·source SHA
    검증, fd3 sensitive channel과 no-store proxy를 거친다. 일반 Dispatcher는
-   이 capability를 직접 실행하지 않는다. 잔여는 production surface index에서
-   typed selector를 만드는 converter, named TLS tunnel 배포와 실제 사람 HIL이다.
+   이 capability를 직접 실행하지 않는다. story/style provenance typed selector
+   converter와 실데이터 canary도 완료했다. 잔여는 deep-read 기반 production
+   surface index 생성, named TLS tunnel 배포와 실제 사람 HIL이다.
 13. **owner gate 잔여.** Reference Lab의 promotion eligibility와 HQ의 사람
     promotion decision·active adoption registry를 분리한다. `agent-operate` production은 HQ
     decision/registry SHA가 없거나 `promote`가 아니면 거절한다.

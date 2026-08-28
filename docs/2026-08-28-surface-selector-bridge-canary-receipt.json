@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "surface-selector-bridge-canary/v1",
+  "generatedAt": "2026-08-28T05:54:18Z",
+  "result": "passed",
+  "scope": "coordinate-conversion-only",
+  "code": {
+    "inkosCommit": "889eadc5151e080a1b3d692b91b001776e27ea24",
+    "converterVersion": "inkos-utf8-selector-bridge/1"
+  },
+  "source": {
+    "sourceId": "gdrive-1BzfNJPOBwauB9HxQq6_HZIDLllb46vJN",
+    "bindingShaMatched": true
+  },
+  "story": {
+    "mappingMode": "range-validated",
+    "startByte": 32,
+    "endByte": 138,
+    "receiptSha256": "16731a3f2976172673e2744d3f00843ad47b10062c58a3061716f8abeaf3a21a"
+  },
+  "style": {
+    "mappingMode": "unique-exact-reverse-map",
+    "startByte": 32,
+    "endByte": 138,
+    "receiptSha256": "0149ee76d9d241146bc363f5642ca71273013507780cda6930912fb4bbcf4016"
+  },
+  "selectorsEqual": true,
+  "rawSourcePersisted": false,
+  "nonClaims": {
+    "surfaceIndexComplete": false,
+    "humanReviewEvidence": false,
+    "promotionEvidence": false,
+    "soulLearningEvidence": false
+  }
+}

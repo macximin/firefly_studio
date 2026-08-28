@@ -15,7 +15,7 @@
 - Phase 5 InkOS commit: `b3a7b3ca` (`master`, origin push 확인)
 - Phase 6 InkOS commit: `97deb354` (`master`, origin push 확인)
 - Phase 7 Reference Lab commits: `822ec3d`, `a94ab1f`, `1c89819` (`main`, origin push 확인)
-- Phase 7 InkOS commits: `a66352fe`, `65936698`, `8ff9d72b` (`master`, origin push 확인)
+- Phase 7 InkOS commits: `a66352fe`, `65936698`, `8ff9d72b`, `889eadc5` (`master`, origin push 확인)
 - Phase 7 Storyyard commit: `f1c4e1e` (`main`, origin push 확인)
 - Phase 7 HQ commits: `f4130e7`, `92979f6` (`main`, origin push 확인)
 - upstream 기준: `091048383f411eb99948a8764f42b6fd13006f9b`
@@ -75,6 +75,9 @@ source slice UI를 제공한다. 이는 기반 완료이지 학습·승격 완�
 - Phase 7 owner-direction follow-up: `/write` 명령과 exact context-file bytes를
   분리하고 빈/비-write context를 차단. Core 2480, Studio 654, CLI 257 —
   총 3391 tests PASS
+- Phase 7 surface selector bridge: story UTF-16 range와 range-less style prose를
+  검증된 UTF-8 byte selector로 변환. Core 2483, Studio 654, CLI 257 —
+  총 3394 tests PASS; 실제 Doksik pack story/style가 동일 `32..138` byte로 수렴
 - Phase 7 Storyyard: build와 21 tests PASS
 - Phase 7 Reference Lab: 28 tests와 실제 resolver entrypoint 검사 PASS
 - Phase 7 HQ: manifest/Hermes profile validate, 39 tests, 4-child status PASS
@@ -1217,7 +1220,8 @@ runtime canary와 Soul 문서의 paired commercial gate가 유지된 뒤 각각�
 현재 판정(2026-08-28): source inventory/registry, promotion validator, 세
 genre profile·Soul, 세 Hermes candidate profile, Review Packet/Decision v2,
 Storyyard blind HIL, private source resolver와 HQ gateway는 구현·푸시됐다.
-실제 transport canary도 통과했다. 그러나 registry의
+story/style provenance converter와 실제 source pack canary, transport canary도
+통과했다. 그러나 registry의
 `eligibleForSoulInput`은 0이고 manager selection, 장르별 survey, strict
 full-work deep-read와 manager QA가 없다. 따라서 위 path canary와 세 pair
 promotion canary는 아직 실행하지 않는다. transport canary를 창작 품질이나

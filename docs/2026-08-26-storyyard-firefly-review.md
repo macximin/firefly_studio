@@ -74,6 +74,13 @@ zero raw persistence. This is transport evidence only; it is not a Soul,
 commercial, Storyyard decision, or promotion receipt. A named TLS tunnel and a
 real human review remain deployment work.
 
+InkOS also converts legacy story `sourceCharacterRange` UTF-16 offsets and
+range-less style-example provenance into the packet's canonical UTF-8 byte
+selectors. It verifies the full source SHA and prose SHA first; duplicate style
+matches require an imported UTF-8 selector and all drift or boundary ambiguity
+fails closed. One real Doksik reference-pack canary resolved the story and style
+paths to the same source bytes `32..138` without persisting raw prose.
+
 The last command revalidates packet identity, candidate SHA-256, current chapter
 freshness, and the Book lock before invoking the existing InkOS HIL operation.
 An approval still returns the chapter to drafted state and requires state sync,
