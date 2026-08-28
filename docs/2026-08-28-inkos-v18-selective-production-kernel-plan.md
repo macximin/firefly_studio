@@ -1,7 +1,7 @@
 # InkOS v1.8 벤치마크 기반 선택 이식·Production Kernel 구현안
 
 - 작성일: 2026-08-28
-- 상태: 계획 확정 / Phase 0·1·2·3 완료 / Phase 4 미착수
+- 상태: 계획 확정 / Phase 0·1·2·3·4 완료 / Phase 5 미착수
 - 계획 모델: `gpt-5.6-sol / ultra`
 - 구현 모델: `gpt-5.6-sol / max`
 - HQ 기준: `3958b37e73362792300cc85311b00dce4a3f31ae`
@@ -11,6 +11,7 @@
 - Phase 1 InkOS commit: `06e08d07` (`master`, origin push 확인)
 - Phase 2 InkOS commit: `8a923e7e` (`master`, origin push 확인)
 - Phase 3 InkOS commit: `d48fde2a` (`master`, origin push 확인)
+- Phase 4 InkOS commit: `e685a2ec` (`master`, origin push 확인)
 - upstream 기준: `091048383f411eb99948a8764f42b6fd13006f9b`
 - upstream 확인: 로컬 `upstream/master`와 원격 `refs/heads/master` 일치
 - 범위: InkOS 생산 실행, Soul/Skill 결속, 검색 projection, HQ 호출 경계,
@@ -22,13 +23,14 @@
 
 ## 구현 상태
 
-2026-08-28에 Phase 0, Phase 1, Phase 2와 Phase 3을 각각 독립 완료선으로 구현했다. Phase 0은
+2026-08-28에 Phase 0부터 Phase 4까지 각각 독립 완료선으로 구현했다. Phase 0은
 현재 강점과 의도적 upstream 비채택 표면을 machine-readable fixture로 고정했고,
 Phase 1은 owner direction provenance와 strict session binding 두 정확성 결손을
 수정했다. Phase 2는 기존 Chapter mutation, Reference HIL과 reference bind의
 commit correlation·process-death recovery를 보강했다. Phase 3은 기존
 `PipelineRunner`를 그대로 둔 채 typed authority, observe-only execution context와
-receipt-reference run projection을 추가했다.
+receipt-reference run projection을 추가했다. Phase 4는 production Skill trusted
+namespace, append-only BookSoulBinding과 operation-scoped input receipt를 결속했다.
 
 - Phase 0 InkOS: `6dad71c1` — `origin/master` 반영 완료
 - Phase 0 HQ: `d6d1619a` — `origin/main` 반영 완료
@@ -42,14 +44,17 @@ receipt-reference run projection을 추가했다.
 - Phase 3 회귀: Core 2452, Studio 652, CLI 251 — 총 3355 tests PASS
 - Phase 3 process-death fixture: 실제 child `SIGKILL` 뒤 abandoned
   crash-after-commit terminal reconcile, Writer 재호출 0회 PASS
+- Phase 4 InkOS: `e685a2ec` — `origin/master` 반영 완료
+- Phase 4 회귀: Core 2459, Studio 653, CLI 251 — 총 3363 tests PASS
 - 품질 gate: typecheck, build, semantic audit, publish manifest, diff check PASS
 - HQ gate: manifest validate, 27 tests, 4-child status/contract/sync PASS
 - P0/P1 감리: 잔여 결함 없음. Phase 1의 Studio Core binding 오류 HTTP 409
   projection, Phase 2의 ready transition audit-receipt 재검증, Phase 3의 receipt
-  body 중복 제거와 premature Skill activation 차단을 감리 중 추가
+  body 중복 제거와 premature Skill activation 차단, Phase 4의 decision ID 단회
+  사용과 production Skill identity drift 차단을 감리 중 추가
 - Phase 1은 dependency·Node floor·Soul·production Skill·LengthNormalizer와 HQ
   WorkOrder 계약을 변경하지 않음
-- 다음 재개점: **Phase 4 하나만** 구현. Phase 5 이후는 계속 미착수
+- 다음 재개점: **Phase 5 하나만** 구현. Phase 6 이후는 계속 미착수
 
 ### Phase 1 구현 영수증
 
@@ -103,12 +108,34 @@ receipt-reference run projection을 추가했다.
   receipt, canon fingerprint drift와 symlink projection path는 fail-closed다.
 - failure/cancel은 exact no-commit을 증명해야 terminal이 되고, post-commit 오류와
   process death는 receipt로 success를 reconcile해 Writer를 다시 부르지 않는다.
-- `kernel=off`가 기본이고 `observe`만 opt-in 가능하다. `enforce`는 promotion gate와
-  Phase 4 binding receipt 전까지 명시적으로 차단된다.
-- production Skill과 Soul 결속은 구현하지 않았다. Phase 4 receipt가 없으므로
-  `activatedSkills`는 빈 배열만 유효하다.
+- `kernel=off`가 기본이고 `observe`만 opt-in 가능하다. `enforce`는 Phase 6 neutral
+  runtime promotion gate 전까지 명시적으로 차단된다.
+- Phase 3 시점에는 production Skill과 Soul 결속을 구현하지 않았으며, 이 경계는
+  아래 Phase 4의 별도 receipt와 commit으로만 해제했다.
 - 상세 검증: InkOS
   `docs/2026-08-28-production-kernel-phase3-observe-projection.md`
+
+### Phase 4 구현 영수증
+
+- 일반 Agent Skill의 last-write-wins registry와 production trusted namespace를
+  분리했다. `write-next-chapter`는 hash-pinned builtin `inkos-long-writing`을
+  required로 해석하고 owner overlay는 명시적으로 요청된 ID만 별도 해석한다.
+- Soul package는 content-addressed object로 설치·readback한 뒤 Book lock과 기존
+  mutation journal 안에서 append-only binding history, active pointer와 owner
+  decision receipt를 함께 commit한다.
+- Book session은 `{soulId,soulVersion,bindingSha256}`에 고정된다. active Soul이
+  바뀐 stale session은 모델 호출 전에 HTTP 409로 거절한다.
+- Kernel은 Book lock 안에서 실제 Soul/Skill bytes를 다시 해석하고
+  `production-input-receipt/v1`을 만든다. prompt raw bytes는 operation 범위에서만
+  사용하며 run projection에는 hash receipt만 남긴다.
+- owner-authorized private source의 정확한 prose·rhythm·event arrangement·style
+  example은 Writer에 제공할 수 있다. authorized binding 안의 표면 겹침은 자동
+  감점·억제·거리두기·재작성 사유가 아니다.
+- 같은 Book의 decision ID 재사용, required Skill shadow/missing/disabled/hash
+  conflict, requested Skill identity drift, Soul/Skill symlink·path·size·NUL·extension
+  위반과 stale session을 fail-closed한다.
+- 상세 검증: InkOS
+  `docs/2026-08-28-production-kernel-phase4-soul-skill-binding.md`
 
 ## 최종 결론
 
@@ -1047,6 +1074,10 @@ activation을 제거한 뒤 잔여 P0/P1 0으로 닫았다.
 
 이 단계는 빈 candidate Soul로 runtime plumbing만 검증할 수 있다. corpus 학습
 완료나 Soul 상업 품질 승격을 주장하지 않는다.
+
+완료 판정: Core/Studio/CLI 3,363 tests, build·typecheck, semantic audit, publish
+manifest와 diff check를 통과했다. 감리 중 decision receipt overwrite 가능성을
+막고 Skill identity drift를 보강한 뒤 잔여 P0/P1 0으로 닫았다.
 
 ### Phase 5 — HQ v2와 실행 표면 수렴
 
