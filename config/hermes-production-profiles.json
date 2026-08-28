@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "hermes-production-profile-registry/v1",
+  "profiles": [
+    {
+      "profileId": "inkos_male_modern_fantasy",
+      "soulId": "male-modern-fantasy-ko",
+      "soulVersion": "v1",
+      "lifecycle": "candidate",
+      "productionEnabled": false,
+      "promotionDecisionSha256": null,
+      "provider": "openai-codex",
+      "model": "gpt-5.6-sol",
+      "reasoning": "high",
+      "skillsPolicy": "none",
+      "configSha256": "04e65f12e121d7180c41583b43c6ed77b9d7562744c64a76dc5014460436cbe9",
+      "soulSha256": "1f34b90e2c13d1234b08f6406aa7d84afee13adcc4bf04e4ab90fedce6608349"
+    },
+    {
+      "profileId": "inkos_male_fantasy",
+      "soulId": "male-fantasy-ko",
+      "soulVersion": "v1",
+      "lifecycle": "candidate",
+      "productionEnabled": false,
+      "promotionDecisionSha256": null,
+      "provider": "openai-codex",
+      "model": "gpt-5.6-sol",
+      "reasoning": "high",
+      "skillsPolicy": "none",
+      "configSha256": "04e65f12e121d7180c41583b43c6ed77b9d7562744c64a76dc5014460436cbe9",
+      "soulSha256": "240a6e392f6c67af722c8670d543f39a6fe097bc2cc0d0ef261bc823278ad75e"
+    },
+    {
+      "profileId": "inkos_male_murim",
+      "soulId": "male-murim-ko",
+      "soulVersion": "v1",
+      "lifecycle": "candidate",
+      "productionEnabled": false,
+      "promotionDecisionSha256": null,
+      "provider": "openai-codex",
+      "model": "gpt-5.6-sol",
+      "reasoning": "high",
+      "skillsPolicy": "none",
+      "configSha256": "04e65f12e121d7180c41583b43c6ed77b9d7562744c64a76dc5014460436cbe9",
+      "soulSha256": "c393861771f842cdf52073e535a50fe9cbe8e23bc5e07bc35b54f46bd084f418"
+    }
+  ]
+}

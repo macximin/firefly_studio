@@ -6,7 +6,7 @@
   "scripts": {
     "bootstrap:links": "node scripts/bootstrap-links.mjs",
     "dispatch": "node scripts/dispatch-edge.mjs",
-    "validate": "node scripts/validate-manifest.mjs",
+    "validate": "node scripts/validate-manifest.mjs && node scripts/validate-hermes-profiles.mjs",
     "status": "node scripts/status-edge-repos.mjs",
     "test": "node --test tests/*.test.mjs",
     "check": "npm run validate && npm test && npm run status"
