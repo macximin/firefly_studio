@@ -1,7 +1,7 @@
 # InkOS v1.8 벤치마크 기반 선택 이식·Production Kernel 구현안
 
 - 작성일: 2026-08-28
-- 상태: 계획 확정 / Phase 0·1·2 완료 / Phase 3 미착수
+- 상태: 계획 확정 / Phase 0·1·2·3 완료 / Phase 4 미착수
 - 계획 모델: `gpt-5.6-sol / ultra`
 - 구현 모델: `gpt-5.6-sol / max`
 - HQ 기준: `3958b37e73362792300cc85311b00dce4a3f31ae`
@@ -10,6 +10,7 @@
 - Phase 0 HQ commit: `d6d1619a` (`main`, origin push 확인)
 - Phase 1 InkOS commit: `06e08d07` (`master`, origin push 확인)
 - Phase 2 InkOS commit: `8a923e7e` (`master`, origin push 확인)
+- Phase 3 InkOS commit: `d48fde2a` (`master`, origin push 확인)
 - upstream 기준: `091048383f411eb99948a8764f42b6fd13006f9b`
 - upstream 확인: 로컬 `upstream/master`와 원격 `refs/heads/master` 일치
 - 범위: InkOS 생산 실행, Soul/Skill 결속, 검색 projection, HQ 호출 경계,
@@ -21,11 +22,13 @@
 
 ## 구현 상태
 
-2026-08-28에 Phase 0, Phase 1과 Phase 2를 각각 독립 완료선으로 구현했다. Phase 0은
+2026-08-28에 Phase 0, Phase 1, Phase 2와 Phase 3을 각각 독립 완료선으로 구현했다. Phase 0은
 현재 강점과 의도적 upstream 비채택 표면을 machine-readable fixture로 고정했고,
 Phase 1은 owner direction provenance와 strict session binding 두 정확성 결손을
 수정했다. Phase 2는 기존 Chapter mutation, Reference HIL과 reference bind의
-commit correlation·process-death recovery를 보강했다.
+commit correlation·process-death recovery를 보강했다. Phase 3은 기존
+`PipelineRunner`를 그대로 둔 채 typed authority, observe-only execution context와
+receipt-reference run projection을 추가했다.
 
 - Phase 0 InkOS: `6dad71c1` — `origin/master` 반영 완료
 - Phase 0 HQ: `d6d1619a` — `origin/main` 반영 완료
@@ -35,13 +38,18 @@ commit correlation·process-death recovery를 보강했다.
 - Phase 2 회귀: Core 2441, Studio 651, CLI 251 — 총 3343 tests PASS
 - Phase 2 process-death fixture: 실제 child `SIGKILL` 기반 Chapter rollback,
   reference activation rollback, applied HIL resume 3건 PASS
+- Phase 3 InkOS: `d48fde2a` — `origin/master` 반영 완료
+- Phase 3 회귀: Core 2452, Studio 652, CLI 251 — 총 3355 tests PASS
+- Phase 3 process-death fixture: 실제 child `SIGKILL` 뒤 abandoned
+  crash-after-commit terminal reconcile, Writer 재호출 0회 PASS
 - 품질 gate: typecheck, build, semantic audit, publish manifest, diff check PASS
 - HQ gate: manifest validate, 27 tests, 4-child status/contract/sync PASS
 - P0/P1 감리: 잔여 결함 없음. Phase 1의 Studio Core binding 오류 HTTP 409
-  projection과 Phase 2의 ready transition audit-receipt 재검증을 감리 중 추가
+  projection, Phase 2의 ready transition audit-receipt 재검증, Phase 3의 receipt
+  body 중복 제거와 premature Skill activation 차단을 감리 중 추가
 - Phase 1은 dependency·Node floor·Soul·production Skill·LengthNormalizer와 HQ
   WorkOrder 계약을 변경하지 않음
-- 다음 재개점: **Phase 3 하나만** 구현. Phase 4 이후는 계속 미착수
+- 다음 재개점: **Phase 4 하나만** 구현. Phase 5 이후는 계속 미착수
 
 ### Phase 1 구현 영수증
 
@@ -79,6 +87,28 @@ commit correlation·process-death recovery를 보강했다.
   복구한다. supporting reference는 계속 `planned`다.
 - 상세 검증: InkOS
   `docs/2026-08-28-production-kernel-phase2-mutation-durability.md`
+
+### Phase 3 구현 영수증
+
+- self-hashed `production-command/v1`은 typed button, slash, quick-action의
+  `write_next`만 mutation authority로 인정한다. free text는 forged intent가 있어도
+  proposal/chat 경로에 남는다.
+- `ProductionExecutionContext`는 Book/session/request와 attempt correlation만
+  전파하며 권한 우회에 쓰이지 않는다. detached owner direction lease는 Book lock
+  안에서 Writer 호출 직전에 다시 검증한다.
+- preparing/running snapshot과 immutable `production-run/v1` terminal은 기존
+  Chapter commit receipt를 경로·SHA로 참조한다. receipt 본문을 복제하거나 canon
+  상태를 소유하지 않는다.
+- 동일 idempotency+intent는 terminal을 재사용한다. 다른 intent 충돌, 복수
+  receipt, canon fingerprint drift와 symlink projection path는 fail-closed다.
+- failure/cancel은 exact no-commit을 증명해야 terminal이 되고, post-commit 오류와
+  process death는 receipt로 success를 reconcile해 Writer를 다시 부르지 않는다.
+- `kernel=off`가 기본이고 `observe`만 opt-in 가능하다. `enforce`는 promotion gate와
+  Phase 4 binding receipt 전까지 명시적으로 차단된다.
+- production Skill과 Soul 결속은 구현하지 않았다. Phase 4 receipt가 없으므로
+  `activatedSkills`는 빈 배열만 유효하다.
+- 상세 검증: InkOS
+  `docs/2026-08-28-production-kernel-phase3-observe-projection.md`
 
 ## 최종 결론
 
@@ -979,7 +1009,7 @@ WorkOrder v2가 생기는 Phase 5 완료선에서 검증한다.
 state만 남고 UI false-ready가 0. commit receipt와 terminal readback은 같은
 InkOS Book lock 안에서 끝나며 모든 child fiction operation과 attempt가 일치한다.
 
-### Phase 3 — observe-only Kernel과 run projection
+### Phase 3 — observe-only Kernel과 run projection (완료: `d48fde2a`)
 
 - `ProductionExecutionContext`
 - `production-command/v1`
@@ -998,6 +1028,10 @@ InkOS Book lock 안에서 끝나며 모든 child fiction operation과 attempt가
 한다. 새 projection 외의 추가 write가 있으면 승격하지 않는다.
 
 완료선: 성공·실패·취소·crash-after-commit 모두 false-complete와 중복 실행 0.
+
+완료 판정: Core/Studio/CLI 3,355 tests, 실제 child `SIGKILL`, build·typecheck와
+projection/canon parity를 통과했다. 감리 중 receipt body 중복과 premature Skill
+activation을 제거한 뒤 잔여 P0/P1 0으로 닫았다.
 
 ### Phase 4 — production Skill과 BookSoulBinding
 
