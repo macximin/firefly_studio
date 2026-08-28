@@ -1,7 +1,8 @@
 # Hermes 남성향 장르 Soul 원문 학습 계획
 
 - 작성일: 2026-08-27
-- 상태: 계획·프롬프트 v1 확정 / 런타임 구현·코퍼스 학습·카나리 미착수
+- 상태: Soul 자산·프롬프트 계획 v1 확정 / 런타임 기반은 별도 선택 이식
+  구현안으로 정본화 / 코퍼스 학습·카나리 미착수
 - 범위: 남성향 현대판타지, 판타지, 무협
 - 실행 기본값: Hermes와 InkOS에서 실제 호출된 agent 모두 `gpt-5.6-sol / high`
 - 프롬프트 정본: [Hermes 남성향 장르 Soul 프롬프트 v1](./2026-08-27-hermes-male-genre-soul-prompts-v1.md)
@@ -47,6 +48,12 @@ reference, 작품 톤을 보존한다.
 설치된 `SOUL.md`와 실행 config를 소유한다. InkOS는 Writer context와 제작
 상태를 소유한다.
 
+- [InkOS v1.8 선택 이식·Production Kernel 구현안](./2026-08-28-inkos-v18-selective-production-kernel-plan.md)은
+  Soul을 실제 production에 결속하는 Kernel, execution receipt, Skill binding,
+  FTS와 HQ adapter의 구현 순서를 소유한다. 이 문서의 corpus inventory,
+  survey, deep-read, genre profile, Review Packet과 Soul 승격 기준은 계속
+  유효하다. 아래 P0 목록의 runtime 항목은 새 구현안의 단계·gate 순서를
+  우선하며, 두 트랙은 promotion canary에서만 합친다.
 - [HQ Dispatcher v1](./2026-08-25-hq-dispatcher-v1.md)은 현재 WorkOrder와
   RunReceipt 경계의 정본이다.
 - [상업성 우선 레퍼런스 변형·전작 문체·Rail·HIL 이력](./2026-08-26-commercial-style-rail-hil-implementation-plan.md)은
@@ -136,17 +143,21 @@ commercial/HIL reviewer, blind reviewer가 같은 계약 바이트와 SHA를 받
 - 이 계약은 저장소 권한, private source ACL, 개인정보, InkOS 캐논 소유,
   실제 외부 행위나 provider 경계를 넓히지 않는다.
 
-2026-08-27 정적 감리에서는 다음 차단점을 확인했다.
+2026-08-27 정적 감리에서 발견한 차단점은 2026-08-28 InkOS HEAD
+`44eeaeca508bf3aa6dffb1cf5a6a142e2b2042c8`에서 다시 읽었다. 현재 상태의
+정본은 [InkOS fiction-content-neutral runtime](../edge_repos/inkos/docs/2026-08-27-fiction-content-neutral-runtime.md)이다.
 
-| 우선순위 | 현재 경로 | 문제 | 구현 판정 |
+| 경계 | 2026-08-27 발견 | 2026-08-28 현재 판정 | Soul 트랙 잔여 |
 | --- | --- | --- | --- |
-| P0 | Architect → `book_rules.md` → Writer/Auditor/Reviser | Architect가 사용자 요청 없이 `하지 않을 행동`, 금지 사항, 마지막 대가와 변화 계기를 만들 수 있고, provenance·강도 구분 없는 BookRules가 이를 사용자 hard rule처럼 자동 수정까지 전달한다. 현재 세 Book에도 윤리 금지가 정본화돼 있다. | rule마다 kind, host-owned source selector와 text SHA, `source=user-explicit|premise-explicit|book-canon|genre|model-suggested`, `strength=hard|soft|diagnostic`, owner adoption receipt를 보존한다. 모델 제안은 사람 채택 전 diagnostic이고 Writer hard rule·creative critical·자동 수정으로 승격하지 않는다. 대가·성장·속죄는 선택값으로 바꾼다. |
-| P0 | InkOS `sensitive-words.ts` → chapter review/manual audit | 중국 플랫폼용 정치 표현은 `block`, 성·폭력 표현은 완화 권고로 만들어지고 creative pass와 수정 후보에 합쳐진다. private drafting과 출고 검수가 섞여 있다. | 민감 표현 결과를 별도 `publicationCompatibility` 관찰로 분리한다. creative pass, 상업성 점수, 캐논, 자동 수정에는 영향 0이어야 한다. |
-| P0 | `chaebol-modern-fantasy-ko.md` 장르 금지 | 현재 한국어 재벌 profile이 여성 인물의 역할을 규범적으로 금지한다. 전화 한 통 해결 금지도 불법 우회 자체와 무상 해결을 구분하지 않는다. | 성별·도덕 기준을 제거한다. 전화 해결은 사전 구축된 권력·뇌물·협박·연줄 없이 절차가 사라지는 인과 실패만 금지한다. |
-| P1 | Architect → blind reviewer | Writer 외 단계에는 동일한 내용 중립 계약 수신·SHA 검증이 없다. Auditor가 도덕 판단을 자유 서술 critical로 포장하면 자동 수정될 수 있다. | 전 단계에 같은 계약을 주입하고 creative critical reason code를 캐논·인과·명시적 Book 위반 allowlist로 닫는다. 미등록 사유는 사람 검토만 허용한다. |
-| P0 | Continuity dimension 14 | `Side Character Instrumentalization Check`가 재벌·`other-ko` profile에 기본 활성이고, 새 한국어 판타지·무협도 구현 전에는 `other-ko`로 폴백한다. 정의와 severity 상한이 없어 조연의 플롯 기능 자체를 critical·자동 수정으로 만들 수 있다. | `Side Character Agency/Competence`의 상업·캐논 검사로 좁힌다. 확정된 욕망·정보·능력을 인과 없이 깨뜨린 경우만 critical이며 성별·대표성·도구성 자체는 판정하지 않는다. |
-| P1 | 범용 `urban.md`, `litrpg.md` | 여성 인물을 꽃병·보상·특정 trope로 쓰지 말라는 동일한 demographic 기본 금지가 있다. 현재 세 한국어 Soul의 직접 입력은 아니지만 다른 Book에서 재발할 수 있다. | 전체 genre profile을 같은 content-neutral 기준으로 감리하고 성별 규범을 인물 인과·능력·Book 의도 검사로 바꾼다. |
-| P1 | Reference Lab 후보 문서의 `윤리 감리` | 원작 속 후속 비용 관찰인지 Gold 도덕 적합성 게이트인지 정의가 없다. | 원문 인과·후속 비용의 비점수 관찰로 한정하고 Gold 차단·장르 공통 규칙으로 승격하지 않는다. |
+| BookRules provenance | 모델 제안이 owner hard rule처럼 전달될 수 있었음 | 완료·보존 기준선. exact selector, authority/adoption receipt, hard/soft/diagnostic projection과 자동 수정 제한 구현 | 새 Soul·Hermes ingress가 같은 provenance를 우회하지 않는 E2E만 추가 |
+| fiction-content-neutral control | 전 agent 계약·SHA와 free-form finding 자동 권위 제한이 없었음 | 완료·보존 기준선. Book-bound 호출, refusal/outcome, creative 자동 수정 경계와 호출 집합 receipt 구현 | 새 Soul/Skill/Pi 경로의 동일 contract byte·SHA 수신 검증 |
+| publication compatibility | 민감 표현이 creative pass·수정과 섞였음 | 완료·보존 기준선. `publicationCompatibility` advisory로 분리 | Storyyard·Soul review packet이 이를 상업 점수나 canon gate로 다시 합치지 않는 회귀 |
+| 기존 genre profile·Dimension 14 | 성별·도덕 규범과 플롯 기능 자체를 결함화할 수 있었음 | 완료·보존 기준선. 재벌·urban·litrpg 문구와 legacy current-state read projection을 인물 인과·능력 기준으로 정렬 | 신규 세 profile semantic lint에 같은 기준 적용 |
+| 신규 한국어 profile | 현대판타지·판타지·무협의 독립 alias/fallback이 없음 | 미완료 | `modern-fantasy-ko`, `fantasy-ko`, `murim-ko` profile·alias·loaded SHA 구현 |
+| Reference Lab `윤리 감리` | Gold 도덕 적합성 gate인지 정의가 불명확 | 미완료 | 원문 인과·후속 비용의 비점수 관찰로 좁히고 Gold 차단·장르 공통 hard rule 승격 금지 |
+
+완료된 네 runtime 경계를 Sol Max가 다시 설계하거나 교체하지 않는다. 선택
+이식은 그 경계를 새 ingress와 worker가 실제로 소비했는지만 증명한다.
 
 플랫폼 호환성은 사용자가 특정 출고처를 선택했을 때만 별도 preflight로
 계산한다. 결과는 보고서일 뿐 원고를 조용히 순화하거나 creative pass를
@@ -845,13 +856,28 @@ pending receipt 상태만 만든다. source access 권위는 Storyyard 인증과
 grant 검증이며, adapter는 verified grant SHA를 access receipt에 기록한다.
 일반 CLI 호출이나 `approvalMode=human` 문자열만으로 resolver를 열지 않는다.
 
-## 구현 순서
+## Soul 승격 의존성
 
-### P0. 실행 전 필수
+이 절은 Soul 자산과 최종 승격에 필요한 전체 요구사항 목록이다. runtime
+기반의 실제 구현 순서와 commit 경계는
+[InkOS v1.8 선택 이식·Production Kernel 구현안](./2026-08-28-inkos-v18-selective-production-kernel-plan.md)을
+따른다. 두 문서를 한 번에 빅뱅 구현하지 않는다. 아래 번호는 구현 순서가
+아니라 기존 요구사항 ID다. 상태 열이 현재 권위다.
 
-1. 현재 구현과 충돌한 production routing 문구를 실제 raw private input
-   정책으로 정렬한다. 이 문서 변경과 함께 완료한다.
-2. Reference Lab의 추상화 전용 README·분석 지침을 raw private input
+| 요구사항 | 소유 트랙 | 현재 상태 |
+| --- | --- | --- |
+| 1, 3, 4, 5와 6의 기존 profile 중립화 | InkOS runtime baseline | 완료·재구현 금지, 새 경로 회귀 검증만 수행 |
+| 2, 6의 신규 3 profile, 8 | Soul asset·Hermes | 미착수 |
+| 7, 9, 10 | Production Kernel·HQ v2·BookSoulBinding | 새 선택 이식 구현안 Phase 3~5 소유 |
+| 11 | reference runtime | spine 동일-source만 현행, supporting reference는 미착수 |
+| 12 | Review Packet·private resolver·Storyyard | 자산/런타임 분할 미착수 |
+| 13 | promotion eligibility·owner adoption | 미착수 |
+
+### 상세 acceptance inventory
+
+1. **완료·보존.** production routing 문구를 실제 raw private input 정책으로
+   정렬했다. 새 runtime이 이 계약을 되돌리지 않는지만 검증한다.
+2. **Soul asset 잔여.** Reference Lab의 추상화 전용 README·분석 지침을 raw private input
    정책과 정렬하고, 하드코딩된 단일 작품 builder와 별도로 장르 공용
    inventory·survey·deep-read artifact schema, strict coverage validator,
    manager QA receipt를 만든다. inventory에서 private sourceId→repo-relative
@@ -863,7 +889,8 @@ grant 검증이며, adapter는 verified grant SHA를 access receipt에 기록한
    private quarantine, zero-match promotion receipt를 강제한다.
    후보 문서의 무정의 `윤리 감리`는 원문 인과·후속 비용의 비점수 관찰로
    좁히고 Gold 차단이나 장르 공통 도덕 규칙으로 사용하지 않는다.
-3. BookRules와 Architect 출력에 provenance와 강도를 추가한다. 각 규칙은
+3. **완료·재구현 금지.** 아래는 현재 BookRules acceptance contract다.
+   BookRules와 Architect 출력은 provenance와 강도를 보존한다. 각 규칙은
    rule ID, kind, host-owned source artifact/selector와 text SHA,
    `source=user-explicit|premise-explicit|book-canon|genre|model-suggested`,
    `strength=hard|soft|diagnostic`, owner adoption decision/receipt를 보존한다.
@@ -873,13 +900,15 @@ grant 검증이며, adapter는 verified grant SHA를 access receipt에 기록한
    도덕 기준, 대가, 성장·속죄는 사람 채택 전
    `model-suggested/diagnostic`이며 Book 정본으로 승격하지 않는다. 기존 세
    Book의 규칙도 provenance 없이 사용자 규칙으로 간주하지 않고 사람
-   재분류 대상으로 둔다. Architect의 story frame과 role template에서도
+   재분류 대상으로 둔다. 이는 Book별 owner data migration이며 Core 재구현이
+   아니다. Architect의 story frame과 role template에서도
    마지막 대가, 내적 변화, 속죄는 선택값으로 바꾸고 `none`을 합법으로
    허용한다. BookRules 밖에 같은 의무를 우회 생성하는지도 semantic lint로
    검사한다. host는 실제 BookRules file SHA에 결속된 전체 rule entry 수와
    provenance entry 수, hard·soft·diagnostic 합계의 완전 일치를 fail-closed로
    검증한다. hard rule 전부가 권한 receipt를 가졌는지도 별도로 확인한다.
-4. `fiction-content-neutral-ko/v1`을 versioned control context로 만들고
+4. **완료·재구현 금지.** `fiction-content-neutral-ko/v1` versioned control
+   context와 아래 acceptance contract는 현재 runtime 기준선이다.
    Architect, Planner, Writer, Auditor, Reviser, Polisher,
    commercial/HIL reviewer, blind reviewer가 받은 실제 byte SHA를 실행
    trace에서 검증한다. 수위 지시는 기본
@@ -892,42 +921,46 @@ grant 검증이며, adapter는 verified grant SHA를 access receipt에 기록한
    만들지 않는다. Continuity dimension 14는 조연의 확정된 욕망·정보·능력
    인과 검사로 좁히고 성별·대표성·플롯 기능 자체를 severity 근거로 쓰지
    않는다.
-5. InkOS의 민감 표현 분석을 private creative review에서 분리한다. 선택한
+5. **완료·재구현 금지.** InkOS의 민감 표현 분석과 private creative review는
+   분리됐다. 선택한
    출고처가 있을 때만 `publicationCompatibility` advisory를 만들고,
    sensitive finding은 creative pass, 상업성 점수, 캐논, Reviser 입력에
    영향을 주지 않아야 한다. 현행 정치 `block`과 성·폭력 완화 권고가
-   creative path를 실패시키지 않는 회귀 테스트를 추가한다.
-6. InkOS에 한국어 현대판타지, 판타지, 무협 전용 genre profile을 만들고
-   alias·fallback·Book.genre·실제 loaded profile SHA 테스트를 추가한다.
+   creative path를 실패시키지 않는 회귀 테스트를 유지한다.
+6. **부분 완료.** 기존 재벌·urban·litrpg profile 중립화와 Dimension 14 경계는
+   완료됐다. 잔여 작업은 한국어 현대판타지, 판타지, 무협 전용 genre profile,
+   alias·fallback·Book.genre·실제 loaded profile SHA 테스트 추가다.
    성별·도덕성 기본 금지를 넣지 않고 장면 인과와 상업 기능만 규정한다.
    재벌 profile의 전화 해결은 불법성 자체가 아니라 사전 구축된 권력·뇌물·
    협박·연줄 없이 절차가 사라지는 무상 해결만 막는다. 사용자가 Book
    rule로 지정한 금기와 수위는 그대로 존중한다. 기존 `urban.md`와
-   `litrpg.md`의 성별 규범도 같은 인물 인과·능력 기준으로 정렬한다.
-7. HQ manifest와 Dispatcher에 `write-next`/`inkos-write-next/v2`와
+   `litrpg.md` 정렬은 회귀 기준선으로 유지한다.
+7. **runtime 잔여.** 새 선택 이식 구현안의 Phase 3~5에서 HQ manifest와
+   Dispatcher에 `write-next`/`inkos-write-next/v2`와
    `agent-operate`/`inkos-agent-operate/v2`, RunReceipt v2 validator를 구현한다.
    InkOS `interact`에는 `--context-file`을 추가해 `/write` intent와 context를
    분리 전달한다. 검증된 control-context SHA만 허용하고 어느 경로든 Writer
    request의 externalContext hash와 Reference Pack system context hash를
    따로 readback한다. direct-write는 session 없는 path canary이고
    agent-operate만 Hermes/Agent promotion·production E2E다.
-8. 새 Hermes 프로필 세 개를 격리 생성하고 `SOUL.md`, model, reasoning을
-   readback한다. 기존 v3 author Soul은 clone하지 않는다.
-9. WorkOrder/RunReceipt v2와 Hermes adapter로 Hermes와 InkOS의 실제
-   `sol/high`를 각각 강제한다. 고정 agent 목록 대신 실행 trace에서 실제
+8. **Soul asset 잔여.** 새 Hermes 프로필 세 개를 격리 생성하고 `SOUL.md`,
+   model, reasoning을 readback한다. 기존 v3 author Soul은 clone하지 않는다.
+9. **runtime 잔여.** WorkOrder/RunReceipt v2와 Hermes adapter로 Hermes와
+   InkOS의 실제 `sol/high`를 각각 강제한다. 고정 agent 목록 대신 실행 trace에서 실제
    호출된 agent 전부의 model·reasoning·count를 host가 수집한다. InkOS
    `inkos.json` model, Studio default, service allowlist, effective model도
    검증하며 LLM 자기신고 값은 사용하지 않는다.
-10. Book의 append-only `soul-bindings/vNNNN.json` history와 mutable
-   `soul_binding.json` active pointer, persisted session↔Book↔binding 검사를
+10. **runtime 잔여.** Book의 append-only `soul-bindings/vNNNN.json` history와
+   mutable `soul_binding.json` active pointer, persisted session↔Book↔binding 검사를
    구현한다. Soul version 변경은 사람 rebind와 새 session을 요구하고 교차
    Book·Soul version 재사용을 거절하는 회귀 테스트를 추가한다.
-11. 현행 v1은 `styleBinding.sourceId == spineReference.sourceId`를 validator로
-   강제한다. 독립 style source는 별도 schema·store·retrieval·receipt·테스트가
+11. **reference runtime 잔여.** 현행 v1은
+   `styleBinding.sourceId == spineReference.sourceId`를 validator로 강제한다.
+   독립 style source는 별도 schema·store·retrieval·receipt·테스트가
    생긴 뒤에만 푼다. supporting reference는 `planned`만 허용하고 `active`
    입력을 거절한다.
-12. Commercial Evaluation/Review Packet v2와 Storyyard 비교 UI를 추가하고
-   v1 하위 호환을 검증한다. packet에는 source 좌표·SHA만 넣고 인증된
+12. **자산·runtime 분할 잔여.** Commercial Evaluation/Review Packet v2와
+   Storyyard 비교 UI를 추가하고 v1 하위 호환을 검증한다. packet에는 source 좌표·SHA만 넣고 인증된
    비추적 일회성 resolver로 raw 비교 slice를 제공한다. Reference Lab을
    read-only executable `tool`로 전환하고 manifest validator, 전용 HQ adapter,
    strict WorkOrder/access receipt, readScopes·registry·realpath guard, fd3
@@ -938,11 +971,11 @@ grant 검증이며, adapter는 verified grant SHA를 access receipt에 기록한
    jti consume, tracked/private registry SHA equality, no-store와 source SHA
    검증을 함께 구현한다. 일반 Dispatcher CLI raw 출력과 단순 capability
    등록은 완료로 보지 않는다.
-13. Reference Lab의 promotion eligibility와 HQ의 사람 promotion decision·
-    active adoption registry를 분리한다. `agent-operate` production은 HQ
+13. **owner gate 잔여.** Reference Lab의 promotion eligibility와 HQ의 사람
+    promotion decision·active adoption registry를 분리한다. `agent-operate` production은 HQ
     decision/registry SHA가 없거나 `promote`가 아니면 거절한다.
 
-### P1. 학습과 카나리
+### Soul 자산 제작과 카나리
 
 1. 398개 재고를 인덱싱하고 중복·불완전·여성향 제외를 확정한다.
 2. 세 장르 후보 전부를 분산 독해하고 근거 범위를 남긴다.
@@ -1066,6 +1099,7 @@ grant 검증이며, adapter는 verified grant SHA를 access receipt에 기록한
 ## 이번 문서화의 완료선
 
 이번 변경은 계획과 프롬프트, production routing 문구를 정렬한다. Hermes
-프로필 생성, Drive 원문 다운로드, Reference Lab builder, InkOS 장르 규칙,
-WorkOrder v2, 카나리 실행은 하지 않는다. 후속 구현은 P0 순서대로 별도
-검증·커밋해야 한다.
+프로필 생성, Drive 원문 다운로드, Reference Lab builder, InkOS 신규 장르
+profile, WorkOrder v2, 카나리 실행은 하지 않는다. 후속 runtime 구현은 새
+선택 이식 구현안의 Phase 순서를 따르고, Soul 자산은 위 dependency 상태에
+따라 별도 검증·커밋해야 한다.

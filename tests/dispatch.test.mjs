@@ -154,6 +154,33 @@ function pitchPromoteWorkOrder(overrides = {}) {
   });
 }
 
+test("freezes the Phase 0 HQ to InkOS v1 dispatch boundary", async () => {
+  const fixture = JSON.parse(await readFile(join(
+    process.cwd(),
+    "tests/fixtures/production-kernel-phase0-hq-v1.json",
+  ), "utf8"));
+  const { expected, ...workOrder } = fixture;
+  const manifest = JSON.parse(await readFile(join(process.cwd(), "config/edge-repos.json"), "utf8"));
+  const inkos = manifest.repos.find((repo) => repo.name === "inkos");
+
+  assert.ok(inkos, "InkOS must remain registered in the canonical HQ manifest");
+  assert.equal(inkos.branch, expected.branch);
+  assert.equal(inkos.execution.adapter, expected.adapter);
+  assert.equal(inkos.execution.receiptContract, expected.receiptContract);
+  assert.deepEqual(validateWorkOrder(workOrder, manifest), []);
+
+  const capability = inkos.execution.capabilities.find((entry) => entry.name === workOrder.capability);
+  assert.deepEqual(capability, {
+    name: workOrder.capability,
+    mode: expected.capabilityMode,
+    approval: expected.capabilityApproval,
+  });
+  const plan = buildDispatchPlan({ root: process.cwd(), manifest, workOrder });
+  assert.equal(plan.repo.execution.adapter, expected.adapter);
+  assert.equal(plan.repo.execution.receiptContract, expected.receiptContract);
+  assert.deepEqual(plan.invocation.args.slice(1, 2), ["status"]);
+});
+
 test("validates a bounded status work order", () => {
   assert.deepEqual(validateWorkOrder(statusWorkOrder(), manifestFixture()), []);
 });

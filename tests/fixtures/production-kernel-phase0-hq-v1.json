@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "workOrderId": "phase0-status-regression",
+  "idempotencyKey": "phase0-status-regression",
+  "repo": "inkos",
+  "capability": "status",
+  "bookId": "phase0-characterization-book",
+  "approvalMode": "none",
+  "approvedInputs": [],
+  "requestedAt": "2026-08-28T00:00:00.000Z",
+  "expected": {
+    "adapter": "inkos-cli-v1",
+    "receiptContract": "run-receipt/v1",
+    "branch": "master",
+    "capabilityMode": "read-only",
+    "capabilityApproval": "none"
+  }
+}
