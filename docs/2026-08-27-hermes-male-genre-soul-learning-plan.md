@@ -1,7 +1,7 @@
 # Hermes 남성향 장르 Soul 원문 학습 계획
 
 - 작성일: 2026-08-27
-- 상태: Soul shell·런타임·Review v2·manager selection·survey 완료 / deep-read·승격 대기
+- 상태: Soul shell·런타임·Review v2·manager selection·survey 완료 / strict deep-read 5/9 완료·승격 대기
 - 범위: 남성향 현대판타지, 판타지, 무협
 - 실행 기본값: Hermes와 InkOS에서 실제 호출된 agent 모두 `gpt-5.6-sol / high`
 - 프롬프트 정본: [Hermes 남성향 장르 Soul 프롬프트 v1](./2026-08-27-hermes-male-genre-soul-prompts-v1.md)
@@ -97,6 +97,12 @@ readback한다. 프로필 생성만으로 학습이나 production 승격이라�
   744,526 tokens와 28 API calls를 private receipt로 결속했다. 세 tracked survey는
   원문 없이 source/coverage/observation pointer만 담고, 32개 available 원문 전체와
   대조한 exact 12-token·120-byte scanner에서 모두 zero-match PASS다.
+- strict full-work deep-read는 5/9편을 완료했다. 자연 회차 1,226/1,226개를
+  각각 별도 Hermes `read_file`로 읽고 원본 바이트와 exact readback을
+  검증했으며, 총 40,284,423 tokens와 524 API calls다. gap-free coverage,
+  no-compaction trace와 32개 available 원문 대비 tracked projection 누출 0건을
+  모두 통과했다. 이는 작품별 독해 완료이지 장르 Soul 합성·manager QA·승격
+  완료가 아니다.
 - Reference Lab README는 실제 private 원문 전달과 tracked projection의 분리를
   HQ 계약에 맞춰 정렬했다. manager selection은 survey/deep-read 입력 허가일 뿐
   학습 완료나 Soul 승격 근거가 아니다.
@@ -121,6 +127,18 @@ readback한다. 프로필 생성만으로 학습이나 production 승격이라�
   아니다. 구 v3 문구와 `terra` 설정을 새 InkOS 운영에 재사용하지 않는다.
 - 기존 `firefly-studio` 프로필은 계속 정본이 아니다. 신규 세 candidate
   profile만 `gpt-5.6-sol / high`, skills 0, 격리 Soul/config hash를 통과했다.
+
+### 2026-08-28 안전 중단 체크포인트
+
+- 실행 중인 Hermes와 deep-read runner는 0개다.
+- 현대판타지 `gdrive-1SRFbbNIAztKYRIQGzhDdhsEz6BjOOKLM`은 13/15 segments,
+  무협 `gdrive-1B5jgTxwxyabDX4N-u-hchbZCP8GS3NfI`은 15/20 segments까지
+  ignored immutable attempt와 검증된 `completed.json`이 남아 있다.
+- 두 부분 실행은 tracked work-study로 승격하지 않았다. 같은 source ID로
+  재실행하면 완료 포인터를 재사용하며, 그 뒤 미착수 현대판타지 751화와
+  판타지 300화를 처리한다.
+- 현재 5편만 tracked 완료다. genre profile 합성, manager QA, Soul promotion,
+  격리 Book path canary와 InkOS canon mutation은 시작하지 않았다.
 
 ## 허구 내용 중립 계약과 정적 감리
 
