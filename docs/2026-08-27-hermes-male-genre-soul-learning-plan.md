@@ -2,6 +2,7 @@
 
 - 작성일: 2026-08-27
 - 상태: Soul shell·런타임·Review v2·manager selection·survey 완료 / strict deep-read 5/9 완료·승격 대기
+- 안전 재개 인계서: [Phase 7 strict deep-read 안전 중단·재개 인계서](./2026-08-28-phase7-strict-deep-read-safe-stop-handoff.md)
 - 범위: 남성향 현대판타지, 판타지, 무협
 - 실행 기본값: Hermes와 InkOS에서 실제 호출된 agent 모두 `gpt-5.6-sol / high`
 - 프롬프트 정본: [Hermes 남성향 장르 Soul 프롬프트 v1](./2026-08-27-hermes-male-genre-soul-prompts-v1.md)

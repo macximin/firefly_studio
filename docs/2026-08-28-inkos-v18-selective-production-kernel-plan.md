@@ -2,6 +2,7 @@
 
 - 작성일: 2026-08-28
 - 상태: 계획 확정 / Phase 0·1·2·3·4·5·6 완료 / Phase 7 survey·strict deep-read 5/9 완료·자산 승격 대기
+- 안전 재개 인계서: [Phase 7 strict deep-read 안전 중단·재개 인계서](./2026-08-28-phase7-strict-deep-read-safe-stop-handoff.md)
 - 계획 모델: `gpt-5.6-sol / ultra`
 - 구현 모델: `gpt-5.6-sol / max`
 - HQ 기준: `3958b37e73362792300cc85311b00dce4a3f31ae`
