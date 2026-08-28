@@ -1,7 +1,7 @@
 # Hermes 남성향 장르 Soul 원문 학습 계획
 
 - 작성일: 2026-08-27
-- 상태: Soul shell·런타임·Review v2·manager selection 완료 / survey·deep-read·승격 대기
+- 상태: Soul shell·런타임·Review v2·manager selection·survey 완료 / deep-read·승격 대기
 - 범위: 남성향 현대판타지, 판타지, 무협
 - 실행 기본값: Hermes와 InkOS에서 실제 호출된 agent 모두 `gpt-5.6-sol / high`
 - 프롬프트 정본: [Hermes 남성향 장르 Soul 프롬프트 v1](./2026-08-27-hermes-male-genre-soul-prompts-v1.md)
@@ -71,7 +71,7 @@ readback한다. 프로필 생성만으로 학습이나 production 승격이라�
 
 ## 현재 확인된 사실
 
-2026-08-27 정적 조사 기준이다.
+2026-08-27 정적 조사와 2026-08-28 실행 readback 기준이다.
 
 - Drive 정본 경로는 `FF_STUDIO/01_원천_코퍼스/원고들_코퍼스`다.
 - 바로 아래 남성향 `_합본.txt`는 398개다. 이 숫자는 재고 수량이며 학습
@@ -85,10 +85,18 @@ readback한다. 프로필 생성만으로 학습이나 production 승격이라�
   실제 Writer 예문 결속 경로가 이미 검증돼 있다.
 - Reference Lab의 현재 전작 생성기는 위 한 작품의 751화·131 Arc에
   맞춰져 있다. 세 장르 공용 Soul builder가 아니다.
-- Reference Lab에는 398개 재고와 27개 로컬 검증본을 결속한 canonical
+- Reference Lab에는 398개 재고와 32개 로컬 검증본을 결속한 canonical
   private source registry와 tracked receipt가 있다. 관리자가 현대판타지·판타지·
   무협에 3개씩 총 9개를 선택해 `eligibleForSoulInput=true`로 결속했고, 기존
   작품별 절대경로 receipt는 resolver allowlist로 사용하지 않는다.
+- 선택된 9개는 UTF-8, replacement character, 지원 chapter marker, 회차 수와
+  순차성 gate를 다시 통과했다. 손상·회차 이상이 있던 초기 후보 3개는 입력에서
+  제외하고 동일 장르의 검증된 합본으로 교체했다.
+- 세 격리 Hermes profile이 9개 합본의 시작·분산 중간·결말 48개 window를
+  별도 read call로 읽었다. 실제 `gpt-5.6-sol/high` config, 9 session trace,
+  744,526 tokens와 28 API calls를 private receipt로 결속했다. 세 tracked survey는
+  원문 없이 source/coverage/observation pointer만 담고, 32개 available 원문 전체와
+  대조한 exact 12-token·120-byte scanner에서 모두 zero-match PASS다.
 - Reference Lab README는 실제 private 원문 전달과 tracked projection의 분리를
   HQ 계약에 맞춰 정렬했다. manager selection은 survey/deep-read 입력 허가일 뿐
   학습 완료나 Soul 승격 근거가 아니다.
@@ -865,7 +873,7 @@ grant 검증이며, adapter는 verified grant SHA를 access receipt에 기록한
 | 요구사항 | 소유 트랙 | 현재 상태 |
 | --- | --- | --- |
 | 1, 3, 4, 5와 6의 기존 profile 중립화 | InkOS runtime baseline | 완료·재구현 금지, 새 경로 회귀 검증만 수행 |
-| 2, 6의 신규 3 profile, 8 | Soul asset·Hermes | shell·장르별 3개 manager selection 완료; survey·deep-read 미완료 |
+| 2, 6의 신규 3 profile, 8 | Soul asset·Hermes | shell·장르별 3개 manager selection·survey 완료; deep-read 미완료 |
 | 7, 9 | Production Kernel·HQ v2 | HQ `write-next` 완료; session-less path canary·`agent-operate`·Hermes E2E 미완료 |
 | 10 | BookSoulBinding | 완료·회귀 green |
 | 11 | reference runtime | spine 동일-source만 현행, supporting reference는 미착수 |
@@ -880,8 +888,10 @@ grant 검증이며, adapter는 verified grant SHA를 access receipt에 기록한
    sourceId→repo-relative path→full SHA registry, tracked receipt, strict
    study/promotion validator와 read-only resolver는 구현됐다. 장르별 상업·장르 폭·
    표면 앵커 3개씩을 manager selection으로 결속하고, 미선별·장르 오배정·선택
-   receipt 변조를 fail-closed한다. 잔여는 장르 공용
-   survey·deep-read artifact, 실제 strict coverage와 manager QA다. 초기 독해는
+   receipt 변조를 fail-closed한다. UTF-8·chapter marker·정확한 회차 수·순차성
+   무결성 gate를 거친 9개 모두에 분산 survey artifact와 Hermes config/usage/trace
+   receipt, 전체 available corpus zero-match scanner receipt가 생겼다. 잔여는
+   전작 deep-read artifact, 실제 strict coverage와 manager QA다. 전수 독해는
    Reference Lab 안의 명시적 관리자 세션으로 수행한다. raw를 읽은 모든 tracked
    projection에는 full active corpus exact/long-common leak scanner,
    private quarantine, zero-match promotion receipt를 강제한다.
@@ -1100,10 +1110,10 @@ grant 검증이며, adapter는 verified grant SHA를 access receipt에 기록한
 - 사람 승인 없는 Soul production 승격 또는 후보 적용
 - v1에서 여성향 Soul, 상시 gateway, cron, 그래프 런타임 도입
 
-## 이번 문서화의 완료선
+## 최초 계획 문서화의 완료선
 
-이번 변경은 계획과 프롬프트, production routing 문구를 정렬한다. Hermes
-프로필 생성, Drive 원문 다운로드, Reference Lab builder, InkOS 신규 장르
-profile, WorkOrder v2, 카나리 실행은 하지 않는다. 후속 runtime 구현은 새
-선택 이식 구현안의 Phase 순서를 따르고, Soul 자산은 위 dependency 상태에
-따라 별도 검증·커밋해야 한다.
+2026-08-27 최초 변경의 완료선은 계획과 프롬프트, production routing 문구
+정렬이었다. 이후 Hermes 프로필, 검증 원문, Reference Lab 실행 기반, InkOS
+신규 장르 profile과 WorkOrder v2가 구현됐고 2026-08-28 분산 survey까지
+완료됐다. 남은 Soul 자산은 위 dependency 상태와 새 선택 이식 구현안의
+Phase 순서에 따라 별도 검증·커밋한다.
