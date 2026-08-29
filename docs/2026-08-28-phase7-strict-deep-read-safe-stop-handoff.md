@@ -1,10 +1,10 @@
 # Phase 7 strict deep-read 안전 중단·재개 인계서
 
-- 체크포인트 시각: 2026-08-28 KST
+- 체크포인트 시각: 2026-08-29 KST
 - 상태: **owner 요청으로 의도적 중단**
-- 재개 조건: **다음 사용량 리셋 뒤 owner가 명시적으로 재개를 지시할 때**
-- 실행 중단 당시 HQ 기준: `ed30be5a5492af91f6c5572e7d9e5ce9cda566dd`
-- Reference Lab 체크포인트: `c148cda929c05d84a81f0571277fc9e8cd003137`
+- 재개 조건: **owner가 명시적으로 재개를 지시할 때**
+- 실행 중단 당시 HQ 기준: `15fbac5871316fbb4b14e978d1b4d93d2454689a`
+- Reference Lab 체크포인트: `781e8c200c4be14e41b91c0e8875167be8faaa05`
 - 정본 계획:
   [InkOS v1.8 선택 이식·Production Kernel 구현안](./2026-08-28-inkos-v18-selective-production-kernel-plan.md),
   [Hermes 남성향 장르 Soul 원문 학습 계획](./2026-08-27-hermes-male-genre-soul-learning-plan.md)
@@ -17,9 +17,9 @@ HQ와 manifest 등록 하위 레포 네 개는 모두 clean이고 각 origin과
 
 | 저장소 | branch | checkpoint |
 | --- | --- | --- |
-| HQ | `main` | `ed30be5` |
+| HQ | `main` | `15fbac5` |
 | InkOS | `master` | `77591412` |
-| Reference Lab | `main` | `c148cda` |
+| Reference Lab | `main` | `781e8c2` |
 | Market Radar | `main` | `2b4a88ad` |
 | Storyyard | `main` | `f1c4e1e` |
 
@@ -27,61 +27,57 @@ HQ와 manifest 등록 하위 레포 네 개는 모두 clean이고 각 origin과
 path canary, InkOS canon mutation을 시작하지 않았다. manifest의
 `active/ready`는 저장소 운영 상태이지 Soul production 승격을 뜻하지 않는다.
 
-## 2. tracked 완료 5/9
+## 2. tracked 완료 7/9
 
-아래 5편만 작품별 strict deep-read 완료로 주장할 수 있다. 합계는
-1,226/1,226 exact chapter reads, 40,284,423 tokens, 524 API calls다.
+아래 7편만 작품별 strict deep-read 완료로 주장할 수 있다. 합계는
+2,031/2,031 exact chapter reads, 64,381,439 tokens, 842 API calls다.
 모든 work-study는 gap-free byte coverage와 no-compaction trace를 통과했고,
 tracked projection은 available private corpus 32편 대비 누출 0건이다.
 
 | 장르 | 작품 | source ID | 회차 | segments | tokens | calls |
 | --- | --- | --- | ---: | ---: | ---: | ---: |
 | 현대판타지 | 이혼 후 재벌 각성! | `gdrive-1IveOliU4R7FSbNU6nAtAVSFp9cp4iUDf` | 219 | 8 | 9,387,643 | 117 |
+| 현대판타지 | 재벌가 막둥이는 만능 천재(개정판) | `gdrive-1SRFbbNIAztKYRIQGzhDdhsEz6BjOOKLM` | 380 | 15 | 13,231,429 | 173 |
 | 판타지 | 하급 서기관의 회귀 | `gdrive-1tvlx7aVmtCQfgCkO5rB5Ea1iy5-K_19b` | 222 | 10 | 5,503,446 | 79 |
 | 판타지 | 기사학교의 검술천재 | `gdrive-1fwf7btYmJFpKLM8I3YYrF9qbsmOCtAE1` | 233 | 10 | 5,255,518 | 70 |
 | 무협 | 무당귀환 | `gdrive-1T4OGOvaC_VF83tDj31m5vqloM6ERHKLq` | 152 | 7 | 6,085,596 | 74 |
 | 무협 | 마교육제 | `gdrive-1fmc_c6WhPri_u7pH8OAwBuxDZnheUomI` | 400 | 17 | 14,052,220 | 184 |
+| 무협 | 화산대도 | `gdrive-1B5jgTxwxyabDX4N-u-hchbZCP8GS3NfI` | 425 | 20 | 10,865,587 | 145 |
 
 관련 Reference Lab 이력은 `de53f0f` exact readback 보강,
 `2df069b` 첫 strict run, `54b157d` 4편 체크포인트,
-`c148cda` 5편 체크포인트다.
+`c148cda` 5편 체크포인트, `3b45587` 6편 완료,
+`781e8c2` 7편 완료다.
 
-## 3. 부분 진행 2편
+## 3. 부분 진행 1편
 
-아래 두 작업은 ignored `exports/`에만 재개 증거가 있다. **tracked 완료가
+아래 작업은 ignored `exports/`에만 재개 증거가 있다. **tracked 완료가
 아니며**, work-study와 leak receipt도 생성되지 않았다.
 
 | 순서 | 작품 | source ID | 검증 완료 | 다음 구간 | 전체 |
 | ---: | --- | --- | --- | --- | ---: |
-| 1 | 재벌가 막둥이는 만능 천재(개정판) | `gdrive-1SRFbbNIAztKYRIQGzhDdhsEz6BjOOKLM` | s0001~s0013, 1~350화 | s0014, 351~377화 | 380화 / 15 segments |
-| 2 | 화산대도 | `gdrive-1B5jgTxwxyabDX4N-u-hchbZCP8GS3NfI` | s0001~s0015, 1~326화 | s0016, 327~350화 | 425화 / 20 segments |
+| 1 | 독식하는 재벌 3세 | `gdrive-1BzfNJPOBwauB9HxQq6_HZIDLllb46vJN` | s0001~s0004, 1~105화 | s0005, 106~132화 | 751화 / 29 segments |
 
-- 현대판타지 s0013 완료 포인터:
-  `attempts/attempt-20260828090313239-fb82b110`, receipt SHA
-  `912b48ecd5570601cc581f6e2137161e2d757b207e186d26c80be9896ece035b`
-- 무협 s0015 완료 포인터:
-  `attempts/attempt-20260828090322679-4f7962e3`, receipt SHA
-  `99ece4584730005226c09b632b3c3f43e4e0c76626654d079e25e7eeca701ba0`
-- 중단 당시 생성된 현대 s0014와 무협 s0016에는 chapter files·manifest와
-  파일이 하나도 없는 빈 attempt 디렉터리가 각각 남아 있다. 현대는
-  `attempt-20260828090610321-96baab80`, 무협은
-  `attempt-20260828090605156-ec94e988`이며 둘 다 `completed.json`이 없다.
-  runner는 불완전 attempt를 건너뛰고 새 immutable attempt를 만들므로,
-  성공이나 재사용 가능한 호출로 간주하지 않는다.
+- 현대판타지 s0004 완료 포인터:
+  `attempts/attempt-20260829104826198-cb3e73ef`, receipt SHA
+  `2240f0850c0b9c5a06a9417bc1c8c53eeced9b7066995b3fa60cecdc9a8cb23a`
+- 중단 당시 생성된 s0005에는 chapter files·manifest와 파일이 하나도 없는
+  `attempt-20260829105114346-28989b65` 디렉터리가 남아 있고
+  `completed.json`은 없다. runner는 이를 건너뛰고 새 immutable attempt를
+  만들므로 성공이나 재사용 가능한 호출로 간주하지 않는다.
 - runner는 기존 `completed.json`이 있는 구간을 model 재호출 없이
   source/config/manifest/usage/trace/exact bytes까지 다시 검증한다.
 - 이 재개 상태와 private source registry는 **현재 Mac mini의 같은 checkout에만
   있는 ignored local state**다. Git clone, 새 worktree, 다른 host나 remote
-  commit만으로 13/15·15/20 포인터가 복원되지 않는다. 아래 pointer preflight가
+  commit만으로 4/29 포인터가 복원되지 않는다. 아래 pointer preflight가
   실패하면 재개 가능하다고 추정하지 말고 local source와 registry부터 다시
   감리한다.
 
-## 4. 미착수 2편
+## 4. 미착수 1편
 
 | 순서 | 작품 | source ID | 회차 |
 | ---: | --- | --- | ---: |
-| 3 | 독식하는 재벌 3세 | `gdrive-1BzfNJPOBwauB9HxQq6_HZIDLllb46vJN` | 751 |
-| 4 | 카레인 | `gdrive-1cKpe8b5G76V2EraDdWjPJ_70_6qfjFJH` | 300 |
+| 2 | 카레인 | `gdrive-1cKpe8b5G76V2EraDdWjPJ_70_6qfjFJH` | 300 |
 
 ## 5. 재개 전 fail-closed 확인
 
@@ -100,12 +96,9 @@ git status --short --branch
 node --test tests/*.test.mjs
 test -z "$(git ls-files -- private_sources exports)"
 
-modern_segments='exports/genre-souls/male-modern-fantasy-ko/v1/deep-read-runs/gdrive-1SRFbbNIAztKYRIQGzhDdhsEz6BjOOKLM/segments'
-murim_segments='exports/genre-souls/male-murim-ko/v1/deep-read-runs/gdrive-1B5jgTxwxyabDX4N-u-hchbZCP8GS3NfI/segments'
-test "$(find "$modern_segments" -name completed.json | wc -l | tr -d ' ')" = 13
-test "$(find "$murim_segments" -name completed.json | wc -l | tr -d ' ')" = 15
-test ! -e "$modern_segments/s0014/completed.json"
-test ! -e "$murim_segments/s0016/completed.json"
+doksik_segments='exports/genre-souls/male-modern-fantasy-ko/v1/deep-read-runs/gdrive-1BzfNJPOBwauB9HxQq6_HZIDLllb46vJN/segments'
+test "$(find "$doksik_segments" -name completed.json | wc -l | tr -d ' ')" = 4
+test ! -e "$doksik_segments/s0005/completed.json"
 ```
 
 다음 중 하나라도 발생하면 실행하지 말고 먼저 상태를 감리한다.
@@ -114,7 +107,7 @@ test ! -e "$murim_segments/s0016/completed.json"
 - Reference Lab HEAD가 위 기준과 다르면서 변경 이유를 읽지 못했다.
 - private registry, manager selection, Hermes profile/config 또는 context limit
   readback이 실패한다.
-- 기존 완료 포인터 수가 현대 13개·무협 15개와 다르다.
+- 《독식하는 재벌 3세》의 기존 완료 포인터 수가 4개와 다르다.
 - 다른 deep-read/Hermes 프로세스가 실행 중이다.
 - owner가 사용량 리셋 뒤 재개를 아직 지시하지 않았다.
 
@@ -129,19 +122,13 @@ chapter files가 manifest SHA를 거쳐 receipt와 완료 포인터에 결속돼
 cd /Users/a2501/Desktop/firefly_studio/edge_repos/firefly_reference_lab
 
 node tools/genre-soul-deep-read-runner.mjs \
-  --source-id gdrive-1SRFbbNIAztKYRIQGzhDdhsEz6BjOOKLM
-
-node tools/genre-soul-deep-read-runner.mjs \
-  --source-id gdrive-1B5jgTxwxyabDX4N-u-hchbZCP8GS3NfI
-
-node tools/genre-soul-deep-read-runner.mjs \
   --source-id gdrive-1BzfNJPOBwauB9HxQq6_HZIDLllb46vJN
 
 node tools/genre-soul-deep-read-runner.mjs \
   --source-id gdrive-1cKpe8b5G76V2EraDdWjPJ_70_6qfjFJH
 ```
 
-첫 두 명령은 검증된 완료 포인터를 재사용한다. 한 명령이 실패하거나 owner가
+첫 명령은 검증된 완료 포인터 4개를 재사용한다. 한 명령이 실패하거나 owner가
 중단을 요청하면 즉시 해당 프로세스를 종료하고, 새 `completed.json` 수와
 tracked artifact 존재 여부만 확인한 뒤 멈춘다. 다음 작품을 자동으로 시작하지
 않는다. 종료 뒤에는 아래 명령에서 관련 프로세스가 0개임을 다시 증명한다.
@@ -169,7 +156,7 @@ analyses/genre_souls/<soul-id>/v1/leak-scan-receipts/<source-id>.deep-read.json
    272,000 미만이다.
 6. leak receipt는 `status=pass`, `matchCount=0`, `truncated=false`다.
 7. `node --test tests/*.test.mjs` 36 tests와 `git diff --check`가 통과한다.
-8. `git ls-files private_sources exports`가 계속 빈 출력이다.
+8. `test -z "$(git ls-files -- private_sources exports)"`가 통과한다.
 
 검증된 작품의 위 두 파일만 explicit `git add -- <path1> <path2>`로 stage한다.
 `git add .`, `git clean`, reset, stash, ignored `exports/` 삭제를 금지한다.

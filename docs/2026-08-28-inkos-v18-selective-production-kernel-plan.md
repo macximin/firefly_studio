@@ -1,7 +1,7 @@
 # InkOS v1.8 벤치마크 기반 선택 이식·Production Kernel 구현안
 
 - 작성일: 2026-08-28
-- 상태: 계획 확정 / Phase 0·1·2·3·4·5·6 완료 / Phase 7 survey·strict deep-read 5/9 완료·자산 승격 대기
+- 상태: 계획 확정 / Phase 0·1·2·3·4·5·6 완료 / Phase 7 survey·strict deep-read 7/9 완료·자산 승격 대기
 - 안전 재개 인계서: [Phase 7 strict deep-read 안전 중단·재개 인계서](./2026-08-28-phase7-strict-deep-read-safe-stop-handoff.md)
 - 계획 모델: `gpt-5.6-sol / ultra`
 - 구현 모델: `gpt-5.6-sol / max`
@@ -15,7 +15,7 @@
 - Phase 4 InkOS commit: `e685a2ec` (`master`, origin push 확인)
 - Phase 5 InkOS commit: `b3a7b3ca` (`master`, origin push 확인)
 - Phase 6 InkOS commit: `97deb354` (`master`, origin push 확인)
-- Phase 7 Reference Lab commits: `822ec3d`, `a94ab1f`, `1c89819`, `8747f99`, `1d9a19a`, `5c223c7`, `de53f0f`, `2df069b`, `54b157d`, `c148cda` (`main`, origin push 확인)
+- Phase 7 Reference Lab commits: `822ec3d`, `a94ab1f`, `1c89819`, `8747f99`, `1d9a19a`, `5c223c7`, `de53f0f`, `2df069b`, `54b157d`, `c148cda`, `3b45587`, `781e8c2` (`main`, origin push 확인)
 - Phase 7 InkOS commits: `a66352fe`, `65936698`, `8ff9d72b`, `889eadc5`, `77591412` (`master`, origin push 확인)
 - Phase 7 Storyyard commit: `f1c4e1e` (`main`, origin push 확인)
 - Phase 7 HQ commits: `f4130e7`, `92979f6`, `e2dfe51`, `2ebf1d0`, `fe0643a`, `89ea50a`, `542d0f4` (`main`, origin push 확인)
@@ -47,7 +47,7 @@ Phase 7의 실행 기반도 구현했다. Reference Lab은 398개 남성향 재�
 로컬 검증본을 source registry로 고정하고, 관리자가 장르별 3개씩 선택한
 9개만 survey/deep-read 입력으로 허용한다. 세 장르 9개에 대한 분산 survey와
 전체 available 코퍼스 zero-match 누출 검사까지 완료했다. strict full-work
-deep-read는 5/9편, 1,226회, 40,284,423 tokens, 524 API calls를 검증했고 모든
+deep-read는 7/9편, 2,031회, 64,381,439 tokens, 842 API calls를 검증했고 모든
 tracked projection은 32개 available 원문 대비 누출 0건이다. strict study/promotion evidence와
 read-only private slice resolver도 제공한다. InkOS는 세 한국어 남성향
 genre profile·versioned Soul과 blind Review Packet v2를 소유한다. HQ는 세
@@ -91,9 +91,9 @@ source slice UI를 제공한다. survey 완료는 전작 deep-read나 학습·�
   48 distributed windows, 744,526 tokens, 28 API calls 완료. profile config,
   usage, session trace와 window별 별도 read call을 private receipt로 검증했고,
   tracked survey 3건은 32개 available 원문 대비 누출 0건으로 PASS
-- Phase 7 Reference Lab strict deep-read: 5/9편, 전 회차 1,226/1,226 exact
-  `read_file`, 40,284,423 tokens, 524 API calls 완료. 각 작품의 gap-free byte
-  coverage와 no-compaction trace를 검증했고 tracked work-study 5건 모두 32개
+- Phase 7 Reference Lab strict deep-read: 7/9편, 전 회차 2,031/2,031 exact
+  `read_file`, 64,381,439 tokens, 842 API calls 완료. 각 작품의 gap-free byte
+  coverage와 no-compaction trace를 검증했고 tracked work-study 7건 모두 32개
   available 원문 대비 누출 0건으로 PASS. Reference Lab 36 tests PASS
 - Phase 7 HQ transport 시점: manifest/Hermes profile validate, 39 tests,
   4-child status PASS
@@ -122,13 +122,12 @@ source slice UI를 제공한다. survey 완료는 전작 deep-read나 학습·�
   `agent-operate`는 manifest·Dispatcher에 없음을 확인해 미완료로 재분류했다
 - Phase 1은 dependency·Node floor·Soul·production Skill·LengthNormalizer와 HQ
   WorkOrder 계약을 변경하지 않음
-- 안전 중단 체크포인트: Hermes/deep-read 프로세스 0개. 현대판타지
-  `gdrive-1SRFbbNIAztKYRIQGzhDdhsEz6BjOOKLM`은 13/15 segments, 무협
-  `gdrive-1B5jgTxwxyabDX4N-u-hchbZCP8GS3NfI`은 15/20 segments의 검증된
-  ignored `completed.json`에서 재개한다. 두 부분 실행은 tracked 완료로
-  승격하지 않았고 삭제·덮어쓰기하지 않았다.
-- 다음 재개점: **남은 장르별 strict deep-read 4편**. 위 두 부분 실행을 같은
-  source ID로 재개한 뒤 현대판타지 751화와 판타지 300화를 실행한다. manager
+- 안전 중단 체크포인트: Hermes/deep-read 프로세스 0개. 《독식하는 재벌
+  3세》 `gdrive-1BzfNJPOBwauB9HxQq6_HZIDLllb46vJN`은 s0001~s0004,
+  1~105화가 검증된 ignored `completed.json`에 있고 s0005는 미완료다.
+  tracked 완료로 승격하지 않았고 삭제·덮어쓰기하지 않았다.
+- 다음 재개점: **남은 장르별 strict deep-read 2편**. 《독식하는 재벌 3세》를
+  같은 source ID로 재개한 뒤 판타지 300화 《카레인》을 실행한다. manager
   selection과 9개 분산 survey는 완료됐지만 9편 전작 coverage·작품별 보고서·manager QA가 없어
   격리 Book path canary와 promotion canary는 정직하게 차단되어 있다.
   promotion pair 전에 HQ `agent-operate` adapter와
