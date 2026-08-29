@@ -1,8 +1,8 @@
 # InkOS v1.8 벤치마크 기반 선택 이식·Production Kernel 구현안
 
 - 작성일: 2026-08-28
-- 상태: 계획 확정 / Phase 0·1·2·3·4·5·6 완료 / Phase 7 survey·strict deep-read 7/9 완료·자산 승격 대기
-- 안전 재개 인계서: [Phase 7 strict deep-read 안전 중단·재개 인계서](./2026-08-28-phase7-strict-deep-read-safe-stop-handoff.md)
+- 상태: 계획 확정 / Phase 0·1·2·3·4·5·6 완료 / Phase 7 survey·strict deep-read 9/9 완료·profile 합성/QA·자산 승격 대기
+- 완료·다음 게이트 인계서: [Phase 7 strict deep-read 9/9 완료·다음 게이트 인계서](./2026-08-28-phase7-strict-deep-read-safe-stop-handoff.md)
 - 계획 모델: `gpt-5.6-sol / ultra`
 - 구현 모델: `gpt-5.6-sol / max`
 - HQ 기준: `3958b37e73362792300cc85311b00dce4a3f31ae`
@@ -15,10 +15,10 @@
 - Phase 4 InkOS commit: `e685a2ec` (`master`, origin push 확인)
 - Phase 5 InkOS commit: `b3a7b3ca` (`master`, origin push 확인)
 - Phase 6 InkOS commit: `97deb354` (`master`, origin push 확인)
-- Phase 7 Reference Lab commits: `822ec3d`, `a94ab1f`, `1c89819`, `8747f99`, `1d9a19a`, `5c223c7`, `de53f0f`, `2df069b`, `54b157d`, `c148cda`, `3b45587`, `781e8c2` (`main`, origin push 확인)
+- Phase 7 Reference Lab commits: `822ec3d`, `a94ab1f`, `1c89819`, `8747f99`, `1d9a19a`, `5c223c7`, `de53f0f`, `2df069b`, `54b157d`, `c148cda`, `3b45587`, `781e8c2`, `1d19c2e`, `b7b77d7` (`main`, origin push 확인)
 - Phase 7 InkOS commits: `a66352fe`, `65936698`, `8ff9d72b`, `889eadc5`, `77591412` (`master`, origin push 확인)
 - Phase 7 Storyyard commit: `f1c4e1e` (`main`, origin push 확인)
-- Phase 7 HQ commits: `f4130e7`, `92979f6`, `e2dfe51`, `2ebf1d0`, `fe0643a`, `89ea50a`, `542d0f4` (`main`, origin push 확인)
+- Phase 7 HQ commits: `f4130e7`, `92979f6`, `e2dfe51`, `2ebf1d0`, `fe0643a`, `89ea50a`, `542d0f4`, `dfca325`, `ed30be5`, `15fbac5`, `7246d6c` (`main`, origin push 확인)
 - upstream 기준: `091048383f411eb99948a8764f42b6fd13006f9b`
 - upstream 확인: 로컬 `upstream/master`와 원격 `refs/heads/master` 일치
 - 범위: InkOS 생산 실행, Soul/Skill 결속, 검색 projection, HQ 호출 경계,
@@ -47,13 +47,14 @@ Phase 7의 실행 기반도 구현했다. Reference Lab은 398개 남성향 재�
 로컬 검증본을 source registry로 고정하고, 관리자가 장르별 3개씩 선택한
 9개만 survey/deep-read 입력으로 허용한다. 세 장르 9개에 대한 분산 survey와
 전체 available 코퍼스 zero-match 누출 검사까지 완료했다. strict full-work
-deep-read는 7/9편, 2,031회, 64,381,439 tokens, 842 API calls를 검증했고 모든
-tracked projection은 32개 available 원문 대비 누출 0건이다. strict study/promotion evidence와
+deep-read는 9/9편, 3,082회, 129 segments, 96,584,605 tokens, 1,286 API calls를
+검증했고 모든 tracked projection은 32개 available 원문 대비 누출 0건이다. strict study/promotion evidence와
 read-only private slice resolver도 제공한다. InkOS는 세 한국어 남성향
 genre profile·versioned Soul과 blind Review Packet v2를 소유한다. HQ는 세
 격리 Hermes 후보와 60초 Ed25519 grant 기반 loopback-only source gateway를
 검증하며, Storyyard는 v1을 보존한 채 v2 blind pair·사람 표면 분류·일회성
-source slice UI를 제공한다. survey 완료는 전작 deep-read나 학습·승격 완료가 아니다.
+source slice UI를 제공한다. strict deep-read 완료도 genre profile 합성, manager
+QA, production 결속이나 승격 완료를 뜻하지 않는다.
 
 - Phase 0 InkOS: `6dad71c1` — `origin/master` 반영 완료
 - Phase 0 HQ: `d6d1619a` — `origin/main` 반영 완료
@@ -91,10 +92,11 @@ source slice UI를 제공한다. survey 완료는 전작 deep-read나 학습·�
   48 distributed windows, 744,526 tokens, 28 API calls 완료. profile config,
   usage, session trace와 window별 별도 read call을 private receipt로 검증했고,
   tracked survey 3건은 32개 available 원문 대비 누출 0건으로 PASS
-- Phase 7 Reference Lab strict deep-read: 7/9편, 전 회차 2,031/2,031 exact
-  `read_file`, 64,381,439 tokens, 842 API calls 완료. 각 작품의 gap-free byte
-  coverage와 no-compaction trace를 검증했고 tracked work-study 7건 모두 32개
-  available 원문 대비 누출 0건으로 PASS. Reference Lab 36 tests PASS
+- Phase 7 Reference Lab strict deep-read: 9/9편, 전 회차 3,082/3,082 exact
+  `read_file`, 129 segments, 96,584,605 tokens, 1,286 API calls 완료. 각 작품의
+  gap-free byte coverage와 no-compaction trace, private receipt·tracked artifact·
+  leak receipt SHA chain을 검증했고 tracked work-study 9건 모두 32개 available
+  원문 대비 누출 0건으로 PASS. Reference Lab 36 tests PASS
 - Phase 7 HQ transport 시점: manifest/Hermes profile validate, 39 tests,
   4-child status PASS
 - Phase 7 owner authority: strict promotion decision·active adoption registry
@@ -122,17 +124,16 @@ source slice UI를 제공한다. survey 완료는 전작 deep-read나 학습·�
   `agent-operate`는 manifest·Dispatcher에 없음을 확인해 미완료로 재분류했다
 - Phase 1은 dependency·Node floor·Soul·production Skill·LengthNormalizer와 HQ
   WorkOrder 계약을 변경하지 않음
-- 안전 중단 체크포인트: Hermes/deep-read 프로세스 0개. 《독식하는 재벌
-  3세》 `gdrive-1BzfNJPOBwauB9HxQq6_HZIDLllb46vJN`은 s0001~s0004,
-  1~105화가 검증된 ignored `completed.json`에 있고 s0005는 미완료다.
-  tracked 완료로 승격하지 않았고 삭제·덮어쓰기하지 않았다.
-- 다음 재개점: **남은 장르별 strict deep-read 2편**. 《독식하는 재벌 3세》를
-  같은 source ID로 재개한 뒤 판타지 300화 《카레인》을 실행한다. manager
-  selection과 9개 분산 survey는 완료됐지만 9편 전작 coverage·작품별 보고서·manager QA가 없어
-  격리 Book path canary와 promotion canary는 정직하게 차단되어 있다.
-  promotion pair 전에 HQ `agent-operate` adapter와
-  adoption dispatch gate, 문서 계약 그대로의 session-less path canary adapter도
-  별도 완료해야 한다. Phase 8은 Phase 7 승격 완료 뒤 진행
+- strict deep-read 완료 체크포인트: Hermes/deep-read 프로세스 0개. 《독식하는
+  재벌 3세》 751화/29 segments는 Reference Lab `1d19c2e`, 《카레인》
+  300화/13 segments는 `b7b77d7`에 독립 커밋·push했다. 9작품 private receipt,
+  tracked study와 leak receipt source ID가 1:1이고 누출 0임을 재검증했다.
+- 다음 실행점: **genre profile contract 강화와 profile 합성 -> 별도 manager
+  QA**. 그 전에는 격리 Book path canary나 promotion canary를 실행하지 않는다.
+  이후 HQ `agent-operate`, adoption dispatch gate, literal-null session-less path
+  canary adapter와 InkOS candidate/promoted·4중 adoption byte binding을 먼저
+  구현한다. 장르별 promotion pair/Storyyard blind review와 owner adoption은 그
+  다음이며, Phase 8은 Phase 7 승격 완료 뒤 진행한다.
 
 ### Phase 1 구현 영수증
 
@@ -1255,10 +1256,11 @@ runtime canary와 Soul 문서의 paired commercial gate가 유지된 뒤 각각�
 genre profile·Soul, 세 Hermes candidate profile, Review Packet/Decision v2,
 Storyyard blind HIL, private source resolver와 HQ gateway는 구현·푸시됐다.
 story/style provenance converter와 실제 source pack canary, transport canary도
-통과했다. registry의 `eligibleForSoulInput`은 장르별 3개, 총 9개다. 그러나
-장르별 survey는 완료됐지만 strict full-work deep-read와 manager QA가 없다.
-따라서 위 path canary와 세 pair promotion canary는 아직 실행하지 않는다. transport canary를 창작 품질이나
-Soul 승격 증거로 재분류해서는 안 된다.
+통과했다. registry의 `eligibleForSoulInput`은 장르별 3개, 총 9개고 strict
+full-work deep-read도 9/9 완료했다. 그러나 세 genre profile 합성본과 이를
+독립 검증하는 manager QA가 없다. 따라서 위 path canary와 세 pair promotion
+canary는 아직 실행하지 않는다. transport canary를 창작 품질이나 Soul 승격
+증거로 재분류해서는 안 된다.
 
 ### Phase 8 — 읽기 전용 lineage
 

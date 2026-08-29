@@ -1,8 +1,8 @@
 # Hermes 남성향 장르 Soul 원문 학습 계획
 
 - 작성일: 2026-08-27
-- 상태: Soul shell·런타임·Review v2·manager selection·survey 완료 / strict deep-read 7/9 완료·승격 대기
-- 안전 재개 인계서: [Phase 7 strict deep-read 안전 중단·재개 인계서](./2026-08-28-phase7-strict-deep-read-safe-stop-handoff.md)
+- 상태: Soul shell·런타임·Review v2·manager selection·survey·strict deep-read 9/9 완료 / profile 합성·manager QA·승격 대기
+- 완료·다음 게이트 인계서: [Phase 7 strict deep-read 9/9 완료·다음 게이트 인계서](./2026-08-28-phase7-strict-deep-read-safe-stop-handoff.md)
 - 범위: 남성향 현대판타지, 판타지, 무협
 - 실행 기본값: Hermes와 InkOS에서 실제 호출된 agent 모두 `gpt-5.6-sol / high`
 - 프롬프트 정본: [Hermes 남성향 장르 Soul 프롬프트 v1](./2026-08-27-hermes-male-genre-soul-prompts-v1.md)
@@ -98,12 +98,12 @@ readback한다. 프로필 생성만으로 학습이나 production 승격이라�
   744,526 tokens와 28 API calls를 private receipt로 결속했다. 세 tracked survey는
   원문 없이 source/coverage/observation pointer만 담고, 32개 available 원문 전체와
   대조한 exact 12-token·120-byte scanner에서 모두 zero-match PASS다.
-- strict full-work deep-read는 7/9편을 완료했다. 자연 회차 2,031/2,031개를
+- strict full-work deep-read는 9/9편을 완료했다. 자연 회차 3,082/3,082개를
   각각 별도 Hermes `read_file`로 읽고 원본 바이트와 exact readback을
-  검증했으며, 총 64,381,439 tokens와 842 API calls다. gap-free coverage,
-  no-compaction trace와 32개 available 원문 대비 tracked projection 누출 0건을
-  모두 통과했다. 이는 작품별 독해 완료이지 장르 Soul 합성·manager QA·승격
-  완료가 아니다.
+  검증했으며, 총 129 segments, 96,584,605 tokens와 1,286 API calls다. gap-free
+  coverage, no-compaction trace와 32개 available 원문 대비 tracked projection
+  누출 0건을 모두 통과했다. 이는 작품별 독해 완료이지 장르 Soul 합성·manager
+  QA·production 승격 완료가 아니다.
 - Reference Lab README는 실제 private 원문 전달과 tracked projection의 분리를
   HQ 계약에 맞춰 정렬했다. manager selection은 survey/deep-read 입력 허가일 뿐
   학습 완료나 Soul 승격 근거가 아니다.
@@ -129,17 +129,21 @@ readback한다. 프로필 생성만으로 학습이나 production 승격이라�
 - 기존 `firefly-studio` 프로필은 계속 정본이 아니다. 신규 세 candidate
   profile만 `gpt-5.6-sol / high`, skills 0, 격리 Soul/config hash를 통과했다.
 
-### 2026-08-29 안전 중단 체크포인트
+### 2026-08-29 strict deep-read 완료 체크포인트
 
 - 실행 중인 Hermes와 deep-read runner는 0개다.
-- 현대판타지 《독식하는 재벌 3세》
-  `gdrive-1BzfNJPOBwauB9HxQq6_HZIDLllb46vJN`은 s0001~s0004, 1~105화까지
-  ignored immutable attempt와 검증된 `completed.json`이 남아 있다.
-- 이 부분 실행은 tracked work-study로 승격하지 않았다. 같은 source ID로
-  재실행하면 완료 포인터 4개를 재사용하고 s0005, 106~132화부터 시작한다.
-  그 뒤 미착수 판타지 300화 《카레인》을 처리한다.
-- 현재 7편만 tracked 완료다. genre profile 합성, manager QA, Soul promotion,
-  격리 Book path canary와 InkOS canon mutation은 시작하지 않았다.
+- 현대판타지 《독식하는 재벌 3세》 751화/29 segments는 Reference Lab
+  `1d19c2e`, 판타지 《카레인》 300화/13 segments는 `b7b77d7`에 각각 독립
+  커밋·push했다.
+- manager selection 9개, private deep-read receipt 9개, tracked work-study
+  9개와 leak receipt 9개를 source ID 1:1로 교차검증했다. 모든 runtime은
+  `gpt-5.6-sol/openai-codex/high`, leak match는 0이다.
+- 다음 작업은 genre profile contract 강화·합성과 별도 manager QA다.
+  `agent-operate`, literal-null session-less path, owner adoption byte binding이
+  구현되기 전에는 Book path canary를 실행하거나 기존 `write-next`를 그 증거로
+  재분류하지 않는다.
+- Soul promotion, 격리 Book path canary와 InkOS canon mutation은 아직 시작하지
+  않았다.
 
 ## 허구 내용 중립 계약과 정적 감리
 
@@ -309,8 +313,8 @@ Soul은 권한 경계가 아니다. 프로필 지시가 HQ manifest와 InkOS Boo
 ## 학습 상태와 승격
 
 ```text
-shell -> indexed -> surveyed -> deep-read -> path-canary
-  -> promotion-canary -> production
+shell -> indexed -> surveyed -> deep-read -> profiled -> manager-qa
+  -> path-canary -> promotion-canary -> production
 ```
 
 | 상태 | 완료 조건 |
@@ -318,16 +322,18 @@ shell -> indexed -> surveyed -> deep-read -> path-canary
 | `shell` | 격리된 Hermes 프로필과 versioned SOUL이 존재하나 학습을 주장하지 않음 |
 | `indexed` | Drive 재고 100% 목록, SHA, byte·회차 수, 파싱, 중복 그룹, 성향·장르 판정이 있음 |
 | `surveyed` | 해당 장르 활성 후보 전부에 시작·초반·중반·후반·결말 분산 독해 receipt가 있음 |
-| `deep-read` | 앵커 작품 전 회차의 기계 coverage 검증, 작품별 독립 보고서, 관리자 QA를 통과함 |
-| `path-canary` | 전수 독해 1편 뒤 Writer context·reference·receipt 경로만 검증하며 승격 근거로 사용하지 않음 |
+| `deep-read` | 선택 작품 전 회차의 기계 coverage와 exact readback, 작품별 독립 보고서·누출 0을 통과함 |
+| `profiled` | 장르별 선택 3편의 deep-read·leak receipt bytes에 결속된 genre profile 후보가 있음 |
+| `manager-qa` | profile 합성과 분리된 manager가 coverage·표본·상업 엔진·누출 근거를 재검증함 |
+| `path-canary` | manager QA와 실행 adapter gate 뒤 Writer context·reference·receipt 경로만 검증하며 승격 근거로 사용하지 않음 |
 | `promotion-canary` | 전수 독해 3편 이상과 Review Packet v2 뒤 격리 Book의 기획·Arc·1화를 blind 비교함 |
 | `production` | 모델·입력·출력 영수증, 장르성, 상업성, 캐논 검수와 사람 승격을 모두 통과함 |
 
-`path-canary`는 장르당 전수 독해 1편 이후 가능하지만 Soul 승격 증거가
-아니다. `promotion-canary`와 production에는 장르당 최소 3편의 전수 독해,
-서로 다른 상업 엔진, Review Packet v2가 필요하다. 운영 목표는 장르당
-5~10편이다. 편수만 채우지 않고 작품별 전체 회차 coverage가 100%인지
-확인한다.
+`path-canary`는 장르당 선택 3편의 deep-read, profile 합성, 별도 manager QA와
+실행 adapter P0 gate 뒤에만 가능하며 Soul 승격 증거가 아니다.
+`promotion-canary`와 production에는 장르당 최소 3편의 전수 독해, 서로 다른
+상업 엔진, Review Packet v2가 필요하다. 운영 목표는 장르당 5~10편이다.
+편수만 채우지 않고 작품별 전체 회차 coverage가 100%인지 확인한다.
 
 ## 코퍼스 처리 규칙
 
@@ -892,7 +898,7 @@ grant 검증이며, adapter는 verified grant SHA를 access receipt에 기록한
 | 요구사항 | 소유 트랙 | 현재 상태 |
 | --- | --- | --- |
 | 1, 3, 4, 5와 6의 기존 profile 중립화 | InkOS runtime baseline | 완료·재구현 금지, 새 경로 회귀 검증만 수행 |
-| 2, 6의 신규 3 profile, 8 | Soul asset·Hermes | shell·장르별 3개 manager selection·survey 완료; deep-read 미완료 |
+| 2, 6의 신규 3 profile, 8 | Soul asset·Hermes | shell·장르별 3개 manager selection·survey·deep-read 9/9 완료; profile 합성·manager QA 미완료 |
 | 7, 9 | Production Kernel·HQ v2 | HQ `write-next` 완료; session-less path canary·`agent-operate`·Hermes E2E 미완료 |
 | 10 | BookSoulBinding | 완료·회귀 green |
 | 11 | reference runtime | spine 동일-source만 현행, supporting reference는 미착수 |
@@ -909,9 +915,9 @@ grant 검증이며, adapter는 verified grant SHA를 access receipt에 기록한
    표면 앵커 3개씩을 manager selection으로 결속하고, 미선별·장르 오배정·선택
    receipt 변조를 fail-closed한다. UTF-8·chapter marker·정확한 회차 수·순차성
    무결성 gate를 거친 9개 모두에 분산 survey artifact와 Hermes config/usage/trace
-   receipt, 전체 available corpus zero-match scanner receipt가 생겼다. 잔여는
-   전작 deep-read artifact, 실제 strict coverage와 manager QA다. 전수 독해는
-   Reference Lab 안의 명시적 관리자 세션으로 수행한다. raw를 읽은 모든 tracked
+   receipt, 전체 available corpus zero-match scanner receipt가 생겼다. strict
+   deep-read artifact와 실제 coverage도 9/9 완료했다. 잔여는 세 genre profile
+   합성과 이를 재검증하는 별도 manager QA다. raw를 읽은 모든 tracked
    projection에는 full active corpus exact/long-common leak scanner,
    private quarantine, zero-match promotion receipt를 강제한다.
    후보 문서의 무정의 `윤리 감리`는 원문 인과·후속 비용의 비점수 관찰로
@@ -1012,12 +1018,15 @@ grant 검증이며, adapter는 verified grant SHA를 access receipt에 기록한
 
 1. 398개 재고를 인덱싱하고 중복·불완전·여성향 제외를 확정한다.
 2. 세 장르 후보 전부를 분산 독해하고 근거 범위를 남긴다.
-3. 장르별 앵커를 격리 전수 독해하고 strict coverage·manager QA를 통과한
-   뒤 genre profile 후보를 합성한다.
+3. 장르별 선택 3편을 격리 전수 독해하고 strict coverage·누출 0을 통과한 뒤
+   genre profile 후보를 합성한다. 그 다음 별도 manager가 profile·표본·상업
+   엔진과 입력 receipt를 재검증한다.
 4. Book별 spine과 현행 동일-source style을 결속한다. supporting reference는
    planned routing만 기록하고 retrieval·provenance 구현 뒤 활성화한다.
-5. 전수 독해 1편 뒤 격리 Book에서 `write-next` `path-canary`를 실행해 Writer
-   context와 receipt 경로만 검증한다. 이 결과는 Soul 승격에 쓰지 않는다.
+5. profile 합성·manager QA와 `agent-operate`·adoption·literal-null session-less
+   adapter gate 뒤 새 격리 Book에서 direct `path-canary`를 실행해 Writer
+   context와 receipt 경로만 검증한다. 기존 `write-next`를 이 증거로 재분류하지
+   않으며 결과는 Soul 승격에 쓰지 않는다.
 6. 전수 독해 3편 이상과 Review Packet v2 뒤 `promotion-canary`에서
    독립 생성 pair 세 개를 만든다. 각 pair의 baseline/Soul Book은 같은
    pre-generation snapshot, brief, rules, Arc, source pool, model, reasoning,
