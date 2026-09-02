@@ -228,6 +228,18 @@ function parseCanonical(bytes, label) {
   return value;
 }
 
+function parseCanonicalInkOSBookMetadata(bytes, label) {
+  let value;
+  try { value = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes)); }
+  catch (error) { fail(`${label} is not valid UTF-8 JSON: ${error.message}`); }
+  const currentBytes = Buffer.from(JSON.stringify(value, null, 2), "utf8");
+  const legacyBytes = Buffer.concat([currentBytes, Buffer.from("\n", "utf8")]);
+  if (!bytes.equals(currentBytes) && !bytes.equals(legacyBytes)) {
+    fail(`${label} must use canonical InkOS Book JSON bytes.`);
+  }
+  return value;
+}
+
 function transferPaths(sourcePair) {
   return {
     publicTransfer: `.inkos/canaries/${sourcePair}/review/public/evaluation-transfer.json`,
@@ -407,7 +419,7 @@ export async function prepareBlindReviewPair({ root, manifest, sourcePair, genre
   const mapping = parseCanonical(mappingBytes, "InkOS private label mapping");
   safeBookId(mapping.bookId, "InkOS private mapping Book ID");
   const bookBytes = await readStable(inkosRoot, `books/${mapping.bookId}/book.json`, "InkOS canonical Book metadata");
-  const book = object(parseCanonical(bookBytes, "InkOS canonical Book metadata"), "InkOS canonical Book metadata");
+  const book = object(parseCanonicalInkOSBookMetadata(bookBytes, "InkOS canonical Book metadata"), "InkOS canonical Book metadata");
   if (book.id !== mapping.bookId || book.genre !== genre || !GENRES.has(book.genre)) {
     fail("requested genre does not match the canonical InkOS Book genre.");
   }

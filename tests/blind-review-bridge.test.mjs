@@ -56,7 +56,7 @@ async function fixture(t, options = {}) {
   const manifest = { repos: [{ name: "inkos", path: "edge_repos/inkos" }, { name: "firefly_reference_lab", path: "edge_repos/firefly_reference_lab" }] };
   const bodies = options.bodies ?? ["후보 A는 계약을 뒤집고 회사를 샀다.\n다음 전쟁을 선언했다.", "후보 B는 자산을 꿰뚫고 적의 판을 빼앗았다.\n다음 거래를 개시했다."];
   const canaryIsolation = { receiptSha256: digest("iso-receipt"), receiptSelfHash: digest("iso-self"), isolationScopeSha256: digest("iso-scope"), commonSnapshotSha256: digest("iso-snapshot") };
-  await writeJson(join(inkos, "books", bookId, "book.json"), {
+  const book = {
     id: bookId,
     title: "브리지 테스트 작품",
     platform: "other",
@@ -67,7 +67,12 @@ async function fixture(t, options = {}) {
     language: "ko",
     createdAt: now,
     updatedAt: now,
-  });
+  };
+  await mkdir(join(inkos, "books", bookId), { recursive: true });
+  await writeFile(
+    join(inkos, "books", bookId, "book.json"),
+    `${JSON.stringify(book, null, 2)}${options.legacyBookFinalLf ? "\n" : ""}`,
+  );
   const terminals = {};
   const mappingRows = [
     ["neutral", "candidate-A", "producer-neutral", "neutral-profile", "wo-neutral"],
@@ -233,7 +238,7 @@ test("prepares bodyless RefLab input from manifest-defined sibling evidence with
   assert.equal(replay.input.publication, "reused");
 });
 
-test("accepts a canonical Korean InkOS Book ID", async (t) => {
+test("accepts current canonical Korean InkOS Book metadata without a final LF", async (t) => {
   const bookId = "회귀한-막내가-그룹의-부실을-독식한다";
   const value = await fixture(t, { bookId });
   const result = await prepareBlindReviewPair({
@@ -246,6 +251,59 @@ test("accepts a canonical Korean InkOS Book ID", async (t) => {
   });
   assert.equal(result.input.publication, "written");
   assert.equal(JSON.parse(await readFile(join(value.inkos, "books", bookId, "book.json"), "utf8")).id, bookId);
+});
+
+test("accepts legacy canonical InkOS Book metadata with one final LF", async (t) => {
+  const value = await fixture(t, { legacyBookFinalLf: true });
+  const result = await prepareBlindReviewPair({
+    root: value.root,
+    manifest: value.manifest,
+    sourcePair,
+    genre: "modern-fantasy-ko",
+    reviewerActorId: "blind-reviewer",
+    intensityDirectiveSha256: digest("intensity"),
+  });
+  assert.equal(result.input.publication, "written");
+});
+
+test("rejects noncanonical InkOS Book metadata formatting and trailing bytes", async (t) => {
+  const rewrites = [
+    (book) => JSON.stringify(book),
+    (book) => `${JSON.stringify(book, null, 2)} `,
+    (book) => `${JSON.stringify(book, null, 2)}\n\n`,
+    (book) => `${JSON.stringify(book, null, 2)}\r\n`,
+    (book) => `${JSON.stringify(book, null, 2)}\n{}`,
+  ];
+  for (const rewrite of rewrites) {
+    const value = await fixture(t);
+    const path = join(value.inkos, "books", "bridge-book", "book.json");
+    const book = JSON.parse(await readFile(path, "utf8"));
+    await writeFile(path, rewrite(book));
+    await assert.rejects(() => prepareBlindReviewPair({
+      root: value.root,
+      manifest: value.manifest,
+      sourcePair,
+      genre: "modern-fantasy-ko",
+      reviewerActorId: "blind-reviewer",
+      intensityDirectiveSha256: digest("intensity"),
+    }), /canonical InkOS Book JSON bytes|not valid UTF-8 JSON/u);
+  }
+});
+
+test("keeps blind evidence on the strict final-LF canonical JSON contract", async (t) => {
+  const value = await fixture(t);
+  const path = join(value.inkos, ".inkos", "canaries", sourcePair, "review", "public", "evaluation-transfer.json");
+  const transferBytes = await readFile(path);
+  assert.equal(transferBytes.at(-1), 0x0a);
+  await writeFile(path, transferBytes.subarray(0, -1));
+  await assert.rejects(() => prepareBlindReviewPair({
+    root: value.root,
+    manifest: value.manifest,
+    sourcePair,
+    genre: "modern-fantasy-ko",
+    reviewerActorId: "blind-reviewer",
+    intensityDirectiveSha256: digest("intensity"),
+  }), /public evaluation transfer must use canonical JSON bytes/u);
 });
 
 test("rejects unsafe InkOS Book path segments before reading canonical metadata", async (t) => {
