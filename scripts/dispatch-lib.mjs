@@ -21,13 +21,13 @@ import {
   canonicalStringify,
   HERMES_CONTROL_TRANSPORT_POLICY,
   HERMES_CONTROL_QUERY,
-  parseHermesControlProposal,
+  parseHermesControlSessionExport,
   parseHermesSessionId,
   readHermesDispatchAuthority,
   sha256Bytes,
   validateAgentOperateModeEvidence,
   validateHermesInvocationReceipt,
-  validateHermesSessionExport,
+  validateHermesRenderedControlStdout,
   verifyAgentOperateAuthority,
 } from "./hermes-control-lib.mjs";
 import {
@@ -855,10 +855,20 @@ function receiptFileName(idempotencyKey) {
   return `${createHash("sha256").update(idempotencyKey).digest("hex").slice(0, 32)}.json`;
 }
 
-function lockFileName(plan, workOrder) {
+function legacyTargetLockFileName(plan, workOrder) {
   const target = workOrder.bookId ?? "project";
   const safe = `${plan.repo.name}--${target}`.replace(/[^a-zA-Z0-9._-]+/g, "-");
   return `${safe}.lock`;
+}
+
+export function targetLockFileName(plan, workOrder) {
+  const target = workOrder.bookId ?? "project";
+  const identity = { repo: plan.repo.name, target };
+  const safe = `${identity.repo}--${identity.target}`
+    .replace(/[^a-zA-Z0-9._-]+/g, "-")
+    .slice(0, 96);
+  const suffix = createHash("sha256").update(stableStringify(identity)).digest("hex");
+  return `${safe}--${suffix}.lock`;
 }
 
 async function writeJsonAtomic(path, value) {
@@ -937,6 +947,43 @@ async function reclaimDeadAgentOperateLock({ lockPath, lockKind, receiptPath, wo
   }
   await rm(lockPath, { force: true });
   return true;
+}
+
+async function reconcileLegacyTargetLock({ locksDir, plan, receiptPath, workOrder, workOrderSha256, receiptName }) {
+  const lockPath = join(locksDir, legacyTargetLockFileName(plan, workOrder));
+  let metadata;
+  try {
+    metadata = await readExistingReceipt(lockPath);
+  } catch {
+    return { lockPath, blocksCurrentTarget: true, reclaimed: false };
+  }
+  if (metadata === null) return { lockPath, blocksCurrentTarget: false, reclaimed: false };
+
+  // The legacy filename replaced every non-ASCII run with "-", so two
+  // different Books can legitimately point at the same path. A structurally
+  // identified lock for another target must remain owned by that target, but
+  // must not serialize this collision-resistant target.
+  if (
+    metadata?.schemaVersion === "firefly-dispatch-lock/v1"
+    && metadata.lockKind === "target"
+    && typeof metadata.repo === "string"
+    && typeof metadata.bookId === "string"
+    && legacyTargetLockFileName(
+      { repo: { name: metadata.repo } },
+      { bookId: metadata.bookId },
+    ) === legacyTargetLockFileName(plan, workOrder)
+    && (metadata.repo !== workOrder.repo || metadata.bookId !== workOrder.bookId)
+  ) return { lockPath, blocksCurrentTarget: false, reclaimed: false };
+
+  const reclaimed = await reclaimDeadAgentOperateLock({
+    lockPath,
+    lockKind: "target",
+    receiptPath,
+    workOrder,
+    workOrderSha256,
+    receiptName,
+  });
+  return { lockPath, blocksCurrentTarget: !reclaimed, reclaimed };
 }
 
 function processBytes(value) {
@@ -1030,19 +1077,23 @@ async function runHermesControlInvocation({
         throw new Error("existing Hermes prepared marker does not match the WorkOrder or profile");
       }
       const sessionId = parseHermesSessionId(existingBytes.stderr.toString("utf8"));
-      const parsedAction = parseHermesControlProposal(existingBytes.stdout.toString("utf8"), workOrder, workOrderSha256);
-      if (!existingBytes.action.equals(parsedAction.actionBytes)) {
-        throw new Error("existing Hermes canonical action does not match raw stdout");
-      }
-      const session = validateHermesSessionExport(existingBytes.sessionExport, {
+      const { session, parsedAction, reasoningText } = parseHermesControlSessionExport(existingBytes.sessionExport, {
         sessionId,
         profileId: profile.profileId,
         queryText: HERMES_CONTROL_QUERY,
         operationPromptText: promptBytes.toString("utf8"),
         promptSha256: sha256Bytes(promptBytes),
-        actionText: parsedAction.proposalBytes.toString("utf8"),
-        actionSha256: sha256Bytes(parsedAction.proposalBytes),
+        processExitCode: 0,
+        workOrder,
+        workOrderSha256,
       });
+      validateHermesRenderedControlStdout(existingBytes.stdout.toString("utf8"), {
+        actionText: parsedAction.proposalBytes.toString("utf8"),
+        reasoningText,
+      });
+      if (!existingBytes.action.equals(parsedAction.actionBytes)) {
+        throw new Error("existing Hermes canonical action does not match the authoritative session action");
+      }
       const receipt = validateHermesInvocationReceipt(existingBytes.receipt, {
         workOrder,
         workOrderSha256,
@@ -1175,8 +1226,6 @@ async function runHermesControlInvocation({
 
   try {
     const sessionId = parseHermesSessionId(stderrBytes.toString("utf8"));
-    const parsedAction = parseHermesControlProposal(stdoutBytes.toString("utf8"), workOrder, workOrderSha256);
-    await writeFile(actionPath, parsedAction.actionBytes);
     const exportResult = sessionExportSpawn(hermesExecutable, [
       "-p", profile.profileId,
       "sessions", "export", "-",
@@ -1198,15 +1247,21 @@ async function runHermesControlInvocation({
     if (exportResult.error || exportResult.status !== 0 || exportResult.signal) {
       throw new Error("Hermes session export failed");
     }
-    const session = validateHermesSessionExport(sessionExportBytes, {
+    const { session, parsedAction, reasoningText } = parseHermesControlSessionExport(sessionExportBytes, {
       sessionId,
       profileId: profile.profileId,
       queryText: HERMES_CONTROL_QUERY,
       operationPromptText: promptBytes.toString("utf8"),
       promptSha256: sha256Bytes(promptBytes),
-      actionText: parsedAction.proposalBytes.toString("utf8"),
-      actionSha256: sha256Bytes(parsedAction.proposalBytes),
+      processExitCode: invocation.status,
+      workOrder,
+      workOrderSha256,
     });
+    validateHermesRenderedControlStdout(stdoutBytes.toString("utf8"), {
+      actionText: parsedAction.proposalBytes.toString("utf8"),
+      reasoningText,
+    });
+    await writeFile(actionPath, parsedAction.actionBytes);
     const completedAt = new Date().toISOString();
     const hermesReceipt = buildHermesInvocationReceipt({
       workOrder,
@@ -2053,8 +2108,16 @@ export async function executeWorkOrder({
             }
           }
           await reclaimDeadAgentOperateLock({
-            lockPath: join(locksDir, lockFileName(plan, workOrder)),
+            lockPath: join(locksDir, targetLockFileName(plan, workOrder)),
             lockKind: "target",
+            receiptPath,
+            workOrder,
+            workOrderSha256,
+            receiptName,
+          });
+          await reconcileLegacyTargetLock({
+            locksDir,
+            plan,
             receiptPath,
             workOrder,
             workOrderSha256,
@@ -2076,7 +2139,7 @@ export async function executeWorkOrder({
         });
       } catch (error) {
         if (existingRunningReceipt === null || error?.code !== "CANARY_RECOVERY_REQUIRED") throw error;
-        const targetLockPath = join(locksDir, lockFileName(plan, workOrder));
+        const targetLockPath = join(locksDir, targetLockFileName(plan, workOrder));
         const reclaimed = await reclaimDeadAgentOperateLock({
           lockPath: targetLockPath,
           lockKind: "target",
@@ -2085,7 +2148,15 @@ export async function executeWorkOrder({
           workOrderSha256,
           receiptName,
         });
-        if (!reclaimed && await readExistingReceipt(targetLockPath) !== null) {
+        const legacyLock = await reconcileLegacyTargetLock({
+          locksDir,
+          plan,
+          receiptPath,
+          workOrder,
+          workOrderSha256,
+          receiptName,
+        });
+        if ((!reclaimed && await readExistingReceipt(targetLockPath) !== null) || legacyLock.blocksCurrentTarget) {
           throw new Error(`mutating target is locked: ${workOrder.repo}/${workOrder.bookId}`);
         }
         if (!hasText(existingRunningReceipt.receiptId)
@@ -2181,7 +2252,7 @@ export async function executeWorkOrder({
     });
     if (!existingRunningReceipt) await writeJsonAtomic(receiptPath, runningReceipt);
 
-    const lockPath = join(locksDir, lockFileName(plan, workOrder));
+    const lockPath = join(locksDir, targetLockFileName(plan, workOrder));
     let lockHandle = null;
     let hermesControl = null;
     try {
@@ -2203,6 +2274,17 @@ export async function executeWorkOrder({
           } else {
             throw error;
           }
+        }
+        const legacyLock = await reconcileLegacyTargetLock({
+          locksDir,
+          plan,
+          receiptPath,
+          workOrder,
+          workOrderSha256,
+          receiptName,
+        });
+        if (legacyLock.blocksCurrentTarget) {
+          throw new Error(`mutating target is locked: ${workOrder.repo}/${workOrder.bookId}`);
         }
         await lockHandle.writeFile(`${JSON.stringify({
           schemaVersion: "firefly-dispatch-lock/v1",

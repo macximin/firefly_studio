@@ -21,6 +21,7 @@ import {
   publicDispatchPlan,
   sealRunReceiptV2,
   sha256Json,
+  targetLockFileName,
   validateCapabilityArtifacts,
   validateChildArtifacts,
   validatePitchSlateData,
@@ -998,6 +999,7 @@ test("executes agent-operate once and resumes only the child from complete Herme
   let corruptReportedTerminalHash = false;
   let operationPromptText = "";
   let proposalText = "";
+  const reasoningText = "**Planning next Book Arc Rail chapter review**\n**Finalizing precise chapter production guidance**";
   const hermesSessionId = "20260902_120000_agent_fixture";
   const hostileTimeoutEnvironment = {
     HERMES_API_CALL_STALE_TIMEOUT: "1",
@@ -1034,7 +1036,8 @@ test("executes agent-operate once and resumes only the child from complete Herme
         guidance: "상업적 보상과 다음 화 훅을 강화해.",
       };
       proposalText = JSON.stringify(proposal);
-      return { status: 0, signal: null, stdout: `${proposalText}\n`, stderr: `session_id: ${hermesSessionId}\n` };
+      const stdout = `\r\n┌─ Reasoning ───────────────────────────────┐\r\n**Planning next Book Arc Rail chapter review****Finalizing precise chapter production guidance**\r\n${proposalText}\n`;
+      return { status: 0, signal: null, stdout, stderr: `session_id: ${hermesSessionId}\n` };
     };
     const sessionExportSpawn = () => {
       exportCalls += 1;
@@ -1045,14 +1048,14 @@ test("executes agent-operate once and resumes only the child from complete Herme
         model: "gpt-5.6-sol",
         model_config: JSON.stringify({ max_iterations: 1, reasoning_config: { effort: "high" } }),
         system_prompt: `Hermes prelude\n${operationPromptText}\nHermes suffix`,
-        end_reason: "agent_close",
-        ended_at: 1,
+        end_reason: null,
+        ended_at: null,
         message_count: 2,
         api_call_count: 1,
         tool_call_count: 0,
         messages: [
           { role: "user", content: "Emit the single Firefly control proposal defined by the injected operation contract.", tool_calls: [] },
-          { role: "assistant", content: proposalText, finish_reason: "stop", tool_calls: [] },
+          { role: "assistant", content: proposalText, reasoning: reasoningText, finish_reason: "stop", tool_calls: [] },
         ],
       };
       return { status: 0, signal: null, stdout: Buffer.from(`${JSON.stringify(session)}\n`), stderr: Buffer.alloc(0) };
@@ -1872,6 +1875,60 @@ test("stable work order hashing ignores object key order", () => {
   const first = statusWorkOrder();
   const second = Object.fromEntries(Object.entries(first).reverse());
   assert.equal(sha256Json(first), sha256Json(second));
+});
+
+test("builds readable collision-resistant target lock filenames for non-ASCII Books", () => {
+  const plan = { repo: { name: "inkos" } };
+  const modernFantasy = targetLockFileName(plan, { bookId: "회귀한-막내가-그룹의-부실을-독식한다" });
+  const fantasy = targetLockFileName(plan, { bookId: "추방당한-보급관이-제국의-창고를-깨운다" });
+  assert.notEqual(modernFantasy, fantasy);
+  assert.equal(modernFantasy, targetLockFileName(plan, { bookId: "회귀한-막내가-그룹의-부실을-독식한다" }));
+  assert.match(modernFantasy, /^inkos-+--[0-9a-f]{64}\.lock$/);
+  assert.match(fantasy, /^inkos-+--[0-9a-f]{64}\.lock$/);
+  assert.match(targetLockFileName(plan, { bookId: "demo-book" }), /^inkos--demo-book--[0-9a-f]{64}\.lock$/);
+});
+
+test("does not let a live legacy filename collision for another Book block the hashed target lock", async () => {
+  const fixture = await createAgentDispatchFixture();
+  const { root, workOrder, manifest } = fixture;
+  const locksDir = join(root, ".firefly", "locks");
+  const legacyPath = join(locksDir, "inkos--demo-book.lock");
+  let hermesCalls = 0;
+  try {
+    await mkdir(locksDir, { recursive: true });
+    const foreignLock = {
+      schemaVersion: "firefly-dispatch-lock/v1",
+      lockKind: "target",
+      pid: process.pid,
+      workOrderId: "wo-foreign-book",
+      workOrderSha256: "a".repeat(64),
+      repo: "inkos",
+      bookId: "demo한book",
+      receiptName: "foreign.json",
+      receiptId: "rr-foreign-book",
+      acquiredAt: "2026-09-02T00:00:00.000Z",
+    };
+    await writeFile(legacyPath, `${JSON.stringify(foreignLock)}\n`);
+    const receipt = await executeWorkOrder({
+      root,
+      manifest,
+      workOrder,
+      hermesSpawn: () => {
+        hermesCalls += 1;
+        return { status: 1, signal: null, stdout: "", stderr: "fixture failure" };
+      },
+      hermesOptions: hermesReadbackOptions,
+    });
+    assert.equal(receipt.status, "needs-attention");
+    assert.equal(hermesCalls, 1, "dispatch must advance past the unrelated colliding legacy lock");
+    assert.deepEqual(JSON.parse(await readFile(legacyPath, "utf8")), foreignLock);
+    await assert.rejects(
+      readFile(join(locksDir, targetLockFileName({ repo: { name: "inkos" } }, workOrder))),
+      { code: "ENOENT" },
+    );
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
 });
 
 test("validates a bounded bookless N-candidate pitch slate", () => {

@@ -306,7 +306,7 @@ export function parseHermesSessionId(stderr) {
   return matches[0][1];
 }
 
-export function validateHermesSessionExport(bytes, expected) {
+function validateHermesSessionExportStructure(bytes, expected, { allowSuccessfulUnfinalized = false } = {}) {
   if (!Buffer.isBuffer(bytes) || bytes.includes(0)) throw new Error("Hermes session export is not valid UTF-8 JSONL");
   let text;
   try {
@@ -337,7 +337,12 @@ export function validateHermesSessionExport(bytes, expected) {
   }
   if (session.tool_call_count !== 0) throw new Error("Hermes session export contains tool calls");
   if (session.api_call_count !== 1) throw new Error("Hermes session export must prove exactly one model call");
-  if (session.end_reason !== "agent_close" || typeof session.ended_at !== "number") {
+  const terminallyCompleted = session.end_reason === "agent_close" && typeof session.ended_at === "number";
+  const successfulCliExport = allowSuccessfulUnfinalized
+    && expected.processExitCode === 0
+    && session.end_reason === null
+    && session.ended_at === null;
+  if (!terminallyCompleted && !successfulCliExport) {
     throw new Error("Hermes session export is not terminally completed");
   }
   if (!Array.isArray(session.messages)) throw new Error("Hermes session export messages are missing");
@@ -352,15 +357,76 @@ export function validateHermesSessionExport(bytes, expected) {
     throw new Error("Hermes session export must contain exactly one user/assistant exchange");
   }
   if (userMessages[0].content !== expected.queryText) throw new Error("Hermes session export query mismatch");
-  if (assistantMessages[0].content !== expected.actionText || assistantMessages[0].finish_reason !== "stop") {
-    throw new Error("Hermes session export action mismatch");
-  }
+  if (assistantMessages[0].finish_reason !== "stop") throw new Error("Hermes session export action mismatch");
   if (typeof session.system_prompt !== "string" || !session.system_prompt.includes(expected.operationPromptText)) {
     throw new Error("Hermes session export system prompt does not contain the exact operation contract");
   }
   if (sha256Bytes(Buffer.from(expected.operationPromptText, "utf8")) !== expected.promptSha256) throw new Error("Hermes operation prompt hash mismatch");
-  if (sha256Bytes(Buffer.from(assistantMessages[0].content, "utf8")) !== expected.actionSha256) throw new Error("Hermes session export action hash mismatch");
+  return { session, assistantMessage: assistantMessages[0] };
+}
+
+export function validateHermesSessionExport(bytes, expected) {
+  const { session, assistantMessage } = validateHermesSessionExportStructure(bytes, expected);
+  if (assistantMessage.content !== expected.actionText) throw new Error("Hermes session export action mismatch");
+  if (sha256Bytes(Buffer.from(assistantMessage.content, "utf8")) !== expected.actionSha256) throw new Error("Hermes session export action hash mismatch");
   return session;
+}
+
+export function parseHermesControlSessionExport(bytes, expected) {
+  if (expected.processExitCode !== 0) {
+    throw new Error("Hermes control session is not bound to a successful CLI process");
+  }
+  const { session, assistantMessage } = validateHermesSessionExportStructure(bytes, expected, {
+    allowSuccessfulUnfinalized: true,
+  });
+  const parsedAction = parseHermesControlProposal(
+    assistantMessage.content,
+    expected.workOrder,
+    expected.workOrderSha256,
+  );
+  return {
+    session,
+    parsedAction,
+    reasoningText: typeof assistantMessage.reasoning === "string" ? assistantMessage.reasoning : "",
+  };
+}
+
+export function validateHermesRenderedControlStdout(stdout, { actionText, reasoningText }) {
+  if (typeof stdout !== "string" || stdout.includes("\0")) throw new Error("Hermes stdout is not valid text");
+  if (typeof actionText !== "string" || actionText.length === 0) throw new Error("Hermes authoritative action text is missing");
+  if (/\r(?!\n)/u.test(stdout)) throw new Error("Hermes stdout contains an invalid carriage return");
+  const normalized = stdout.replace(/\r\n/g, "\n");
+  const withoutTrailingWhitespace = normalized.replace(/[\t\n ]+$/u, "");
+  if (normalized.trim() === actionText) return true;
+  if (!withoutTrailingWhitespace.endsWith(actionText)) {
+    throw new Error("Hermes stdout does not end with the authoritative session action");
+  }
+  if (withoutTrailingWhitespace.split(actionText).length !== 2) {
+    throw new Error("Hermes stdout contains multiple authoritative actions");
+  }
+  const prefix = withoutTrailingWhitespace.slice(0, -actionText.length);
+  if (/[{}]/u.test(prefix)) throw new Error("Hermes stdout reasoning prefix contains JSON delimiters");
+  const header = prefix.match(/^\s*┌─ Reasoning ─+┐\n/u);
+  if (!header) throw new Error("Hermes stdout has an unrecognized prefix");
+  const reasoningTokens = String(reasoningText ?? "")
+    .split(/\r?\n/u)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+    .sort((left, right) => right.length - left.length);
+  if (reasoningTokens.length === 0) throw new Error("Hermes stdout reasoning prefix is not bound to exported reasoning");
+  let remainder = prefix.slice(header[0].length);
+  let tokenCount = 0;
+  while (remainder.length > 0) {
+    remainder = remainder.replace(/^[\t\n ]+/u, "");
+    if (remainder.length === 0) break;
+    const token = reasoningTokens.find((candidate) => remainder.startsWith(candidate));
+    if (!token) throw new Error("Hermes stdout reasoning prefix differs from exported reasoning");
+    remainder = remainder.slice(token.length);
+    tokenCount += 1;
+    if (tokenCount > 4096) throw new Error("Hermes stdout reasoning prefix is excessively repeated");
+  }
+  if (tokenCount === 0) throw new Error("Hermes stdout reasoning prefix is empty");
+  return true;
 }
 
 export function buildHermesInvocationReceipt({ workOrder, workOrderSha256, profile, promptBytes, systemPromptBytes, rawOutputBytes, actionBytes, action, sessionId, startedAt, completedAt, sessionExportBytes }) {

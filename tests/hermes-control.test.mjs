@@ -13,9 +13,11 @@ import {
   HERMES_CONTROL_TRANSPORT_POLICY,
   MAX_GUIDANCE_BYTES,
   parseHermesControlProposal,
+  parseHermesControlSessionExport,
   sha256Bytes,
   validateAgentOperateModeEvidence,
   validateHermesInvocationReceipt,
+  validateHermesRenderedControlStdout,
   validateHermesSessionExport,
 } from "../scripts/hermes-control-lib.mjs";
 
@@ -458,6 +460,93 @@ test("cross-binds the exported one-turn session to exact query, system contract,
   const tampered = structuredClone(session);
   tampered.messages[1].content = "{}";
   assert.throws(() => validateHermesSessionExport(Buffer.from(`${JSON.stringify(tampered)}\n`), expected), /action mismatch/);
+});
+
+test("uses the exact exported assistant action when quiet Hermes leaks only its bound Reasoning UI", () => {
+  const authority = authorityFixture();
+  const workOrder = canaryWorkOrder(authority);
+  const workOrderSha256 = "4".repeat(64);
+  const operationPromptText = "FIREFLY_WORK_ORDER_SHA256=" + workOrderSha256;
+  const proposalText = JSON.stringify({
+    schemaVersion: "hermes-control-proposal/v1",
+    action: "write-next",
+    workOrderId: workOrder.workOrderId,
+    workOrderSha256,
+    bookId: workOrder.bookId,
+    sessionId: workOrder.sessionId,
+    guidance: "다음 회차의 보상과 훅을 강화해.",
+  });
+  const reasoningText = [
+    "**Decoding base64 bookId manually**",
+    "**Planning next Book Arc Rail chapter review**",
+    "**Finalizing precise chapter production guidance**",
+  ].join("\n");
+  const session = {
+    id: "20260902_174445_05714b",
+    source: "tool",
+    profile_name: authority.profile.profileId,
+    model: "gpt-5.6-sol",
+    model_config: JSON.stringify({ max_iterations: 1, reasoning_config: { effort: "high" } }),
+    system_prompt: `prefix\n${operationPromptText}\nsuffix`,
+    end_reason: null,
+    ended_at: null,
+    message_count: 2,
+    api_call_count: 1,
+    tool_call_count: 0,
+    messages: [
+      { role: "user", content: HERMES_CONTROL_QUERY, tool_calls: [] },
+      { role: "assistant", content: proposalText, reasoning: reasoningText, finish_reason: "stop", tool_calls: [] },
+    ],
+  };
+  const sessionBytes = Buffer.from(`${JSON.stringify(session)}\n`);
+  const expected = {
+    sessionId: session.id,
+    profileId: session.profile_name,
+    queryText: HERMES_CONTROL_QUERY,
+    operationPromptText,
+    promptSha256: digest(operationPromptText),
+    processExitCode: 0,
+    workOrder,
+    workOrderSha256,
+  };
+  const parsed = parseHermesControlSessionExport(sessionBytes, expected);
+  assert.equal(parsed.parsedAction.proposalBytes.toString("utf8"), proposalText);
+  const noisyStdout = [
+    "",
+    "┌─ Reasoning ─────────────────────────────────────────────┐",
+    "**Decoding base64 bookId manually****Planning next Book Arc Rail chapter review**",
+    "**Finalizing precise chapter production guidance****Decoding base64 bookId manually**",
+    proposalText,
+    "",
+  ].join("\r\n");
+  assert.equal(validateHermesRenderedControlStdout(noisyStdout, {
+    actionText: proposalText,
+    reasoningText: parsed.reasoningText,
+  }), true);
+
+  assert.throws(
+    () => parseHermesControlSessionExport(sessionBytes, { ...expected, processExitCode: 1 }),
+    /not bound to a successful CLI process/,
+  );
+  assert.throws(
+    () => validateHermesRenderedControlStdout(`${noisyStdout.trimEnd()}\ntrailing text\n`, { actionText: proposalText, reasoningText }),
+    /does not end with/,
+  );
+  assert.throws(
+    () => validateHermesRenderedControlStdout(`┌─ Reasoning ───┐\n{"decoy":true}\n${proposalText}\n`, { actionText: proposalText, reasoningText }),
+    /JSON delimiters/,
+  );
+  assert.throws(
+    () => validateHermesRenderedControlStdout(`arbitrary prefix\n${proposalText}\n`, { actionText: proposalText, reasoningText }),
+    /unrecognized prefix/,
+  );
+
+  const multiJsonSession = structuredClone(session);
+  multiJsonSession.messages[1].content = `${proposalText}\n{}`;
+  assert.throws(
+    () => parseHermesControlSessionExport(Buffer.from(`${JSON.stringify(multiJsonSession)}\n`), expected),
+    /not exactly one JSON object/,
+  );
 });
 
 test("self-hashes the bodyless Hermes receipt projection and binds raw output separately", () => {
