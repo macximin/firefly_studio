@@ -864,6 +864,7 @@ test("executes agent-operate once and resumes only the child from complete Herme
       assert.equal(options.env.HERMES_API_CALL_STALE_TIMEOUT, "600");
       assert.equal(options.env.HERMES_CODEX_HARD_TIMEOUT_SECONDS, undefined);
       assert.equal(options.env.HERMES_STREAM_RETRIES, undefined);
+      assert.equal(options.timeout, 2_100_000);
       operationPromptText = readFileSync(join(options.cwd, "AGENTS.md"), "utf8");
       const proposal = {
         schemaVersion: "hermes-control-proposal/v1",

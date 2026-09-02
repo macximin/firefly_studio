@@ -76,6 +76,7 @@ const UNSAFE_BOOK_ID_RE = /[\u0000-\u001f\u007f/\\:*?"'`{}<>|]/u;
 const HERMES_CONTROL_CODEX_EVENT_STALE_TIMEOUT_SECONDS = "120";
 const HERMES_CONTROL_CODEX_TTFB_TIMEOUT_SECONDS = "120";
 const HERMES_CONTROL_API_CALL_STALE_TIMEOUT_SECONDS = "600";
+const HERMES_CONTROL_INVOCATION_TIMEOUT_MS = 2_100_000;
 
 function isSafeBookId(value) {
   return typeof value === "string"
@@ -1045,7 +1046,7 @@ async function runHermesControlInvocation({
     stdio: ["ignore", "pipe", "pipe"],
     env: sanitizedEnv,
     maxBuffer: 16 * 1024 * 1024,
-    timeout: workOrder.timeoutMs ?? 1800000,
+    timeout: workOrder.timeoutMs ?? HERMES_CONTROL_INVOCATION_TIMEOUT_MS,
   });
   const stdoutBytes = processBytes(invocation.stdout);
   const stderrBytes = processBytes(invocation.stderr);
