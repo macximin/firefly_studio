@@ -14,7 +14,9 @@ import {
 import { validateCanaryIsolationReference } from "./canary-isolation-lib.mjs";
 
 const SHA256 = /^[0-9a-f]{64}$/;
+const SAFE_WORK_ORDER_ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,159}$/;
 const SAFE_SESSION_ID = /^[A-Za-z0-9][A-Za-z0-9._-]{0,159}$/;
+const UNSAFE_BOOK_ID_RE = /[\u0000-\u001f\u007f/\\:*?"'`{}<>|]/u;
 const MODE_EVIDENCE_KEYS = new Set([
   "lane", "profileId", "profileConfigSha256", "profileLifecycle", "productionEnabled",
   "adoptionRegistrySha256", "activeMatchingCount", "soulId", "soulVersion", "soulSha256",
@@ -22,10 +24,11 @@ const MODE_EVIDENCE_KEYS = new Set([
 ]);
 const CANARY_MODE_EVIDENCE_KEYS = new Set([...MODE_EVIDENCE_KEYS, "canaryIsolation"]);
 const SOUL_BINDING_KEYS = new Set(["soulId", "soulVersion", "bindingSha256"]);
-const PROPOSAL_KEYS = new Set([
+const PROPOSAL_V1_KEYS = new Set([
   "schemaVersion", "action", "workOrderId", "workOrderSha256", "bookId", "sessionId",
   "guidance",
 ]);
+const PROPOSAL_V2_KEYS = new Set(["schemaVersion", "action", "guidance"]);
 export const MAX_GUIDANCE_BYTES = 32 * 1024;
 export const HERMES_CONTROL_QUERY = "Emit the single Firefly control proposal defined by the injected operation contract.";
 const OPAQUE_BLIND_PAIR_ID = /^bp-[0-9a-f]{24}$/;
@@ -42,6 +45,17 @@ function isObject(value) {
 
 function hasText(value) {
   return typeof value === "string" && value.trim().length > 0;
+}
+
+function isSafeBookId(value) {
+  return typeof value === "string"
+    && value.length > 0
+    && value.length <= 120
+    && value.trim() === value
+    && value !== "."
+    && value !== ".."
+    && !value.includes("..")
+    && !UNSAFE_BOOK_ID_RE.test(value);
 }
 
 export function canonicalStringify(value) {
@@ -252,6 +266,25 @@ export function buildHermesControlPrompt(workOrderBytes, workOrderSha256) {
     "You are a tool-less Firefly control planner. Do not call tools or claim filesystem changes.",
     "Read the exact owner-approved WorkOrder below and emit one control action for InkOS.",
     "Output exactly one minified JSON object and nothing else: no Markdown, commentary, or code fence.",
+    "Exact schema: {\"schemaVersion\":\"hermes-control-proposal/v2\",\"action\":\"write-next\",\"guidance\":string}.",
+    "Do not echo, decode, copy, or add workOrderId, workOrderSha256, bookId, sessionId, profile, lane, or any other machine identity field. The host injects authoritative identity after validation.",
+    "guidance is task guidance for InkOS and must not contain a second JSON object. Do not calculate or add hashes.",
+    `FIREFLY_WORK_ORDER_SHA256=${workOrderSha256}`,
+    "FIREFLY_WORK_ORDER_BASE64_BEGIN",
+    workOrderBytes.toString("base64"),
+    "FIREFLY_WORK_ORDER_BASE64_END",
+  ].join("\n");
+}
+
+// Recovery only: this must remain byte-for-byte identical to the proposal/v1
+// operation contract written before proposal/v2 became the live protocol.
+export function buildHistoricalHermesControlPromptV1(workOrderBytes, workOrderSha256) {
+  return [
+    "# Firefly tool-less control operation",
+    "",
+    "You are a tool-less Firefly control planner. Do not call tools or claim filesystem changes.",
+    "Read the exact owner-approved WorkOrder below and emit one control action for InkOS.",
+    "Output exactly one minified JSON object and nothing else: no Markdown, commentary, or code fence.",
     "Exact schema: {\"schemaVersion\":\"hermes-control-proposal/v1\",\"action\":\"write-next\",\"workOrderId\":string,\"workOrderSha256\":64hex,\"bookId\":string,\"sessionId\":string,\"guidance\":string}.",
     "guidance is task guidance for InkOS and must not contain a second JSON object. Do not calculate or add hashes.",
     `FIREFLY_WORK_ORDER_SHA256=${workOrderSha256}`,
@@ -261,7 +294,25 @@ export function buildHermesControlPrompt(workOrderBytes, workOrderSha256) {
   ].join("\n");
 }
 
-export function parseHermesControlProposal(stdout, workOrder, workOrderSha256) {
+export function resolveHermesControlRecoveryPrompt(existingPromptBytes, workOrderBytes, workOrderSha256) {
+  if (!Buffer.isBuffer(existingPromptBytes)) throw new Error("existing Hermes operation contract is not bytes");
+  const currentPromptBytes = Buffer.from(buildHermesControlPrompt(workOrderBytes, workOrderSha256), "utf8");
+  if (existingPromptBytes.equals(currentPromptBytes)) {
+    return { promptBytes: currentPromptBytes, allowHistoricalProposalV1: false };
+  }
+  const historicalPromptBytes = Buffer.from(buildHistoricalHermesControlPromptV1(workOrderBytes, workOrderSha256), "utf8");
+  if (existingPromptBytes.equals(historicalPromptBytes)) {
+    return { promptBytes: historicalPromptBytes, allowHistoricalProposalV1: true };
+  }
+  throw new Error("existing Hermes operation contract does not match the WorkOrder");
+}
+
+export function parseHermesControlProposal(
+  stdout,
+  workOrder,
+  workOrderSha256,
+  { allowHistoricalV1 = false } = {},
+) {
   if (typeof stdout !== "string" || stdout.includes("\0")) throw new Error("Hermes stdout is not valid text");
   const trimmed = stdout.trim();
   if (!trimmed) throw new Error("Hermes returned empty stdout");
@@ -272,11 +323,28 @@ export function parseHermesControlProposal(stdout, workOrder, workOrderSha256) {
     throw new Error("Hermes stdout is not exactly one JSON object");
   }
   const errors = [];
-  exactKeys(proposal, PROPOSAL_KEYS, "Hermes proposal", errors);
-  if (proposal.schemaVersion !== "hermes-control-proposal/v1") errors.push("Hermes proposal schemaVersion is invalid");
-  if (proposal.action !== "write-next") errors.push("Hermes proposal action must be write-next");
-  if (proposal.workOrderId !== workOrder.workOrderId || proposal.workOrderSha256 !== workOrderSha256) errors.push("Hermes proposal WorkOrder binding mismatch");
-  if (proposal.bookId !== workOrder.bookId || proposal.sessionId !== workOrder.sessionId) errors.push("Hermes proposal Book/session binding mismatch");
+  const historicalV1 = proposal?.schemaVersion === "hermes-control-proposal/v1";
+  if (historicalV1 && !allowHistoricalV1) {
+    errors.push("Historical Hermes proposal v1 is not accepted for a current invocation");
+  }
+  const proposalKeys = historicalV1 ? PROPOSAL_V1_KEYS : PROPOSAL_V2_KEYS;
+  exactKeys(proposal, proposalKeys, "Hermes proposal", errors);
+  if (!historicalV1 && proposal?.schemaVersion !== "hermes-control-proposal/v2") {
+    errors.push("Hermes proposal schemaVersion is invalid");
+  }
+  if (proposal?.action !== "write-next") errors.push("Hermes proposal action must be write-next");
+  if (historicalV1) {
+    if (proposal.workOrderId !== workOrder?.workOrderId || proposal.workOrderSha256 !== workOrderSha256) {
+      errors.push("Historical Hermes proposal WorkOrder binding mismatch");
+    }
+    if (proposal.bookId !== workOrder?.bookId || proposal.sessionId !== workOrder?.sessionId) {
+      errors.push("Historical Hermes proposal Book/session binding mismatch");
+    }
+  }
+  if (!isObject(workOrder) || !SAFE_WORK_ORDER_ID.test(workOrder.workOrderId ?? "") || !isSafeBookId(workOrder.bookId)
+    || !SAFE_SESSION_ID.test(workOrder.sessionId ?? "") || !SHA256.test(workOrderSha256 ?? "")) {
+    errors.push("Hermes host action identity is invalid");
+  }
   if (!hasText(proposal.guidance)) {
     errors.push("Hermes proposal guidance is required");
   } else {
@@ -286,10 +354,21 @@ export function parseHermesControlProposal(stdout, workOrder, workOrderSha256) {
       errors.push("Hermes proposal guidance contains forbidden control characters");
     }
   }
+  if (isObject(proposal) && trimmed !== JSON.stringify(proposal)) {
+    errors.push("Hermes proposal must be exactly one minified JSON object without duplicate fields");
+  }
+  if (stdout !== trimmed) {
+    errors.push("Hermes proposal must not contain leading or trailing whitespace");
+  }
   if (errors.length > 0) throw new Error(errors.join("\n"));
   const action = {
-    ...proposal,
     schemaVersion: "hermes-control-action/v1",
+    action: "write-next",
+    workOrderId: workOrder.workOrderId,
+    workOrderSha256,
+    bookId: workOrder.bookId,
+    sessionId: workOrder.sessionId,
+    guidance: proposal.guidance,
     guidanceSha256: sha256Bytes(Buffer.from(proposal.guidance, "utf8")),
   };
   return {
@@ -383,6 +462,7 @@ export function parseHermesControlSessionExport(bytes, expected) {
     assistantMessage.content,
     expected.workOrder,
     expected.workOrderSha256,
+    { allowHistoricalV1: expected.allowHistoricalProposalV1 === true },
   );
   return {
     session,

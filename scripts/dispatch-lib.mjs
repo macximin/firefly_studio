@@ -24,6 +24,7 @@ import {
   parseHermesControlSessionExport,
   parseHermesSessionId,
   readHermesDispatchAuthority,
+  resolveHermesControlRecoveryPrompt,
   sha256Bytes,
   validateAgentOperateModeEvidence,
   validateHermesInvocationReceipt,
@@ -1061,9 +1062,12 @@ async function runHermesControlInvocation({
       if (requiredRoles.some((role) => !Buffer.isBuffer(existingBytes[role]))) {
         throw new Error("existing Hermes invocation artifacts are partial");
       }
-      if (!existingBytes.operationContract.equals(promptBytes)) {
-        throw new Error("existing Hermes operation contract does not match the WorkOrder");
-      }
+      const recoveryContract = resolveHermesControlRecoveryPrompt(
+        existingBytes.operationContract,
+        workOrderBytes,
+        workOrderSha256,
+      );
+      const recoveryPromptBytes = recoveryContract.promptBytes;
       const prepared = JSON.parse(existingBytes.prepared.toString("utf8"));
       if (prepared.schemaVersion !== "hermes-control-prepared/v1"
         || prepared.status !== "prepared"
@@ -1072,8 +1076,8 @@ async function runHermesControlInvocation({
         || prepared.profile?.profileId !== profile.profileId
         || prepared.profile?.configSha256 !== profile.configSha256
         || prepared.profile?.soulSha256 !== profile.soulSha256
-        || prepared.promptSha256 !== sha256Bytes(promptBytes)
-        || prepared.promptByteLength !== promptBytes.byteLength) {
+        || prepared.promptSha256 !== sha256Bytes(recoveryPromptBytes)
+        || prepared.promptByteLength !== recoveryPromptBytes.byteLength) {
         throw new Error("existing Hermes prepared marker does not match the WorkOrder or profile");
       }
       const sessionId = parseHermesSessionId(existingBytes.stderr.toString("utf8"));
@@ -1081,11 +1085,12 @@ async function runHermesControlInvocation({
         sessionId,
         profileId: profile.profileId,
         queryText: HERMES_CONTROL_QUERY,
-        operationPromptText: promptBytes.toString("utf8"),
-        promptSha256: sha256Bytes(promptBytes),
+        operationPromptText: recoveryPromptBytes.toString("utf8"),
+        promptSha256: sha256Bytes(recoveryPromptBytes),
         processExitCode: 0,
         workOrder,
         workOrderSha256,
+        allowHistoricalProposalV1: recoveryContract.allowHistoricalProposalV1,
       });
       validateHermesRenderedControlStdout(existingBytes.stdout.toString("utf8"), {
         actionText: parsedAction.proposalBytes.toString("utf8"),
@@ -1098,7 +1103,7 @@ async function runHermesControlInvocation({
         workOrder,
         workOrderSha256,
         profile,
-        promptBytes,
+        promptBytes: recoveryPromptBytes,
         systemPromptBytes: Buffer.from(session.system_prompt, "utf8"),
         rawOutputBytes: existingBytes.stdout,
         actionBytes: parsedAction.actionBytes,

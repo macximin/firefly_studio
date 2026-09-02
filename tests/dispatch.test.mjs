@@ -1027,12 +1027,8 @@ test("executes agent-operate once and resumes only the child from complete Herme
       assert.equal(options.timeout, 2_100_000);
       operationPromptText = readFileSync(join(options.cwd, "AGENTS.md"), "utf8");
       const proposal = {
-        schemaVersion: "hermes-control-proposal/v1",
+        schemaVersion: "hermes-control-proposal/v2",
         action: "write-next",
-        workOrderId: workOrder.workOrderId,
-        workOrderSha256: plan.invocation.workOrderSha256,
-        bookId: workOrder.bookId,
-        sessionId: workOrder.sessionId,
         guidance: "상업적 보상과 다음 화 훅을 강화해.",
       };
       proposalText = JSON.stringify(proposal);
@@ -1262,12 +1258,8 @@ test("executes neutral-baseline canary in the exact isolated lane with a null So
         hermesCalls += 1;
         operationPromptText = readFileSync(join(options.cwd, "AGENTS.md"), "utf8");
         proposalText = JSON.stringify({
-          schemaVersion: "hermes-control-proposal/v1",
+          schemaVersion: "hermes-control-proposal/v2",
           action: "write-next",
-          workOrderId: workOrder.workOrderId,
-          workOrderSha256: plan.invocation.workOrderSha256,
-          bookId: workOrder.bookId,
-          sessionId: workOrder.sessionId,
           guidance: "장르 Soul 없이 동일 조건의 상업적 보상을 집필해.",
         });
         return { status: 0, signal: null, stdout: `${proposalText}\n`, stderr: `session_id: ${hermesSessionId}\n` };
@@ -1559,12 +1551,8 @@ test("keeps completed Hermes evidence completed when the InkOS child throws", as
         hermesCalls += 1;
         operationPromptText = readFileSync(join(options.cwd, "AGENTS.md"), "utf8");
         proposalText = JSON.stringify({
-          schemaVersion: "hermes-control-proposal/v1",
+          schemaVersion: "hermes-control-proposal/v2",
           action: "write-next",
-          workOrderId: workOrder.workOrderId,
-          workOrderSha256: plan.invocation.workOrderSha256,
-          bookId: workOrder.bookId,
-          sessionId: workOrder.sessionId,
           guidance: "후반 보상을 강화해.",
         });
         return { status: 0, signal: null, stdout: `${proposalText}\n`, stderr: `session_id: ${hermesSessionId}\n` };

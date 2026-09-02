@@ -7,6 +7,8 @@ import test from "node:test";
 import { sealRunReceiptV2 } from "../scripts/dispatch-lib.mjs";
 import {
   buildHermesInvocationReceipt,
+  buildHermesControlPrompt,
+  buildHistoricalHermesControlPromptV1,
   canonicalStringify,
   deriveAgentOperateSessionId,
   HERMES_CONTROL_QUERY,
@@ -14,6 +16,7 @@ import {
   MAX_GUIDANCE_BYTES,
   parseHermesControlProposal,
   parseHermesControlSessionExport,
+  resolveHermesControlRecoveryPrompt,
   sha256Bytes,
   validateAgentOperateModeEvidence,
   validateHermesInvocationReceipt,
@@ -395,25 +398,39 @@ test("RunReceipt schema accepts only semantically successful agent operation evi
   }
 });
 
-test("turns one strict Hermes proposal into a host-hashed canonical action", () => {
+test("turns one identity-free v2 Hermes proposal into an exact host-owned canonical action", () => {
   const authority = authorityFixture();
   const workOrder = canaryWorkOrder(authority);
   const workOrderSha256 = "1".repeat(64);
   const proposal = {
-    schemaVersion: "hermes-control-proposal/v1",
+    schemaVersion: "hermes-control-proposal/v2",
+    action: "write-next",
+    guidance: "다음 회차의 지급과 훅을 강화해.",
+  };
+  const parsed = parseHermesControlProposal(JSON.stringify(proposal), workOrder, workOrderSha256);
+  assert.deepEqual(parsed.proposal, proposal);
+  assert.deepEqual(parsed.action, {
+    schemaVersion: "hermes-control-action/v1",
     action: "write-next",
     workOrderId: workOrder.workOrderId,
     workOrderSha256,
     bookId: workOrder.bookId,
     sessionId: workOrder.sessionId,
-    guidance: "다음 회차의 지급과 훅을 강화해.",
-  };
-  const parsed = parseHermesControlProposal(JSON.stringify(proposal), workOrder, workOrderSha256);
+    guidance: proposal.guidance,
+    guidanceSha256: digest(Buffer.from(proposal.guidance)),
+  });
   assert.equal(parsed.action.schemaVersion, "hermes-control-action/v1");
   assert.equal(parsed.action.guidanceSha256, digest(Buffer.from(proposal.guidance)));
   assert.equal(parsed.actionBytes.toString("utf8"), canonicalStringify(parsed.action));
-  assert.throws(
-    () => parseHermesControlProposal(JSON.stringify({ ...proposal, guidanceSha256: "0".repeat(64) }), workOrder, workOrderSha256),
+  assert.doesNotMatch(parsed.proposalBytes.toString("utf8"), /workOrderId|workOrderSha256|bookId|sessionId/u);
+  for (const [key, value] of [
+    ["workOrderId", workOrder.workOrderId],
+    ["workOrderSha256", workOrderSha256],
+    ["bookId", workOrder.bookId],
+    ["sessionId", workOrder.sessionId],
+    ["guidanceSha256", "0".repeat(64)],
+  ]) assert.throws(
+    () => parseHermesControlProposal(JSON.stringify({ ...proposal, [key]: value }), workOrder, workOrderSha256),
     /unknown field/,
   );
   assert.throws(
@@ -424,11 +441,127 @@ test("turns one strict Hermes proposal into a host-hashed canonical action", () 
     () => parseHermesControlProposal(JSON.stringify({ ...proposal, guidance: "bad\u0007guidance" }), workOrder, workOrderSha256),
     /control characters/,
   );
+  assert.throws(
+    () => parseHermesControlProposal(`${JSON.stringify(proposal)}${JSON.stringify(proposal)}`, workOrder, workOrderSha256),
+    /not exactly one JSON object/,
+  );
+  assert.throws(
+    () => parseHermesControlProposal(JSON.stringify(proposal, null, 2), workOrder, workOrderSha256),
+    /exactly one minified JSON object/u,
+  );
+  assert.throws(
+    () => parseHermesControlProposal(` ${JSON.stringify(proposal)}\n`, workOrder, workOrderSha256),
+    /leading or trailing whitespace/u,
+  );
+  assert.throws(
+    () => parseHermesControlProposal(JSON.stringify(proposal), { ...workOrder, workOrderId: "bad/id" }, workOrderSha256),
+    /host action identity is invalid/u,
+  );
+  assert.throws(
+    () => parseHermesControlProposal(JSON.stringify(proposal), { ...workOrder, bookId: "../escape" }, workOrderSha256),
+    /host action identity is invalid/u,
+  );
+});
+
+test("keeps exact historical v1 proposal parsing only behind the recovery flag", () => {
+  const authority = authorityFixture();
+  const workOrder = canaryWorkOrder(authority);
+  const workOrderSha256 = "9".repeat(64);
+  const historical = {
+    schemaVersion: "hermes-control-proposal/v1",
+    action: "write-next",
+    workOrderId: workOrder.workOrderId,
+    workOrderSha256,
+    bookId: workOrder.bookId,
+    sessionId: workOrder.sessionId,
+    guidance: "기존 완결 artifact를 정확히 복구해.",
+  };
+  assert.throws(
+    () => parseHermesControlProposal(JSON.stringify(historical), workOrder, workOrderSha256),
+    /not accepted for a current invocation/u,
+  );
+  const parsed = parseHermesControlProposal(
+    JSON.stringify(historical),
+    workOrder,
+    workOrderSha256,
+    { allowHistoricalV1: true },
+  );
+  assert.equal(parsed.action.bookId, workOrder.bookId);
+  assert.equal(parsed.action.sessionId, workOrder.sessionId);
+  const operationPromptText = buildHistoricalHermesControlPromptV1(
+    Buffer.from(JSON.stringify(workOrder), "utf8"),
+    workOrderSha256,
+  );
+  const session = {
+    id: "20260902_120000_historical_fixture",
+    source: "tool",
+    profile_name: authority.profile.profileId,
+    model: "gpt-5.6-sol",
+    model_config: JSON.stringify({ max_iterations: 1, reasoning_config: { effort: "high" } }),
+    system_prompt: operationPromptText,
+    end_reason: "agent_close",
+    ended_at: 1,
+    message_count: 2,
+    api_call_count: 1,
+    tool_call_count: 0,
+    messages: [
+      { role: "user", content: HERMES_CONTROL_QUERY, tool_calls: [] },
+      { role: "assistant", content: JSON.stringify(historical), finish_reason: "stop", tool_calls: [] },
+    ],
+  };
+  const recovered = parseHermesControlSessionExport(Buffer.from(`${JSON.stringify(session)}\n`), {
+    sessionId: session.id,
+    profileId: session.profile_name,
+    queryText: HERMES_CONTROL_QUERY,
+    operationPromptText,
+    promptSha256: digest(operationPromptText),
+    processExitCode: 0,
+    workOrder,
+    workOrderSha256,
+    allowHistoricalProposalV1: true,
+  });
+  assert.equal(recovered.parsedAction.action.workOrderId, workOrder.workOrderId);
+  assert.throws(
+    () => parseHermesControlProposal(
+      JSON.stringify({ ...historical, bookId: "drifted-book" }),
+      workOrder,
+      workOrderSha256,
+      { allowHistoricalV1: true },
+    ),
+    /Historical Hermes proposal Book\/session binding mismatch/u,
+  );
+});
+
+test("prompts only for the minified identity-free v2 proposal", () => {
+  const workOrderBytes = Buffer.from(JSON.stringify({ bookId: "한글-Book", sessionId: "host-session" }), "utf8");
+  const prompt = buildHermesControlPrompt(workOrderBytes, "7".repeat(64));
+  assert.match(prompt, /hermes-control-proposal\/v2/u);
+  assert.match(prompt, /host injects authoritative identity/u);
+  assert.doesNotMatch(prompt, /hermes-control-proposal\/v1/u);
+  assert.doesNotMatch(prompt, /"workOrderId":string|"bookId":string|"sessionId":string/u);
+});
+
+test("recognizes only the exact current or historical operation contract during recovery", () => {
+  const workOrderBytes = Buffer.from(JSON.stringify({ bookId: "한글-Book", sessionId: "host-session" }), "utf8");
+  const workOrderSha256 = "7".repeat(64);
+  const currentBytes = Buffer.from(buildHermesControlPrompt(workOrderBytes, workOrderSha256), "utf8");
+  const historicalBytes = Buffer.from(buildHistoricalHermesControlPromptV1(workOrderBytes, workOrderSha256), "utf8");
+  const current = resolveHermesControlRecoveryPrompt(currentBytes, workOrderBytes, workOrderSha256);
+  const historical = resolveHermesControlRecoveryPrompt(historicalBytes, workOrderBytes, workOrderSha256);
+  assert.equal(current.allowHistoricalProposalV1, false);
+  assert.equal(current.promptBytes.equals(currentBytes), true);
+  assert.equal(historical.allowHistoricalProposalV1, true);
+  assert.equal(historical.promptBytes.equals(historicalBytes), true);
+  assert.match(historical.promptBytes.toString("utf8"), /hermes-control-proposal\/v1/u);
+  assert.throws(
+    () => resolveHermesControlRecoveryPrompt(Buffer.from(`${historicalBytes.toString("utf8")}\n`), workOrderBytes, workOrderSha256),
+    /does not match the WorkOrder/u,
+  );
 });
 
 test("cross-binds the exported one-turn session to exact query, system contract, and raw proposal", () => {
   const operationPromptText = "FIREFLY_WORK_ORDER_SHA256=" + "2".repeat(64);
-  const actionText = '{"schemaVersion":"hermes-control-proposal/v1"}';
+  const actionText = '{"schemaVersion":"hermes-control-proposal/v2"}';
   const session = {
     id: "20260902_120000_abcdef",
     source: "tool",
@@ -468,12 +601,8 @@ test("uses the exact exported assistant action when quiet Hermes leaks only its 
   const workOrderSha256 = "4".repeat(64);
   const operationPromptText = "FIREFLY_WORK_ORDER_SHA256=" + workOrderSha256;
   const proposalText = JSON.stringify({
-    schemaVersion: "hermes-control-proposal/v1",
+    schemaVersion: "hermes-control-proposal/v2",
     action: "write-next",
-    workOrderId: workOrder.workOrderId,
-    workOrderSha256,
-    bookId: workOrder.bookId,
-    sessionId: workOrder.sessionId,
     guidance: "다음 회차의 보상과 훅을 강화해.",
   });
   const reasoningText = [
