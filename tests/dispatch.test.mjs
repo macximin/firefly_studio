@@ -1,11 +1,13 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
+import { lstatSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import {
   mkdir,
   mkdtemp,
   readdir,
   readFile,
+  realpath,
   rm,
   symlink,
   writeFile,
@@ -17,6 +19,7 @@ import {
   buildDispatchPlan,
   executeWorkOrder,
   publicDispatchPlan,
+  sealRunReceiptV2,
   sha256Json,
   validateCapabilityArtifacts,
   validateChildArtifacts,
@@ -26,6 +29,24 @@ import {
   verifyPrivateInputs,
   validateWorkOrder,
 } from "../scripts/dispatch-lib.mjs";
+import { deriveAgentOperateSessionId } from "../scripts/hermes-control-lib.mjs";
+import { hashInkosCanonicalJson } from "../scripts/inkos-agent-terminal-verifier.mjs";
+
+function validateWithContract(schemaName, instance) {
+  const schema = JSON.parse(readFileSync(join(process.cwd(), "contracts", schemaName), "utf8"));
+  const result = spawnSync("python3", ["-c", [
+    "import json,sys",
+    "from jsonschema import Draft202012Validator",
+    "p=json.load(sys.stdin)",
+    "Draft202012Validator.check_schema(p['schema'])",
+    "print(json.dumps([e.message for e in Draft202012Validator(p['schema']).iter_errors(p['instance'])]))",
+  ].join(";")], {
+    input: JSON.stringify({ schema, instance }),
+    encoding: "utf8",
+  });
+  assert.equal(result.status, 0, result.stderr);
+  return JSON.parse(result.stdout);
+}
 
 function manifestFixture(remoteUrl = "git@example.invalid:owner/inkos.git") {
   return {
@@ -56,6 +77,7 @@ function manifestFixture(remoteUrl = "git@example.invalid:owner/inkos.git") {
           { name: "status", mode: "read-only", approval: "none" },
           { name: "interact", mode: "mutating", approval: "human" },
           { name: "write-next", mode: "mutating", approval: "human" },
+          { name: "agent-operate", mode: "mutating", approval: "human" },
           { name: "reference-bind", mode: "mutating", approval: "human" },
           { name: "pitch-slate", mode: "mutating", approval: "human" },
           { name: "pitch-review", mode: "mutating", approval: "human" },
@@ -122,6 +144,551 @@ function writeNextV2WorkOrder(overrides = {}) {
     requestedAt: "2026-08-28T00:00:00.000Z",
   };
   return { ...base, ...overrides };
+}
+
+function agentCanaryWorkOrder(root = process.cwd(), overrides = {}) {
+  const profileRegistry = JSON.parse(readFileSync(join(root, "config", "hermes-production-profiles.json"), "utf8"));
+  const adoptionBytes = readFileSync(join(root, "config", "genre-soul-adoptions.json"));
+  const profile = profileRegistry.profiles.find((entry) => entry.profileId === "inkos_male_fantasy");
+  const instruction = overrides.instruction ?? "상업성 우선으로 다음 회차를 집필해.";
+  const args = overrides.args ?? { chapterCount: 1, targetLength: { count: 5500, unit: "ko-chars" } };
+  const instructionSha256 = createHash("sha256").update(Buffer.from(instruction, "utf8")).digest("hex");
+  const modeEvidence = overrides.modeEvidence ?? {
+    lane: "genre-soul",
+    profileId: profile.profileId,
+    profileConfigSha256: profile.configSha256,
+    profileLifecycle: "candidate",
+    productionEnabled: false,
+    adoptionRegistrySha256: createHash("sha256").update(adoptionBytes).digest("hex"),
+    activeMatchingCount: 0,
+    soulId: profile.soulId,
+    soulVersion: profile.soulVersion,
+    soulSha256: profile.soulSha256,
+    promotionDecisionSha256: null,
+    canaryIsolation: {
+      pairId: "pair-fixture",
+      path: ".inkos/canaries/pair-fixture/common-snapshot.json",
+      sha256: "c".repeat(64),
+      byteLength: 1,
+      receiptSelfHash: "d".repeat(64),
+      isolationScopeSha256: "e".repeat(64),
+      commonSnapshotSha256: "f".repeat(64),
+    },
+  };
+  const base = {
+    schemaVersion: 2,
+    workOrderId: "wo-agent-canary-1",
+    idempotencyKey: "agent-canary-1",
+    repo: "inkos",
+    capability: "agent-operate",
+    bookId: "demo-book",
+    instruction,
+    args,
+    expectedSoulBinding: { soulId: profile.soulId, soulVersion: profile.soulVersion, bindingSha256: "d".repeat(64) },
+    executionMode: "promotion-canary",
+    modeEvidence,
+    runtime: { hermesProfile: profile.profileId, model: "gpt-5.6-sol", reasoning: "high" },
+    approvalMode: "human",
+    approvedInputs: [],
+    privateInputs: [],
+    requestedAt: "2026-09-02T00:00:00.000Z",
+  };
+  const workOrder = { ...base, ...overrides, modeEvidence };
+  workOrder.sessionId = overrides.sessionId ?? deriveAgentOperateSessionId(workOrder);
+  workOrder.ownerDecision = overrides.ownerDecision ?? {
+    receiptId: "owner-agent-canary-1",
+    status: "approved",
+    instructionSha256,
+    argsSha256: sha256Json({
+      capability: workOrder.capability,
+      bookId: workOrder.bookId,
+      sessionId: workOrder.sessionId,
+      args: workOrder.args,
+      expectedSoulBinding: workOrder.expectedSoulBinding,
+      executionMode: workOrder.executionMode,
+      modeEvidence: workOrder.modeEvidence,
+      instructionSha256,
+    }),
+    decidedAt: "2026-09-02T00:00:00.000Z",
+  };
+  return workOrder;
+}
+
+function fixtureFileRef(root, path) {
+  const bytes = readFileSync(join(root, path));
+  return { path, sha256: createHash("sha256").update(bytes).digest("hex"), byteLength: bytes.byteLength };
+}
+
+function fixtureManifest(root, prefix = "", excluded = new Set()) {
+  const files = [];
+  const walk = (directory, nested = "") => {
+    for (const name of readdirSync(directory).sort((left, right) => left.localeCompare(right))) {
+      const relativePath = nested ? `${nested}/${name}` : name;
+      if (excluded.has(relativePath)) continue;
+      const absolutePath = join(directory, name);
+      const metadata = lstatSync(absolutePath);
+      if (metadata.isDirectory()) walk(absolutePath, relativePath);
+      else if (metadata.isFile()) {
+        const receiptPath = prefix ? `${prefix}/${relativePath}` : relativePath;
+        const bytes = readFileSync(absolutePath);
+        files.push({ path: receiptPath, sha256: createHash("sha256").update(bytes).digest("hex"), byteLength: bytes.byteLength });
+      }
+    }
+  };
+  walk(root);
+  files.sort((left, right) => left.path.localeCompare(right.path));
+  return { files, manifestSha256: sha256Json(files) };
+}
+
+async function createAgentDispatchFixture({ lane = "genre-soul" } = {}) {
+  const root = await mkdtemp(join(tmpdir(), "firefly-agent-dispatch-"));
+  const configDir = join(root, "config");
+  const repoPath = join(root, "edge_repos", "inkos");
+  const remoteUrl = "git@example.invalid:owner/inkos.git";
+  await mkdir(configDir, { recursive: true });
+  const sourceProfiles = JSON.parse(readFileSync(join(process.cwd(), "config", "hermes-production-profiles.json"), "utf8"));
+  const genreProfile = sourceProfiles.profiles.find((entry) => entry.profileId === "inkos_male_fantasy");
+  const neutralRegistry = JSON.parse(readFileSync(join(process.cwd(), "config", "hermes-neutral-production-profile.json"), "utf8"));
+  const profile = lane === "neutral-baseline" ? neutralRegistry.profile : genreProfile;
+  await writeFile(join(configDir, "hermes-production-profiles.json"), `${JSON.stringify({ schemaVersion: sourceProfiles.schemaVersion, profiles: [genreProfile] }, null, 2)}\n`);
+  await writeFile(join(configDir, "hermes-neutral-production-profile.json"), `${JSON.stringify(neutralRegistry, null, 2)}\n`);
+  await writeFile(join(configDir, "genre-soul-adoptions.json"), `${JSON.stringify({ schemaVersion: "genre-soul-adoption-registry/v1", active: [] }, null, 2)}\n`);
+
+  await mkdir(join(repoPath, "packages", "cli", "dist"), { recursive: true });
+  await writeFile(join(repoPath, "packages", "cli", "dist", "index.js"), "// fixture entrypoint\n");
+  await writeFile(join(repoPath, ".gitignore"), "books/\n.inkos/\n");
+  await writeFile(join(repoPath, "inkos.json"), `${JSON.stringify({ schemaVersion: 1, project: "fixture" }, null, 2)}\n`);
+  await mkdir(join(repoPath, "books", "demo-book"), { recursive: true });
+  await writeFile(join(repoPath, "books", "demo-book", "book.json"), `${JSON.stringify({ id: "demo-book", title: "Fixture" }, null, 2)}\n`);
+  execFileSync("git", ["init", "-b", "master"], { cwd: repoPath, stdio: "ignore" });
+  execFileSync("git", ["config", "user.email", "dispatch@example.invalid"], { cwd: repoPath });
+  execFileSync("git", ["config", "user.name", "Dispatch Test"], { cwd: repoPath });
+  execFileSync("git", ["remote", "add", "origin", remoteUrl], { cwd: repoPath });
+  execFileSync("git", ["add", "packages/cli/dist/index.js", ".gitignore", "inkos.json"], { cwd: repoPath });
+  execFileSync("git", ["commit", "-m", "fixture"], { cwd: repoPath, stdio: "ignore" });
+
+  const pairId = "pair-fixture";
+  const pairRoot = join(repoPath, ".inkos", "canaries", pairId);
+  const neutralRoot = join(pairRoot, "neutral");
+  const soulRoot = join(pairRoot, "soul");
+  for (const laneRoot of [neutralRoot, soulRoot]) {
+    await mkdir(join(laneRoot, "books", "demo-book"), { recursive: true });
+    await writeFile(join(laneRoot, "inkos.json"), await readFile(join(repoPath, "inkos.json")));
+    await writeFile(join(laneRoot, "books", "demo-book", "book.json"), await readFile(join(repoPath, "books", "demo-book", "book.json")));
+  }
+  const neutralManifest = fixtureManifest(neutralRoot);
+  const bindingUnsigned = {
+    schemaVersion: "book-soul-binding/v2",
+    bookId: "demo-book",
+    soulId: genreProfile.soulId,
+    version: genreProfile.soulVersion,
+    status: "candidate",
+    bindingVersion: 1,
+  };
+  const binding = { ...bindingUnsigned, bindingSha256: hashInkosCanonicalJson(bindingUnsigned) };
+  const bindingPath = "books/demo-book/story/soul-bindings/0001.json";
+  const pointerPath = "books/demo-book/story/soul-bindings/current.json";
+  const objectPath = `.inkos/production/souls/objects/${genreProfile.soulSha256}.json`;
+  await mkdir(join(soulRoot, bindingPath, ".."), { recursive: true });
+  await mkdir(join(soulRoot, objectPath, ".."), { recursive: true });
+  await writeFile(join(soulRoot, bindingPath), `${JSON.stringify(binding, null, 2)}\n`);
+  await writeFile(join(soulRoot, pointerPath), `${JSON.stringify({ bookId: "demo-book", bindingPath: "story/soul-bindings/0001.json", bindingSha256: binding.bindingSha256 }, null, 2)}\n`);
+  await writeFile(join(soulRoot, objectPath), `${JSON.stringify({ soulId: genreProfile.soulId, version: genreProfile.soulVersion })}\n`);
+  const soulManifest = fixtureManifest(soulRoot);
+  const allowedDeltaPaths = soulManifest.files
+    .map((entry) => entry.path)
+    .filter((path) => !neutralManifest.files.some((entry) => entry.path === path))
+    .sort((left, right) => left.localeCompare(right));
+  const sourceConfig = fixtureFileRef(repoPath, "inkos.json");
+  const sourceGenres = { state: "absent", files: [], manifestSha256: sha256Json({ state: "absent", files: [] }) };
+  const sourceBook = fixtureManifest(join(repoPath, "books", "demo-book"), "books/demo-book", new Set([".soul-turn.lock", ".write.lock"]));
+  const commonSnapshotSha256 = sha256Json({
+    schemaVersion: "inkos-canary-source-snapshot/v1",
+    config: sourceConfig,
+    genres: sourceGenres,
+    book: sourceBook,
+  });
+  const sourceProjectRootFingerprint = sha256Json({ schemaVersion: "inkos-canary-source-project-fingerprint/v1", commonSnapshotSha256 });
+  const scopeId = `canary-pair:${pairId}:demo-book`;
+  const receiptPath = `.inkos/canaries/${pairId}/common-snapshot.json`;
+  const neutralProjectRoot = `.inkos/canaries/${pairId}/neutral`;
+  const soulProjectRoot = `.inkos/canaries/${pairId}/soul`;
+  const isolationScopeSha256 = sha256Json({
+    schemaVersion: "inkos-canary-isolation-scope/v1",
+    scopeId,
+    pairId,
+    bookId: "demo-book",
+    sourceProjectRootFingerprint,
+    receiptPath,
+    laneProjectRoots: [neutralProjectRoot, soulProjectRoot],
+    allowedDeltaPaths,
+  });
+  const artifactRef = (path, role) => ({ path, sha256: "a".repeat(64), byteLength: 1, role });
+  const receiptUnsigned = {
+    schemaVersion: "inkos-canary-common-snapshot/v1",
+    pairId,
+    bookId: "demo-book",
+    scopeId,
+    sourceProjectRootFingerprint,
+    sourceConfig,
+    sourceGenres,
+    sourceBook,
+    commonSnapshotSha256,
+    isolationScopeSha256,
+    soulBindingInputs: {
+      soulId: genreProfile.soulId,
+      soulVersion: genreProfile.soulVersion,
+      artifacts: [
+        artifactRef("decisions/soul.json", "soul-binding-decision"),
+        artifactRef("souls/manifest.json", "soul-package-manifest"),
+        artifactRef("receipts/source.json", "source-registry-receipt"),
+      ].sort((left, right) => left.role.localeCompare(right.role)),
+    },
+    lanes: {
+      neutral: {
+        projectRoot: neutralProjectRoot,
+        preBindManifestSha256: neutralManifest.manifestSha256,
+        postBindManifestSha256: neutralManifest.manifestSha256,
+        allowedDeltaPaths: [],
+        allowedDeltaManifestSha256: sha256Json([]),
+        expectedSoulBinding: null,
+      },
+      genreSoul: {
+        projectRoot: soulProjectRoot,
+        preBindManifestSha256: neutralManifest.manifestSha256,
+        postBindManifestSha256: soulManifest.manifestSha256,
+        allowedDeltaPaths,
+        allowedDeltaManifestSha256: sha256Json(allowedDeltaPaths),
+        expectedSoulBinding: { soulId: genreProfile.soulId, soulVersion: genreProfile.soulVersion, bindingSha256: binding.bindingSha256 },
+      },
+    },
+    productionBookFingerprint: { before: sourceBook.manifestSha256, after: sourceBook.manifestSha256, unchanged: true },
+    excludedTransientBookPaths: [".soul-turn.lock", ".write.lock"],
+    createdAt: "2026-09-02T00:00:00.000Z",
+  };
+  const receipt = { ...receiptUnsigned, receiptSelfHash: hashInkosCanonicalJson(receiptUnsigned) };
+  const receiptBytes = Buffer.from(`${JSON.stringify(receipt, null, 2)}\n`, "utf8");
+  await writeFile(join(repoPath, receiptPath), receiptBytes);
+
+  const laneReceipt = lane === "neutral-baseline" ? receipt.lanes.neutral : receipt.lanes.genreSoul;
+  const baseModeEvidence = agentCanaryWorkOrder(root).modeEvidence;
+  const workOrder = agentCanaryWorkOrder(root, {
+    workOrderId: lane === "neutral-baseline" ? "wo-agent-neutral-canary-1" : "wo-agent-canary-1",
+    idempotencyKey: lane === "neutral-baseline" ? "agent-neutral-canary-1" : "agent-canary-1",
+    expectedSoulBinding: laneReceipt.expectedSoulBinding,
+    modeEvidence: {
+      ...baseModeEvidence,
+      lane,
+      profileId: profile.profileId,
+      profileConfigSha256: profile.configSha256,
+      profileLifecycle: profile.lifecycle,
+      productionEnabled: profile.productionEnabled,
+      activeMatchingCount: 0,
+      soulId: profile.soulId,
+      soulVersion: profile.soulVersion,
+      soulSha256: profile.soulSha256,
+      promotionDecisionSha256: profile.promotionDecisionSha256,
+      canaryIsolation: {
+        pairId,
+        path: receiptPath,
+        sha256: createHash("sha256").update(receiptBytes).digest("hex"),
+        byteLength: receiptBytes.byteLength,
+        receiptSelfHash: receipt.receiptSelfHash,
+        isolationScopeSha256,
+        commonSnapshotSha256,
+      },
+    },
+    runtime: { hermesProfile: profile.profileId, model: "gpt-5.6-sol", reasoning: "high" },
+    approvedInputs: [],
+  });
+  workOrder.ownerDecision.argsSha256 = sha256Json({
+    capability: workOrder.capability,
+    bookId: workOrder.bookId,
+    sessionId: workOrder.sessionId,
+    args: workOrder.args,
+    expectedSoulBinding: workOrder.expectedSoulBinding,
+    executionMode: workOrder.executionMode,
+    modeEvidence: workOrder.modeEvidence,
+    instructionSha256: workOrder.ownerDecision.instructionSha256,
+  });
+  const canaryProjection = {
+    schemaVersion: "inkos-canary-execution-root-verification/v1",
+    scopeId,
+    pairId,
+    bookId: workOrder.bookId,
+    lane: lane === "neutral-baseline" ? "neutral" : "soul",
+    projectRoot: lane === "neutral-baseline" ? neutralProjectRoot : soulProjectRoot,
+    sourceProjectRootFingerprint,
+    sourceBookManifestSha256: sourceBook.manifestSha256,
+    laneManifestSha256: laneReceipt.postBindManifestSha256,
+    receipt: {
+      path: receiptPath,
+      sha256: workOrder.modeEvidence.canaryIsolation.sha256,
+      byteLength: receiptBytes.byteLength,
+      selfHash: receipt.receiptSelfHash,
+    },
+    isolationScopeSha256,
+    commonSnapshotSha256,
+    expectedSoulBinding: workOrder.expectedSoulBinding,
+  };
+  const executionRoot = lane === "neutral-baseline" ? neutralRoot : soulRoot;
+  return { root, repoPath, executionRoot: await realpath(executionRoot), canaryProjection, workOrder, manifest: manifestFixture(remoteUrl), profile };
+}
+
+const hermesReadbackOptions = {
+  getConfigValue: (_profileId, key) => ({
+    "model.provider": "openai-codex",
+    "model.default": "gpt-5.6-sol",
+    "agent.reasoning_effort": "high",
+    "agent.coding_context": "off",
+    "model.openai_runtime": "auto",
+    "platform_toolsets.cli": "[]",
+  })[key],
+  getPromptSize: () => ({ model: "gpt-5.6-sol", tools: { count: 0 } }),
+};
+
+function writeStrictAgentChildResult({ repoPath, workOrder, plan, envelope, profile, hermesSessionId, canaryProjection }) {
+  const commandId = "11111111-1111-4111-8111-111111111111";
+  const productionOperationId = "22222222-2222-4222-8222-222222222222";
+  const attemptId = "33333333-3333-4333-8333-333333333333";
+  const operationId = "44444444-4444-4444-8444-444444444444";
+  const receiptId = operationId;
+  const bookRoot = `books/${workOrder.bookId}`;
+  const operationRoot = `story/runtime/hermes-control/${workOrder.workOrderId}`;
+  const internal = {
+    request: `${operationRoot}/request.json`,
+    action: `${operationRoot}/action.json`,
+    hermesReceipt: `${operationRoot}/hermes-invocation.json`,
+    importReceipt: `${operationRoot}/import-receipt.json`,
+    terminal: `${operationRoot}/terminal.json`,
+    run: `story/runtime/production-runs/terminals/${commandId}.json`,
+    chapterCommit: `story/runtime/chapter-commits/${productionOperationId}--${receiptId}.json`,
+    operationManifest: `story/runtime/fiction-content-neutral/operations/${operationId}.json`,
+    chapter: "chapters/0001.md",
+    index: "chapters/index.json",
+    modelReceipt: "story/runtime/fiction-content-neutral/receipts/writer-inv-1.json",
+    modelOutcome: "story/runtime/fiction-content-neutral/outcomes/writer-inv-1.json",
+  };
+  const external = (path) => `${bookRoot}/${path}`;
+  const writeBytes = (path, bytes) => {
+    mkdirSync(join(repoPath, path, ".."), { recursive: true });
+    writeFileSync(join(repoPath, path), bytes);
+    return { path: path.slice(bookRoot.length + 1), sha256: createHash("sha256").update(bytes).digest("hex"), byteLength: bytes.byteLength };
+  };
+  const writeJson = (path, value) => writeBytes(path, Buffer.from(`${JSON.stringify(value, null, 2)}\n`, "utf8"));
+  const seal = (unsigned, field) => ({ ...unsigned, [field]: hashInkosCanonicalJson(unsigned) });
+  const workOrderBytes = Buffer.from(envelope.workOrder.bytes, "base64");
+  const actionBytes = Buffer.from(envelope.hermesAction.bytes, "base64");
+  const hermesReceiptBytes = Buffer.from(envelope.hermesReceipt.bytes, "base64");
+  const requestRef = writeBytes(external(internal.request), workOrderBytes);
+  const actionRef = writeBytes(external(internal.action), actionBytes);
+  const hermesReceiptRef = writeBytes(external(internal.hermesReceipt), hermesReceiptBytes);
+  const taskGuidance = {
+    source: "hermes-control-action",
+    bookId: workOrder.bookId,
+    workOrderId: workOrder.workOrderId,
+    actionRef,
+    textSha256: envelope.hermesAction.textSha256,
+  };
+  const importUnsigned = {
+    schemaVersion: "hermes-control-import/v2",
+    workOrderId: workOrder.workOrderId,
+    workOrderSha256: plan.invocation.workOrderSha256,
+    bookId: workOrder.bookId,
+    sessionId: workOrder.sessionId,
+    request: requestRef,
+    action: actionRef,
+    hermesReceipt: hermesReceiptRef,
+    taskGuidance,
+    canaryIsolation: canaryProjection,
+    importedAt: "2026-09-02T12:00:01.000Z",
+  };
+  const importRef = writeJson(external(internal.importReceipt), seal(importUnsigned, "receiptSelfHash"));
+
+  const chapterBytes = Buffer.from("# 1화\n\n상업적 보상이 폭발했다.\n", "utf8");
+  const chapterRef = writeBytes(external(internal.chapter), chapterBytes);
+  const indexRef = writeJson(external(internal.index), [{ number: 1, title: "1화", status: "draft", wordCount: 18 }]);
+  const operationManifestRef = writeJson(external(internal.operationManifest), {
+    schemaVersion: "fiction-content-operation/v1",
+    operationId,
+    bookId: workOrder.bookId,
+    chapterNumber: 1,
+    operationKind: "write-next-chapter",
+    productionOperationId,
+    attemptId,
+  });
+  const chapterUnsigned = {
+    schemaVersion: "chapter-commit-receipt/v1",
+    receiptId,
+    bookId: workOrder.bookId,
+    chapterNumber: 1,
+    capability: "write-next-chapter",
+    productionOperationId,
+    attemptId,
+    fictionOperationIds: [operationId],
+    operationManifests: [{ operationId, artifact: { path: operationManifestRef.path, sha256: operationManifestRef.sha256 } }],
+    chapterArtifact: { path: chapterRef.path, sha256: chapterRef.sha256 },
+    indexArtifact: { path: indexRef.path, sha256: indexRef.sha256 },
+    currentStateArtifact: null,
+    railTruth: { applicability: "not-applicable", reason: "no-active-rail" },
+    commitState: "verified",
+    committedAt: "2026-09-02T12:00:02.000Z",
+  };
+  const chapter = seal(chapterUnsigned, "receiptSelfHash");
+  const chapterCommitRef = writeJson(external(internal.chapterCommit), chapter);
+
+  const instructionSha256 = createHash("sha256").update(Buffer.from(workOrder.instruction, "utf8")).digest("hex");
+  const commandUnsigned = {
+    schemaVersion: "production-command/v2",
+    commandId,
+    idempotencyKey: workOrder.idempotencyKey,
+    intentDigest: "5".repeat(64),
+    capability: "write-next-chapter",
+    source: "hq",
+    binding: {
+      bookId: workOrder.bookId,
+      sessionId: workOrder.sessionId,
+      requestId: workOrder.workOrderId,
+      workOrderId: workOrder.workOrderId,
+      soulBinding: workOrder.expectedSoulBinding,
+    },
+    authorization: {
+      kind: "authenticated-orchestrator",
+      requestedIntent: "write_next",
+      actionSource: "authenticated-orchestrator",
+      ownerDirection: {
+        source: "owner-confirmed",
+        receiptId: workOrder.ownerDecision.receiptId,
+        sourceRef: {
+          kind: "detached-payload-lease",
+          leaseId: "55555555-5555-4555-8555-555555555555",
+          payloadSha256: instructionSha256,
+          byteLength: Buffer.byteLength(workOrder.instruction, "utf8"),
+          expiresAt: "2026-09-03T12:00:00.000Z",
+          leaseReceiptSha256: "6".repeat(64),
+        },
+        textSha256: instructionSha256,
+      },
+      argsSha256: "0".repeat(64),
+      workOrderId: workOrder.workOrderId,
+      workOrderSha256: plan.invocation.workOrderSha256,
+      manifestCapabilitySha256: plan.invocation.manifestCapabilitySha256,
+      ownerDecisionReceiptSha256: sha256Json(workOrder.ownerDecision),
+    },
+    args: {
+      chapterCount: 1,
+      targetLength: workOrder.args.targetLength,
+      ownerDirectionTextSha256: instructionSha256,
+      taskGuidance,
+    },
+    activatedSkills: [],
+    issuedAt: "2026-09-02T12:00:01.000Z",
+  };
+  commandUnsigned.authorization.argsSha256 = hashInkosCanonicalJson(commandUnsigned.args);
+  const command = seal(commandUnsigned, "commandSelfHash");
+  const context = {
+    schemaVersion: "production-execution-context/v1",
+    commandId,
+    commandSha256: command.commandSelfHash,
+    productionOperationId,
+    attemptId,
+    intentDigest: command.intentDigest,
+    capability: "write-next-chapter",
+    mode: "enforce",
+    source: "hq",
+    actionSource: "authenticated-orchestrator",
+    binding: command.binding,
+    activatedSkills: [],
+    startedAt: "2026-09-02T12:00:01.000Z",
+  };
+  const runUnsigned = {
+    schemaVersion: "production-run/v1",
+    command,
+    commandSha256: command.commandSelfHash,
+    productionAttempt: { productionOperationId, attemptId },
+    context,
+    executionStatus: "succeeded",
+    approvalStatus: "pending",
+    completionHealth: "verified",
+    projectionHealth: "verified",
+    projectionOrigin: "direct",
+    evidence: {
+      kind: "verified-commit",
+      receiptFile: { path: chapterCommitRef.path, sha256: chapterCommitRef.sha256 },
+      receiptId,
+      commitState: "verified",
+      chapterArtifact: { path: chapterRef.path, sha256: chapterRef.sha256 },
+      indexArtifact: { path: indexRef.path, sha256: indexRef.sha256 },
+      currentStateArtifact: null,
+      railTruth: { applicability: "not-applicable", reason: "no-active-rail" },
+      verifiedAt: "2026-09-02T12:00:02.000Z",
+    },
+    chapter: { chapterNumber: 1, title: "1화", wordCount: 18, status: "draft" },
+    startedAt: "2026-09-02T12:00:01.000Z",
+    completedAt: "2026-09-02T12:00:02.000Z",
+  };
+  const runRef = writeJson(external(internal.run), seal(runUnsigned, "runSelfHash"));
+  const modelReceiptRef = writeJson(external(internal.modelReceipt), {
+    invocationId: "writer-inv-1", agentName: "Writer", stage: "chapter-draft", model: "gpt-5.6-sol", reasoningEffort: "high", productionOperationId, attemptId,
+  });
+  const modelOutcomeRef = writeJson(external(internal.modelOutcome), {
+    invocationId: "writer-inv-1", status: "completed", productionOperationId, attemptId,
+  });
+  const finalLaneManifestSha256 = fixtureManifest(repoPath, "", new Set([
+    `books/${workOrder.bookId}/.soul-turn.lock`,
+    `books/${workOrder.bookId}/.write.lock`,
+    external(internal.terminal),
+  ])).manifestSha256;
+  const terminalUnsigned = {
+    schemaVersion: "inkos-agent-operation-terminal/v2",
+    workOrderId: workOrder.workOrderId,
+    workOrderSha256: plan.invocation.workOrderSha256,
+    bookId: workOrder.bookId,
+    sessionId: workOrder.sessionId,
+    executionMode: workOrder.executionMode,
+    canaryIsolation: canaryProjection,
+    finalLaneManifestSha256,
+    importReceipt: importRef,
+    productionRun: { ...runRef, commandId, productionOperationId, attemptId },
+    completedAt: "2026-09-02T12:00:03.000Z",
+    status: "succeeded",
+    chapterCommit: { ...chapterCommitRef, receiptId, receiptSelfHash: chapter.receiptSelfHash },
+  };
+  const terminalRef = writeJson(external(internal.terminal), seal(terminalUnsigned, "receiptSelfHash"));
+  return {
+    schemaVersion: "inkos-agent-operation-result/v1",
+    workOrder: { id: workOrder.workOrderId, sha256: plan.invocation.workOrderSha256 },
+    agentOperation: {
+      status: "succeeded",
+      executionMode: workOrder.executionMode,
+      canaryIsolation: canaryProjection,
+      finalLaneManifestSha256,
+      receipt: { path: external(internal.terminal), sha256: terminalRef.sha256 },
+      importReceipt: { path: external(internal.importReceipt), sha256: importRef.sha256 },
+      action: { path: external(internal.action), sha256: actionRef.sha256, textSha256: envelope.hermesAction.textSha256 },
+      hermesReceipt: { path: external(internal.hermesReceipt), sha256: hermesReceiptRef.sha256 },
+    },
+    productionRun: {
+      commandId, productionOperationId, attemptId, path: external(internal.run), sha256: runRef.sha256,
+      executionStatus: "succeeded", approvalStatus: "pending", completionHealth: "verified", projectionOrigin: "direct",
+    },
+    effectiveRuntime: {
+      hermesE2E: true,
+      orchestrator: { hermesProfile: profile.profileId, model: "gpt-5.6-sol", reasoning: "high", invoked: true, evidence: "verified-hermes-invocation-receipt", sessionId: hermesSessionId, toolsCount: 0, toolCallCount: 0 },
+      inkos: { configMode: "project", model: "gpt-5.6-sol", reasoning: "high" },
+    },
+    modelCalls: [{
+      invocationId: "writer-inv-1", agentName: "Writer", stage: "chapter-draft", model: "gpt-5.6-sol", reasoningEffort: "high", status: "completed",
+      receiptPath: external(internal.modelReceipt), receiptSha256: modelReceiptRef.sha256,
+      outcomePath: external(internal.modelOutcome), outcomeSha256: modelOutcomeRef.sha256,
+    }],
+    artifacts: [
+      { repo: "inkos", path: external(internal.action), sha256: actionRef.sha256, role: "hermes-control-action" },
+      { repo: "inkos", path: external(internal.hermesReceipt), sha256: hermesReceiptRef.sha256, role: "hermes-invocation-receipt" },
+      { repo: "inkos", path: external(internal.terminal), sha256: terminalRef.sha256, role: "agent-operation-receipt" },
+      { repo: "inkos", path: external(internal.run), sha256: runRef.sha256, role: "production-run" },
+    ],
+  };
 }
 
 function pitchSlateWorkOrder(overrides = {}) {
@@ -226,6 +793,641 @@ test("routes strict WorkOrder v2 to the bodyless ProductionCommand adapter", () 
   assert.equal(createHash("sha256").update(plan.invocation.stdin).digest("hex"), plan.invocation.workOrderSha256);
 });
 
+test("routes agent-operate through the exact sol/codex global InkOS override", () => {
+  const workOrder = agentCanaryWorkOrder();
+  const manifest = manifestFixture();
+  assert.deepEqual(validateWorkOrder(workOrder, manifest), []);
+  const plan = buildDispatchPlan({ root: process.cwd(), manifest, workOrder });
+  assert.deepEqual(plan.invocation.args.slice(1, 6), ["--service", "codex", "--model", "gpt-5.6-sol", "production"]);
+  assert.deepEqual(plan.invocation.args.slice(6, 8), ["agent-operate", "--work-order-sha"]);
+  assert.equal(plan.invocation.stdin, null);
+});
+
+test("fails closed before production agent-operate when no active promoted adoption exists", () => {
+  const workOrder = agentCanaryWorkOrder();
+  workOrder.workOrderId = "wo-agent-production-without-adoption";
+  workOrder.idempotencyKey = "agent-production-without-adoption";
+  workOrder.executionMode = "production";
+  workOrder.modeEvidence = { ...workOrder.modeEvidence };
+  delete workOrder.modeEvidence.canaryIsolation;
+  workOrder.sessionId = deriveAgentOperateSessionId(workOrder);
+  workOrder.ownerDecision = {
+    ...workOrder.ownerDecision,
+    argsSha256: sha256Json({
+      capability: workOrder.capability,
+      bookId: workOrder.bookId,
+      sessionId: workOrder.sessionId,
+      args: workOrder.args,
+      expectedSoulBinding: workOrder.expectedSoulBinding,
+      executionMode: workOrder.executionMode,
+      modeEvidence: workOrder.modeEvidence,
+      instructionSha256: workOrder.ownerDecision.instructionSha256,
+    }),
+  };
+  assert.throws(
+    () => buildDispatchPlan({ root: process.cwd(), manifest: manifestFixture(), workOrder }),
+    /production requires one promoted, enabled, decision-bound genre Soul adoption/,
+  );
+});
+
+test("executes agent-operate once and resumes only the child from complete Hermes artifacts and dead locks", async () => {
+  const fixture = await createAgentDispatchFixture();
+  const { root, repoPath, executionRoot, canaryProjection, workOrder, manifest, profile } = fixture;
+  let hermesCalls = 0;
+  let exportCalls = 0;
+  let childCalls = 0;
+  let childFailure = null;
+  let corruptReportedTerminalHash = false;
+  let operationPromptText = "";
+  let proposalText = "";
+  const hermesSessionId = "20260902_120000_agent_fixture";
+  try {
+    const plan = buildDispatchPlan({ root, manifest, workOrder });
+    const hermesSpawn = (_executable, args, options) => {
+      hermesCalls += 1;
+      assert.deepEqual(args.slice(-2), ["--source", "tool"]);
+      assert.ok(args.includes("gpt-5.6-sol"));
+      assert.equal(args.includes(workOrder.instruction), false);
+      operationPromptText = readFileSync(join(options.cwd, "AGENTS.md"), "utf8");
+      const proposal = {
+        schemaVersion: "hermes-control-proposal/v1",
+        action: "write-next",
+        workOrderId: workOrder.workOrderId,
+        workOrderSha256: plan.invocation.workOrderSha256,
+        bookId: workOrder.bookId,
+        sessionId: workOrder.sessionId,
+        guidance: "상업적 보상과 다음 화 훅을 강화해.",
+      };
+      proposalText = JSON.stringify(proposal);
+      return { status: 0, signal: null, stdout: `${proposalText}\n`, stderr: `session_id: ${hermesSessionId}\n` };
+    };
+    const sessionExportSpawn = () => {
+      exportCalls += 1;
+      const session = {
+        id: hermesSessionId,
+        source: "tool",
+        profile_name: profile.profileId,
+        model: "gpt-5.6-sol",
+        model_config: JSON.stringify({ max_iterations: 1, reasoning_config: { effort: "high" } }),
+        system_prompt: `Hermes prelude\n${operationPromptText}\nHermes suffix`,
+        end_reason: "agent_close",
+        ended_at: 1,
+        message_count: 2,
+        api_call_count: 1,
+        tool_call_count: 0,
+        messages: [
+          { role: "user", content: "Emit the single Firefly control proposal defined by the injected operation contract.", tool_calls: [] },
+          { role: "assistant", content: proposalText, finish_reason: "stop", tool_calls: [] },
+        ],
+      };
+      return { status: 0, signal: null, stdout: Buffer.from(`${JSON.stringify(session)}\n`), stderr: Buffer.alloc(0) };
+    };
+    const childSpawn = (_executable, args, options) => {
+      try {
+        childCalls += 1;
+        assert.deepEqual(args.slice(1, 6), ["--service", "codex", "--model", "gpt-5.6-sol", "production"]);
+        const envelope = JSON.parse(options.input);
+        assert.equal(envelope.schemaVersion, "inkos-agent-operation-request/v1");
+        assert.equal(options.cwd, executionRoot);
+        assert.equal(envelope.canaryIsolationReceipt.sha256, workOrder.modeEvidence.canaryIsolation.sha256);
+        assert.equal(createHash("sha256").update(Buffer.from(envelope.canaryIsolationReceipt.bytes, "base64")).digest("hex"), envelope.canaryIsolationReceipt.sha256);
+        const actionBytes = Buffer.from(envelope.hermesAction.bytes, "base64");
+        const hermesReceiptBytes = Buffer.from(envelope.hermesReceipt.bytes, "base64");
+        assert.equal(createHash("sha256").update(actionBytes).digest("hex"), envelope.hermesAction.sha256);
+        assert.equal(createHash("sha256").update(hermesReceiptBytes).digest("hex"), envelope.hermesReceipt.sha256);
+        const result = writeStrictAgentChildResult({ repoPath: executionRoot, workOrder, plan, envelope, profile, hermesSessionId, canaryProjection });
+        if (corruptReportedTerminalHash) result.agentOperation.receipt.sha256 = "0".repeat(64);
+        return { status: 0, signal: null, stdout: `${JSON.stringify(result)}\n`, stderr: "" };
+      } catch (error) {
+        childFailure = error;
+        throw error;
+      }
+    };
+
+    const first = await executeWorkOrder({ root, manifest, workOrder, spawn: childSpawn, hermesSpawn, sessionExportSpawn, hermesOptions: hermesReadbackOptions });
+    assert.equal(first.status, "succeeded", childFailure?.stack ?? JSON.stringify(first.diagnostics ?? {}));
+    assert.equal(first.effectiveRuntime.inkos.model, "gpt-5.6-sol");
+    assert.equal(first.execution.codeRepoPath, "edge_repos/inkos");
+    assert.equal(first.execution.executionRoot, "edge_repos/inkos/.inkos/canaries/pair-fixture/soul");
+    assert.deepEqual(first.control.canaryIsolation, canaryProjection);
+    assert.equal(JSON.stringify(first).includes(workOrder.instruction), false);
+    assert.equal(hermesCalls, 1);
+    assert.equal(exportCalls, 1);
+    assert.equal(childCalls, 1);
+
+    const terminalReplay = await executeWorkOrder({ root, manifest, workOrder, spawn: childSpawn, hermesSpawn, sessionExportSpawn, hermesOptions: hermesReadbackOptions });
+    assert.equal(terminalReplay.replayed, true);
+    assert.equal(hermesCalls, 1);
+    assert.equal(childCalls, 1);
+
+    const receiptName = `${createHash("sha256").update(workOrder.idempotencyKey).digest("hex").slice(0, 32)}.json`;
+    const receiptPath = join(root, ".firefly", "runs", receiptName);
+    const originalReceiptBytes = await readFile(receiptPath);
+    const terminalPath = join(executionRoot, first.agentOperation.receipt.path);
+    const runPath = join(executionRoot, first.productionRun.path);
+    const chapterPath = join(executionRoot, first.agentOperation.chapterCommit.path);
+    const [originalTerminalBytes, originalRunBytes, originalChapterBytes] = await Promise.all([
+      readFile(terminalPath), readFile(runPath), readFile(chapterPath),
+    ]);
+
+    await writeFile(receiptPath, `${JSON.stringify({ ...first, control: { ...first.control, lane: "neutral-baseline" } }, null, 2)}\n`);
+    await assert.rejects(
+      executeWorkOrder({ root, manifest, workOrder, spawn: childSpawn, hermesSpawn, sessionExportSpawn, hermesOptions: hermesReadbackOptions }),
+      /RunReceipt v2 self hash mismatch/,
+    );
+    await writeFile(receiptPath, originalReceiptBytes);
+
+    const wrongPathReceipt = sealRunReceiptV2({
+      ...first,
+      agentOperation: {
+        ...first.agentOperation,
+        receipt: { ...first.agentOperation.receipt, path: `books/${workOrder.bookId}/story/runtime/hermes-control/wrong/terminal.json` },
+      },
+    });
+    await writeFile(receiptPath, `${JSON.stringify(wrongPathReceipt, null, 2)}\n`);
+    await assert.rejects(
+      executeWorkOrder({ root, manifest, workOrder, spawn: childSpawn, hermesSpawn, sessionExportSpawn, hermesOptions: hermesReadbackOptions }),
+      /stored Agent terminal evidence is invalid/,
+    );
+    await writeFile(receiptPath, originalReceiptBytes);
+
+    const legacyCanaryTerminal = JSON.parse(originalTerminalBytes.toString("utf8"));
+    delete legacyCanaryTerminal.receiptSelfHash;
+    legacyCanaryTerminal.schemaVersion = "inkos-agent-operation-terminal/v1";
+    legacyCanaryTerminal.receiptSelfHash = hashInkosCanonicalJson(legacyCanaryTerminal);
+    const legacyCanaryTerminalBytes = Buffer.from(`${JSON.stringify(legacyCanaryTerminal, null, 2)}\n`);
+    const legacyCanaryTerminalSha256 = createHash("sha256").update(legacyCanaryTerminalBytes).digest("hex");
+    await writeFile(terminalPath, legacyCanaryTerminalBytes);
+    const legacyCanaryRunReceipt = structuredClone(first);
+    legacyCanaryRunReceipt.agentOperation.receipt.sha256 = legacyCanaryTerminalSha256;
+    legacyCanaryRunReceipt.agentOperation.terminal.sha256 = legacyCanaryTerminalSha256;
+    legacyCanaryRunReceipt.artifacts.find((artifact) => artifact.role === "agent-operation-receipt").sha256 = legacyCanaryTerminalSha256;
+    await writeFile(receiptPath, `${JSON.stringify(sealRunReceiptV2(legacyCanaryRunReceipt), null, 2)}\n`);
+    await assert.rejects(
+      executeWorkOrder({ root, manifest, workOrder, spawn: childSpawn, hermesSpawn, sessionExportSpawn, hermesOptions: hermesReadbackOptions }),
+      /stored Agent terminal evidence is invalid: Agent terminal schemaVersion is invalid/,
+    );
+    await writeFile(terminalPath, originalTerminalBytes);
+    await writeFile(receiptPath, originalReceiptBytes);
+
+    const replayDriftPath = join(executionRoot, "books", workOrder.bookId, "rogue-after-terminal.txt");
+    await writeFile(replayDriftPath, "drift\n");
+    await assert.rejects(
+      executeWorkOrder({ root, manifest, workOrder, spawn: childSpawn, hermesSpawn, sessionExportSpawn, hermesOptions: hermesReadbackOptions }),
+      /final lane manifest/,
+    );
+    await rm(replayDriftPath);
+
+    const duplicateChapterPath = join(chapterPath, "..", "duplicate.json");
+    await writeFile(duplicateChapterPath, originalChapterBytes);
+    await assert.rejects(
+      executeWorkOrder({ root, manifest, workOrder, spawn: childSpawn, hermesSpawn, sessionExportSpawn, hermesOptions: hermesReadbackOptions }),
+      /exactly one matching ChapterCommit/,
+    );
+    await rm(duplicateChapterPath);
+
+    await rm(chapterPath);
+    await assert.rejects(
+      executeWorkOrder({ root, manifest, workOrder, spawn: childSpawn, hermesSpawn, sessionExportSpawn, hermesOptions: hermesReadbackOptions }),
+      /ChapterCommit is unavailable/,
+    );
+    await writeFile(chapterPath, originalChapterBytes);
+
+    const tamperedRun = JSON.parse(originalRunBytes.toString("utf8"));
+    tamperedRun.executionStatus = "failed";
+    await writeFile(runPath, `${JSON.stringify(tamperedRun, null, 2)}\n`);
+    await assert.rejects(
+      executeWorkOrder({ root, manifest, workOrder, spawn: childSpawn, hermesSpawn, sessionExportSpawn, hermesOptions: hermesReadbackOptions }),
+      /ProductionRun (?:hash|byte length) mismatch/,
+    );
+    await writeFile(runPath, originalRunBytes);
+    assert.equal(hermesCalls, 1, "negative replay probes must not call Hermes");
+    assert.equal(childCalls, 1, "negative replay probes must not call InkOS");
+
+    const deadPid = 2147483647;
+    const lockBase = { schemaVersion: "firefly-dispatch-lock/v1", pid: deadPid, workOrderId: workOrder.workOrderId, workOrderSha256: first.workOrderSha256, receiptName, acquiredAt: "2026-09-02T00:00:00.000Z" };
+    const idempotencyLockPath = join(root, ".firefly", "locks", `idempotency-${receiptName.replace(/\.json$/, ".lock")}`);
+    const targetLockPath = join(root, ".firefly", "locks", `inkos--${workOrder.bookId}.lock`);
+    await writeFile(idempotencyLockPath, `${JSON.stringify({ ...lockBase, lockKind: "idempotency" })}\n`);
+    await writeFile(targetLockPath, `${JSON.stringify({ ...lockBase, lockKind: "target", repo: workOrder.repo, bookId: workOrder.bookId, receiptId: first.receiptId })}\n`);
+    const staleLockReplay = await executeWorkOrder({ root, manifest, workOrder, spawn: childSpawn, hermesSpawn, sessionExportSpawn, hermesOptions: hermesReadbackOptions });
+    assert.equal(staleLockReplay.replayed, true);
+    await assert.rejects(readFile(idempotencyLockPath), { code: "ENOENT" });
+    await assert.rejects(readFile(targetLockPath), { code: "ENOENT" });
+
+    await writeFile(targetLockPath, `${JSON.stringify({ ...lockBase, lockKind: "target", pid: process.pid, repo: workOrder.repo, bookId: workOrder.bookId, receiptId: first.receiptId })}\n`);
+    const liveLockReplay = await executeWorkOrder({ root, manifest, workOrder, spawn: childSpawn, hermesSpawn, sessionExportSpawn, hermesOptions: hermesReadbackOptions });
+    assert.equal(liveLockReplay.replayed, true);
+    assert.ok((await readFile(targetLockPath)).byteLength > 0, "live target lock must remain");
+    await rm(targetLockPath);
+
+    await writeFile(receiptPath, `${JSON.stringify(sealRunReceiptV2({ ...first, status: "running", replayed: false }), null, 2)}\n`);
+    await writeFile(idempotencyLockPath, `${JSON.stringify({ ...lockBase, lockKind: "idempotency" })}\n`);
+    await writeFile(targetLockPath, `${JSON.stringify({ ...lockBase, lockKind: "target", repo: workOrder.repo, bookId: workOrder.bookId, receiptId: first.receiptId })}\n`);
+
+    const resumed = await executeWorkOrder({ root, manifest, workOrder, spawn: childSpawn, hermesSpawn, sessionExportSpawn, hermesOptions: hermesReadbackOptions });
+    assert.equal(resumed.status, "succeeded");
+    assert.equal(hermesCalls, 1, "validated resume must not call Hermes again");
+    assert.equal(exportCalls, 1, "validated resume must reuse the exported session");
+    assert.equal(childCalls, 2, "validated resume calls only the idempotent InkOS child");
+
+    const strictFailureRunningReceipt = sealRunReceiptV2({
+      schemaVersion: 2,
+      receiptId: first.receiptId,
+      workOrderId: first.workOrderId,
+      workOrderSha256: first.workOrderSha256,
+      idempotencyKey: first.idempotencyKey,
+      repo: first.repo,
+      capability: first.capability,
+      status: "running",
+      mutating: true,
+      startedAt: first.startedAt,
+      control: first.control,
+      approval: first.approval,
+      inputVerification: first.inputVerification,
+      artifacts: [],
+      replayed: false,
+    });
+    await writeFile(receiptPath, `${JSON.stringify(strictFailureRunningReceipt, null, 2)}\n`);
+    corruptReportedTerminalHash = true;
+    const strictFailure = await executeWorkOrder({ root, manifest, workOrder, spawn: childSpawn, hermesSpawn, sessionExportSpawn, hermesOptions: hermesReadbackOptions });
+    assert.equal(strictFailure.status, "needs-attention");
+    assert.equal("agentOperation" in strictFailure, false, "invalid strict terminal evidence must not be projected as a success-shaped Agent operation");
+    assert.deepEqual(validateWithContract("run-receipt-v2.schema.json", strictFailure), []);
+    assert.equal(hermesCalls, 1);
+    assert.equal(exportCalls, 1);
+    assert.equal(childCalls, 3);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("executes neutral-baseline canary in the exact isolated lane with a null Soul binding", async () => {
+  const fixture = await createAgentDispatchFixture({ lane: "neutral-baseline" });
+  const { root, executionRoot, canaryProjection, workOrder, manifest, profile } = fixture;
+  const plan = buildDispatchPlan({ root, manifest, workOrder });
+  const hermesSessionId = "20260902_121500_neutral_fixture";
+  let operationPromptText = "";
+  let proposalText = "";
+  let hermesCalls = 0;
+  let childCalls = 0;
+  try {
+    const receipt = await executeWorkOrder({
+      root,
+      manifest,
+      workOrder,
+      hermesSpawn: (_executable, _args, options) => {
+        hermesCalls += 1;
+        operationPromptText = readFileSync(join(options.cwd, "AGENTS.md"), "utf8");
+        proposalText = JSON.stringify({
+          schemaVersion: "hermes-control-proposal/v1",
+          action: "write-next",
+          workOrderId: workOrder.workOrderId,
+          workOrderSha256: plan.invocation.workOrderSha256,
+          bookId: workOrder.bookId,
+          sessionId: workOrder.sessionId,
+          guidance: "장르 Soul 없이 동일 조건의 상업적 보상을 집필해.",
+        });
+        return { status: 0, signal: null, stdout: `${proposalText}\n`, stderr: `session_id: ${hermesSessionId}\n` };
+      },
+      sessionExportSpawn: () => ({
+        status: 0,
+        signal: null,
+        stdout: Buffer.from(`${JSON.stringify({
+          id: hermesSessionId,
+          source: "tool",
+          profile_name: profile.profileId,
+          model: "gpt-5.6-sol",
+          model_config: JSON.stringify({ max_iterations: 1, reasoning_config: { effort: "high" } }),
+          system_prompt: `Hermes prelude\n${operationPromptText}\nHermes suffix`,
+          end_reason: "agent_close",
+          ended_at: 1,
+          message_count: 2,
+          api_call_count: 1,
+          tool_call_count: 0,
+          messages: [
+            { role: "user", content: "Emit the single Firefly control proposal defined by the injected operation contract.", tool_calls: [] },
+            { role: "assistant", content: proposalText, finish_reason: "stop", tool_calls: [] },
+          ],
+        })}\n`),
+        stderr: Buffer.alloc(0),
+      }),
+      spawn: (_executable, _args, options) => {
+        childCalls += 1;
+        assert.equal(options.cwd, executionRoot);
+        const envelope = JSON.parse(options.input);
+        assert.equal(envelope.canaryIsolationReceipt.sha256, workOrder.modeEvidence.canaryIsolation.sha256);
+        const result = writeStrictAgentChildResult({
+          repoPath: executionRoot,
+          workOrder,
+          plan,
+          envelope,
+          profile,
+          hermesSessionId,
+          canaryProjection,
+        });
+        return { status: 0, signal: null, stdout: `${JSON.stringify(result)}\n`, stderr: "" };
+      },
+      hermesOptions: hermesReadbackOptions,
+    });
+    assert.equal(receipt.status, "succeeded", JSON.stringify(receipt.diagnostics ?? {}));
+    assert.equal(receipt.control.lane, "neutral-baseline");
+    assert.equal(receipt.control.canaryIsolation.lane, "neutral");
+    assert.equal(receipt.control.canaryIsolation.expectedSoulBinding, null);
+    assert.equal(receipt.execution.executionRoot, "edge_repos/inkos/.inkos/canaries/pair-fixture/neutral");
+    assert.equal(receipt.agentOperation.canaryIsolation.expectedSoulBinding, null);
+    assert.equal(receipt.productionRun.executionStatus, "succeeded");
+    assert.deepEqual(validateWithContract("run-receipt-v2.schema.json", receipt), []);
+    assert.equal(hermesCalls, 1);
+    assert.equal(childCalls, 1);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("fails closed on canary receipt, source, lane, and symlink drift before Hermes", async (t) => {
+  const cases = [
+    {
+      name: "raw receipt drift",
+      expected: /raw hash or byte length mismatch/,
+      mutate: async ({ repoPath, workOrder }) => {
+        await writeFile(join(repoPath, workOrder.modeEvidence.canaryIsolation.path), "{}\n");
+      },
+    },
+    {
+      name: "source Book drift",
+      expected: /source InkOS snapshot changed|source Book config ID mismatch/,
+      mutate: async ({ repoPath }) => {
+        await writeFile(join(repoPath, "books", "demo-book", "book.json"), `${JSON.stringify({ id: "demo-book", title: "drift" })}\n`);
+      },
+    },
+    {
+      name: "lane manifest drift",
+      expected: /lane changed after its sealed preparation snapshot/,
+      mutate: async ({ executionRoot }) => {
+        await writeFile(join(executionRoot, "rogue.txt"), "drift\n");
+      },
+    },
+    {
+      name: "receipt symlink",
+      expected: /forbidden symlink/,
+      mutate: async ({ repoPath, workOrder }) => {
+        const receiptPath = join(repoPath, workOrder.modeEvidence.canaryIsolation.path);
+        await rm(receiptPath);
+        await symlink(join(repoPath, "inkos.json"), receiptPath);
+      },
+    },
+  ];
+  for (const entry of cases) {
+    await t.test(entry.name, async () => {
+      const fixture = await createAgentDispatchFixture();
+      let hermesCalls = 0;
+      let childCalls = 0;
+      try {
+        await entry.mutate(fixture);
+        await assert.rejects(
+          executeWorkOrder({
+            root: fixture.root,
+            manifest: fixture.manifest,
+            workOrder: fixture.workOrder,
+            hermesSpawn: () => { hermesCalls += 1; return { status: 1, stdout: "", stderr: "" }; },
+            spawn: () => { childCalls += 1; return { status: 1, stdout: "", stderr: "" }; },
+            hermesOptions: hermesReadbackOptions,
+          }),
+          entry.expected,
+        );
+        assert.equal(hermesCalls, 0);
+        assert.equal(childCalls, 0);
+      } finally {
+        await rm(fixture.root, { recursive: true, force: true });
+      }
+    });
+  }
+});
+
+test("seals a crashed dirty canary lane as recovery-required and never auto-retries it", async () => {
+  const { root, executionRoot, canaryProjection, workOrder, manifest } = await createAgentDispatchFixture();
+  let hermesCalls = 0;
+  let childCalls = 0;
+  try {
+    const plan = buildDispatchPlan({ root, manifest, workOrder });
+    const receiptName = `${createHash("sha256").update(workOrder.idempotencyKey).digest("hex").slice(0, 32)}.json`;
+    const runsDir = join(root, ".firefly", "runs");
+    const locksDir = join(root, ".firefly", "locks");
+    const receiptPath = join(runsDir, receiptName);
+    const targetLockPath = join(locksDir, `inkos--${workOrder.bookId}.lock`);
+    await mkdir(runsDir, { recursive: true });
+    await mkdir(locksDir, { recursive: true });
+    const running = sealRunReceiptV2({
+      schemaVersion: 2,
+      receiptId: "rr-canary-recovery-fixture",
+      workOrderId: workOrder.workOrderId,
+      workOrderSha256: plan.invocation.workOrderSha256,
+      idempotencyKey: workOrder.idempotencyKey,
+      repo: workOrder.repo,
+      capability: workOrder.capability,
+      status: "running",
+      mutating: true,
+      startedAt: "2026-09-02T00:00:00.000Z",
+      control: {
+        executionMode: workOrder.executionMode,
+        lane: workOrder.modeEvidence.lane,
+        modeEvidenceSha256: sha256Json(workOrder.modeEvidence),
+        canaryIsolation: canaryProjection,
+      },
+      approval: { required: true, status: "pending" },
+      inputVerification: {
+        approvedCount: 0,
+        privateCount: 0,
+        setSha256: sha256Json({ inputVerification: [], privateInputVerification: [] }),
+      },
+      artifacts: [],
+      instruction: workOrder.instruction,
+      replayed: false,
+    });
+    await writeFile(receiptPath, `${JSON.stringify(running, null, 2)}\n`);
+    await writeFile(join(executionRoot, "interrupted-partial-write.txt"), "partial\n");
+    const targetLock = {
+      schemaVersion: "firefly-dispatch-lock/v1",
+      lockKind: "target",
+      pid: process.pid,
+      workOrderId: workOrder.workOrderId,
+      workOrderSha256: plan.invocation.workOrderSha256,
+      repo: workOrder.repo,
+      bookId: workOrder.bookId,
+      receiptName,
+      receiptId: running.receiptId,
+      acquiredAt: "2026-09-02T00:00:00.000Z",
+    };
+    await writeFile(targetLockPath, `${JSON.stringify(targetLock)}\n`);
+    await assert.rejects(
+      executeWorkOrder({
+        root,
+        manifest,
+        workOrder,
+        hermesSpawn: () => { hermesCalls += 1; return { status: 1, stdout: "", stderr: "" }; },
+        spawn: () => { childCalls += 1; return { status: 1, stdout: "", stderr: "" }; },
+        hermesOptions: hermesReadbackOptions,
+      }),
+      /mutating target is locked/,
+    );
+    assert.equal(JSON.parse(await readFile(receiptPath, "utf8")).status, "running");
+    assert.equal(JSON.parse(await readFile(targetLockPath, "utf8")).pid, process.pid, "live target lock must remain untouched");
+
+    await writeFile(targetLockPath, `${JSON.stringify({ ...targetLock, pid: 2147483647 })}\n`);
+    const recovery = await executeWorkOrder({
+      root,
+      manifest,
+      workOrder,
+      hermesSpawn: () => { hermesCalls += 1; return { status: 1, stdout: "", stderr: "" }; },
+      spawn: () => { childCalls += 1; return { status: 1, stdout: "", stderr: "" }; },
+      hermesOptions: hermesReadbackOptions,
+    });
+    assert.equal(recovery.status, "needs-attention");
+    assert.equal(recovery.error.category, "canary-recovery-required");
+    assert.equal(recovery.approval.status, "pending");
+    assert.equal("agentOperation" in recovery, false);
+    assert.equal(JSON.stringify(recovery).includes(workOrder.instruction), false, "recovery receipt must be reconstructed bodylessly");
+    assert.deepEqual(validateWithContract("run-receipt-v2.schema.json", recovery), []);
+    await assert.rejects(readFile(targetLockPath), { code: "ENOENT" });
+
+    const replay = await executeWorkOrder({
+      root,
+      manifest,
+      workOrder,
+      hermesSpawn: () => { hermesCalls += 1; return { status: 0, stdout: "{}", stderr: "" }; },
+      spawn: () => { childCalls += 1; return { status: 0, stdout: "{}", stderr: "" }; },
+      hermesOptions: hermesReadbackOptions,
+    });
+    assert.equal(replay.status, "needs-attention");
+    assert.equal(replay.replayed, true);
+    assert.equal(hermesCalls, 0);
+    assert.equal(childCalls, 0);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("records an ambiguous Hermes crash once and never retries automatically", async () => {
+  const { root, workOrder, manifest } = await createAgentDispatchFixture();
+  let hermesCalls = 0;
+  let childCalls = 0;
+  try {
+    const plan = buildDispatchPlan({ root, manifest, workOrder });
+    const receiptName = `${createHash("sha256").update(workOrder.idempotencyKey).digest("hex").slice(0, 32)}.json`;
+    const locksDir = join(root, ".firefly", "locks");
+    await mkdir(locksDir, { recursive: true });
+    await writeFile(join(locksDir, `idempotency-${receiptName.replace(/\.json$/, ".lock")}`), `${JSON.stringify({
+      schemaVersion: "firefly-dispatch-lock/v1",
+      lockKind: "idempotency",
+      pid: 2147483647,
+      workOrderId: workOrder.workOrderId,
+      workOrderSha256: plan.invocation.workOrderSha256,
+      receiptName,
+      acquiredAt: "2026-09-02T00:00:00.000Z",
+    })}\n`);
+    const receipt = await executeWorkOrder({
+      root,
+      manifest,
+      workOrder,
+      spawn: () => { childCalls += 1; return { status: 1, stdout: "", stderr: "" }; },
+      hermesSpawn: () => {
+        hermesCalls += 1;
+        return { status: 1, signal: null, stdout: "partial provider output", stderr: "provider connection closed" };
+      },
+      sessionExportSpawn: () => { throw new Error("session export must not run after ambiguous provider failure"); },
+      hermesOptions: hermesReadbackOptions,
+    });
+    assert.equal(receipt.status, "needs-attention");
+    assert.equal(receipt.error.category, "hermes-ambiguous-no-retry");
+    assert.deepEqual(validateWithContract("run-receipt-v2.schema.json", receipt), []);
+    assert.equal(childCalls, 0);
+    const markerPath = join(root, receipt.hermesInvocation.evidence.needsAttention.path);
+    assert.equal(JSON.parse(await readFile(markerPath, "utf8")).automaticRetryAllowed, false);
+    const replayed = await executeWorkOrder({
+      root,
+      manifest,
+      workOrder,
+      spawn: () => { childCalls += 1; return { status: 1, stdout: "", stderr: "" }; },
+      hermesSpawn: () => { hermesCalls += 1; return { status: 0, stdout: "{}", stderr: "" }; },
+      hermesOptions: hermesReadbackOptions,
+    });
+    assert.equal(replayed.replayed, true);
+    assert.equal(hermesCalls, 1);
+    assert.equal(childCalls, 0);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("keeps completed Hermes evidence completed when the InkOS child throws", async () => {
+  const { root, workOrder, manifest, profile } = await createAgentDispatchFixture();
+  const plan = buildDispatchPlan({ root, manifest, workOrder });
+  const hermesSessionId = "20260902_130000_child_throw";
+  let operationPromptText = "";
+  let proposalText = "";
+  let hermesCalls = 0;
+  let childCalls = 0;
+  try {
+    const receipt = await executeWorkOrder({
+      root,
+      manifest,
+      workOrder,
+      hermesSpawn: (_executable, _args, options) => {
+        hermesCalls += 1;
+        operationPromptText = readFileSync(join(options.cwd, "AGENTS.md"), "utf8");
+        proposalText = JSON.stringify({
+          schemaVersion: "hermes-control-proposal/v1",
+          action: "write-next",
+          workOrderId: workOrder.workOrderId,
+          workOrderSha256: plan.invocation.workOrderSha256,
+          bookId: workOrder.bookId,
+          sessionId: workOrder.sessionId,
+          guidance: "후반 보상을 강화해.",
+        });
+        return { status: 0, signal: null, stdout: `${proposalText}\n`, stderr: `session_id: ${hermesSessionId}\n` };
+      },
+      sessionExportSpawn: () => ({
+        status: 0,
+        signal: null,
+        stdout: Buffer.from(`${JSON.stringify({
+          id: hermesSessionId,
+          source: "tool",
+          profile_name: profile.profileId,
+          model: "gpt-5.6-sol",
+          model_config: JSON.stringify({ max_iterations: 1, reasoning_config: { effort: "high" } }),
+          system_prompt: `Hermes prelude\n${operationPromptText}\nHermes suffix`,
+          end_reason: "agent_close",
+          ended_at: 1,
+          message_count: 2,
+          api_call_count: 1,
+          tool_call_count: 0,
+          messages: [
+            { role: "user", content: "Emit the single Firefly control proposal defined by the injected operation contract.", tool_calls: [] },
+            { role: "assistant", content: proposalText, finish_reason: "stop", tool_calls: [] },
+          ],
+        })}\n`),
+        stderr: Buffer.alloc(0),
+      }),
+      spawn: () => {
+        childCalls += 1;
+        throw new Error("simulated InkOS spawn failure");
+      },
+      hermesOptions: hermesReadbackOptions,
+    });
+    assert.equal(receipt.status, "failed");
+    assert.equal(receipt.hermesInvocation.schemaVersion, "hermes-invocation-receipt/v1");
+    assert.equal(receipt.hermesInvocation.sessionId, hermesSessionId);
+    assert.equal("status" in receipt.hermesInvocation, false);
+    assert.equal("needsAttention" in receipt.hermesInvocation.evidence, false);
+    assert.equal(receipt.error.category, "dispatcher-failed");
+    assert.equal(hermesCalls, 1);
+    assert.equal(childCalls, 1);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test("rejects WorkOrder v2 owner-decision or batch drift before dispatch", () => {
   const manifest = manifestFixture();
   const hashDrift = writeNextV2WorkOrder({
@@ -242,6 +1444,15 @@ test("rejects WorkOrder v2 owner-decision or batch drift before dispatch", () =>
   assert.ok(validateWorkOrder(batch, manifest).some((error) => error.includes("chapterCount=1")));
   assert.ok(validateWorkOrder(writeNextV2WorkOrder({ bookId: "../escape" }), manifest)
     .some((error) => error.includes("safe path segment")));
+  for (const unsafeBookId of [
+    " book", "book ", "\uFEFFbook", "book..part", "book:colon", "book\ncontrol", 'book"inject', "a".repeat(121),
+  ]) {
+    assert.ok(
+      validateWorkOrder(writeNextV2WorkOrder({ bookId: unsafeBookId }), manifest)
+        .some((error) => error.includes("safe path segment")),
+      `unsafe InkOS Book ID must fail in HQ: ${JSON.stringify(unsafeBookId)}`,
+    );
+  }
   assert.ok(validateWorkOrder(writeNextV2WorkOrder({ approvedInputs: [{ role: "unused" }] }), manifest)
     .some((error) => error.includes("unbound approvedInputs")));
   assert.ok(validateWorkOrder(writeNextV2WorkOrder({ expectedSoulBinding: undefined }), manifest)
@@ -270,15 +1481,18 @@ test("executes WorkOrder v2 with verified child evidence and persists a bodyless
     const runPath = "books/demo-book/story/runtime/production-runs/terminals/cmd-1.json";
     const receiptPath = "books/demo-book/story/runtime/fiction-content-neutral/receipts/inv-1.json";
     const outcomePath = "books/demo-book/story/runtime/fiction-content-neutral/outcomes/inv-1.json";
-    const run = {
+    const runUnsigned = {
       schemaVersion: "production-run/v1",
       command: { commandId: "cmd-1" },
       productionAttempt: { productionOperationId: "prod-1", attemptId: "attempt-1" },
       executionStatus: "succeeded",
       approvalStatus: "pending",
       completionHealth: "verified",
+      projectionHealth: "verified",
       projectionOrigin: "direct",
+      evidence: { kind: "verified-commit", commitState: "verified" },
     };
+    const run = { ...runUnsigned, runSelfHash: hashInkosCanonicalJson(runUnsigned) };
     const modelReceipt = {
       invocationId: "inv-1",
       agentName: "writer",
@@ -341,7 +1555,7 @@ test("executes WorkOrder v2 with verified child evidence and persists a bodyless
       return { status: 0, signal: null, stdout: `${JSON.stringify(result)}\n`, stderr: "" };
     };
     const receipt = await executeWorkOrder({ root, manifest, workOrder, spawn });
-    assert.equal(receipt.status, "succeeded");
+    assert.equal(receipt.status, "succeeded", JSON.stringify(receipt.diagnostics ?? {}));
     assert.equal(receipt.boundaryChecks.artifactReportsValid, true);
     assert.equal(receipt.boundaryChecks.privateBodyExcluded, true);
     assert.equal(receipt.productionRun.sha256, result.productionRun.sha256);

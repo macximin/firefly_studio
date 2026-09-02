@@ -5,11 +5,22 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import {
+  validateHermesNeutralProfileRegistry,
   validateHermesProfileRegistry,
+  verifyHermesNeutralProfileRegistry,
   verifyHermesProfileRegistry,
 } from "../scripts/hermes-profile-lib.mjs";
 
 const sha256 = (value) => createHash("sha256").update(value).digest("hex");
+const configReadback = (_profileId, key) => ({
+  "model.provider": "openai-codex",
+  "model.default": "gpt-5.6-sol",
+  "agent.reasoning_effort": "high",
+  "agent.coding_context": "false",
+  "model.openai_runtime": "auto",
+  "platform_toolsets.cli": "[]",
+})[key];
+const promptSizeReadback = () => ({ model: "gpt-5.6-sol", tools: { count: 0, json_bytes: 2 } });
 
 function registry(configBytes, soulBytes, overrides = {}) {
   return {
@@ -36,7 +47,7 @@ async function fixture() {
   const root = await mkdtemp(join(tmpdir(), "firefly-hermes-registry-"));
   const profileRoot = join(root, "profiles", "inkos_male_fantasy");
   await mkdir(join(profileRoot, "skills"), { recursive: true });
-  const configBytes = Buffer.from("model:\n  provider: openai-codex\n  default: gpt-5.6-sol\nagent:\n  reasoning_effort: high\n");
+  const configBytes = Buffer.from("model:\n  provider: openai-codex\n  default: gpt-5.6-sol\n  openai_runtime: auto\nagent:\n  reasoning_effort: high\n  coding_context: off\nplatform_toolsets:\n  cli: []\n");
   const soulBytes = Buffer.from([
     "# fantasy candidate",
     "",
@@ -67,11 +78,8 @@ test("readbacks exact local Soul/config bytes and effective sol/high settings", 
   try {
     const receipts = await verifyHermesProfileRegistry(registry(f.configBytes, f.soulBytes), {
       hermesRoot: f.root,
-      getConfigValue: async (_profileId, key) => ({
-        "model.provider": "openai-codex",
-        "model.default": "gpt-5.6-sol",
-        "agent.reasoning_effort": "high",
-      })[key],
+      getConfigValue: configReadback,
+      getPromptSize: promptSizeReadback,
     });
     assert.equal(receipts[0].productionEnabled, false);
     assert.equal(receipts[0].configSha256, sha256(f.configBytes));
@@ -95,11 +103,8 @@ test("takes lifecycle authority from the registry instead of mutable Soul prose"
       promotionDecisionSha256: sha256("owner-promotion-decision"),
     }), {
       hermesRoot: f.root,
-      getConfigValue: async (_profileId, key) => ({
-        "model.provider": "openai-codex",
-        "model.default": "gpt-5.6-sol",
-        "agent.reasoning_effort": "high",
-      })[key],
+      getConfigValue: configReadback,
+      getPromptSize: promptSizeReadback,
     });
     assert.equal(receipts[0].lifecycle, "promoted");
     assert.equal(receipts[0].productionEnabled, true);
@@ -118,11 +123,8 @@ test("fails closed when immutable InkOS authority is absent from a hash-bound So
   try {
     await assert.rejects(verifyHermesProfileRegistry(registry(f.configBytes, unauthorizedSoulBytes), {
       hermesRoot: f.root,
-      getConfigValue: async (_profileId, key) => ({
-        "model.provider": "openai-codex",
-        "model.default": "gpt-5.6-sol",
-        "agent.reasoning_effort": "high",
-      })[key],
+      getConfigValue: configReadback,
+      getPromptSize: promptSizeReadback,
     }), /immutable identity\/authority mismatch/);
   } finally {
     await rm(f.root, { recursive: true, force: true });
@@ -134,11 +136,8 @@ test("fails closed on byte drift, installed skills, and symlinked Soul files", a
   const value = registry(f.configBytes, f.soulBytes);
   const options = {
     hermesRoot: f.root,
-    getConfigValue: async (_profileId, key) => ({
-      "model.provider": "openai-codex",
-      "model.default": "gpt-5.6-sol",
-      "agent.reasoning_effort": "high",
-    })[key],
+    getConfigValue: configReadback,
+    getPromptSize: promptSizeReadback,
   };
   try {
     await writeFile(join(f.profileRoot, "SOUL.md"), "drift\n");
@@ -152,6 +151,39 @@ test("fails closed on byte drift, installed skills, and symlinked Soul files", a
     await rm(join(f.profileRoot, "SOUL.md"));
     await symlink(target, join(f.profileRoot, "SOUL.md"));
     await assert.rejects(verifyHermesProfileRegistry(value, options), /real regular file/);
+  } finally {
+    await rm(f.root, { recursive: true, force: true });
+  }
+});
+
+test("validates and readbacks the separate disabled neutral baseline profile", async () => {
+  const f = await fixture();
+  const neutralSoulBytes = Buffer.from(f.soulBytes.toString("utf8")
+    .replaceAll("inkos_male_fantasy", "inkos_neutral_baseline")
+    .replaceAll("male-fantasy-ko", "neutral-baseline-ko"));
+  const neutralRoot = join(f.root, "profiles", "inkos_neutral_baseline");
+  await mkdir(join(neutralRoot, "skills"), { recursive: true });
+  await writeFile(join(neutralRoot, "config.yaml"), f.configBytes);
+  await writeFile(join(neutralRoot, "SOUL.md"), neutralSoulBytes);
+  await writeFile(join(neutralRoot, ".no-bundled-skills"), "no skills\n");
+  const neutral = {
+    schemaVersion: "hermes-neutral-production-profile/v1",
+    profile: {
+      ...registry(f.configBytes, neutralSoulBytes).profiles[0],
+      profileId: "inkos_neutral_baseline",
+      soulId: "neutral-baseline-ko",
+      lifecycle: "baseline",
+    },
+  };
+  try {
+    assert.deepEqual(validateHermesNeutralProfileRegistry(neutral), []);
+    const receipt = await verifyHermesNeutralProfileRegistry(neutral, {
+      hermesRoot: f.root,
+      getConfigValue: configReadback,
+      getPromptSize: promptSizeReadback,
+    });
+    assert.equal(receipt.lifecycle, "baseline");
+    assert.equal(receipt.toolsCount, 0);
   } finally {
     await rm(f.root, { recursive: true, force: true });
   }

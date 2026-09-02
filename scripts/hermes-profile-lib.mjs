@@ -11,6 +11,11 @@ const PROFILE_KEYS = new Set([
   "promotionDecisionSha256", "provider", "model", "reasoning", "skillsPolicy",
   "configSha256", "soulSha256",
 ]);
+const NEUTRAL_PROFILE_KEYS = new Set([
+  "profileId", "soulId", "soulVersion", "lifecycle", "productionEnabled",
+  "promotionDecisionSha256", "provider", "model", "reasoning", "skillsPolicy",
+  "configSha256", "soulSha256",
+]);
 
 function isObject(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -98,17 +103,59 @@ function defaultConfigGet(profileId, key, executable = "hermes") {
   return value;
 }
 
-export async function verifyHermesProfileRegistry(registry, options = {}) {
-  const errors = validateHermesProfileRegistry(registry);
-  if (errors.length > 0) throw new Error(errors.join("\n"));
+function defaultPromptSize(profileId, executable = "hermes") {
+  const result = spawnSync(executable, ["-p", profileId, "prompt-size", "--platform", "cli", "--json"], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  if (result.status !== 0) throw new Error(result.stderr.trim() || `Hermes prompt-size readback failed for ${profileId}`);
+  try {
+    return JSON.parse(result.stdout);
+  } catch {
+    throw new Error(`Hermes prompt-size readback was not JSON for ${profileId}`);
+  }
+}
+
+export function validateHermesNeutralProfileRegistry(registry) {
+  const errors = [];
+  if (!isObject(registry)) return ["Hermes neutral profile registry must be an object"];
+  for (const key of Object.keys(registry)) {
+    if (!["schemaVersion", "profile"].includes(key)) errors.push(`unknown neutral registry field: ${key}`);
+  }
+  if (registry.schemaVersion !== "hermes-neutral-production-profile/v1") {
+    errors.push("Hermes neutral profile registry schemaVersion is invalid");
+  }
+  const profile = registry.profile;
+  if (!isObject(profile)) return [...errors, "Hermes neutral profile is required"];
+  for (const key of Object.keys(profile)) {
+    if (!NEUTRAL_PROFILE_KEYS.has(key)) errors.push(`neutral profile has unknown field: ${key}`);
+  }
+  if (!SAFE_PROFILE_ID.test(profile.profileId ?? "")) errors.push("neutral profile.profileId is invalid");
+  if (!hasText(profile.soulId) || !hasText(profile.soulVersion)) errors.push("neutral profile Soul identity is invalid");
+  if (profile.lifecycle !== "baseline") errors.push("neutral profile lifecycle must be baseline");
+  if (profile.productionEnabled !== false || profile.promotionDecisionSha256 !== null) {
+    errors.push("neutral profile must remain disabled without a promotion decision");
+  }
+  if (profile.provider !== "openai-codex" || profile.model !== "gpt-5.6-sol" || profile.reasoning !== "high") {
+    errors.push("neutral profile runtime must be openai-codex/gpt-5.6-sol/high");
+  }
+  if (profile.skillsPolicy !== "none") errors.push("neutral profile skillsPolicy must be none");
+  if (!SHA256.test(profile.configSha256 ?? "") || !SHA256.test(profile.soulSha256 ?? "")) {
+    errors.push("neutral profile configSha256 and soulSha256 are required");
+  }
+  return errors;
+}
+
+async function verifyHermesProfiles(profiles, options = {}) {
   const hermesRoot = options.hermesRoot ?? join(homedir(), ".hermes");
   const profilesRoot = join(hermesRoot, "profiles");
   await assertRealDirectory(hermesRoot, "Hermes root");
   await assertRealDirectory(profilesRoot, "Hermes profiles root");
   const resolvedProfilesRoot = await realpath(profilesRoot);
   const getConfigValue = options.getConfigValue ?? ((profileId, key) => defaultConfigGet(profileId, key, options.hermesExecutable));
+  const getPromptSize = options.getPromptSize ?? ((profileId) => defaultPromptSize(profileId, options.hermesExecutable));
   const receipts = [];
-  for (const profile of registry.profiles) {
+  for (const profile of profiles) {
     const profileRoot = join(profilesRoot, profile.profileId);
     await assertRealDirectory(profileRoot, `Hermes profile ${profile.profileId}`);
     const resolvedProfileRoot = await realpath(profileRoot);
@@ -121,6 +168,7 @@ export async function verifyHermesProfileRegistry(registry, options = {}) {
     await assertRealDirectory(join(profileRoot, "skills"), "Hermes skills directory");
     const skillEntries = await readdir(join(profileRoot, "skills"));
     if (skillEntries.length > 0) throw new Error(`Hermes candidate profile has installed skills: ${profile.profileId}`);
+    const promptSize = await getPromptSize(profile.profileId);
     const actual = {
       configSha256: sha256(configBytes),
       soulSha256: sha256(soulBytes),
@@ -128,10 +176,20 @@ export async function verifyHermesProfileRegistry(registry, options = {}) {
       provider: await getConfigValue(profile.profileId, "model.provider"),
       model: await getConfigValue(profile.profileId, "model.default"),
       reasoning: await getConfigValue(profile.profileId, "agent.reasoning_effort"),
+      codingContext: String(await getConfigValue(profile.profileId, "agent.coding_context")),
+      openaiRuntime: String(await getConfigValue(profile.profileId, "model.openai_runtime")),
+      cliToolsets: String(await getConfigValue(profile.profileId, "platform_toolsets.cli")),
+      toolsCount: promptSize?.tools?.count,
+      promptSizeSha256: sha256(Buffer.from(JSON.stringify(promptSize))),
     };
     for (const key of ["configSha256", "soulSha256", "provider", "model", "reasoning"]) {
       if (actual[key] !== profile[key]) throw new Error(`Hermes profile readback mismatch for ${profile.profileId}/${key}`);
     }
+    if (!['false', 'off'].includes(actual.codingContext)) throw new Error(`Hermes profile coding context is not off: ${profile.profileId}`);
+    if (actual.openaiRuntime !== "auto") throw new Error(`Hermes profile openai runtime is not auto: ${profile.profileId}`);
+    if (actual.cliToolsets !== "[]") throw new Error(`Hermes profile CLI toolsets are not empty: ${profile.profileId}`);
+    if (actual.toolsCount !== 0) throw new Error(`Hermes profile prompt exposes tools: ${profile.profileId}`);
+    if (promptSize?.model !== profile.model) throw new Error(`Hermes prompt-size model mismatch: ${profile.profileId}`);
     const soulText = new TextDecoder("utf-8", { fatal: true }).decode(soulBytes);
     for (const identityOrAuthorityLine of [
       `Profile ID: \`${profile.profileId}\``,
@@ -154,4 +212,16 @@ export async function verifyHermesProfileRegistry(registry, options = {}) {
     });
   }
   return receipts;
+}
+
+export async function verifyHermesProfileRegistry(registry, options = {}) {
+  const errors = validateHermesProfileRegistry(registry);
+  if (errors.length > 0) throw new Error(errors.join("\n"));
+  return verifyHermesProfiles(registry.profiles, options);
+}
+
+export async function verifyHermesNeutralProfileRegistry(registry, options = {}) {
+  const errors = validateHermesNeutralProfileRegistry(registry);
+  if (errors.length > 0) throw new Error(errors.join("\n"));
+  return (await verifyHermesProfiles([registry.profile], options))[0];
 }

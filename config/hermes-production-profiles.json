@@ -12,7 +12,7 @@
       "model": "gpt-5.6-sol",
       "reasoning": "high",
       "skillsPolicy": "none",
-      "configSha256": "04e65f12e121d7180c41583b43c6ed77b9d7562744c64a76dc5014460436cbe9",
+      "configSha256": "12da7a753a62853c5e37e69e6b41815ed1818134cfaf0eba7ab7165218c9b101",
       "soulSha256": "1f34b90e2c13d1234b08f6406aa7d84afee13adcc4bf04e4ab90fedce6608349"
     },
     {
@@ -26,7 +26,7 @@
       "model": "gpt-5.6-sol",
       "reasoning": "high",
       "skillsPolicy": "none",
-      "configSha256": "04e65f12e121d7180c41583b43c6ed77b9d7562744c64a76dc5014460436cbe9",
+      "configSha256": "12da7a753a62853c5e37e69e6b41815ed1818134cfaf0eba7ab7165218c9b101",
       "soulSha256": "240a6e392f6c67af722c8670d543f39a6fe097bc2cc0d0ef261bc823278ad75e"
     },
     {
@@ -40,7 +40,7 @@
       "model": "gpt-5.6-sol",
       "reasoning": "high",
       "skillsPolicy": "none",
-      "configSha256": "04e65f12e121d7180c41583b43c6ed77b9d7562744c64a76dc5014460436cbe9",
+      "configSha256": "12da7a753a62853c5e37e69e6b41815ed1818134cfaf0eba7ab7165218c9b101",
       "soulSha256": "c393861771f842cdf52073e535a50fe9cbe8e23bc5e07bc35b54f46bd084f418"
     }
   ]

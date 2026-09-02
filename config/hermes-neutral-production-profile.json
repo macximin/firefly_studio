@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "hermes-neutral-production-profile/v1",
+  "profile": {
+    "profileId": "inkos_neutral_baseline",
+    "soulId": "neutral-baseline-ko",
+    "soulVersion": "v1",
+    "lifecycle": "baseline",
+    "productionEnabled": false,
+    "promotionDecisionSha256": null,
+    "provider": "openai-codex",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "skillsPolicy": "none",
+    "configSha256": "12da7a753a62853c5e37e69e6b41815ed1818134cfaf0eba7ab7165218c9b101",
+    "soulSha256": "d24157fc3295a717edd21d2bbc814e19c9818720ce5e5d9b5b2f22d08967679c"
+  }
+}
