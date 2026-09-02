@@ -40,9 +40,10 @@ function fixturePacket(rawSource) {
     sealedGenerationEvidence: {}, recommendation: null, actions: ["approve", "polish", "hold", "reject"],
     authority: { canon: "inkos", decisionSurface: "storyyard", apply: "inkos", reverseSync: false },
   };
-  const packetSha256 = hash(JSON.stringify(body));
+  const generatedAt = "2026-08-28T06:00:00.000Z";
+  const packetSha256 = hash(JSON.stringify({ generatedAt, ...body }));
   return {
-    packet: { schemaVersion: "firefly_review_packet/v2", packetId: `frp-${packetSha256.slice(0, 24)}`, packetSha256, generatedAt: "2026-08-28T06:00:00.000Z", ...body },
+    packet: { schemaVersion: "firefly_review_packet/v2", packetId: `frp-${packetSha256.slice(0, 24)}`, packetSha256, generatedAt, ...body },
     match,
   };
 }

@@ -4,22 +4,34 @@
   "title": "Firefly Review Decision v2",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "decisionId", "packetId", "packetSha256", "workId", "artifactId", "candidateId", "candidateSha256", "decision", "comment", "surfaceClassifications", "status", "createdAt"],
+  "required": [
+    "schemaVersion", "decisionId", "packetId", "packetSha256", "workId", "artifactId",
+    "candidateId", "candidateSha256", "decision", "comment", "purpose", "decisionEffect",
+    "manuscriptApply", "surfaceClassifications", "status", "createdAt", "acknowledgedAt", "ackReceiptPath"
+  ],
   "properties": {
     "schemaVersion": { "const": "firefly_review_decision/v2" },
-    "decisionId": { "type": "string", "minLength": 1 },
+    "decisionId": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,159}$" },
     "packetId": { "type": "string", "pattern": "^frp-[0-9a-f]{24}$" },
     "packetSha256": { "$ref": "#/$defs/sha256" },
     "workId": { "type": "string", "minLength": 1 },
     "artifactId": { "type": "string", "minLength": 1 },
-    "candidateId": { "type": "string", "pattern": "^candidate-[A-Z]$" },
-    "candidateSha256": { "$ref": "#/$defs/sha256" },
-    "decision": { "enum": ["approve", "polish", "hold", "reject"] },
+    "candidateId": {
+      "anyOf": [{ "enum": ["candidate-A", "candidate-B"] }, { "type": "null" }]
+    },
+    "candidateSha256": {
+      "anyOf": [{ "$ref": "#/$defs/sha256" }, { "type": "null" }]
+    },
+    "decision": { "enum": ["select", "tie", "invalid"] },
     "comment": { "type": "string", "maxLength": 2000 },
+    "purpose": { "const": "promotion-evaluation" },
+    "decisionEffect": { "const": "advisory" },
+    "manuscriptApply": { "const": false },
     "surfaceClassifications": {
-      "type": "array", "uniqueItems": true,
+      "type": "array",
       "items": {
-        "type": "object", "additionalProperties": false,
+        "type": "object",
+        "additionalProperties": false,
         "required": ["matchId", "selectorSha256", "classification", "classifiedByActorId", "classifiedByRole", "ownerScope", "classifiedAt"],
         "properties": {
           "matchId": { "type": "string", "pattern": "^fsm-[0-9a-f]{24}$" },
@@ -32,18 +44,53 @@
         }
       }
     },
-    "status": { "enum": ["pending", "applied", "superseded", "failed"] },
+    "status": { "enum": ["pending", "acknowledged"] },
     "createdAt": { "type": "string", "format": "date-time" },
-    "appliedAt": { "type": ["string", "null"], "format": "date-time" },
-    "applyReceiptPath": { "type": ["string", "null"] },
-    "result": {}
-  },
-  "$defs": { "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" } },
-  "allOf": [{
-    "if": { "properties": { "status": { "const": "applied" } }, "required": ["status"] },
-    "then": {
-      "required": ["appliedAt", "applyReceiptPath", "result"],
-      "properties": { "appliedAt": { "type": "string", "format": "date-time" }, "applyReceiptPath": { "type": "string", "minLength": 1 } }
+    "acknowledgedAt": {
+      "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }]
+    },
+    "ackReceiptPath": {
+      "anyOf": [{ "type": "string", "minLength": 1 }, { "type": "null" }]
     }
-  }]
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  },
+  "allOf": [
+    {
+      "if": { "type": "object", "properties": { "decision": { "const": "select" } }, "required": ["decision"] },
+      "then": {
+        "type": "object",
+        "properties": {
+          "candidateId": { "enum": ["candidate-A", "candidate-B"] },
+          "candidateSha256": { "$ref": "#/$defs/sha256" }
+        }
+      },
+      "else": {
+        "type": "object",
+        "properties": {
+          "candidateId": { "type": "null" },
+          "candidateSha256": { "type": "null" },
+          "comment": { "type": "string", "minLength": 1, "maxLength": 2000, "pattern": "\\S" }
+        }
+      }
+    },
+    {
+      "if": { "type": "object", "properties": { "status": { "const": "pending" } }, "required": ["status"] },
+      "then": {
+        "type": "object",
+        "properties": {
+          "acknowledgedAt": { "type": "null" },
+          "ackReceiptPath": { "type": "null" }
+        }
+      },
+      "else": {
+        "type": "object",
+        "properties": {
+          "acknowledgedAt": { "type": "string", "format": "date-time" },
+          "ackReceiptPath": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  ]
 }

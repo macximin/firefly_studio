@@ -80,7 +80,7 @@ export async function readBoundSurfaceSelector(packetDirectory, claims) {
     || packet.packetSha256 !== claims.packetSha256 || !Array.isArray(packet.candidates)) {
     throw gatewayError(409, "PACKET_IDENTITY_MISMATCH", "Review packet identity differs from the signed grant.");
   }
-  const { schemaVersion: _schemaVersion, packetId, packetSha256, generatedAt: _generatedAt, ...body } = packet;
+  const { schemaVersion: _schemaVersion, packetId, packetSha256, ...body } = packet;
   const actualPacketSha = sha256(JSON.stringify(body));
   if (actualPacketSha !== packetSha256 || packetId !== `frp-${actualPacketSha.slice(0, 24)}`) {
     throw gatewayError(409, "PACKET_HASH_MISMATCH", "Review packet SHA-256 is invalid.");

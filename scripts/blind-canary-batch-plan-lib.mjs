@@ -379,12 +379,19 @@ export async function loadBlindCanaryBatchAuthority({ root, manifest, config, pr
   if (canonicalStringify(evaluatorRegistryArtifact.value) !== canonicalStringify(evaluatorRegistry)) throw new Error("HQ evaluator registry input is not its exact committed artifact");
   if (sourceRegistryArtifact.value.schemaVersion !== "source-registry-receipt/v1") throw new Error("source registry receipt schemaVersion is invalid");
   const sourceReceipt = sourceRegistryArtifact.value;
+  if (sourceReceipt.rawSourceTracked !== false) throw new Error("source registry receipt must keep raw source material untracked");
   const sourceLinked = await Promise.all([
-    [sourceReceipt.inventoryPath, sourceReceipt.inventorySha256, "source inventory"],
-    [sourceReceipt.privateRegistryPath, sourceReceipt.privateRegistrySha256, "private source registry"],
-    [sourceReceipt.managerSelectionPath, sourceReceipt.managerSelectionSha256, "manager source selection"],
-  ].map(async ([path, expectedSha, label]) => {
-    const artifact = await readCommittedArtifact(referenceRepo, path, label, options);
+    [sourceReceipt.inventoryPath, sourceReceipt.inventorySha256, "source inventory", true],
+    [sourceReceipt.privateRegistryPath, sourceReceipt.privateRegistrySha256, "private source registry", false],
+    [sourceReceipt.managerSelectionPath, sourceReceipt.managerSelectionSha256, "manager source selection", true],
+  ].map(async ([path, expectedSha, label, mustBeCommitted]) => {
+    const artifact = mustBeCommitted
+      ? await readCommittedArtifact(referenceRepo, path, label, options)
+      : await readContainedStableFile(referenceRepo.root, path, label).then((bytes) => ({
+        bytes,
+        value: parseJson(bytes, label),
+        ref: { path, sha256: sha256Bytes(bytes), sizeBytes: bytes.byteLength },
+      }));
     if (artifact.ref.sha256 !== expectedSha) throw new Error(`${label} hash does not match source registry receipt`);
     return artifact.ref;
   }));
@@ -509,7 +516,7 @@ export function buildBlindCanaryBatchBundle({ config, authority, approvedAt }) {
     decision: "approved",
     actorId: "owner",
     actorRole: "owner",
-    scope: "candidate-soul-binding-and-nine-pair-canary-preparation-only",
+    scope: "candidate-soul-binding-and-nine-pair-preparation-generation-and-independent-evaluation-only",
     promotionAuthorized: false,
     manuscriptWinnerSelectionAuthorized: false,
     approvedAt,

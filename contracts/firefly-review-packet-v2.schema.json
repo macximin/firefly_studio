@@ -4,12 +4,13 @@
   "title": "Firefly Review Packet v2",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "packetId", "packetSha256", "generatedAt", "source", "work", "artifact", "comparison", "candidates", "sealedGenerationEvidence", "recommendation", "actions", "authority"],
+  "required": ["schemaVersion", "packetId", "packetSha256", "generatedAt", "purpose", "source", "work", "artifact", "comparison", "candidates", "sealedGenerationEvidence", "recommendation", "actions", "authority"],
   "properties": {
     "schemaVersion": { "const": "firefly_review_packet/v2" },
     "packetId": { "type": "string", "pattern": "^frp-[0-9a-f]{24}$" },
     "packetSha256": { "$ref": "#/$defs/sha256" },
-    "generatedAt": { "type": "string", "format": "date-time" },
+    "generatedAt": { "type": "string", "format": "date-time", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$" },
+    "purpose": { "const": "promotion-evaluation" },
     "source": {
       "type": "object", "additionalProperties": false,
       "required": ["system", "bookId", "sourceRevision"],
@@ -25,7 +26,7 @@
       "properties": {
         "id": { "type": "string", "minLength": 1 },
         "title": { "type": "string", "minLength": 1 },
-        "genre": { "type": "string", "minLength": 1 },
+        "genre": { "type": "string", "enum": ["modern-fantasy-ko", "fantasy-ko", "murim-ko"] },
         "status": { "type": "string", "minLength": 1 },
         "targetChapters": { "type": "integer", "minimum": 1 }
       }
@@ -45,17 +46,18 @@
     },
     "comparison": {
       "type": "object", "additionalProperties": false,
-      "required": ["reviewKind", "pairId", "round", "blindRunId", "blindSessionId", "commonInputReceiptSha256", "pairedGenerationReceiptSha256", "labelAssignmentReceiptSha256", "runtimeReceiptSha256", "candidateLabelsShuffled", "generatorMetadataExcluded", "runtime"],
+      "required": ["reviewKind", "pairId", "round", "blindRunId", "blindSessionId", "commonInputReceiptSha256", "pairedGenerationReceiptSha256", "labelAssignmentReceiptSha256", "runtimeReceiptSha256", "canaryIsolation", "candidateLabelsShuffled", "generatorMetadataExcluded", "runtime"],
       "properties": {
         "reviewKind": { "const": "independent-blind-comparison" },
-        "pairId": { "type": "string", "minLength": 1 },
+        "pairId": { "type": "string", "pattern": "^bp-[0-9a-f]{24}$" },
         "round": { "type": "integer", "minimum": 1, "maximum": 3 },
-        "blindRunId": { "type": "string", "minLength": 1 },
-        "blindSessionId": { "type": "string", "minLength": 1 },
+        "blindRunId": { "type": "string", "pattern": "^br-[0-9a-f]{24}$" },
+        "blindSessionId": { "type": "string", "pattern": "^br-[0-9a-f]{24}$" },
         "commonInputReceiptSha256": { "$ref": "#/$defs/sha256" },
         "pairedGenerationReceiptSha256": { "$ref": "#/$defs/sha256" },
         "labelAssignmentReceiptSha256": { "$ref": "#/$defs/sha256" },
         "runtimeReceiptSha256": { "$ref": "#/$defs/sha256" },
+        "canaryIsolation": { "$ref": "#/$defs/canaryIsolation" },
         "candidateLabelsShuffled": { "const": true },
         "generatorMetadataExcluded": { "const": true },
         "runtime": {
@@ -73,8 +75,12 @@
       }
     },
     "candidates": {
-      "type": "array", "minItems": 2, "maxItems": 2, "uniqueItems": true,
-      "items": { "$ref": "#/$defs/candidate" }
+      "type": "array", "minItems": 2, "maxItems": 2,
+      "prefixItems": [
+        { "allOf": [{ "$ref": "#/$defs/candidate" }, { "type": "object", "properties": { "id": { "const": "candidate-A" } } }] },
+        { "allOf": [{ "$ref": "#/$defs/candidate" }, { "type": "object", "properties": { "id": { "const": "candidate-B" } } }] }
+      ],
+      "items": false
     },
     "sealedGenerationEvidence": {
       "type": "object", "additionalProperties": false,
@@ -87,21 +93,32 @@
     "recommendation": { "type": "null" },
     "actions": {
       "type": "array", "prefixItems": [
-        { "const": "approve" }, { "const": "polish" }, { "const": "hold" }, { "const": "reject" }
-      ], "items": false, "minItems": 4, "maxItems": 4
+        { "const": "select" }, { "const": "tie" }, { "const": "invalid" }
+      ], "items": false, "minItems": 3, "maxItems": 3
     },
     "authority": {
       "type": "object", "additionalProperties": false,
-      "required": ["canon", "decisionSurface", "apply", "reverseSync"],
+      "required": ["canon", "decisionSurface", "decisionEffect", "manuscriptApply", "reverseSync"],
       "properties": {
         "canon": { "const": "inkos" }, "decisionSurface": { "const": "storyyard" },
-        "apply": { "const": "inkos" }, "reverseSync": { "const": false }
+        "decisionEffect": { "const": "advisory" }, "manuscriptApply": { "const": false },
+        "reverseSync": { "const": false }
       }
     }
   },
   "$defs": {
     "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
     "shaPair": { "type": "array", "minItems": 2, "maxItems": 2, "uniqueItems": true, "items": { "$ref": "#/$defs/sha256" } },
+    "canaryIsolation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["receiptSha256", "receiptSelfHash", "isolationScopeSha256", "commonSnapshotSha256"],
+      "properties": {
+        "receiptSha256": { "$ref": "#/$defs/sha256" },
+        "receiptSelfHash": { "$ref": "#/$defs/sha256" },
+        "isolationScopeSha256": { "$ref": "#/$defs/sha256" },
+        "commonSnapshotSha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
     "candidateSpan": {
       "type": "object", "additionalProperties": false,
       "required": ["coordinateKind", "startByte", "endByte", "sliceSha256"],
@@ -154,12 +171,14 @@
     "score": { "type": "number", "minimum": 0, "maximum": 100 },
     "candidate": {
       "type": "object", "additionalProperties": false,
-      "required": ["id", "applicationBindingSha256", "status", "body", "sha256", "preparedAt", "commercialScore", "commercialEvaluation", "commercialEvaluationReceiptSha256", "review"],
+      "required": ["id", "kind", "evaluationBindingSha256", "canaryIsolation", "status", "body", "sha256", "preparedAt", "commercialScore", "commercialEvaluation", "commercialEvaluationReceiptSha256", "review"],
       "properties": {
-        "id": { "type": "string", "pattern": "^candidate-[A-Z]$" },
-        "applicationBindingSha256": { "$ref": "#/$defs/sha256" },
+        "id": { "enum": ["candidate-A", "candidate-B"] },
+        "kind": { "const": "blind-pair-candidate" },
+        "evaluationBindingSha256": { "$ref": "#/$defs/sha256" },
+        "canaryIsolation": { "$ref": "#/$defs/canaryIsolation" },
         "status": { "type": "string", "minLength": 1 }, "body": { "type": "string" },
-        "sha256": { "$ref": "#/$defs/sha256" }, "preparedAt": { "type": "string", "format": "date-time" },
+        "sha256": { "$ref": "#/$defs/sha256" }, "preparedAt": { "type": "string", "format": "date-time", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$" },
         "commercialScore": { "$ref": "#/$defs/score" },
         "commercialEvaluation": { "$ref": "#/$defs/commercialEvaluation" },
         "commercialEvaluationReceiptSha256": { "$ref": "#/$defs/sha256" },
@@ -173,7 +192,7 @@
             "linkedConsequences": { "type": "array", "items": { "type": "string" } },
             "emotionalCoherence": {
               "type": "object", "additionalProperties": false, "required": ["score", "evidence"],
-              "properties": { "score": { "$ref": "#/$defs/score" }, "evidence": { "type": "array", "items": { "$ref": "#/$defs/candidateSpan" } } }
+              "properties": { "score": { "$ref": "#/$defs/score" }, "evidence": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/candidateSpan" } } }
             },
             "contentNeutrality": {
               "type": "object", "additionalProperties": false, "required": ["passed", "violations"],
@@ -183,14 +202,14 @@
                   "type": "object", "additionalProperties": false, "required": ["code", "evidence"],
                   "properties": {
                     "code": { "enum": ["unauthorized-softening", "unauthorized-escalation", "moral-lecture", "disclaimer", "forced-punishment", "forced-apology", "forced-redemption", "forced-cost", "forced-moral-growth", "forced-balance"] },
-                    "evidence": { "type": "array", "items": { "$ref": "#/$defs/candidateSpan" } }
+                    "evidence": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/candidateSpan" } }
                   }
                 } }
               }
             },
             "canonContradictions": { "type": "array", "items": {
               "type": "object", "additionalProperties": false, "required": ["code", "evidence"],
-              "properties": { "code": { "const": "hard-canon-contradiction" }, "evidence": { "type": "array", "items": { "$ref": "#/$defs/candidateSpan" } } }
+              "properties": { "code": { "const": "hard-canon-contradiction" }, "evidence": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/candidateSpan" } } }
             } },
             "surfaceComparison": {
               "type": "object", "additionalProperties": false,

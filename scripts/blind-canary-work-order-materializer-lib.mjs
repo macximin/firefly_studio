@@ -36,7 +36,7 @@ function assertApproval(approval, plan, config) {
   const { approvalSha256, ...unsigned } = approval;
   if (approval.schemaVersion !== "firefly-canary-batch-owner-approval/v1" || approval.batchId !== plan.batchId
     || approval.decision !== "approved" || approval.actorId !== "owner" || approval.actorRole !== "owner"
-    || approval.scope !== "candidate-soul-binding-and-nine-pair-canary-preparation-only"
+    || approval.scope !== "candidate-soul-binding-and-nine-pair-preparation-generation-and-independent-evaluation-only"
     || approval.promotionAuthorized !== false || approval.manuscriptWinnerSelectionAuthorized !== false
     || typeof approval.approvalId !== "string" || !approval.approvalId
     || typeof approval.approvedAt !== "string" || Number.isNaN(Date.parse(approval.approvedAt))

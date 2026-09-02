@@ -123,6 +123,7 @@ test("builds exactly three genres by three opaque pairs without an A/B mapping",
   assert.equal(bundle.decisions.length, 3);
   assert.ok(bundle.decisions.every((decision) => decision.value.status === "candidate" && decision.value.adoptionEvidence.hqAdoption === null));
   assert.equal(bundle.approval.promotionAuthorized, false);
+  assert.equal(bundle.approval.scope, "candidate-soul-binding-and-nine-pair-preparation-generation-and-independent-evaluation-only");
   const tampered = structuredClone(bundle.plan);
   tampered.pairs[0].sourceBook.sha256 = "f".repeat(64);
   assert.match(validateBlindCanaryBatchPlan(tampered)[0], /self hash mismatch/);
