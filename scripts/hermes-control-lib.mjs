@@ -28,6 +28,13 @@ const PROPOSAL_KEYS = new Set([
 ]);
 export const MAX_GUIDANCE_BYTES = 32 * 1024;
 export const HERMES_CONTROL_QUERY = "Emit the single Firefly control proposal defined by the injected operation contract.";
+const OPAQUE_BLIND_PAIR_ID = /^bp-[0-9a-f]{24}$/;
+export const HERMES_CONTROL_TRANSPORT_POLICY = Object.freeze({
+  apiCallStaleTimeoutSeconds: 600,
+  codexEventStaleTimeoutSeconds: 120,
+  codexTtfbTimeoutSeconds: 120,
+  invocationTimeoutMs: 2_100_000,
+});
 
 function isObject(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -378,6 +385,7 @@ export function buildHermesInvocationReceipt({ workOrder, workOrderSha256, profi
       transport: "codex_responses",
       toolsCount: 0,
       toolCallCount: 0,
+      transportPolicy: HERMES_CONTROL_TRANSPORT_POLICY,
     },
     invocation: { sessionId, startedAt, completedAt, exitCode: 0 },
     promptSha256: sha256Bytes(promptBytes),
@@ -430,7 +438,14 @@ export function validateHermesInvocationReceipt(bytes, {
     || Number.isNaN(Date.parse(receipt.invocation.completedAt))) {
     throw new Error("Hermes invocation receipt is not a completed strict receipt");
   }
-  const expected = buildHermesInvocationReceipt({
+  const requiresTransportPolicy = workOrder?.schemaVersion === 2
+    && workOrder?.capability === "agent-operate"
+    && workOrder?.executionMode === "promotion-canary"
+    && OPAQUE_BLIND_PAIR_ID.test(workOrder?.modeEvidence?.canaryIsolation?.pairId ?? "");
+  if (requiresTransportPolicy && !Object.hasOwn(receipt.runtime ?? {}, "transportPolicy")) {
+    throw new Error("opaque blind-canary Hermes invocation receipt requires transport policy attestation");
+  }
+  let expected = buildHermesInvocationReceipt({
     workOrder,
     workOrderSha256,
     profile,
@@ -444,6 +459,18 @@ export function validateHermesInvocationReceipt(bytes, {
     completedAt: receipt.invocation.completedAt,
     sessionExportBytes,
   });
+  // v1 receipts emitted before transport-policy attestation remain valid. New
+  // receipts are distinguished by the additive runtime field and must bind the
+  // exact current policy through the existing receipt self-hash.
+  if (!Object.hasOwn(receipt.runtime ?? {}, "transportPolicy")) {
+    const { transportPolicy: _transportPolicy, ...historicalRuntime } = expected.runtime;
+    const { receiptSelfHash: _receiptSelfHash, ...expectedProjection } = expected;
+    const historicalProjection = { ...expectedProjection, runtime: historicalRuntime };
+    expected = {
+      ...historicalProjection,
+      receiptSelfHash: sha256Bytes(Buffer.from(canonicalStringify(historicalProjection), "utf8")),
+    };
+  }
   if (canonicalStringify(receipt) !== canonicalStringify(expected)) {
     throw new Error("Hermes invocation receipt does not match the exact invocation artifacts");
   }

@@ -214,6 +214,74 @@ function agentCanaryWorkOrder(root = process.cwd(), overrides = {}) {
   return workOrder;
 }
 
+function resealAgentCanaryWorkOrder(workOrder) {
+  workOrder.sessionId = deriveAgentOperateSessionId(workOrder);
+  const instructionSha256 = createHash("sha256").update(Buffer.from(workOrder.instruction, "utf8")).digest("hex");
+  workOrder.ownerDecision = {
+    ...workOrder.ownerDecision,
+    instructionSha256,
+    argsSha256: sha256Json({
+      capability: workOrder.capability,
+      bookId: workOrder.bookId,
+      sessionId: workOrder.sessionId,
+      args: workOrder.args,
+      expectedSoulBinding: workOrder.expectedSoulBinding,
+      executionMode: workOrder.executionMode,
+      modeEvidence: workOrder.modeEvidence,
+      instructionSha256,
+    }),
+  };
+  return workOrder;
+}
+
+function activeAgentCanaryWorkOrder(root = process.cwd()) {
+  const config = JSON.parse(readFileSync(join(root, "config", "blind-canary-batch.json"), "utf8"));
+  const genreIndex = 1;
+  const genre = config.genres[genreIndex];
+  const ordinal = genreIndex * config.roundsPerGenre + 1;
+  const pairId = `bp-${sha256Json({ domain: "bp", namespace: config.idNamespaceSha256, ordinal }).slice(0, 24)}`;
+  const profileRegistry = JSON.parse(readFileSync(join(root, "config", "hermes-production-profiles.json"), "utf8"));
+  const profile = profileRegistry.profiles.find((entry) => entry.profileId === genre.profileId);
+  const requestedAt = "2026-09-02T08:22:09.000Z";
+  const baseModeEvidence = agentCanaryWorkOrder(root).modeEvidence;
+  const workOrder = agentCanaryWorkOrder(root, {
+    workOrderId: `wo-${pairId}-soul`,
+    idempotencyKey: `agent-operate:${pairId}:soul`,
+    bookId: genre.bookId,
+    instruction: config.instruction,
+    args: { chapterCount: config.chapterCount, targetLength: config.targetLength },
+    expectedSoulBinding: {
+      soulId: genre.soulId,
+      soulVersion: genre.soulVersion,
+      bindingSha256: "d".repeat(64),
+    },
+    modeEvidence: {
+      ...baseModeEvidence,
+      profileId: profile.profileId,
+      profileConfigSha256: profile.configSha256,
+      profileLifecycle: profile.lifecycle,
+      productionEnabled: profile.productionEnabled,
+      soulId: genre.soulId,
+      soulVersion: genre.soulVersion,
+      soulSha256: profile.soulSha256,
+      promotionDecisionSha256: profile.promotionDecisionSha256,
+      canaryIsolation: {
+        ...baseModeEvidence.canaryIsolation,
+        pairId,
+        path: `.inkos/canaries/${pairId}/common-snapshot.json`,
+      },
+    },
+    runtime: { hermesProfile: profile.profileId, model: "gpt-5.6-sol", reasoning: "high" },
+    requestedAt,
+  });
+  workOrder.ownerDecision.receiptId = `approval-${createHash("sha256")
+    .update(Buffer.from(`${config.batchId}:${requestedAt}`, "utf8"))
+    .digest("hex")
+    .slice(0, 24)}`;
+  workOrder.ownerDecision.decidedAt = requestedAt;
+  return resealAgentCanaryWorkOrder(workOrder);
+}
+
 function fixtureFileRef(root, path) {
   const bytes = readFileSync(join(root, path));
   return { path, sha256: createHash("sha256").update(bytes).digest("hex"), byteLength: bytes.byteLength };
@@ -250,9 +318,17 @@ async function createAgentDispatchFixture({ lane = "genre-soul" } = {}) {
   const genreProfile = sourceProfiles.profiles.find((entry) => entry.profileId === "inkos_male_fantasy");
   const neutralRegistry = JSON.parse(readFileSync(join(process.cwd(), "config", "hermes-neutral-production-profile.json"), "utf8"));
   const profile = lane === "neutral-baseline" ? neutralRegistry.profile : genreProfile;
+  const batchConfig = structuredClone(JSON.parse(readFileSync(join(process.cwd(), "config", "blind-canary-batch.json"), "utf8")));
+  batchConfig.batchId = "fixture-active-blind-batch";
+  batchConfig.idNamespaceSha256 = "9".repeat(64);
+  batchConfig.targetLength = { count: 5500, unit: "ko-chars" };
+  batchConfig.instruction = "상업성 우선으로 다음 회차를 집필해.";
+  const fixtureGenreIndex = batchConfig.genres.findIndex((entry) => entry.profileId === genreProfile.profileId);
+  batchConfig.genres[fixtureGenreIndex].bookId = "demo-book";
   await writeFile(join(configDir, "hermes-production-profiles.json"), `${JSON.stringify({ schemaVersion: sourceProfiles.schemaVersion, profiles: [genreProfile] }, null, 2)}\n`);
   await writeFile(join(configDir, "hermes-neutral-production-profile.json"), `${JSON.stringify(neutralRegistry, null, 2)}\n`);
   await writeFile(join(configDir, "genre-soul-adoptions.json"), `${JSON.stringify({ schemaVersion: "genre-soul-adoption-registry/v1", active: [] }, null, 2)}\n`);
+  await writeFile(join(configDir, "blind-canary-batch.json"), `${JSON.stringify(batchConfig, null, 2)}\n`);
 
   await mkdir(join(repoPath, "packages", "cli", "dist"), { recursive: true });
   await writeFile(join(repoPath, "packages", "cli", "dist", "index.js"), "// fixture entrypoint\n");
@@ -267,7 +343,12 @@ async function createAgentDispatchFixture({ lane = "genre-soul" } = {}) {
   execFileSync("git", ["add", "packages/cli/dist/index.js", ".gitignore", "inkos.json"], { cwd: repoPath });
   execFileSync("git", ["commit", "-m", "fixture"], { cwd: repoPath, stdio: "ignore" });
 
-  const pairId = "pair-fixture";
+  const pairOrdinal = fixtureGenreIndex * batchConfig.roundsPerGenre + 1;
+  const pairId = `bp-${sha256Json({
+    domain: "bp",
+    namespace: batchConfig.idNamespaceSha256,
+    ordinal: pairOrdinal,
+  }).slice(0, 24)}`;
   const pairRoot = join(repoPath, ".inkos", "canaries", pairId);
   const neutralRoot = join(pairRoot, "neutral");
   const soulRoot = join(pairRoot, "soul");
@@ -373,8 +454,8 @@ async function createAgentDispatchFixture({ lane = "genre-soul" } = {}) {
   const laneReceipt = lane === "neutral-baseline" ? receipt.lanes.neutral : receipt.lanes.genreSoul;
   const baseModeEvidence = agentCanaryWorkOrder(root).modeEvidence;
   const workOrder = agentCanaryWorkOrder(root, {
-    workOrderId: lane === "neutral-baseline" ? "wo-agent-neutral-canary-1" : "wo-agent-canary-1",
-    idempotencyKey: lane === "neutral-baseline" ? "agent-neutral-canary-1" : "agent-canary-1",
+    workOrderId: `wo-${pairId}-${lane === "neutral-baseline" ? "neutral" : "soul"}`,
+    idempotencyKey: `agent-operate:${pairId}:${lane === "neutral-baseline" ? "neutral" : "soul"}`,
     expectedSoulBinding: laneReceipt.expectedSoulBinding,
     modeEvidence: {
       ...baseModeEvidence,
@@ -401,6 +482,10 @@ async function createAgentDispatchFixture({ lane = "genre-soul" } = {}) {
     runtime: { hermesProfile: profile.profileId, model: "gpt-5.6-sol", reasoning: "high" },
     approvedInputs: [],
   });
+  workOrder.ownerDecision.receiptId = `approval-${createHash("sha256")
+    .update(Buffer.from(`${batchConfig.batchId}:${workOrder.requestedAt}`, "utf8"))
+    .digest("hex")
+    .slice(0, 24)}`;
   workOrder.ownerDecision.argsSha256 = sha256Json({
     capability: workOrder.capability,
     bookId: workOrder.bookId,
@@ -432,7 +517,7 @@ async function createAgentDispatchFixture({ lane = "genre-soul" } = {}) {
     expectedSoulBinding: workOrder.expectedSoulBinding,
   };
   const executionRoot = lane === "neutral-baseline" ? neutralRoot : soulRoot;
-  return { root, repoPath, executionRoot: await realpath(executionRoot), canaryProjection, workOrder, manifest: manifestFixture(remoteUrl), profile };
+  return { root, repoPath, executionRoot: await realpath(executionRoot), canaryProjection, workOrder, manifest: manifestFixture(remoteUrl), profile, pairId };
 }
 
 const hermesReadbackOptions = {
@@ -794,13 +879,85 @@ test("routes strict WorkOrder v2 to the bodyless ProductionCommand adapter", () 
 });
 
 test("routes agent-operate through the exact sol/codex global InkOS override", () => {
-  const workOrder = agentCanaryWorkOrder();
+  const workOrder = activeAgentCanaryWorkOrder();
   const manifest = manifestFixture();
   assert.deepEqual(validateWorkOrder(workOrder, manifest), []);
   const plan = buildDispatchPlan({ root: process.cwd(), manifest, workOrder });
   assert.deepEqual(plan.invocation.args.slice(1, 6), ["--service", "codex", "--model", "gpt-5.6-sol", "production"]);
   assert.deepEqual(plan.invocation.args.slice(6, 8), ["agent-operate", "--work-order-sha"]);
   assert.equal(plan.invocation.stdin, null);
+});
+
+test("accepts an opaque promotion-canary WorkOrder from the active blind batch", () => {
+  const workOrder = activeAgentCanaryWorkOrder();
+  const manifest = manifestFixture();
+  assert.deepEqual(validateWorkOrder(workOrder, manifest), []);
+  const plan = buildDispatchPlan({ root: process.cwd(), manifest, workOrder });
+  assert.equal(plan.invocation.workOrderSha256, sha256Json(workOrder));
+  assert.equal(plan.hermesAuthority.profileRegistry.profiles.some(
+    (profile) => profile.profileId === workOrder.runtime.hermesProfile,
+  ), true);
+});
+
+test("rejects an opaque promotion-canary WorkOrder from the old batch namespace", () => {
+  const workOrder = activeAgentCanaryWorkOrder();
+  const oldPairId = "bp-2d91acb08ef36434a41f0c39";
+  workOrder.modeEvidence.canaryIsolation.pairId = oldPairId;
+  workOrder.modeEvidence.canaryIsolation.path = `.inkos/canaries/${oldPairId}/common-snapshot.json`;
+  workOrder.workOrderId = `wo-${oldPairId}-soul`;
+  workOrder.idempotencyKey = `agent-operate:${oldPairId}:soul`;
+  resealAgentCanaryWorkOrder(workOrder);
+  assert.deepEqual(validateWorkOrder(workOrder, manifestFixture()), []);
+  assert.throws(
+    () => buildDispatchPlan({ root: process.cwd(), manifest: manifestFixture(), workOrder }),
+    /promotion-canary pairId is not active/,
+  );
+});
+
+test("rejects a non-opaque promotion-canary pair instead of bypassing the active batch", () => {
+  const workOrder = activeAgentCanaryWorkOrder();
+  const pairId = "legacy-canary";
+  workOrder.modeEvidence.canaryIsolation.pairId = pairId;
+  workOrder.modeEvidence.canaryIsolation.path = `.inkos/canaries/${pairId}/common-snapshot.json`;
+  workOrder.workOrderId = `wo-${pairId}-soul`;
+  workOrder.idempotencyKey = `agent-operate:${pairId}:soul`;
+  resealAgentCanaryWorkOrder(workOrder);
+  assert.deepEqual(validateWorkOrder(workOrder, manifestFixture()), []);
+  assert.throws(
+    () => buildDispatchPlan({ root: process.cwd(), manifest: manifestFixture(), workOrder }),
+    /must be an active opaque blind-batch ID/u,
+  );
+});
+
+test("rejects active blind batch key and content drift even when the WorkOrder hashes are resealed", async (t) => {
+  const cases = [
+    ["workOrder key", (workOrder) => { workOrder.workOrderId = `${workOrder.workOrderId}-drift`; }, /workOrderId mismatch/],
+    ["idempotency key", (workOrder) => { workOrder.idempotencyKey = `${workOrder.idempotencyKey}:drift`; }, /idempotencyKey mismatch/],
+    ["instruction", (workOrder) => { workOrder.instruction = `${workOrder.instruction} drift`; }, /instruction mismatch/],
+    ["args", (workOrder) => { workOrder.args.targetLength.count += 1; }, /args mismatch/],
+    ["book", (workOrder) => { workOrder.bookId = "다른-봉인-북"; }, /pair bookId mismatch/],
+    ["profile", (workOrder) => {
+      workOrder.modeEvidence.profileId = "inkos_male_murim";
+      workOrder.runtime.hermesProfile = "inkos_male_murim";
+    }, /profile mismatch/],
+    ["Soul", (workOrder) => {
+      workOrder.modeEvidence.soulId = "male-murim-ko";
+      workOrder.expectedSoulBinding.soulId = "male-murim-ko";
+    }, /Soul mismatch/],
+    ["owner approval", (workOrder) => { workOrder.ownerDecision.receiptId = "approval-deadbeefdeadbeefdeadbeef"; }, /owner approval ID mismatch/],
+  ];
+  for (const [name, mutate, expected] of cases) {
+    await t.test(name, () => {
+      const workOrder = activeAgentCanaryWorkOrder();
+      mutate(workOrder);
+      resealAgentCanaryWorkOrder(workOrder);
+      assert.deepEqual(validateWorkOrder(workOrder, manifestFixture()), []);
+      assert.throws(
+        () => buildDispatchPlan({ root: process.cwd(), manifest: manifestFixture(), workOrder }),
+        expected,
+      );
+    });
+  }
 });
 
 test("fails closed before production agent-operate when no active promoted adoption exists", () => {
@@ -832,7 +989,8 @@ test("fails closed before production agent-operate when no active promoted adopt
 
 test("executes agent-operate once and resumes only the child from complete Hermes artifacts and dead locks", { concurrency: false }, async () => {
   const fixture = await createAgentDispatchFixture();
-  const { root, repoPath, executionRoot, canaryProjection, workOrder, manifest, profile } = fixture;
+  const { root, repoPath, executionRoot, canaryProjection, workOrder, manifest, profile, pairId } = fixture;
+  workOrder.timeoutMs = 1_234;
   let hermesCalls = 0;
   let exportCalls = 0;
   let childCalls = 0;
@@ -925,7 +1083,7 @@ test("executes agent-operate once and resumes only the child from complete Herme
     assert.equal(first.status, "succeeded", childFailure?.stack ?? JSON.stringify(first.diagnostics ?? {}));
     assert.equal(first.effectiveRuntime.inkos.model, "gpt-5.6-sol");
     assert.equal(first.execution.codeRepoPath, "edge_repos/inkos");
-    assert.equal(first.execution.executionRoot, "edge_repos/inkos/.inkos/canaries/pair-fixture/soul");
+    assert.equal(first.execution.executionRoot, `edge_repos/inkos/.inkos/canaries/${pairId}/soul`);
     assert.deepEqual(first.control.canaryIsolation, canaryProjection);
     assert.equal(JSON.stringify(first).includes(workOrder.instruction), false);
     assert.equal(hermesCalls, 1);
@@ -1085,7 +1243,7 @@ test("executes agent-operate once and resumes only the child from complete Herme
 
 test("executes neutral-baseline canary in the exact isolated lane with a null Soul binding", async () => {
   const fixture = await createAgentDispatchFixture({ lane: "neutral-baseline" });
-  const { root, executionRoot, canaryProjection, workOrder, manifest, profile } = fixture;
+  const { root, executionRoot, canaryProjection, workOrder, manifest, profile, pairId } = fixture;
   const plan = buildDispatchPlan({ root, manifest, workOrder });
   const hermesSessionId = "20260902_121500_neutral_fixture";
   let operationPromptText = "";
@@ -1155,7 +1313,7 @@ test("executes neutral-baseline canary in the exact isolated lane with a null So
     assert.equal(receipt.control.lane, "neutral-baseline");
     assert.equal(receipt.control.canaryIsolation.lane, "neutral");
     assert.equal(receipt.control.canaryIsolation.expectedSoulBinding, null);
-    assert.equal(receipt.execution.executionRoot, "edge_repos/inkos/.inkos/canaries/pair-fixture/neutral");
+    assert.equal(receipt.execution.executionRoot, `edge_repos/inkos/.inkos/canaries/${pairId}/neutral`);
     assert.equal(receipt.agentOperation.canaryIsolation.expectedSoulBinding, null);
     assert.equal(receipt.productionRun.executionStatus, "succeeded");
     assert.deepEqual(validateWithContract("run-receipt-v2.schema.json", receipt), []);

@@ -1,9 +1,11 @@
 import { createHash } from "node:crypto";
 import { lstat, readFile, readdir } from "node:fs/promises";
 import { isAbsolute, join, normalize, sep } from "node:path";
+import { HERMES_CONTROL_TRANSPORT_POLICY } from "./hermes-control-lib.mjs";
 
 const SHA256 = /^[0-9a-f]{64}$/;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const OPAQUE_BLIND_PAIR_ID = /^bp-[0-9a-f]{24}$/;
 
 function isObject(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -146,6 +148,24 @@ function validateSelfHash(value, field, label, errors) {
     return false;
   }
   return true;
+}
+
+export function validateHermesInvocationTransportPolicy(runtime) {
+  const errors = [];
+  if (!isObject(runtime)) {
+    errors.push("Hermes invocation runtime must be an object");
+    return errors;
+  }
+  if (!Object.hasOwn(runtime, "transportPolicy")) return errors;
+  if (exactKeys(
+    runtime.transportPolicy,
+    Object.keys(HERMES_CONTROL_TRANSPORT_POLICY),
+    "Hermes invocation transport policy",
+    errors,
+  ) && !sameCanonical(runtime.transportPolicy, HERMES_CONTROL_TRANSPORT_POLICY)) {
+    errors.push("Hermes invocation transport policy mismatch");
+  }
+  return errors;
 }
 
 function externalBookPath(bookId, bookRelativePath) {
@@ -392,7 +412,19 @@ export async function verifyInkosAgentOperationTerminal({
         "promptSha256", "systemPrompt", "rawOutput", "action", "sessionExport", "receiptSelfHash",
       ], "Hermes invocation", errors);
       exactKeys(hermes.profile, ["profileId", "soulId", "soulVersion", "configSha256", "soulSha256"], "Hermes invocation profile", errors);
-      exactKeys(hermes.runtime, ["provider", "model", "reasoning", "platform", "openaiRuntime", "transport", "toolsCount", "toolCallCount"], "Hermes invocation runtime", errors);
+      const hasTransportPolicy = Object.hasOwn(hermes.runtime ?? {}, "transportPolicy");
+      const requiresTransportPolicy = workOrder?.schemaVersion === 2
+        && workOrder?.capability === "agent-operate"
+        && workOrder?.executionMode === "promotion-canary"
+        && OPAQUE_BLIND_PAIR_ID.test(workOrder?.modeEvidence?.canaryIsolation?.pairId ?? "");
+      if (requiresTransportPolicy && !hasTransportPolicy) {
+        errors.push("opaque blind-canary Hermes invocation receipt requires transport policy attestation");
+      }
+      exactKeys(hermes.runtime, [
+        "provider", "model", "reasoning", "platform", "openaiRuntime", "transport", "toolsCount", "toolCallCount",
+        ...(hasTransportPolicy ? ["transportPolicy"] : []),
+      ], "Hermes invocation runtime", errors);
+      errors.push(...validateHermesInvocationTransportPolicy(hermes.runtime));
       exactKeys(hermes.invocation, ["sessionId", "startedAt", "completedAt", "exitCode"], "Hermes invocation timing", errors);
       validateSelfHash(hermes, "receiptSelfHash", "Hermes invocation", errors);
       if (hermes.schemaVersion !== "hermes-invocation-receipt/v1" || hermes.status !== "completed"

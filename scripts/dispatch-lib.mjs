@@ -19,6 +19,7 @@ import {
   buildHermesControlPrompt,
   buildHermesInvocationReceipt,
   canonicalStringify,
+  HERMES_CONTROL_TRANSPORT_POLICY,
   HERMES_CONTROL_QUERY,
   parseHermesControlProposal,
   parseHermesSessionId,
@@ -37,6 +38,7 @@ import {
   verifyCanarySourceSnapshot,
   verifyPromotionCanaryIsolation,
 } from "./canary-isolation-lib.mjs";
+import { validateBlindCanaryBatchConfig } from "./blind-canary-batch-plan-lib.mjs";
 
 const WORK_ORDER_KEYS = new Set([
   "schemaVersion",
@@ -73,10 +75,8 @@ const SAFE_IDEMPOTENCY_KEY = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,239}$/;
 const SAFE_SESSION_ID = /^[A-Za-z0-9][A-Za-z0-9._-]{0,159}$/;
 const SAFE_SLATE_ID = /^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/;
 const UNSAFE_BOOK_ID_RE = /[\u0000-\u001f\u007f/\\:*?"'`{}<>|]/u;
-const HERMES_CONTROL_CODEX_EVENT_STALE_TIMEOUT_SECONDS = "120";
-const HERMES_CONTROL_CODEX_TTFB_TIMEOUT_SECONDS = "120";
-const HERMES_CONTROL_API_CALL_STALE_TIMEOUT_SECONDS = "600";
-const HERMES_CONTROL_INVOCATION_TIMEOUT_MS = 2_100_000;
+const OPAQUE_BLIND_PAIR_ID = /^bp-[0-9a-f]{24}$/;
+const ACTIVE_BLIND_CANARY_BATCH_CONFIG = "config/blind-canary-batch.json";
 
 function isSafeBookId(value) {
   return typeof value === "string"
@@ -118,6 +118,112 @@ export function stableStringify(value) {
 
 export function sha256Json(value) {
   return createHash("sha256").update(stableStringify(value)).digest("hex");
+}
+
+function readActiveBlindCanaryBatchConfig(root) {
+  let config;
+  try {
+    const bytes = readFileSync(join(root, ACTIVE_BLIND_CANARY_BATCH_CONFIG));
+    const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+    config = JSON.parse(text);
+  } catch (error) {
+    throw new Error(`active blind canary batch config is unreadable: ${ACTIVE_BLIND_CANARY_BATCH_CONFIG}`, { cause: error });
+  }
+  const errors = validateBlindCanaryBatchConfig(config);
+  if (errors.length > 0) {
+    throw new Error(`active blind canary batch config is invalid: ${errors.join("; ")}`);
+  }
+  return config;
+}
+
+function activeBlindCanaryPair(config, pairId) {
+  let ordinal = 0;
+  for (const genre of config.genres) {
+    for (let round = 1; round <= config.roundsPerGenre; round += 1) {
+      ordinal += 1;
+      const digest = createHash("sha256")
+        .update(stableStringify({ domain: "bp", namespace: config.idNamespaceSha256, ordinal }))
+        .digest("hex");
+      if (`bp-${digest.slice(0, 24)}` === pairId) return { genre, ordinal, round };
+    }
+  }
+  return null;
+}
+
+function assertActiveBlindCanaryWorkOrder(root, workOrder) {
+  const pairId = workOrder?.modeEvidence?.canaryIsolation?.pairId;
+  if (
+    workOrder?.schemaVersion !== 2
+    || workOrder.capability !== "agent-operate"
+    || workOrder.executionMode !== "promotion-canary"
+  ) return;
+  if (!OPAQUE_BLIND_PAIR_ID.test(pairId ?? "")) {
+    throw new Error("promotion-canary pairId must be an active opaque blind-batch ID");
+  }
+
+  const config = readActiveBlindCanaryBatchConfig(root);
+  const pair = activeBlindCanaryPair(config, pairId);
+  if (!pair) {
+    throw new Error(`promotion-canary pairId is not active in ${ACTIVE_BLIND_CANARY_BATCH_CONFIG}: ${pairId}`);
+  }
+
+  const errors = [];
+  const lane = workOrder.modeEvidence?.lane;
+  const laneSuffix = lane === "neutral-baseline" ? "neutral" : lane === "genre-soul" ? "soul" : null;
+  if (workOrder.bookId !== pair.genre.bookId) errors.push("active blind canary pair bookId mismatch");
+  if (workOrder.instruction !== config.instruction) errors.push("active blind canary instruction mismatch");
+  if (stableStringify(workOrder.args) !== stableStringify({
+    chapterCount: config.chapterCount,
+    targetLength: config.targetLength,
+  })) errors.push("active blind canary args mismatch");
+  if (laneSuffix === null) {
+    errors.push("active blind canary lane mismatch");
+  } else {
+    if (workOrder.workOrderId !== `wo-${pairId}-${laneSuffix}`) errors.push("active blind canary workOrderId mismatch");
+    if (workOrder.idempotencyKey !== `agent-operate:${pairId}:${laneSuffix}`) errors.push("active blind canary idempotencyKey mismatch");
+  }
+  if (workOrder.modeEvidence?.canaryIsolation?.path !== `.inkos/canaries/${pairId}/common-snapshot.json`) {
+    errors.push("active blind canary isolation path mismatch");
+  }
+
+  if (lane === "genre-soul") {
+    if (workOrder.modeEvidence.profileId !== pair.genre.profileId || workOrder.runtime?.hermesProfile !== pair.genre.profileId) {
+      errors.push("active blind canary profile mismatch");
+    }
+    if (
+      workOrder.modeEvidence.soulId !== pair.genre.soulId
+      || workOrder.modeEvidence.soulVersion !== pair.genre.soulVersion
+      || workOrder.expectedSoulBinding?.soulId !== pair.genre.soulId
+      || workOrder.expectedSoulBinding?.soulVersion !== pair.genre.soulVersion
+    ) errors.push("active blind canary Soul mismatch");
+  } else if (lane === "neutral-baseline") {
+    if (workOrder.modeEvidence.profileId !== "inkos_neutral_baseline" || workOrder.runtime?.hermesProfile !== "inkos_neutral_baseline") {
+      errors.push("active blind canary neutral profile mismatch");
+    }
+    if (
+      workOrder.modeEvidence.soulId !== "neutral-baseline-ko"
+      || workOrder.modeEvidence.soulVersion !== "v1"
+      || workOrder.expectedSoulBinding !== null
+    ) errors.push("active blind canary neutral Soul mismatch");
+  }
+
+  const requestedAt = workOrder.requestedAt;
+  if (
+    typeof requestedAt !== "string"
+    || Number.isNaN(Date.parse(requestedAt))
+    || new Date(requestedAt).toISOString() !== requestedAt
+  ) {
+    errors.push("active blind canary requestedAt must be a canonical ISO timestamp");
+  } else {
+    const expectedApprovalId = `approval-${createHash("sha256")
+      .update(Buffer.from(`${config.batchId}:${requestedAt}`, "utf8"))
+      .digest("hex")
+      .slice(0, 24)}`;
+    if (workOrder.ownerDecision?.receiptId !== expectedApprovalId) errors.push("active blind canary owner approval ID mismatch");
+    if (workOrder.ownerDecision?.decidedAt !== requestedAt) errors.push("active blind canary owner approval timestamp mismatch");
+  }
+
+  if (errors.length > 0) throw new Error(errors.join("\n"));
 }
 
 export function runReceiptSelfHash(receipt) {
@@ -608,6 +714,7 @@ export function buildDispatchPlan({ root, manifest, workOrder }) {
   if (manifestErrors.length > 0) throw new Error(manifestErrors.join("\n"));
   const workOrderErrors = validateWorkOrder(workOrder, manifest);
   if (workOrderErrors.length > 0) throw new Error(workOrderErrors.join("\n"));
+  assertActiveBlindCanaryWorkOrder(root, workOrder);
 
   const repo = manifest.repos.find((candidate) => candidate.name === workOrder.repo);
   const capability = repo.execution.capabilities.find((candidate) => candidate.name === workOrder.capability);
@@ -1007,6 +1114,7 @@ async function runHermesControlInvocation({
       platform: "cli",
       openaiRuntime: "auto",
       toolsCount: 0,
+      transportPolicy: HERMES_CONTROL_TRANSPORT_POLICY,
     },
     promptSha256: sha256Bytes(promptBytes),
     promptByteLength: promptBytes.byteLength,
@@ -1027,9 +1135,9 @@ async function runHermesControlInvocation({
   // call. Short Hermes defaults can terminate a healthy reasoning turn before
   // it emits the single proposal; inbound values must not weaken or tighten
   // the audited execution policy.
-  sanitizedEnv.HERMES_CODEX_EVENT_STALE_TIMEOUT_SECONDS = HERMES_CONTROL_CODEX_EVENT_STALE_TIMEOUT_SECONDS;
-  sanitizedEnv.HERMES_CODEX_TTFB_TIMEOUT_SECONDS = HERMES_CONTROL_CODEX_TTFB_TIMEOUT_SECONDS;
-  sanitizedEnv.HERMES_API_CALL_STALE_TIMEOUT = HERMES_CONTROL_API_CALL_STALE_TIMEOUT_SECONDS;
+  sanitizedEnv.HERMES_CODEX_EVENT_STALE_TIMEOUT_SECONDS = String(HERMES_CONTROL_TRANSPORT_POLICY.codexEventStaleTimeoutSeconds);
+  sanitizedEnv.HERMES_CODEX_TTFB_TIMEOUT_SECONDS = String(HERMES_CONTROL_TRANSPORT_POLICY.codexTtfbTimeoutSeconds);
+  sanitizedEnv.HERMES_API_CALL_STALE_TIMEOUT = String(HERMES_CONTROL_TRANSPORT_POLICY.apiCallStaleTimeoutSeconds);
   const startedAt = new Date().toISOString();
   const invocation = hermesSpawn(hermesExecutable, [
     "-p", profile.profileId,
@@ -1046,7 +1154,7 @@ async function runHermesControlInvocation({
     stdio: ["ignore", "pipe", "pipe"],
     env: sanitizedEnv,
     maxBuffer: 16 * 1024 * 1024,
-    timeout: workOrder.timeoutMs ?? HERMES_CONTROL_INVOCATION_TIMEOUT_MS,
+    timeout: HERMES_CONTROL_TRANSPORT_POLICY.invocationTimeoutMs,
   });
   const stdoutBytes = processBytes(invocation.stdout);
   const stderrBytes = processBytes(invocation.stderr);

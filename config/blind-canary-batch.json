@@ -1,7 +1,7 @@
 {
   "schemaVersion": "firefly-blind-canary-batch-config/v1",
-  "batchId": "male-genre-soul-canary-20260902-v2",
-  "idNamespaceSha256": "8a6804214c735476da38a9cbeb9de1a620328632d95586dd0ec5446c74845c61",
+  "batchId": "male-genre-soul-canary-20260902-v3",
+  "idNamespaceSha256": "b919bb7bcd8516e8dc5a617279c43e67910df3dba121bea4a24202407ec3644f",
   "roundsPerGenre": 3,
   "chapterCount": 1,
   "targetLength": {

@@ -10,10 +10,12 @@ import {
   canonicalStringify,
   deriveAgentOperateSessionId,
   HERMES_CONTROL_QUERY,
+  HERMES_CONTROL_TRANSPORT_POLICY,
   MAX_GUIDANCE_BYTES,
   parseHermesControlProposal,
   sha256Bytes,
   validateAgentOperateModeEvidence,
+  validateHermesInvocationReceipt,
   validateHermesSessionExport,
 } from "../scripts/hermes-control-lib.mjs";
 
@@ -472,7 +474,7 @@ test("self-hashes the bodyless Hermes receipt projection and binds raw output se
     guidance,
     guidanceSha256: digest(guidance),
   };
-  const receipt = buildHermesInvocationReceipt({
+  const receiptInput = {
     workOrder,
     workOrderSha256: action.workOrderSha256,
     profile: authority.profile,
@@ -485,8 +487,53 @@ test("self-hashes the bodyless Hermes receipt projection and binds raw output se
     startedAt: "2026-09-02T03:00:00.000Z",
     completedAt: "2026-09-02T03:00:01.000Z",
     sessionExportBytes: Buffer.from("session export"),
-  });
+  };
+  const receipt = buildHermesInvocationReceipt(receiptInput);
   const { receiptSelfHash, ...projection } = receipt;
   assert.equal(receiptSelfHash, sha256Bytes(Buffer.from(canonicalStringify(projection))));
   assert.notEqual(receipt.rawOutput.sha256, receipt.action.sha256);
+  assert.deepEqual(receipt.runtime.transportPolicy, HERMES_CONTROL_TRANSPORT_POLICY);
+
+  const validationInput = {
+    workOrder: receiptInput.workOrder,
+    workOrderSha256: receiptInput.workOrderSha256,
+    profile: receiptInput.profile,
+    promptBytes: receiptInput.promptBytes,
+    systemPromptBytes: receiptInput.systemPromptBytes,
+    rawOutputBytes: receiptInput.rawOutputBytes,
+    actionBytes: receiptInput.actionBytes,
+    action: receiptInput.action,
+    sessionId: receiptInput.sessionId,
+    sessionExportBytes: receiptInput.sessionExportBytes,
+  };
+  const receiptBytes = Buffer.from(canonicalStringify(receipt), "utf8");
+  assert.deepEqual(validateHermesInvocationReceipt(receiptBytes, validationInput), receipt);
+
+  const historical = structuredClone(receipt);
+  delete historical.runtime.transportPolicy;
+  const { receiptSelfHash: _historicalSelf, ...historicalProjection } = historical;
+  historical.receiptSelfHash = sha256Bytes(Buffer.from(canonicalStringify(historicalProjection), "utf8"));
+  assert.deepEqual(
+    validateHermesInvocationReceipt(Buffer.from(canonicalStringify(historical), "utf8"), validationInput),
+    historical,
+  );
+
+  const opaqueBlindWorkOrder = structuredClone(receiptInput.workOrder);
+  opaqueBlindWorkOrder.modeEvidence.canaryIsolation.pairId = "bp-0123456789abcdef01234567";
+  assert.throws(
+    () => validateHermesInvocationReceipt(
+      Buffer.from(canonicalStringify(historical), "utf8"),
+      { ...validationInput, workOrder: opaqueBlindWorkOrder },
+    ),
+    /requires transport policy attestation/u,
+  );
+
+  const tampered = structuredClone(receipt);
+  tampered.runtime.transportPolicy.codexTtfbTimeoutSeconds = 1;
+  const { receiptSelfHash: _tamperedSelf, ...tamperedProjection } = tampered;
+  tampered.receiptSelfHash = sha256Bytes(Buffer.from(canonicalStringify(tamperedProjection), "utf8"));
+  assert.throws(
+    () => validateHermesInvocationReceipt(Buffer.from(canonicalStringify(tampered), "utf8"), validationInput),
+    /does not match the exact invocation artifacts/u,
+  );
 });
