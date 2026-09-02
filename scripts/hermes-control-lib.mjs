@@ -38,6 +38,7 @@ export const HERMES_CONTROL_TRANSPORT_POLICY = Object.freeze({
   codexTtfbTimeoutSeconds: 120,
   invocationTimeoutMs: 2_100_000,
 });
+const HERMES_TIRITH_UNAVAILABLE_DIAGNOSTIC = "⚠ tirith security scanner enabled but not available — command scanning will use pattern matching only";
 
 function isObject(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -476,8 +477,12 @@ export function validateHermesRenderedControlStdout(stdout, { actionText, reason
   if (typeof actionText !== "string" || actionText.length === 0) throw new Error("Hermes authoritative action text is missing");
   if (/\r(?!\n)/u.test(stdout)) throw new Error("Hermes stdout contains an invalid carriage return");
   const normalized = stdout.replace(/\r\n/g, "\n");
-  const withoutTrailingWhitespace = normalized.replace(/[\t\n ]+$/u, "");
-  if (normalized.trim() === actionText) return true;
+  const firstLineEnd = normalized.indexOf("\n");
+  const firstLine = firstLineEnd === -1 ? normalized : normalized.slice(0, firstLineEnd);
+  const hasKnownTirithDiagnostic = firstLine.replace(/^[\t ]*/u, "") === HERMES_TIRITH_UNAVAILABLE_DIAGNOSTIC;
+  const rendered = hasKnownTirithDiagnostic ? normalized.slice(firstLineEnd + 1) : normalized;
+  const withoutTrailingWhitespace = rendered.replace(/[\t\n ]+$/u, "");
+  if (rendered.trim() === actionText) return true;
   if (!withoutTrailingWhitespace.endsWith(actionText)) {
     throw new Error("Hermes stdout does not end with the authoritative session action");
   }

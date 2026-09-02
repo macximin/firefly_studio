@@ -653,6 +653,17 @@ test("uses the exact exported assistant action when quiet Hermes leaks only its 
     reasoningText: parsed.reasoningText,
   }), true);
 
+  const tirithDiagnostic = "⚠ tirith security scanner enabled but not available — command scanning will use pattern matching only";
+  const tirithStdout = `  ${tirithDiagnostic}\r\n\r\n${noisyStdout}`;
+  assert.equal(validateHermesRenderedControlStdout(tirithStdout, {
+    actionText: proposalText,
+    reasoningText: parsed.reasoningText,
+  }), true);
+  assert.equal(validateHermesRenderedControlStdout(`\t${tirithDiagnostic}\r\n${proposalText}\r\n`, {
+    actionText: proposalText,
+    reasoningText: "",
+  }), true);
+
   assert.throws(
     () => parseHermesControlSessionExport(sessionBytes, { ...expected, processExitCode: 1 }),
     /not bound to a successful CLI process/,
@@ -668,6 +679,26 @@ test("uses the exact exported assistant action when quiet Hermes leaks only its 
   assert.throws(
     () => validateHermesRenderedControlStdout(`arbitrary prefix\n${proposalText}\n`, { actionText: proposalText, reasoningText }),
     /unrecognized prefix/,
+  );
+  assert.throws(
+    () => validateHermesRenderedControlStdout(`${tirithDiagnostic}\n${tirithDiagnostic}\n${proposalText}\n`, { actionText: proposalText, reasoningText }),
+    /unrecognized prefix/,
+  );
+  assert.throws(
+    () => validateHermesRenderedControlStdout(`${tirithDiagnostic}!\n${proposalText}\n`, { actionText: proposalText, reasoningText }),
+    /unrecognized prefix/,
+  );
+  assert.throws(
+    () => validateHermesRenderedControlStdout(`${tirithDiagnostic}\n┌─ Reasoning ───┐\n{"decoy":true}\n${proposalText}\n`, { actionText: proposalText, reasoningText }),
+    /JSON delimiters/,
+  );
+  assert.throws(
+    () => validateHermesRenderedControlStdout(`${tirithDiagnostic}\n${proposalText}\ntrailing text\n`, { actionText: proposalText, reasoningText }),
+    /does not end with/,
+  );
+  assert.throws(
+    () => validateHermesRenderedControlStdout(`${tirithDiagnostic}\n${proposalText}\n${proposalText}\n`, { actionText: proposalText, reasoningText }),
+    /multiple authoritative actions/,
   );
 
   const multiJsonSession = structuredClone(session);
