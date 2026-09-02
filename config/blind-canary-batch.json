@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "firefly-blind-canary-batch-config/v1",
+  "batchId": "male-genre-soul-canary-20260902-v1",
+  "idNamespaceSha256": "b9c495e71f88dba2fcd88bcac9287057aa640b3a6ae97f79cfce3f89b579dffe",
+  "roundsPerGenre": 3,
+  "chapterCount": 1,
+  "targetLength": {
+    "count": 5000,
+    "unit": "ko-chars"
+  },
+  "instruction": "동일한 봉인 Book·Arc·Rail 상태에서 다음 한 회차를 InkOS production pipeline으로 집필·검토·수정·커밋하라. 비교 lane 사이에는 봉인된 Writer Soul binding 외의 차이를 만들지 마라.",
+  "sourceAuthority": {
+    "repo": "firefly_reference_lab",
+    "receiptPath": "evidence/genre-souls/male-source-registry-receipt.v1.json"
+  },
+  "genres": [
+    {
+      "genreId": "modern-fantasy-ko",
+      "bookId": "회귀한-막내가-그룹의-부실을-독식한다",
+      "profileId": "inkos_male_modern_fantasy",
+      "soulId": "male-modern-fantasy-ko",
+      "soulVersion": "v1",
+      "analysisProfilePath": "analyses/genre_souls/male-modern-fantasy-ko/v1/genre-profile.json",
+      "managerQaPath": "analyses/genre_souls/male-modern-fantasy-ko/v1/manager-qa.json",
+      "routingCatalogPath": "inkos_handoffs/genre-souls/male-modern-fantasy-ko/v1/reference-routing-catalog.json"
+    },
+    {
+      "genreId": "fantasy-ko",
+      "bookId": "추방당한-보급관이-제국의-창고를-깨운다",
+      "profileId": "inkos_male_fantasy",
+      "soulId": "male-fantasy-ko",
+      "soulVersion": "v1",
+      "analysisProfilePath": "analyses/genre_souls/male-fantasy-ko/v1/genre-profile.json",
+      "managerQaPath": "analyses/genre_souls/male-fantasy-ko/v1/manager-qa.json",
+      "routingCatalogPath": "inkos_handoffs/genre-souls/male-fantasy-ko/v1/reference-routing-catalog.json"
+    },
+    {
+      "genreId": "murim-ko",
+      "bookId": "파문당한-장부지기가-무림맹-금고를-연다",
+      "profileId": "inkos_male_murim",
+      "soulId": "male-murim-ko",
+      "soulVersion": "v1",
+      "analysisProfilePath": "analyses/genre_souls/male-murim-ko/v1/genre-profile.json",
+      "managerQaPath": "analyses/genre_souls/male-murim-ko/v1/manager-qa.json",
+      "routingCatalogPath": "inkos_handoffs/genre-souls/male-murim-ko/v1/reference-routing-catalog.json"
+    }
+  ]
+}

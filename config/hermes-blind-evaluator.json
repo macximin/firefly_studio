@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "hermes-blind-evaluator-profile/v1",
+  "profile": {
+    "profileId": "inkos_blind_evaluator",
+    "role": "blind-commercial-evaluator",
+    "authority": "evaluation-only",
+    "provider": "openai-codex",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "codingContext": false,
+    "openaiRuntime": "auto",
+    "cliToolsets": [],
+    "toolsCount": 0,
+    "skillsPolicy": "none",
+    "configSha256": "4124e16bc40d28732d1dd02f9f2e8b78127a202313e1ace21021f16fca809f46",
+    "soulSha256": "5c4cca60c9971312682f7b71cac5d4d61b6f9e2c42d19af99c8fe6daedacd94b"
+  }
+}

@@ -331,6 +331,54 @@ export function validateCanaryIsolationReference(value) {
   return errors;
 }
 
+/**
+ * Read the immutable part of an InkOS canary pair before a WorkOrder exists.
+ * This is intentionally narrower than verifyPromotionCanaryIsolation: callers
+ * can obtain the lane bindings needed to construct a WorkOrder, but it still
+ * seals the common receipt and the untouched production source snapshot.
+ */
+export async function loadVerifiedCanaryCommonSnapshot({ codeRepoPath, pairId, bookId, expectedReference = null }) {
+  if (!SAFE_PAIR_ID.test(pairId ?? "")) throw new Error("canary pairId is invalid");
+  if (!safeBookId(bookId)) throw new Error("canary Book ID is invalid");
+  const lexicalSourceRoot = resolve(codeRepoPath);
+  const sourceRoot = await realpath(lexicalSourceRoot);
+  await assertRealDirectory(sourceRoot, "InkOS code/source root");
+  const path = `.inkos/canaries/${pairId}/common-snapshot.json`;
+  const receiptAbsolute = await assertNoSymlinkComponents(sourceRoot, path, "canary common snapshot receipt");
+  const receiptBytes = await readStableRegularFile(receiptAbsolute, "canary common snapshot receipt");
+  if (expectedReference && (
+    expectedReference.path !== path || expectedReference.pairId !== pairId
+    || sha256Bytes(receiptBytes) !== expectedReference.sha256 || receiptBytes.byteLength !== expectedReference.byteLength
+  )) throw new Error("canary receipt raw hash or byte length mismatch");
+  let receipt;
+  try {
+    receipt = JSON.parse(receiptBytes.toString("utf8"));
+  } catch {
+    throw new Error("canary common snapshot receipt is not valid JSON");
+  }
+  validateReceiptShape(receipt);
+  verifyReceiptDerivedIntegrity(receipt);
+  if (receipt.pairId !== pairId || receipt.bookId !== bookId) {
+    throw new Error("canary common snapshot receipt identity does not match the requested pair");
+  }
+  const sourceSnapshot = await verifyCanarySourceSnapshot({ codeRepoPath: sourceRoot, receipt });
+  return {
+    codeRepoPath: sourceRoot,
+    receipt,
+    receiptBytes,
+    sourceSnapshot,
+    reference: {
+      pairId,
+      path,
+      sha256: sha256Bytes(receiptBytes),
+      byteLength: receiptBytes.byteLength,
+      receiptSelfHash: receipt.receiptSelfHash,
+      isolationScopeSha256: receipt.isolationScopeSha256,
+      commonSnapshotSha256: receipt.commonSnapshotSha256,
+    },
+  };
+}
+
 export async function verifyCanarySourceSnapshot({ codeRepoPath, receipt }) {
   const sourceRoot = await realpath(resolve(codeRepoPath));
   await assertRealDirectory(sourceRoot, "InkOS code/source root");
@@ -379,25 +427,15 @@ export async function verifyPromotionCanaryIsolation({ codeRepoPath, workOrder, 
   const ref = workOrder.modeEvidence?.canaryIsolation;
   const refErrors = validateCanaryIsolationReference(ref);
   if (refErrors.length > 0) throw new Error(refErrors.join("; "));
-  const lexicalSourceRoot = resolve(codeRepoPath);
-  const sourceRoot = await realpath(lexicalSourceRoot);
-  await assertRealDirectory(sourceRoot, "InkOS code/source root");
-  const receiptAbsolute = await assertNoSymlinkComponents(sourceRoot, ref.path, "canary common snapshot receipt");
-  const receiptBytes = await readStableRegularFile(receiptAbsolute, "canary common snapshot receipt");
-  if (sha256Bytes(receiptBytes) !== ref.sha256 || receiptBytes.byteLength !== ref.byteLength) {
-    throw new Error("canary receipt raw hash or byte length mismatch");
-  }
-  let receipt;
-  try {
-    receipt = JSON.parse(receiptBytes.toString("utf8"));
-  } catch {
-    throw new Error("canary common snapshot receipt is not valid JSON");
-  }
-  validateReceiptShape(receipt);
-  verifyReceiptDerivedIntegrity(receipt);
-  if (receipt.pairId !== ref.pairId || receipt.bookId !== workOrder.bookId
-    || receipt.receiptSelfHash !== ref.receiptSelfHash
-    || receipt.isolationScopeSha256 !== ref.isolationScopeSha256
+  const common = await loadVerifiedCanaryCommonSnapshot({
+    codeRepoPath,
+    pairId: ref.pairId,
+    bookId: workOrder.bookId,
+    expectedReference: ref,
+  });
+  const { codeRepoPath: sourceRoot, receipt, receiptBytes, sourceSnapshot } = common;
+  if (ref.path !== common.reference.path || ref.sha256 !== common.reference.sha256 || ref.byteLength !== common.reference.byteLength
+    || receipt.receiptSelfHash !== ref.receiptSelfHash || receipt.isolationScopeSha256 !== ref.isolationScopeSha256
     || receipt.commonSnapshotSha256 !== ref.commonSnapshotSha256) {
     throw new Error("WorkOrder canary isolation reference does not match the sealed receipt");
   }
@@ -414,7 +452,6 @@ export async function verifyPromotionCanaryIsolation({ codeRepoPath, workOrder, 
   if (executionRoot !== executionAbsolute || executionRoot === sourceRoot || !executionRoot.startsWith(`${sourceRoot}${sep}`)) {
     throw new Error("canary execution root is not an isolated contained lane root");
   }
-  const sourceSnapshot = await verifyCanarySourceSnapshot({ codeRepoPath: sourceRoot, receipt });
   const laneManifestSha256 = lane.postBindManifestSha256;
   await verifyLaneSoulBinding(executionRoot, workOrder, expectedBinding);
   const projection = {
