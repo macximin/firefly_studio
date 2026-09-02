@@ -33,6 +33,7 @@ function config() {
     idNamespaceSha256: "b".repeat(64),
     roundsPerGenre: 3,
     chapterCount: 1,
+    timeoutMs: 3_600_000,
     targetLength: { count: 5000, unit: "ko-chars" },
     instruction: "exact shared task",
     sourceAuthority: { repo: "firefly_reference_lab", receiptPath: "evidence/source.json" },
@@ -119,6 +120,11 @@ test("builds exactly three genres by three opaque pairs without an A/B mapping",
   assert.equal(JSON.stringify(bundle.plan).includes("candidateA"), false);
   assert.equal(JSON.stringify(bundle.plan).includes("candidateB"), false);
   assert.equal(bundle.plan.blindMappingPresent, false);
+  assert.equal(bundle.plan.timeoutMs, 3_600_000);
+  assert.ok(bundle.plan.pairs.every((pair) => (
+    pair.workOrderDrafts.neutral.timeoutMs === 3_600_000
+    && pair.workOrderDrafts.genreSoul.timeoutMs === 3_600_000
+  )));
   assert.deepEqual(validateBlindCanaryBatchPlan(bundle.plan), []);
   assert.equal(bundle.decisions.length, 3);
   assert.ok(bundle.decisions.every((decision) => decision.value.status === "candidate" && decision.value.adoptionEvidence.hqAdoption === null));
@@ -164,6 +170,25 @@ test("rejects cross-genre profile drift and duplicate pair configuration", () =>
 test("owner approval timestamp is explicit and canonical", () => {
   const value = config();
   assert.throws(() => buildBlindCanaryBatchBundle({ config: value, authority: authority(value), approvedAt: "2026-09-02" }), /canonical ISO/);
+});
+
+test("requires a bounded integer batch timeout and rejects sealed lane timeout drift", () => {
+  for (const invalid of [undefined, 999, 3_600_001, 1_234.5]) {
+    const value = config();
+    if (invalid === undefined) delete value.timeoutMs;
+    else value.timeoutMs = invalid;
+    assert.ok(validateBlindCanaryBatchConfig(value).some((error) => error.includes("timeoutMs")));
+  }
+
+  const value = config();
+  const plan = structuredClone(buildBlindCanaryBatchBundle({
+    config: value,
+    authority: authority(value),
+    approvedAt: "2026-09-02T06:00:00.000Z",
+  }).plan);
+  plan.pairs[0].workOrderDrafts.neutral.timeoutMs = 3_599_999;
+  rehashPlan(plan);
+  assert.match(validateBlindCanaryBatchPlan(plan)[0], /does not share exact task inputs/);
 });
 
 test("materializes exactly eighteen non-executed WorkOrders from cross-bound sealed pairs", async () => {
@@ -239,9 +264,10 @@ test("materializes exactly eighteen non-executed WorkOrders from cross-bound sea
     isolationByPair,
   });
   assert.equal(workOrders.length, 18);
+  assert.ok(workOrders.every((entry) => entry.workOrder.timeoutMs === 3_600_000));
   assert.equal(workOrders.filter((entry) => entry.lane === "neutral").every((entry) => entry.workOrder.expectedSoulBinding === null), true);
   assert.equal(workOrders.filter((entry) => entry.lane === "soul").every((entry) => entry.workOrder.expectedSoulBinding?.soulId), true);
-  const tampered = new Map(isolationByPair);
+  const tampered = new Map([...isolationByPair].map(([pairId, isolation]) => [pairId, structuredClone(isolation)]));
   const first = bundle.plan.pairs[0];
   tampered.get(first.pairId).receipt.soulBindingInputs.artifacts[0].sha256 = "0".repeat(64);
   assert.throws(() => materializeBlindCanaryWorkOrders({
@@ -255,6 +281,26 @@ test("materializes exactly eighteen non-executed WorkOrders from cross-bound sea
     decisionsByPath,
     isolationByPair: tampered,
   }), /binding inputs/);
+
+  const timeoutDriftPlan = structuredClone(bundle.plan);
+  timeoutDriftPlan.timeoutMs = 3_599_999;
+  for (const pair of timeoutDriftPlan.pairs) {
+    pair.workOrderDrafts.neutral.timeoutMs = 3_599_999;
+    pair.workOrderDrafts.genreSoul.timeoutMs = 3_599_999;
+  }
+  rehashPlan(timeoutDriftPlan);
+  assert.deepEqual(validateBlindCanaryBatchPlan(timeoutDriftPlan), []);
+  assert.throws(() => materializeBlindCanaryWorkOrders({
+    plan: timeoutDriftPlan,
+    config: value,
+    approval: bundle.approval,
+    authority: authorityForMaterialization,
+    manifest,
+    adoptionRegistry: adoptions,
+    adoptionRegistryBytes: Buffer.from(`${JSON.stringify(adoptions, null, 2)}\n`, "utf8"),
+    decisionsByPath,
+    isolationByPair,
+  }), /plan timeoutMs does not match/);
 });
 
 test("committed artifact readback and reachable-origin checks fail closed on stale bytes", async () => {

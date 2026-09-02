@@ -177,6 +177,7 @@ function assertActiveBlindCanaryWorkOrder(root, workOrder) {
     chapterCount: config.chapterCount,
     targetLength: config.targetLength,
   })) errors.push("active blind canary args mismatch");
+  if (workOrder.timeoutMs !== config.timeoutMs) errors.push("active blind canary timeoutMs mismatch");
   if (laneSuffix === null) {
     errors.push("active blind canary lane mismatch");
   } else {

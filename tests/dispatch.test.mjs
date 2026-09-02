@@ -274,6 +274,7 @@ function activeAgentCanaryWorkOrder(root = process.cwd()) {
     },
     runtime: { hermesProfile: profile.profileId, model: "gpt-5.6-sol", reasoning: "high" },
     requestedAt,
+    timeoutMs: config.timeoutMs,
   });
   workOrder.ownerDecision.receiptId = `approval-${createHash("sha256")
     .update(Buffer.from(`${config.batchId}:${requestedAt}`, "utf8"))
@@ -482,6 +483,7 @@ async function createAgentDispatchFixture({ lane = "genre-soul" } = {}) {
     },
     runtime: { hermesProfile: profile.profileId, model: "gpt-5.6-sol", reasoning: "high" },
     approvedInputs: [],
+    timeoutMs: batchConfig.timeoutMs,
   });
   workOrder.ownerDecision.receiptId = `approval-${createHash("sha256")
     .update(Buffer.from(`${batchConfig.batchId}:${workOrder.requestedAt}`, "utf8"))
@@ -895,6 +897,7 @@ test("accepts an opaque promotion-canary WorkOrder from the active blind batch",
   assert.deepEqual(validateWorkOrder(workOrder, manifest), []);
   const plan = buildDispatchPlan({ root: process.cwd(), manifest, workOrder });
   assert.equal(plan.invocation.workOrderSha256, sha256Json(workOrder));
+  assert.equal(plan.invocation.timeoutMs, 3_600_000);
   assert.equal(plan.hermesAuthority.profileRegistry.profiles.some(
     (profile) => profile.profileId === workOrder.runtime.hermesProfile,
   ), true);
@@ -936,6 +939,7 @@ test("rejects active blind batch key and content drift even when the WorkOrder h
     ["idempotency key", (workOrder) => { workOrder.idempotencyKey = `${workOrder.idempotencyKey}:drift`; }, /idempotencyKey mismatch/],
     ["instruction", (workOrder) => { workOrder.instruction = `${workOrder.instruction} drift`; }, /instruction mismatch/],
     ["args", (workOrder) => { workOrder.args.targetLength.count += 1; }, /args mismatch/],
+    ["timeout", (workOrder) => { workOrder.timeoutMs = 3_599_999; }, /timeoutMs mismatch/],
     ["book", (workOrder) => { workOrder.bookId = "다른-봉인-북"; }, /pair bookId mismatch/],
     ["profile", (workOrder) => {
       workOrder.modeEvidence.profileId = "inkos_male_murim";
@@ -991,7 +995,6 @@ test("fails closed before production agent-operate when no active promoted adopt
 test("executes agent-operate once and resumes only the child from complete Hermes artifacts and dead locks", { concurrency: false }, async () => {
   const fixture = await createAgentDispatchFixture();
   const { root, repoPath, executionRoot, canaryProjection, workOrder, manifest, profile, pairId } = fixture;
-  workOrder.timeoutMs = 1_234;
   let hermesCalls = 0;
   let exportCalls = 0;
   let childCalls = 0;

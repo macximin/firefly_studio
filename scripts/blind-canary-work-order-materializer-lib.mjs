@@ -1,7 +1,12 @@
 import { createHash } from "node:crypto";
 import { validateWorkOrder } from "./dispatch-lib.mjs";
 import { canonicalStringify, deriveAgentOperateSessionId, validateAgentOperateModeEvidence } from "./hermes-control-lib.mjs";
-import { canonicalStringify as planCanonicalStringify, sha256Bytes, validateBlindCanaryBatchPlan } from "./blind-canary-batch-plan-lib.mjs";
+import {
+  canonicalStringify as planCanonicalStringify,
+  sha256Bytes,
+  validateBlindCanaryBatchConfig,
+  validateBlindCanaryBatchPlan,
+} from "./blind-canary-batch-plan-lib.mjs";
 
 const APPROVAL_KEYS = new Set([
   "schemaVersion", "approvalId", "batchId", "decision", "actorId", "actorRole", "scope",
@@ -125,6 +130,7 @@ function makeWorkOrder({ pair, lane, config, approval, authority, adoptionRegist
     executionMode: "promotion-canary",
     modeEvidence,
     requestedAt: approval.approvedAt,
+    timeoutMs: config.timeoutMs,
   };
   const sessionId = deriveAgentOperateSessionId(base);
   const instructionSha256 = sha256Text(base.instruction);
@@ -151,6 +157,7 @@ function makeWorkOrder({ pair, lane, config, approval, authority, adoptionRegist
   };
   if (draft.pairId !== pair.pairId || draft.blindRunId !== pair.blindRunId || draft.bookId !== pair.bookId
     || draft.instructionSha256 !== instructionSha256 || planCanonicalStringify(draft.args) !== planCanonicalStringify(base.args)
+    || draft.timeoutMs !== base.timeoutMs
     || draft.profileId !== profile.profileId || draft.profileConfigSha256 !== profile.configSha256
     || draft.profileSoulSha256 !== profile.soulSha256
     || (isNeutral ? draft.expectedSoulBinding !== null : draft.expectedSoulBinding !== "from-inkos-canary-receipt")) {
@@ -175,8 +182,11 @@ export function materializeBlindCanaryWorkOrders({
   decisionsByPath,
   isolationByPair,
 }) {
+  const configErrors = validateBlindCanaryBatchConfig(config);
+  if (configErrors.length > 0) throw new Error(configErrors.join("\n"));
   const planErrors = validateBlindCanaryBatchPlan(plan);
   if (planErrors.length > 0) throw new Error(planErrors.join("\n"));
+  if (plan.timeoutMs !== config.timeoutMs) throw new Error("batch plan timeoutMs does not match the live owner-approved config");
   assertPlanAuthority(plan, authority);
   assertApproval(approval, plan, config);
   if (!Buffer.isBuffer(adoptionRegistryBytes)) throw new Error("adoption registry bytes are required");

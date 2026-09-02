@@ -16,7 +16,7 @@ const PAIR_ID = /^bp-[0-9a-f]{24}$/;
 const RUN_ID = /^br-[0-9a-f]{24}$/;
 const SAFE_BOOK_ID = /^(?!.*\.\.)(?![\s\uFEFF])(?!.*[\s\uFEFF]$)[^\u0000-\u001f\u007f/\\:*?"'`{}<>|]{1,120}$/u;
 const CONFIG_KEYS = new Set([
-  "schemaVersion", "batchId", "idNamespaceSha256", "roundsPerGenre", "chapterCount",
+  "schemaVersion", "batchId", "idNamespaceSha256", "roundsPerGenre", "chapterCount", "timeoutMs",
   "targetLength", "instruction", "sourceAuthority", "genres",
 ]);
 const GENRE_KEYS = new Set([
@@ -25,7 +25,7 @@ const GENRE_KEYS = new Set([
 ]);
 const PLAN_KEYS = new Set([
   "schemaVersion", "batchId", "ownerApproval", "authorities", "blindMappingAuthority",
-  "blindMappingPresent", "pairCount", "pairs", "planSha256",
+  "blindMappingPresent", "timeoutMs", "pairCount", "pairs", "planSha256",
 ]);
 const PAIR_KEYS = new Set([
   "pairId", "blindRunId", "ordinal", "genreId", "bookId", "profileId", "soulId",
@@ -34,7 +34,7 @@ const PAIR_KEYS = new Set([
 ]);
 const WORK_ORDER_DRAFT_KEYS = new Set([
   "schemaVersion", "pairId", "blindRunId", "repo", "capability", "executionMode", "bookId",
-  "instructionSha256", "args", "runtime", "canaryIsolationBinding", "draftId", "lane",
+  "instructionSha256", "args", "runtime", "timeoutMs", "canaryIsolationBinding", "draftId", "lane",
   "profileId", "profileConfigSha256", "profileSoulSha256", "expectedSoulBinding",
 ]);
 const ARTIFACT_REF_KEYS = new Set(["path", "sha256", "sizeBytes"]);
@@ -99,6 +99,9 @@ export function validateBlindCanaryBatchConfig(config) {
   if (!SHA256.test(config.idNamespaceSha256 ?? "")) errors.push("batch config idNamespaceSha256 is invalid");
   if (config.roundsPerGenre !== 3) errors.push("batch config must run exactly three rounds per genre");
   if (config.chapterCount !== 1) errors.push("batch config chapterCount must be one");
+  if (!Number.isInteger(config.timeoutMs) || config.timeoutMs < 1000 || config.timeoutMs > 3600000) {
+    errors.push("batch config timeoutMs must be an integer between 1000 and 3600000");
+  }
   exactKeys(config.targetLength, new Set(["count", "unit"]), "batch config targetLength", errors);
   if (!Number.isInteger(config.targetLength?.count) || config.targetLength.count < 1 || config.targetLength.unit !== "ko-chars") {
     errors.push("batch config targetLength is invalid");
@@ -275,6 +278,9 @@ export function validateBlindCanaryBatchPlan(plan) {
     const { planSha256, ...unsigned } = plan;
     if (!SHA256.test(planSha256 ?? "") || planSha256 !== hashCanonical(unsigned)) throw new Error("batch plan self hash mismatch");
     if (!Array.isArray(plan.pairs) || plan.pairs.length !== 9) throw new Error("batch plan must contain exactly nine pairs");
+    if (!Number.isInteger(plan.timeoutMs) || plan.timeoutMs < 1000 || plan.timeoutMs > 3600000) {
+      throw new Error("batch plan timeoutMs must be an integer between 1000 and 3600000");
+    }
     if (plan.pairCount !== plan.pairs.length || plan.blindMappingPresent !== false || plan.blindMappingAuthority !== "inkos-csprng-private-receipt-only") {
       throw new Error("batch plan count or blind-mapping boundary is invalid");
     }
@@ -310,7 +316,8 @@ export function validateBlindCanaryBatchPlan(plan) {
         throw new Error("batch plan WorkOrder Soul binding source is invalid");
       }
       if (pair.workOrderDrafts.neutral.instructionSha256 !== pair.workOrderDrafts.genreSoul.instructionSha256
-        || hashCanonical(pair.workOrderDrafts.neutral.args) !== hashCanonical(pair.workOrderDrafts.genreSoul.args)) {
+        || hashCanonical(pair.workOrderDrafts.neutral.args) !== hashCanonical(pair.workOrderDrafts.genreSoul.args)
+        || pair.workOrderDrafts.neutral.timeoutMs !== pair.workOrderDrafts.genreSoul.timeoutMs) {
         throw new Error("batch plan WorkOrder pair does not share exact task inputs");
       }
       for (const draft of [pair.workOrderDrafts.neutral, pair.workOrderDrafts.genreSoul]) {
@@ -318,7 +325,8 @@ export function validateBlindCanaryBatchPlan(plan) {
           || draft.repo !== "inkos" || draft.capability !== "agent-operate" || draft.executionMode !== "promotion-canary"
           || draft.schemaVersion !== "firefly-agent-operate-work-order-draft/v1"
           || draft.canaryIsolationBinding !== "pending-inkos-prepare"
-          || draft.runtime?.model !== "gpt-5.6-sol" || draft.runtime?.reasoning !== "high") {
+          || draft.runtime?.model !== "gpt-5.6-sol" || draft.runtime?.reasoning !== "high"
+          || draft.timeoutMs !== plan.timeoutMs) {
           throw new Error("batch plan WorkOrder identity or runtime mismatch");
         }
       }
@@ -598,6 +606,7 @@ export function buildBlindCanaryBatchBundle({ config, authority, approvedAt }) {
         instructionSha256,
         args,
         runtime: { model: "gpt-5.6-sol", reasoning: "high" },
+        timeoutMs: config.timeoutMs,
         canaryIsolationBinding: "pending-inkos-prepare",
       };
       pairs.push({
@@ -662,6 +671,7 @@ export function buildBlindCanaryBatchBundle({ config, authority, approvedAt }) {
     },
     blindMappingAuthority: "inkos-csprng-private-receipt-only",
     blindMappingPresent: false,
+    timeoutMs: config.timeoutMs,
     pairCount: pairs.length,
     pairs,
   };
