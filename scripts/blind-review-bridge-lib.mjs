@@ -31,6 +31,7 @@ const SHA256 = /^[a-f0-9]{64}$/u;
 const SOURCE_PAIR = /^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$/u;
 const OPAQUE_PAIR = /^bp-[a-f0-9]{24}$/u;
 const OPAQUE_RUN = /^br-[a-f0-9]{24}$/u;
+const UNSAFE_BOOK_ID_RE = /[\u0000-\u001f\u007f/\\:*?"'`{}<>|]/u;
 const GENRE_SOUL_IDS = Object.freeze({
   "modern-fantasy-ko": "male-modern-fantasy-ko",
   "fantasy-ko": "male-fantasy-ko",
@@ -75,6 +76,19 @@ function safeSha(value, label) {
 }
 function safeId(value, label) {
   if (typeof value !== "string" || !/^[A-Za-z0-9][A-Za-z0-9_.:-]{0,239}$/u.test(value)) fail(`${label} is invalid.`);
+  return value;
+}
+function safeBookId(value, label) {
+  if (typeof value !== "string"
+    || value.length === 0
+    || value.length > 120
+    || value.trim() !== value
+    || value === "."
+    || value === ".."
+    || value.includes("..")
+    || UNSAFE_BOOK_ID_RE.test(value)) {
+    fail(`${label} must be one safe path segment.`);
+  }
   return value;
 }
 function repoPath(root, value, label) {
@@ -391,7 +405,7 @@ export async function prepareBlindReviewPair({ root, manifest, sourcePair, genre
   validateInkOSBlindPairEvaluationTransfer(transfer);
   const mappingBytes = await readStable(inkosRoot, paths.privateMapping, "InkOS private label mapping");
   const mapping = parseCanonical(mappingBytes, "InkOS private label mapping");
-  safeId(mapping.bookId, "InkOS private mapping Book ID");
+  safeBookId(mapping.bookId, "InkOS private mapping Book ID");
   const bookBytes = await readStable(inkosRoot, `books/${mapping.bookId}/book.json`, "InkOS canonical Book metadata");
   const book = object(parseCanonical(bookBytes, "InkOS canonical Book metadata"), "InkOS canonical Book metadata");
   if (book.id !== mapping.bookId || book.genre !== genre || !GENRES.has(book.genre)) {

@@ -51,12 +51,13 @@ async function fixture(t, options = {}) {
   t.after(() => rm(root, { recursive: true, force: true }));
   const inkos = join(root, "edge_repos", "inkos");
   const reflab = join(root, "edge_repos", "firefly_reference_lab");
+  const bookId = options.bookId ?? "bridge-book";
   await Promise.all([mkdir(inkos, { recursive: true }), mkdir(reflab, { recursive: true })]);
   const manifest = { repos: [{ name: "inkos", path: "edge_repos/inkos" }, { name: "firefly_reference_lab", path: "edge_repos/firefly_reference_lab" }] };
   const bodies = options.bodies ?? ["후보 A는 계약을 뒤집고 회사를 샀다.\n다음 전쟁을 선언했다.", "후보 B는 자산을 꿰뚫고 적의 판을 빼앗았다.\n다음 거래를 개시했다."];
   const canaryIsolation = { receiptSha256: digest("iso-receipt"), receiptSelfHash: digest("iso-self"), isolationScopeSha256: digest("iso-scope"), commonSnapshotSha256: digest("iso-snapshot") };
-  await writeJson(join(inkos, "books", "bridge-book", "book.json"), {
-    id: "bridge-book",
+  await writeJson(join(inkos, "books", bookId, "book.json"), {
+    id: bookId,
     title: "브리지 테스트 작품",
     platform: "other",
     genre: options.bookGenre ?? "modern-fantasy-ko",
@@ -72,7 +73,7 @@ async function fixture(t, options = {}) {
     ["neutral", "candidate-A", "producer-neutral", "neutral-profile", "wo-neutral"],
     ["soul", "candidate-B", "producer-soul", "soul-profile", "wo-soul"],
   ].map(([lane, candidateId, sessionId, profileId, workOrderId], index) => {
-    const terminalUnsigned = { schemaVersion: "inkos-agent-operation-terminal/v2", status: "succeeded", executionMode: "promotion-canary", bookId: "bridge-book", workOrderId, sessionId };
+    const terminalUnsigned = { schemaVersion: "inkos-agent-operation-terminal/v2", status: "succeeded", executionMode: "promotion-canary", bookId, workOrderId, sessionId };
     const terminal = { ...terminalUnsigned, receiptSelfHash: transferHash(terminalUnsigned) };
     terminals[lane] = terminal;
     const terminalBytes = bytes(terminal);
@@ -88,14 +89,14 @@ async function fixture(t, options = {}) {
     };
   });
   for (const row of mappingRows) {
-    await writeJson(join(inkos, ".inkos", "canaries", sourcePair, row.lane, "books", "bridge-book", row.terminal.path), terminals[row.lane]);
+    await writeJson(join(inkos, ".inkos", "canaries", sourcePair, row.lane, "books", bookId, row.terminal.path), terminals[row.lane]);
   }
   const common = "두 후보에 같은 캐논과 현재 Arc/Rail이 적용된다.";
   const commonContext = { text: common, sha256: sha(common), byteLength: Buffer.byteLength(common) };
   const commonInputReceiptSha256 = transferHash({ schemaVersion: "inkos-blind-common-context/v1", commonContext });
   const pairedGenerationReceiptSha256 = transferHash({
     schemaVersion: "inkos-blind-pair-generation-binding/v1",
-    bookId: "bridge-book",
+    bookId,
     chapterNumber: 1,
     canaryIsolation,
     terminals: mappingRows.map((row) => ({
@@ -111,7 +112,7 @@ async function fixture(t, options = {}) {
     opaquePairId: pairId,
     blindRunId: runId,
     blindSessionId: sessionId,
-    bookId: "bridge-book",
+    bookId,
     chapterNumber: 1,
     round: 1,
     commonContext,
@@ -127,7 +128,7 @@ async function fixture(t, options = {}) {
   const mapping = { ...mappingUnsigned, receiptSelfHash: transferHash(mappingUnsigned) };
   const mappingBytes = await writeJson(join(inkos, ".inkos", "canaries", sourcePair, "review", "private", "label-assignment.json"), mapping);
   const transferUnsigned = {
-    schemaVersion: "inkos-blind-pair-evaluation-transfer/v1", pairId, round: 1, blindRunId: runId, blindSessionId: sessionId, bookId: "bridge-book", chapterNumber: 1,
+    schemaVersion: "inkos-blind-pair-evaluation-transfer/v1", pairId, round: 1, blindRunId: runId, blindSessionId: sessionId, bookId, chapterNumber: 1,
     commonContext: mapping.commonContext, commonInputReceiptSha256: mapping.commonInputReceiptSha256, pairedGenerationReceiptSha256: mapping.pairedGenerationReceiptSha256,
     labelAssignmentReceiptSha256: sha(mappingBytes), canaryIsolation,
     candidates: bodies.map((body, index) => ({ id: index === 0 ? "candidate-A" : "candidate-B", body, sha256: sha(body), byteLength: Buffer.byteLength(body) })),
@@ -230,6 +231,37 @@ test("prepares bodyless RefLab input from manifest-defined sibling evidence with
   assert.equal(JSON.stringify(input).includes(value.bodies[0]), false);
   const replay = await prepareBlindReviewPair({ root: value.root, manifest: value.manifest, sourcePair, genre: "modern-fantasy-ko", reviewerActorId: "blind-reviewer", intensityDirectiveSha256: digest("intensity") });
   assert.equal(replay.input.publication, "reused");
+});
+
+test("accepts a canonical Korean InkOS Book ID", async (t) => {
+  const bookId = "회귀한-막내가-그룹의-부실을-독식한다";
+  const value = await fixture(t, { bookId });
+  const result = await prepareBlindReviewPair({
+    root: value.root,
+    manifest: value.manifest,
+    sourcePair,
+    genre: "modern-fantasy-ko",
+    reviewerActorId: "blind-reviewer",
+    intensityDirectiveSha256: digest("intensity"),
+  });
+  assert.equal(result.input.publication, "written");
+  assert.equal(JSON.parse(await readFile(join(value.inkos, "books", bookId, "book.json"), "utf8")).id, bookId);
+});
+
+test("rejects unsafe InkOS Book path segments before reading canonical metadata", async (t) => {
+  for (const unsafeBookId of [
+    ".", "..", "../escape", "nested/book", "nested\\book", " book", "book ", "book..part", "book:part", "book\npart", "a".repeat(121),
+  ]) {
+    const value = await fixture(t, { mutateMapping: (mapping) => { mapping.bookId = unsafeBookId; } });
+    await assert.rejects(() => prepareBlindReviewPair({
+      root: value.root,
+      manifest: value.manifest,
+      sourcePair,
+      genre: "modern-fantasy-ko",
+      reviewerActorId: "blind-reviewer",
+      intensityDirectiveSha256: digest("intensity"),
+    }), /Book ID must be one safe path segment/u, JSON.stringify(unsafeBookId));
+  }
 });
 
 test("rejects a wrong requested genre before publishing evaluator input", async (t) => {
