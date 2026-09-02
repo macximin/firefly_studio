@@ -12,6 +12,7 @@
     "candidateSoulSha256": { "$ref": "#/$defs/sha256" },
     "promptPackSha256": { "$ref": "#/$defs/sha256" },
     "referenceLabEligibility": {
+      "description": "Immutable Reference Lab promotion-eligibility blob. HQ reads path from an exact commit reachable from the manifest-declared origin branch without replacement refs and rejects working-tree-only bytes, hash drift, failed public promotion thresholds, non-PASS Manager QA boundary evidence, or a broken analysis-profile binding.",
       "type": "object",
       "additionalProperties": false,
       "required": ["repo", "commit", "path", "sha256"],
@@ -29,7 +30,10 @@
       "properties": {
         "sourceManifest": { "$ref": "#/$defs/sha256" },
         "coverage": { "$ref": "#/$defs/shaList1" },
-        "managerQa": { "$ref": "#/$defs/shaList1" },
+        "managerQa": {
+          "description": "SHA-256 receipts including the exact Manager QA blob bound by Reference Lab eligibility.",
+          "$ref": "#/$defs/shaList1"
+        },
         "pathCanary": { "$ref": "#/$defs/sha256" },
         "promotionCanary": { "$ref": "#/$defs/sha256" },
         "pairedGeneration": { "$ref": "#/$defs/shaList3" },

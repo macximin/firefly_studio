@@ -11,7 +11,7 @@ import {
 
 const sha256 = (value) => createHash("sha256").update(value).digest("hex");
 
-function registry(configBytes, soulBytes) {
+function registry(configBytes, soulBytes, overrides = {}) {
   return {
     schemaVersion: "hermes-production-profile-registry/v1",
     profiles: [{
@@ -27,6 +27,7 @@ function registry(configBytes, soulBytes) {
       skillsPolicy: "none",
       configSha256: sha256(configBytes),
       soulSha256: sha256(soulBytes),
+      ...overrides,
     }],
   };
 }
@@ -43,6 +44,9 @@ async function fixture() {
     "- Soul ID: `male-fantasy-ko`",
     "- Soul version: `v1`",
     "- Lifecycle: `candidate-only`",
+    "",
+    "이 프로필은 InkOS 캐논을 직접 쓰지 않는다. 장르 분석과 실행 의도만 구성한다.",
+    "Book, Arc, Rail, Chapter, review와 revision의 실행 주체는 InkOS다.",
     "",
   ].join("\n"));
   await writeFile(join(profileRoot, "config.yaml"), configBytes);
@@ -72,6 +76,54 @@ test("readbacks exact local Soul/config bytes and effective sol/high settings", 
     assert.equal(receipts[0].productionEnabled, false);
     assert.equal(receipts[0].configSha256, sha256(f.configBytes));
     assert.equal(receipts[0].soulSha256, sha256(f.soulBytes));
+  } finally {
+    await rm(f.root, { recursive: true, force: true });
+  }
+});
+
+test("takes lifecycle authority from the registry instead of mutable Soul prose", async () => {
+  const f = await fixture();
+  const promotedSoulBytes = Buffer.from(f.soulBytes.toString("utf8").replace(
+    "Lifecycle: `candidate-only`",
+    "Lifecycle: `registry-owned`",
+  ));
+  await writeFile(join(f.profileRoot, "SOUL.md"), promotedSoulBytes);
+  try {
+    const receipts = await verifyHermesProfileRegistry(registry(f.configBytes, promotedSoulBytes, {
+      lifecycle: "promoted",
+      productionEnabled: true,
+      promotionDecisionSha256: sha256("owner-promotion-decision"),
+    }), {
+      hermesRoot: f.root,
+      getConfigValue: async (_profileId, key) => ({
+        "model.provider": "openai-codex",
+        "model.default": "gpt-5.6-sol",
+        "agent.reasoning_effort": "high",
+      })[key],
+    });
+    assert.equal(receipts[0].lifecycle, "promoted");
+    assert.equal(receipts[0].productionEnabled, true);
+  } finally {
+    await rm(f.root, { recursive: true, force: true });
+  }
+});
+
+test("fails closed when immutable InkOS authority is absent from a hash-bound Soul", async () => {
+  const f = await fixture();
+  const unauthorizedSoulBytes = Buffer.from(f.soulBytes.toString("utf8").replace(
+    "이 프로필은 InkOS 캐논을 직접 쓰지 않는다. 장르 분석과 실행 의도만 구성한다.\n",
+    "",
+  ));
+  await writeFile(join(f.profileRoot, "SOUL.md"), unauthorizedSoulBytes);
+  try {
+    await assert.rejects(verifyHermesProfileRegistry(registry(f.configBytes, unauthorizedSoulBytes), {
+      hermesRoot: f.root,
+      getConfigValue: async (_profileId, key) => ({
+        "model.provider": "openai-codex",
+        "model.default": "gpt-5.6-sol",
+        "agent.reasoning_effort": "high",
+      })[key],
+    }), /immutable identity\/authority mismatch/);
   } finally {
     await rm(f.root, { recursive: true, force: true });
   }

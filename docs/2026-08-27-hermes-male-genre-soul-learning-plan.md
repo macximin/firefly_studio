@@ -1010,7 +1010,14 @@ grant 검증이며, adapter는 verified grant SHA를 access receipt에 기록한
     분리했다. HQ는 strict `genre_soul_promotion/v1`과
     `genre-soul-adoption-registry/v1`을 검증하며, promoted Hermes profile과 active
     registry가 서로 빠지거나 decision byte SHA·Soul identity·profile config가
-    어긋나면 거절한다. 현재 active registry는 비어 있고 세 profile은 모두
+    어긋나면 거절한다. active decision이 생기면 HQ는 manifest에 등록된 Reference
+    Lab child의 working tree가 아니라 manifest origin branch에서 도달 가능한 지정
+    commit의 promotion eligibility bytes를 replace ref 없이 읽고, public eligibility
+    임계값 전체와 eligibility SHA -> Manager QA v2/v3 PASS outer envelope/check matrix
+    -> analysis profile SHA·Soul identity·non-canonical authority를 재검증한다. 내부
+    sample·engine·surface 의미론 검증은 Reference Lab 소유로 유지한다. Hermes `SOUL.md`의
+    lifecycle 문구는 승급 권한이 아니며 lifecycle은 hash-bound registry와 owner
+    decision이 소유한다. 현재 active registry는 비어 있고 세 profile은 모두
     candidate/disabled다. 향후 `agent-operate` production은 이 validator의 실제
     `promote` decision/registry SHA readback을 WorkOrder gate로 결속해야 한다.
 

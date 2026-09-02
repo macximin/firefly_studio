@@ -133,14 +133,15 @@ export async function verifyHermesProfileRegistry(registry, options = {}) {
       if (actual[key] !== profile[key]) throw new Error(`Hermes profile readback mismatch for ${profile.profileId}/${key}`);
     }
     const soulText = new TextDecoder("utf-8", { fatal: true }).decode(soulBytes);
-    for (const identityLine of [
+    for (const identityOrAuthorityLine of [
       `Profile ID: \`${profile.profileId}\``,
       `Soul ID: \`${profile.soulId}\``,
       `Soul version: \`${profile.soulVersion}\``,
-      "Lifecycle: `candidate-only`",
+      "이 프로필은 InkOS 캐논을 직접 쓰지 않는다.",
+      "Book, Arc, Rail, Chapter, review와 revision의 실행 주체는 InkOS다.",
     ]) {
-      if (!soulText.includes(identityLine)) {
-        throw new Error(`Hermes Soul identity mismatch for ${profile.profileId}: ${identityLine}`);
+      if (!soulText.includes(identityOrAuthorityLine)) {
+        throw new Error(`Hermes Soul immutable identity/authority mismatch for ${profile.profileId}: ${identityOrAuthorityLine}`);
       }
     }
     receipts.push({

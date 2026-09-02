@@ -92,6 +92,19 @@ in manual-review mode. The promotion receipt records the minimal `selects` and
 `promotes_to` lineage edges; it is evidence over the existing filesystem
 authority, not a second source of truth or a graph runtime.
 
+Genre Soul adoption is also fail-closed. An active HQ decision must point to a
+promotion-eligibility blob at an exact Reference Lab commit reachable from the
+manifest-declared origin branch. HQ reads that Git object without replacement
+refs rather than the child's working tree, verifies its SHA-256 and every public
+promotion threshold, then follows the Manager QA v2/v3 boundary envelope to the
+exact analysis-profile bytes. Internal sample, engine, and surface semantics
+remain Reference Lab-owned; HQ requires only a PASS, identity-consistent,
+non-canonical cross-repository authority chain. Hermes `SOUL.md`
+lifecycle wording is not promotion authority: the hash-bound HQ registry and
+owner decision own lifecycle, while the Soul retains immutable profile identity
+and the boundary that InkOS alone writes production canon. The active adoption
+registry remains empty until owner blind promotion evidence exists.
+
 `bootstrap:links` reads the ignored machine-local
 `config/local-edge-paths.json`. A physical checkout already at its canonical path
 is accepted as-is; the command refuses to overwrite any mismatched path.
