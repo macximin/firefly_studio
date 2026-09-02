@@ -73,6 +73,9 @@ const SAFE_IDEMPOTENCY_KEY = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,239}$/;
 const SAFE_SESSION_ID = /^[A-Za-z0-9][A-Za-z0-9._-]{0,159}$/;
 const SAFE_SLATE_ID = /^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/;
 const UNSAFE_BOOK_ID_RE = /[\u0000-\u001f\u007f/\\:*?"'`{}<>|]/u;
+const HERMES_CONTROL_CODEX_EVENT_STALE_TIMEOUT_SECONDS = "120";
+const HERMES_CONTROL_CODEX_TTFB_TIMEOUT_SECONDS = "120";
+const HERMES_CONTROL_API_CALL_STALE_TIMEOUT_SECONDS = "600";
 
 function isSafeBookId(value) {
   return typeof value === "string"
@@ -1012,10 +1015,20 @@ async function runHermesControlInvocation({
   await writeJsonAtomic(preparedPath, prepared);
 
   const sanitizedEnv = { ...process.env };
+  for (const key of Object.keys(sanitizedEnv)) {
+    if (/^HERMES_(?:API|CODEX|STREAM)_/u.test(key)) delete sanitizedEnv[key];
+  }
   for (const key of [
     "HERMES_INFERENCE_MODEL", "HERMES_MODEL", "HERMES_PROVIDER", "HERMES_TOOLSETS",
     "HERMES_KANBAN_GOAL_MODE", "HERMES_KANBAN_TASK",
   ]) delete sanitizedEnv[key];
+  // These are host-owned transport watchdogs for the pinned sol/high control
+  // call. Short Hermes defaults can terminate a healthy reasoning turn before
+  // it emits the single proposal; inbound values must not weaken or tighten
+  // the audited execution policy.
+  sanitizedEnv.HERMES_CODEX_EVENT_STALE_TIMEOUT_SECONDS = HERMES_CONTROL_CODEX_EVENT_STALE_TIMEOUT_SECONDS;
+  sanitizedEnv.HERMES_CODEX_TTFB_TIMEOUT_SECONDS = HERMES_CONTROL_CODEX_TTFB_TIMEOUT_SECONDS;
+  sanitizedEnv.HERMES_API_CALL_STALE_TIMEOUT = HERMES_CONTROL_API_CALL_STALE_TIMEOUT_SECONDS;
   const startedAt = new Date().toISOString();
   const invocation = hermesSpawn(hermesExecutable, [
     "-p", profile.profileId,

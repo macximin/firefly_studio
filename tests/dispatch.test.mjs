@@ -830,7 +830,7 @@ test("fails closed before production agent-operate when no active promoted adopt
   );
 });
 
-test("executes agent-operate once and resumes only the child from complete Hermes artifacts and dead locks", async () => {
+test("executes agent-operate once and resumes only the child from complete Hermes artifacts and dead locks", { concurrency: false }, async () => {
   const fixture = await createAgentDispatchFixture();
   const { root, repoPath, executionRoot, canaryProjection, workOrder, manifest, profile } = fixture;
   let hermesCalls = 0;
@@ -841,6 +841,17 @@ test("executes agent-operate once and resumes only the child from complete Herme
   let operationPromptText = "";
   let proposalText = "";
   const hermesSessionId = "20260902_120000_agent_fixture";
+  const hostileTimeoutEnvironment = {
+    HERMES_API_CALL_STALE_TIMEOUT: "1",
+    HERMES_CODEX_EVENT_STALE_TIMEOUT_SECONDS: "1",
+    HERMES_CODEX_HARD_TIMEOUT_SECONDS: "1",
+    HERMES_CODEX_TTFB_TIMEOUT_SECONDS: "1",
+    HERMES_STREAM_RETRIES: "99",
+  };
+  const previousTimeoutEnvironment = Object.fromEntries(
+    Object.keys(hostileTimeoutEnvironment).map((key) => [key, process.env[key]]),
+  );
+  Object.assign(process.env, hostileTimeoutEnvironment);
   try {
     const plan = buildDispatchPlan({ root, manifest, workOrder });
     const hermesSpawn = (_executable, args, options) => {
@@ -848,6 +859,11 @@ test("executes agent-operate once and resumes only the child from complete Herme
       assert.deepEqual(args.slice(-2), ["--source", "tool"]);
       assert.ok(args.includes("gpt-5.6-sol"));
       assert.equal(args.includes(workOrder.instruction), false);
+      assert.equal(options.env.HERMES_CODEX_EVENT_STALE_TIMEOUT_SECONDS, "120");
+      assert.equal(options.env.HERMES_CODEX_TTFB_TIMEOUT_SECONDS, "120");
+      assert.equal(options.env.HERMES_API_CALL_STALE_TIMEOUT, "600");
+      assert.equal(options.env.HERMES_CODEX_HARD_TIMEOUT_SECONDS, undefined);
+      assert.equal(options.env.HERMES_STREAM_RETRIES, undefined);
       operationPromptText = readFileSync(join(options.cwd, "AGENTS.md"), "utf8");
       const proposal = {
         schemaVersion: "hermes-control-proposal/v1",
@@ -1058,6 +1074,10 @@ test("executes agent-operate once and resumes only the child from complete Herme
     assert.equal(exportCalls, 1);
     assert.equal(childCalls, 3);
   } finally {
+    for (const [key, value] of Object.entries(previousTimeoutEnvironment)) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
     await rm(root, { recursive: true, force: true });
   }
 });
