@@ -1,0 +1,271 @@
+{
+  "schemaVersion": "firefly-male-genre-soul-canary-closeout/v1",
+  "generatedAt": "2026-09-02T14:56:20Z",
+  "result": "passed-pending-human-review",
+  "batch": {
+    "batchId": "male-genre-soul-canary-20260902-v7",
+    "planSha256": "74dea506d1a66e7ad4bade5c7c46041f9bb9803751ecbe8dd49ebf9a7f21b906",
+    "genres": [
+      "modern-fantasy-ko",
+      "fantasy-ko",
+      "murim-ko"
+    ],
+    "roundsPerGenre": 3,
+    "pairCount": 9,
+    "producerWorkOrderCount": 18,
+    "evaluatorModel": "gpt-5.6-sol",
+    "evaluatorReasoning": "high"
+  },
+  "code": {
+    "hq": {
+      "bridgeUnicodeBookIdCommit": "0dfbf7a46d758092c4990be41288c07fe2748250",
+      "bridgeCanonicalMetadataCommit": "a7ae8ca574e72a2fedb7a1c09e7f116380823aa6",
+      "hermesFrameCommit": "518f30b"
+    },
+    "inkos": {
+      "producerCommit": "a792c3141ad7f7ae4da598d8a3d91b1d88932f41",
+      "reviewLockAndPostprocessorCommit": "328ae52e259b756ec2ddce2e754681b4f62c1235",
+      "branch": "master"
+    },
+    "referenceLab": {
+      "receiptCommit": "31e2b7788c28fa937f68ba7275860ce6552f5bce",
+      "branch": "main"
+    },
+    "storyyard": {
+      "packetImportCommit": "339bfe63ad2ec3dcb578c66b224c0b8314d9f5a5",
+      "branch": "main"
+    }
+  },
+  "execution": {
+    "producerRuns": {
+      "completed": 18,
+      "expected": 18
+    },
+    "blindPairsPrepared": {
+      "completed": 9,
+      "expected": 9,
+      "opaquePairIdsUnique": true,
+      "activeLocksAfterCompletion": 0
+    },
+    "blindEvaluations": {
+      "completed": 9,
+      "expected": 9,
+      "ambiguousRuns": 0,
+      "retries": 0,
+      "canonLeakCount": 0,
+      "surfaceScansCompletedNoMatch": 18,
+      "surfaceScanCount": 18
+    },
+    "materialization": {
+      "completed": 9,
+      "expected": 9,
+      "schemaGatePassed": 9,
+      "byteMismatchCount": 0,
+      "canonLeakCount": 0
+    }
+  },
+  "outcomes": {
+    "soulWins": 4,
+    "neutralWins": 5,
+    "humanDecision": "pending",
+    "cases": [
+      {
+        "genre": "modern-fantasy-ko",
+        "round": 1,
+        "inkosPairId": "bp-3813ea09a532cc56a0c3201e",
+        "blindPairId": "bp-0383f4600042d75adec1d265",
+        "packetId": "frp-8b0fe55e293b565696ec5931",
+        "packetSha256": "8b0fe55e293b565696ec5931fe30c7b70ec564c1b33b4e7c370a94b970618317",
+        "scores": {
+          "candidate-A": 92.0,
+          "candidate-B": 84.8
+        },
+        "winner": "candidate-A",
+        "winningLane": "neutral",
+        "hardContradictionFlags": 2,
+        "winnerHasHardContradiction": false
+      },
+      {
+        "genre": "modern-fantasy-ko",
+        "round": 2,
+        "inkosPairId": "bp-4a0e921e8e4525467cbaddbf",
+        "blindPairId": "bp-09211e76b720b335a8877d5e",
+        "packetId": "frp-1616c37e921e296eeccaf032",
+        "packetSha256": "1616c37e921e296eeccaf032ab37ed439537748dc6d59cf8284338d75beb7d8b",
+        "scores": {
+          "candidate-A": 92.7,
+          "candidate-B": 88.8
+        },
+        "winner": "candidate-A",
+        "winningLane": "neutral",
+        "hardContradictionFlags": 1,
+        "winnerHasHardContradiction": false
+      },
+      {
+        "genre": "modern-fantasy-ko",
+        "round": 3,
+        "inkosPairId": "bp-954ee2ff84060d13c4ef122b",
+        "blindPairId": "bp-f6a9feb8324a29c15057d15d",
+        "packetId": "frp-fa1b5699b0fdc6efed4b22e5",
+        "packetSha256": "fa1b5699b0fdc6efed4b22e5660ee54ecb39288f25f02c1f88188ca8c9c585ee",
+        "scores": {
+          "candidate-A": 91.6,
+          "candidate-B": 91.4
+        },
+        "winner": "candidate-A",
+        "winningLane": "soul",
+        "hardContradictionFlags": 0,
+        "winnerHasHardContradiction": false
+      },
+      {
+        "genre": "fantasy-ko",
+        "round": 1,
+        "inkosPairId": "bp-3e9154b3a37902b4e1ac7bcc",
+        "blindPairId": "bp-ee8e80f5926e06951df0e032",
+        "packetId": "frp-657075751933415b74ccbc32",
+        "packetSha256": "657075751933415b74ccbc32a187e4d9695c6ad2cc01d29acdbd3f6e6bffe017",
+        "scores": {
+          "candidate-A": 93.7,
+          "candidate-B": 91.7
+        },
+        "winner": "candidate-A",
+        "winningLane": "neutral",
+        "hardContradictionFlags": 0,
+        "winnerHasHardContradiction": false
+      },
+      {
+        "genre": "fantasy-ko",
+        "round": 2,
+        "inkosPairId": "bp-8b688885516b6d752cbbacc4",
+        "blindPairId": "bp-d3f3a18a92fd67454fd1605e",
+        "packetId": "frp-eb74b3a148affeeea868f785",
+        "packetSha256": "eb74b3a148affeeea868f785a6d45b78da3f1ac6cc850affc9ac09abd632c3f5",
+        "scores": {
+          "candidate-A": 92.9,
+          "candidate-B": 93.0
+        },
+        "winner": "candidate-B",
+        "winningLane": "soul",
+        "hardContradictionFlags": 0,
+        "winnerHasHardContradiction": false,
+        "humanReviewPriority": "near-tie"
+      },
+      {
+        "genre": "fantasy-ko",
+        "round": 3,
+        "inkosPairId": "bp-6d4c007d45ff1c8bfc3cd5c9",
+        "blindPairId": "bp-2fd6c9c2d45520a0d84fd63e",
+        "packetId": "frp-349306f41a648c80a0f883b6",
+        "packetSha256": "349306f41a648c80a0f883b68b3c231ef12416585701cbb1f7254bb2ef6c84dd",
+        "scores": {
+          "candidate-A": 94.5,
+          "candidate-B": 92.4
+        },
+        "winner": "candidate-A",
+        "winningLane": "soul",
+        "hardContradictionFlags": 0,
+        "winnerHasHardContradiction": false
+      },
+      {
+        "genre": "murim-ko",
+        "round": 1,
+        "inkosPairId": "bp-0f88d294e2834378a3f09dc3",
+        "blindPairId": "bp-d977aa0ce2862803ea6820ff",
+        "packetId": "frp-7671ee771362e321a1a82db6",
+        "packetSha256": "7671ee771362e321a1a82db655565594090ce98da756793819f571cc94fdbc36",
+        "scores": {
+          "candidate-A": 95.1,
+          "candidate-B": 91.8
+        },
+        "winner": "candidate-A",
+        "winningLane": "neutral",
+        "hardContradictionFlags": 0,
+        "winnerHasHardContradiction": false
+      },
+      {
+        "genre": "murim-ko",
+        "round": 2,
+        "inkosPairId": "bp-8e9d07641bf377cbed5c71eb",
+        "blindPairId": "bp-5b9c41ebcdee795721cf3704",
+        "packetId": "frp-8ef0cc30ac12d9a3d3116ac9",
+        "packetSha256": "8ef0cc30ac12d9a3d3116ac954a85568a3a97d61d5363225d71d9bf5d7c578ff",
+        "scores": {
+          "candidate-A": 93.4,
+          "candidate-B": 87.2
+        },
+        "winner": "candidate-A",
+        "winningLane": "soul",
+        "hardContradictionFlags": 1,
+        "winnerHasHardContradiction": true,
+        "humanReviewPriority": "winner-contradiction"
+      },
+      {
+        "genre": "murim-ko",
+        "round": 3,
+        "inkosPairId": "bp-4b34879728b6a81264cc6447",
+        "blindPairId": "bp-adfb2ee2571a78ca0ac8993a",
+        "packetId": "frp-0e3ce561b1db95ef01021942",
+        "packetSha256": "0e3ce561b1db95ef010219422abd4466cb33b7cddfa4acc42dd5faa0ab113283",
+        "scores": {
+          "candidate-A": 92.2,
+          "candidate-B": 91.0
+        },
+        "winner": "candidate-A",
+        "winningLane": "neutral",
+        "hardContradictionFlags": 1,
+        "winnerHasHardContradiction": false
+      }
+    ]
+  },
+  "storyyardProjection": {
+    "packetCount": 9,
+    "indexSha256": "747dd3d32c32a04c5485fd0c842fe7ffd37997098386c2af85b217693c0a465d",
+    "immutablePacketsByteIdenticalToInkOS": 9,
+    "currentLegacyPacketChanged": false,
+    "decisionEffect": "advisory",
+    "humanDecisionsPending": 9,
+    "deployment": {
+      "versionNumber": 64,
+      "status": "succeeded",
+      "url": "https://storyyard-wjjo.macximin11123.chatgpt.site/review",
+      "sourceCommitSha": "339bfe63ad2ec3dcb578c66b224c0b8314d9f5a5",
+      "accessModePreserved": "public"
+    }
+  },
+  "verification": {
+    "hqTests": "148/148 passed",
+    "inkosTargetedTests": "23/23 passed",
+    "inkosCoreTests": "2527/2527 passed",
+    "inkosCoreTypecheck": "passed",
+    "inkosCliTypecheckAndBuild": "passed",
+    "referenceLabFocusedTests": "21/21 passed",
+    "storyyardTests": "37/37 passed",
+    "storyyardBuild": "passed",
+    "independentAudit": {
+      "p0": 0,
+      "p1": 0,
+      "p2": 0
+    }
+  },
+  "authority": {
+    "canonOwner": "inkos",
+    "analysisOwner": "firefly_reference_lab",
+    "humanDecisionSurface": "storyyard",
+    "hqRole": "routing-and-receipt-aggregation",
+    "automaticCanonApply": false,
+    "automaticSoulPromotion": false,
+    "ownerDecisionRequired": true
+  },
+  "nextHumanReviewOrder": [
+    "frp-8ef0cc30ac12d9a3d3116ac9",
+    "frp-eb74b3a148affeeea868f785",
+    "frp-fa1b5699b0fdc6efed4b22e5",
+    "remaining-six-packets"
+  ],
+  "nonClaims": {
+    "soulPromoted": false,
+    "winnerAppliedToCanon": false,
+    "humanDecisionCompleted": false,
+    "fullReferenceLabRegressionCompleted": false
+  }
+}
