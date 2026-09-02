@@ -654,7 +654,7 @@ test("uses the exact exported assistant action when quiet Hermes leaks only its 
   }), true);
 
   const tirithDiagnostic = "⚠ tirith security scanner enabled but not available — command scanning will use pattern matching only";
-  const tirithStdout = `  ${tirithDiagnostic}\r\n\r\n${noisyStdout}`;
+  const tirithStdout = `\r\n\t \r\n  ${tirithDiagnostic}\r\n\r\n${noisyStdout}`;
   assert.equal(validateHermesRenderedControlStdout(tirithStdout, {
     actionText: proposalText,
     reasoningText: parsed.reasoningText,
@@ -682,7 +682,26 @@ test("uses the exact exported assistant action when quiet Hermes leaks only its 
   );
   assert.throws(
     () => validateHermesRenderedControlStdout(`${tirithDiagnostic}\n${tirithDiagnostic}\n${proposalText}\n`, { actionText: proposalText, reasoningText }),
-    /unrecognized prefix/,
+    /multiple Tirith diagnostics/,
+  );
+  assert.throws(
+    () => validateHermesRenderedControlStdout([
+      tirithDiagnostic,
+      "┌─ Reasoning ───┐",
+      tirithDiagnostic,
+      proposalText,
+      "",
+    ].join("\n"), { actionText: proposalText, reasoningText: tirithDiagnostic }),
+    /multiple Tirith diagnostics/,
+  );
+  assert.throws(
+    () => validateHermesRenderedControlStdout([
+      "┌─ Reasoning ───┐",
+      tirithDiagnostic,
+      proposalText,
+      "",
+    ].join("\n"), { actionText: proposalText, reasoningText: tirithDiagnostic }),
+    /not the first nonblank line/,
   );
   assert.throws(
     () => validateHermesRenderedControlStdout(`${tirithDiagnostic}!\n${proposalText}\n`, { actionText: proposalText, reasoningText }),

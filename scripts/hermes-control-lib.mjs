@@ -477,10 +477,19 @@ export function validateHermesRenderedControlStdout(stdout, { actionText, reason
   if (typeof actionText !== "string" || actionText.length === 0) throw new Error("Hermes authoritative action text is missing");
   if (/\r(?!\n)/u.test(stdout)) throw new Error("Hermes stdout contains an invalid carriage return");
   const normalized = stdout.replace(/\r\n/g, "\n");
-  const firstLineEnd = normalized.indexOf("\n");
-  const firstLine = firstLineEnd === -1 ? normalized : normalized.slice(0, firstLineEnd);
-  const hasKnownTirithDiagnostic = firstLine.replace(/^[\t ]*/u, "") === HERMES_TIRITH_UNAVAILABLE_DIAGNOSTIC;
-  const rendered = hasKnownTirithDiagnostic ? normalized.slice(firstLineEnd + 1) : normalized;
+  const renderedLines = normalized.split("\n");
+  const tirithDiagnosticLineIndexes = renderedLines.flatMap((line, index) => (
+    line.replace(/^[\t ]*/u, "") === HERMES_TIRITH_UNAVAILABLE_DIAGNOSTIC ? [index] : []
+  ));
+  if (tirithDiagnosticLineIndexes.length > 1) throw new Error("Hermes stdout contains multiple Tirith diagnostics");
+  if (tirithDiagnosticLineIndexes.length === 1) {
+    const firstNonblankLineIndex = renderedLines.findIndex((line) => line.trim().length > 0);
+    if (tirithDiagnosticLineIndexes[0] !== firstNonblankLineIndex) {
+      throw new Error("Hermes Tirith diagnostic is not the first nonblank line");
+    }
+    renderedLines.splice(tirithDiagnosticLineIndexes[0], 1);
+  }
+  const rendered = renderedLines.join("\n");
   const withoutTrailingWhitespace = rendered.replace(/[\t\n ]+$/u, "");
   if (rendered.trim() === actionText) return true;
   if (!withoutTrailingWhitespace.endsWith(actionText)) {
