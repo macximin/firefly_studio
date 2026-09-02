@@ -491,7 +491,7 @@ export function validateHermesRenderedControlStdout(stdout, { actionText, reason
   }
   const rendered = renderedLines.join("\n");
   const withoutTrailingWhitespace = rendered.replace(/[\t\n ]+$/u, "");
-  if (rendered.trim() === actionText) return true;
+  if (withoutTrailingWhitespace.replace(/^[\t\n ]+/u, "") === actionText) return true;
   if (!withoutTrailingWhitespace.endsWith(actionText)) {
     throw new Error("Hermes stdout does not end with the authoritative session action");
   }
@@ -500,15 +500,16 @@ export function validateHermesRenderedControlStdout(stdout, { actionText, reason
   }
   const prefix = withoutTrailingWhitespace.slice(0, -actionText.length);
   if (/[{}]/u.test(prefix)) throw new Error("Hermes stdout reasoning prefix contains JSON delimiters");
-  const header = prefix.match(/^\s*┌─ Reasoning ─+┐\n/u);
+  const header = prefix.match(/^[\t\n ]*┌─ Reasoning ─+┐\n/u);
   if (!header) throw new Error("Hermes stdout has an unrecognized prefix");
+  let remainder = prefix.slice(header[0].length);
+  if (/^[\t\n ]*$/u.test(remainder)) return true;
   const reasoningTokens = String(reasoningText ?? "")
     .split(/\r?\n/u)
     .map((line) => line.trim())
     .filter((line) => line.length > 0)
     .sort((left, right) => right.length - left.length);
   if (reasoningTokens.length === 0) throw new Error("Hermes stdout reasoning prefix is not bound to exported reasoning");
-  let remainder = prefix.slice(header[0].length);
   let tokenCount = 0;
   while (remainder.length > 0) {
     remainder = remainder.replace(/^[\t\n ]+/u, "");

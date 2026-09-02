@@ -663,6 +663,38 @@ test("uses the exact exported assistant action when quiet Hermes leaks only its 
     actionText: proposalText,
     reasoningText: "",
   }), true);
+  for (const nonRendererWhitespace of ["\v", "\f", "\u00a0"]) {
+    assert.throws(
+      () => validateHermesRenderedControlStdout(`${nonRendererWhitespace}${proposalText}\n`, { actionText: proposalText, reasoningText: "" }),
+      /unrecognized prefix/,
+    );
+    assert.throws(
+      () => validateHermesRenderedControlStdout(`${proposalText}${nonRendererWhitespace}`, { actionText: proposalText, reasoningText: "" }),
+      /does not end with/,
+    );
+  }
+
+  // The v6 Hermes CLI output rendered the Reasoning panel header while
+  // omitting its exported summary body. The exact session action is authoritative.
+  const v6ReasoningHeader = `┌─ Reasoning ${"─".repeat(66)}┐`;
+  const v6EmptyReasoningStdout = [
+    "",
+    v6ReasoningHeader,
+    proposalText,
+    "",
+  ].join("\r\n");
+  assert.equal(validateHermesRenderedControlStdout(v6EmptyReasoningStdout, {
+    actionText: proposalText,
+    reasoningText: "**Drafting chapter writing guidance**",
+  }), true);
+  assert.equal(validateHermesRenderedControlStdout(`┌─ Reasoning ───┐\n\t \n${proposalText}\n`, {
+    actionText: proposalText,
+    reasoningText: "",
+  }), true);
+  assert.equal(validateHermesRenderedControlStdout(`${tirithDiagnostic}\n┌─ Reasoning ───┐\n${proposalText}\n`, {
+    actionText: proposalText,
+    reasoningText: "**Drafting chapter writing guidance**",
+  }), true);
 
   assert.throws(
     () => parseHermesControlSessionExport(sessionBytes, { ...expected, processExitCode: 1 }),
@@ -675,6 +707,22 @@ test("uses the exact exported assistant action when quiet Hermes leaks only its 
   assert.throws(
     () => validateHermesRenderedControlStdout(`┌─ Reasoning ───┐\n{"decoy":true}\n${proposalText}\n`, { actionText: proposalText, reasoningText }),
     /JSON delimiters/,
+  );
+  assert.throws(
+    () => validateHermesRenderedControlStdout(`┌─ Reasoning ───┐\n\u001b[2K\n${proposalText}\n`, { actionText: proposalText, reasoningText }),
+    /differs from exported reasoning/,
+  );
+  assert.throws(
+    () => validateHermesRenderedControlStdout(`┌─ Reasoning ───┐\n**Different reasoning**\n${proposalText}\n`, { actionText: proposalText, reasoningText }),
+    /differs from exported reasoning/,
+  );
+  assert.throws(
+    () => validateHermesRenderedControlStdout(`┌─ Reasoning ───┐\n┌─ Reasoning ───┐\n${proposalText}\n`, { actionText: proposalText, reasoningText }),
+    /differs from exported reasoning/,
+  );
+  assert.throws(
+    () => validateHermesRenderedControlStdout(`\v┌─ Reasoning ───┐\n${proposalText}\n`, { actionText: proposalText, reasoningText }),
+    /unrecognized prefix/,
   );
   assert.throws(
     () => validateHermesRenderedControlStdout(`arbitrary prefix\n${proposalText}\n`, { actionText: proposalText, reasoningText }),
@@ -718,6 +766,10 @@ test("uses the exact exported assistant action when quiet Hermes leaks only its 
   assert.throws(
     () => validateHermesRenderedControlStdout(`${tirithDiagnostic}\n${proposalText}\n${proposalText}\n`, { actionText: proposalText, reasoningText }),
     /multiple authoritative actions/,
+  );
+  assert.throws(
+    () => validateHermesRenderedControlStdout(`┌─ Reasoning ───┐\n${proposalText.replace("write-next", "write-later")}\n`, { actionText: proposalText, reasoningText }),
+    /does not end with/,
   );
 
   const multiJsonSession = structuredClone(session);
