@@ -82,6 +82,7 @@ function manifestFixture(remoteUrl = "git@example.invalid:owner/inkos.git") {
           { name: "reference-bind", mode: "mutating", approval: "human" },
           { name: "pitch-slate", mode: "mutating", approval: "human" },
           { name: "pitch-review", mode: "mutating", approval: "human" },
+          { name: "pitch-export-storyyard", mode: "mutating", approval: "human" },
           { name: "pitch-decision", mode: "mutating", approval: "human" },
           { name: "pitch-promote", mode: "mutating", approval: "human" },
         ],
@@ -805,6 +806,19 @@ function pitchReviewWorkOrder(overrides = {}) {
     workOrderId: "wo-pitch-review-1",
     idempotencyKey: "pitch-review-1",
     capability: "pitch-review",
+    bookId: undefined,
+    slateId: "chaebol-canary",
+    approvalMode: "human",
+    approvedInputs: [],
+    ...overrides,
+  });
+}
+
+function pitchExportStoryyardWorkOrder(overrides = {}) {
+  return statusWorkOrder({
+    workOrderId: "wo-pitch-export-storyyard-1",
+    idempotencyKey: "pitch-export-storyyard-1",
+    capability: "pitch-export-storyyard",
     bookId: undefined,
     slateId: "chaebol-canary",
     approvalMode: "human",
@@ -1962,6 +1976,17 @@ test("routes independent pitch review without generation instructions or candida
     .some((error) => error.includes("does not accept candidateCount")));
 });
 
+test("routes a reviewed pitch slate to a non-applying Storyyard planning packet", () => {
+  const workOrder = pitchExportStoryyardWorkOrder();
+  assert.deepEqual(validateWorkOrder(workOrder, manifestFixture()), []);
+  const plan = buildDispatchPlan({ root: "/tmp/firefly", manifest: manifestFixture(), workOrder });
+  assert.deepEqual(plan.invocation.args.slice(1, 3), ["pitch", "export-storyyard"]);
+  assert.ok(plan.invocation.args.includes("chaebol-canary"));
+  assert.equal(plan.invocation.stdin, null);
+  assert.ok(validateWorkOrder(pitchExportStoryyardWorkOrder({ instruction: "고쳐" }), manifestFixture())
+    .some((error) => error.includes("does not accept instruction")));
+});
+
 test("routes a human pitch decision with the comment on stdin", () => {
   const workOrder = pitchDecisionWorkOrder({ comment: "p02를 상업성 우선으로 선택" });
   assert.deepEqual(validateWorkOrder(workOrder, manifestFixture()), []);
@@ -2198,6 +2223,19 @@ test("requires exact independent review artifacts and validates one survivor", (
   invalid.verdicts[1].verdict = "SURVIVE";
   assert.ok(validatePitchSurvivalReviewData(invalid, { slateId: "demo" }, sourceSlate)
     .some((error) => error.includes("at most one SURVIVE")));
+});
+
+test("requires the exact Storyyard planning packet artifact", () => {
+  const digest = "a".repeat(64);
+  const complete = validateCapabilityArtifacts("pitch-export-storyyard", validateChildArtifacts([
+    { repo: "inkos", path: ".inkos/exports/storyyard/pitch-slates/demo/packet.json", sha256: digest, role: "pitch-storyyard-planning-packet" },
+  ], "inkos"), { slateId: "demo" });
+  assert.deepEqual(complete.errors, []);
+
+  const wrongPath = validateCapabilityArtifacts("pitch-export-storyyard", validateChildArtifacts([
+    { repo: "inkos", path: ".inkos/exports/storyyard/pitch-slates/other/packet.json", sha256: digest, role: "pitch-storyyard-planning-packet" },
+  ], "inkos"), { slateId: "demo" });
+  assert.ok(wrongPath.errors.some((error) => error.includes("exact path")));
 });
 
 test("requires exact decision and planning-promotion artifact sets", () => {

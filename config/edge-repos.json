@@ -78,6 +78,11 @@
             "approval": "human"
           },
           {
+            "name": "pitch-export-storyyard",
+            "mode": "mutating",
+            "approval": "human"
+          },
+          {
             "name": "pitch-decision",
             "mode": "mutating",
             "approval": "human"

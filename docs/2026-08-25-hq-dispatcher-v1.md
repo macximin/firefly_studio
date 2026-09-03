@@ -228,6 +228,11 @@ HQ는 두 결과 파일의 정확한 경로와 해시, 원본 슬레이트 해�
 한 번씩 포함된 순위, 최대 한 개의 `SURVIVE`, `humanDecision=pending`을
 다시 읽어 검증한다.
 
+`pitch-export-storyyard`는 독립 심사가 끝난 schema-v2 슬레이트를
+`firefly_review_packet/v3` 기획 HIL 패킷으로 내보낸다. 이 패킷의 권한은
+`planning-selection`이며 `manuscriptApply`는 항상 `false`다. 기본 경로는
+`.inkos/exports/storyyard/pitch-slates/<slateId>/packet.json`이다.
+
 ### 인간 판정과 기획 승격
 
 `pitch-decision`은 `select | hold | reject` 가운데 하나를 한 번만 불변

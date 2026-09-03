@@ -349,6 +349,12 @@ export function validateWorkOrder(workOrder, manifest) {
     if (workOrder.candidateCount !== undefined) errors.push("pitch-review does not accept candidateCount");
     if (workOrder.instruction !== undefined) errors.push("pitch-review does not accept instruction");
   }
+  if (workOrder.capability === "pitch-export-storyyard") {
+    if (workOrder.bookId !== undefined) errors.push("pitch-export-storyyard must not bind a bookId");
+    if (!hasText(workOrder.slateId)) errors.push("slateId is required for pitch-export-storyyard v1");
+    if (workOrder.candidateCount !== undefined) errors.push("pitch-export-storyyard does not accept candidateCount");
+    if (workOrder.instruction !== undefined) errors.push("pitch-export-storyyard does not accept instruction");
+  }
   if (workOrder.capability === "pitch-decision") {
     if (workOrder.bookId !== undefined) errors.push("pitch-decision must not bind a bookId");
     if (!hasText(workOrder.slateId)) errors.push("slateId is required for pitch-decision v1");
@@ -366,7 +372,7 @@ export function validateWorkOrder(workOrder, manifest) {
     if (!hasText(workOrder.slateId)) errors.push("slateId is required for pitch-promote v1");
     if (workOrder.instruction !== undefined) errors.push("pitch-promote does not accept instruction");
   }
-  if (!["pitch-slate", "pitch-review", "pitch-decision", "pitch-promote"].includes(workOrder.capability) && workOrder.slateId !== undefined) {
+  if (!["pitch-slate", "pitch-review", "pitch-export-storyyard", "pitch-decision", "pitch-promote"].includes(workOrder.capability) && workOrder.slateId !== undefined) {
     errors.push("slateId is only valid for pitch capabilities v1");
   }
   if (workOrder.capability !== "pitch-slate" && workOrder.candidateCount !== undefined) {
@@ -643,6 +649,8 @@ function buildInkosCliPlan({ root, manifest, repoPath, repo, capability, workOrd
     const sessionId = workOrder.sessionId
       ?? `hq-pitch-review-${readableSlate}-${createHash("sha256").update(workOrder.slateId).digest("hex").slice(0, 10)}`;
     args.push("pitch", "review", "--json", "--id", workOrder.slateId, "--session", sessionId);
+  } else if (capability.name === "pitch-export-storyyard") {
+    args.push("pitch", "export-storyyard", "--json", "--id", workOrder.slateId);
   } else if (capability.name === "pitch-decision") {
     args.push(
       "pitch",
@@ -1713,7 +1721,7 @@ export function validateChildArtifacts(value, repoName) {
 }
 
 export function validateCapabilityArtifacts(capability, report, workOrder = null) {
-  if (!["reference-bind", "pitch-slate", "pitch-review", "pitch-decision", "pitch-promote", "agent-operate"].includes(capability)) return report;
+  if (!["reference-bind", "pitch-slate", "pitch-review", "pitch-export-storyyard", "pitch-decision", "pitch-promote", "agent-operate"].includes(capability)) return report;
   const requiredRoles = capability === "agent-operate"
     ? ["hermes-control-action", "hermes-invocation-receipt", "agent-operation-receipt", "production-run"]
     : capability === "reference-bind"
@@ -1722,6 +1730,8 @@ export function validateCapabilityArtifacts(capability, report, workOrder = null
       ? ["pitch-slate-data", "pitch-slate-review"]
       : capability === "pitch-review"
         ? ["pitch-survival-review-data", "pitch-survival-review-readable"]
+        : capability === "pitch-export-storyyard"
+          ? ["pitch-storyyard-planning-packet"]
         : capability === "pitch-decision"
           ? ["pitch-human-decision-data", "pitch-human-decision-readable"]
           : ["pitch-promotion-receipt", "book-config", "book-pitch-selection-data", "book-pitch-selection-readable"];
@@ -1751,6 +1761,14 @@ export function validateCapabilityArtifacts(capability, report, workOrder = null
       const expectedPath = expectedPaths.get(artifact.role);
       if (expectedPath && normalizedRelativePath(artifact.path) !== expectedPath) {
         errors.push(`${artifact.role} must report exact path: ${expectedPath}`);
+      }
+    }
+  }
+  if (capability === "pitch-export-storyyard" && workOrder?.slateId) {
+    const expectedPath = `.inkos/exports/storyyard/pitch-slates/${workOrder.slateId}/packet.json`;
+    for (const artifact of report.artifacts) {
+      if (artifact.role === "pitch-storyyard-planning-packet" && normalizedRelativePath(artifact.path) !== expectedPath) {
+        errors.push(`pitch-storyyard-planning-packet must report exact path: ${expectedPath}`);
       }
     }
   }
@@ -1868,8 +1886,23 @@ async function verifyChildArtifacts(repoPath, report) {
 }
 
 async function verifyCapabilityArtifactContents(repoPath, capability, workOrder, report) {
-  if (!["pitch-slate", "pitch-review", "pitch-decision", "pitch-promote"].includes(capability) || report.errors.length > 0) return report;
+  if (!["pitch-slate", "pitch-review", "pitch-export-storyyard", "pitch-decision", "pitch-promote"].includes(capability) || report.errors.length > 0) return report;
   const errors = [...report.errors];
+  if (capability === "pitch-export-storyyard") {
+    const packetArtifact = report.artifacts.find((artifact) => artifact.role === "pitch-storyyard-planning-packet");
+    if (!packetArtifact) return report;
+    try {
+      const packet = JSON.parse(await readFile(join(repoPath, packetArtifact.path), "utf8"));
+      if (packet.schemaVersion !== "firefly_review_packet/v3") errors.push("Storyyard planning packet must use firefly_review_packet/v3");
+      if (packet.purpose !== "planning-entry") errors.push("Storyyard planning packet must use planning-entry purpose");
+      if (packet.source?.slateId !== workOrder.slateId || packet.work?.id !== workOrder.slateId) errors.push("Storyyard planning packet slate identity does not match the work order");
+      if (packet.authority?.decisionEffect !== "planning-selection" || packet.authority?.manuscriptApply !== false) errors.push("Storyyard planning packet must not authorize manuscript application");
+      if (JSON.stringify(packet.actions) !== JSON.stringify(["select", "hold", "reject"])) errors.push("Storyyard planning packet actions are invalid");
+    } catch {
+      errors.push("Storyyard planning packet is not valid JSON");
+    }
+    return { artifacts: report.artifacts, errors };
+  }
   if (capability === "pitch-decision") {
     const dataArtifact = report.artifacts.find((artifact) => artifact.role === "pitch-human-decision-data");
     if (!dataArtifact) return report;
