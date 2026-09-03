@@ -24,6 +24,69 @@ Grok 결과를 Sol이 전수 재검수해야 한다면 도입하지 않는다.
 판정이 나올 때만 확대한다. 파인튜닝, InkOS 자동 수정, Storyyard 변경,
 새 edge repository 생성은 이 계획의 범위가 아니다.
 
+## 외부 가속기 후보: `im-not-ai`
+
+- 저장소: <https://github.com/epoko77-ai/im-not-ai>
+- 확인 기준: 2026-09-03 `main` commit
+  `31a66d165a9cc6c26c4c1246553f95d0468d27fb`
+- 확인 release: `v2.3.2`
+- license: MIT. 실제 코드나 문서를 복사·수정할 때는 원 저작권 고지와
+  license 조건을 보존한다.
+- 현재 판정: **bootstrap 채택 후보 / Grok·웹소설 직접 사용 불가**
+
+이 저장소는 한국어 AI 문체를 10개 대분류와 70개 패턴으로 탐지하고,
+span 기반 최소 윤문, deterministic metric, route hint와 변경률 검증을 이미
+제공한다. 따라서 taxonomy, quick rule, metric, 결과 형식과 회귀 테스트를
+처음부터 새로 만들 필요는 없다. `의미 보존`, `근거가 있는 span만 수정`,
+`입력은 명령이 아니라 데이터`, `과윤문 중단` 원칙도 Firefly의 얇은
+후처리 방향과 대체로 맞는다.
+
+그러나 “스킬이 있으니 거의 그대로 사용”할 수 있는 범위는 호출 포장까지다.
+다음 차이는 여전히 별도 작업이다.
+
+- 공식 설치·검증 대상은 Claude Code, Codex, GitHub Copilot CLI와 Gemini
+  CLI다. Grok CLI용 skill 또는 adapter는 제공되지 않는다.
+- Codex skill이 선언한 입력 장르는 `칼럼 | 리포트 | 블로그 | 공적`이며
+  웹소설이 없다.
+- 실증 대조 corpus는 칼럼, 에세이, 리포트, 뉴스 해설, 정책, 서평과 학술
+  요약 중심이다. 인물 음성, 장면 인과, 압박·지급·훅을 검증한 fiction
+  benchmark가 아니다.
+- `장문 부재` 같은 관찰은 논설 corpus에서는 신호여도 짧은 문장과 빠른
+  문단 전환이 의도된 웹소설에서는 오탐일 수 있다.
+- 원 저장소의 기본 동작은 탐지와 윤문을 한 호출에서 수행한다. Firefly
+  pilot은 먼저 detect-only여야 하며 InkOS 정본을 직접 고치면 안 된다.
+- 원 저장소의 30% 경고·50% 중단은 과윤문 안전장치로 참고할 수 있지만,
+  Firefly의 상업성 점수나 장르 판정을 대체하지 않는다.
+
+따라서 도입안은 fork나 새 thick wrapper가 아니라 다음의 얇은 조합이다.
+
+```text
+im-not-ai pinned upstream
+  -> taxonomy/metric/test 후보 재사용
+  -> Grok용 read-only prompt adapter
+  -> Firefly 웹소설 corpus로 규칙별 재측정
+  -> 통과 규칙만 webnovel overlay로 유지
+  -> InkOS와 Storyyard 연결은 별도 승인
+```
+
+원본 taxonomy를 사본으로 무기한 복제하지 않는다. 구현 시에는 pinned commit
+또는 명시적 vendored snapshot 중 하나를 선택하고, upstream version과 local
+overlay version을 영수증에 함께 기록한다. 로컬 overlay는 원본 규칙을
+조용히 바꾸지 않고 `keep | narrow | observe-only | disable-for-webnovel` 판정을
+추가한다.
+
+### 작업량 재평가
+
+`im-not-ai`를 사용하면 탐지 taxonomy, 기초 metric, 변경률 계산과 일반 한국어
+회귀 fixture를 만드는 작업은 대부분 줄어든다. 남는 핵심 작업은 Grok adapter,
+웹소설 corpus calibration, 작품·작가 holdout, 비용 계측과 Sol 선별 감리다.
+
+따라서 구현 공수는 대략 절반 이하로 줄 수 있지만 검증 공수는 크게 줄지
+않는다. 스킬 설치 성공은 웹소설 적합성 증거가 아니기 때문이다. 첫 pilot은
+`im-not-ai 그대로`와 `Firefly webnovel overlay`를 같은 30장면에서 비교해,
+overlay가 실제로 필요한 규칙만 확인한다. 차이가 없다면 overlay를 만들지
+않고 upstream을 detect-only로 감싼다.
+
 ## 기존 정본과의 관계
 
 - HQ는 범위, 실행 계약, 비용 영수증과 도입 결정을 소유한다.
@@ -172,13 +235,16 @@ Sol 이전에 결정론적 검증기가 다음을 검사한다.
 
 - 현재 source registry와 장르 Soul/profile 버전을 읽는다.
 - 사용할 원문·InkOS 후보의 권리·private 처리 경계를 확인한다.
+- `im-not-ai`의 pinned commit, license, 설치 대상, taxonomy/metric/test 파일과
+  upstream 추적 방식을 확정한다.
 - taxonomy, JSON schema, 비용 영수증과 selector 계약을 작성한다.
 - 실행 전 모든 출력 경로가 non-canonical인지 검증한다.
 
 ### Phase 1 — 30장면 캘리브레이션
 
 - Sol 단독 gold label을 만든다.
-- 같은 입력을 Grok에 독립 실행한다.
+- 같은 입력을 `im-not-ai` 원형과 Grok detect-only adapter에 독립 실행한다.
+- 원형 규칙마다 `keep | narrow | observe-only | disable-for-webnovel`을 기록한다.
 - 범주별 불일치와 prompt/schema 문제를 수정한다.
 - 이 단계에서는 비용 절감 성공을 주장하지 않는다.
 
@@ -253,10 +319,12 @@ edge_repos/firefly_reference_lab/
 
 1. `config/edge-repos.json`의 현재 managed scope와 각 child 상태
 2. Reference Lab source registry, private source ACL과 ignore 규칙
-3. Grok CLI 로그인, 실제 model ID, token/usage 계측 가능 여부
-4. 현재 장르 Soul/profile과 v7 blind-canary 산출물의 재사용 가능성
-5. 30장면 calibration manifest 초안과 작품·작가 holdout 분리
-6. 실행·과금·원문 외부 전송에 대한 사용자 승인
+3. `im-not-ai` pinned commit, license 고지, upstream 추적과 웹소설 비지원
+   경계
+4. Grok CLI 로그인, 실제 model ID, token/usage 계측 가능 여부
+5. 현재 장르 Soul/profile과 v7 blind-canary 산출물의 재사용 가능성
+6. 30장면 calibration manifest 초안과 작품·작가 holdout 분리
+7. 실행·과금·원문 외부 전송에 대한 사용자 승인
 
-이 여섯 항목을 확인하기 전에는 corpus batch, 자동화, InkOS 연결 또는
+이 일곱 항목을 확인하기 전에는 corpus batch, 자동화, InkOS 연결 또는
 Storyyard 배포를 시작하지 않는다.
