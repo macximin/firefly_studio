@@ -1,0 +1,337 @@
+{
+  "capturedAt": "2026-09-06T01:28:56.496488+00:00",
+  "scope": "model settings and prior canary are immutable; no git publication",
+  "repositories": [
+    {
+      "root": "/Users/a2501/Desktop/firefly_studio",
+      "head": "b7b1c217ae450d9da9907d7e1be79ca855948148",
+      "status": " M config/edge-repos.json\n M config/hermes-blind-evaluator.json\n M config/hermes-neutral-production-profile.json\n M config/hermes-production-profiles.json\n M contracts/firefly-review-packet-v2.schema.json\n M contracts/run-receipt-v2.schema.json\n M contracts/work-order-v1.schema.json\n M contracts/work-order-v2.schema.json\n M docs/2026-09-03-planning-entry-hil.md\n M scripts/blind-canary-batch-plan-lib.mjs\n M scripts/blind-canary-work-order-materializer-lib.mjs\n M scripts/blind-review-bridge-lib.mjs\n M scripts/dispatch-lib.mjs\n M scripts/hermes-blind-evaluator-lib.mjs\n M scripts/hermes-control-lib.mjs\n M scripts/hermes-profile-lib.mjs\n M scripts/inkos-agent-terminal-verifier.mjs\n M tests/blind-canary-batch-plan.test.mjs\n M tests/blind-review-bridge.test.mjs\n M tests/dispatch-contracts.test.mjs\n M tests/dispatch.test.mjs\n M tests/hermes-blind-evaluator.test.mjs\n M tests/hermes-control.test.mjs\n M tests/review-contracts.test.mjs\n?? docs/2026-09-04-pitch-human-grounding-p0-plan.md\n?? docs/2026-09-05-astra-migration-context-efficiency.md\n?? docs/2026-09-05-context-efficiency-followup-plan.md\n?? docs/2026-09-05-context-efficiency-followup-results.md\n?? docs/2026-09-05-drive-corpus-purpose-comparison.md\n?? docs/2026-09-05-first-revision-implementation.md\n?? docs/2026-09-05-first-revision-plan.md\n?? docs/2026-09-05-human-premise-canary-handoff.md\n?? docs/2026-09-05-human-purpose-production-contract-audit.md\n?? docs/2026-09-05-industry-planning-templates-research.md\n?? docs/2026-09-05-inkos-storyyard-terminology-contract-audit.md\n?? docs/2026-09-05-planning-format-candidate.md\n?? docs/2026-09-05-planning-format-v1-implementation.md\n?? docs/2026-09-05-premise-canary-source-fidelity-diagnosis.md\n?? docs/2026-09-05-source-first-redesign-methodology.md\n?? docs/2026-09-06-astra-fresh-planning-canary-results.md\n?? docs/evidence/2026-09-05-astra-migration-context-efficiency.json\n?? docs/evidence/2026-09-05-context-efficiency-followup.json\n?? docs/evidence/2026-09-05-drive-source-purpose-reading.json\n?? docs/evidence/2026-09-05-first-revision-implementation.json\n?? docs/evidence/2026-09-05-first-revision-plan.json\n?? docs/evidence/2026-09-05-human-purpose-production-contract-audit.json\n?? docs/evidence/2026-09-05-planning-format-v1-implementation.json\n?? docs/evidence/2026-09-05-source-first-redesign-methodology.json\n?? docs/evidence/2026-09-05-terminology-contract-audit.json\n?? docs/evidence/industry-templates-2026-09-05/gwangju-2023-synopsis.docx\n?? docs/evidence/industry-templates-2026-09-05/hankyung-2023-story-proposal.docx\n?? docs/evidence/industry-templates-2026-09-05/screen-australia-story-documents-2018.pdf\n?? docs/evidence/industry-templates-2026-09-05/sources.json\n?? docs/evidence/industry-templates-2026-09-05/tenbook-submission.hwp\n?? docs/templates/webnovel-project-plan-v1.md\n?? scripts/firefly-runtime-lib.mjs\n"
+    },
+    {
+      "root": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos",
+      "head": "e375a8cab945556980b90490e214d42aa8336a36",
+      "status": " M packages/cli/src/__tests__/pitch-command.test.ts\n M packages/cli/src/__tests__/production-agent-operate-e2e.test.ts\n M packages/cli/src/__tests__/production-agent-operate.test.ts\n M packages/cli/src/commands/pitch.ts\n M packages/cli/src/commands/production.ts\n M packages/cli/src/program.ts\n M packages/core/skills/inkos-commercial-pitch-review/SKILL.md\n M packages/core/skills/inkos-commercial-pitch-review/references/survival-rubric.md\n M packages/core/skills/inkos-commercial-webnovel-pitch/SKILL.md\n M packages/core/skills/inkos-commercial-webnovel-pitch/references/pitch-vitality-rubric.md\n M packages/core/src/__tests__/agent-session.test.ts\n M packages/core/src/__tests__/agent-system-prompt.test.ts\n M packages/core/src/__tests__/blind-pair-materialization.test.ts\n M packages/core/src/__tests__/book-soul-binding-phase4.test.ts\n M packages/core/src/__tests__/codex-cli.test.ts\n M packages/core/src/__tests__/external-skill-loader.test.ts\n M packages/core/src/__tests__/hermes-control-operation.test.ts\n M packages/core/src/__tests__/planning-entry-contract.test.ts\n M packages/core/src/__tests__/provider.test.ts\n M packages/core/src/__tests__/storyyard-review-packet-v2.test.ts\n M packages/core/src/agent/agent-session.ts\n M packages/core/src/agent/agent-system-prompt.ts\n M packages/core/src/agent/story-rail-tools.ts\n M packages/core/src/agents/architect.ts\n M packages/core/src/agents/base.ts\n M packages/core/src/agents/planner-prompts.ts\n M packages/core/src/agents/writer-prompts.ts\n M packages/core/src/forecast/prompts.ts\n M packages/core/src/index.ts\n M packages/core/src/llm/codex-cli.ts\n M packages/core/src/llm/provider.ts\n M packages/core/src/llm/providers/endpoints/codex.ts\n M packages/core/src/production/book-soul-binding.ts\n M packages/core/src/production/hermes-control-operation.ts\n M packages/core/src/storyyard/blind-pair-materialization.ts\n M packages/core/src/storyyard/pitch-review-packet.ts\n M packages/core/src/storyyard/review-packet-v2.ts\n M packages/studio/src/components/chat/StoryRailsPreview.tsx\n M packages/studio/src/components/chat/__tests__/StoryRailsPreview.test.ts\n M packages/studio/src/pages/ArcCanvas.tsx\n?? config/codex/inkos-model-instructions-v1.md\n?? config/pitch-slate-invalidations.json\n?? packages/cli/src/__tests__/human-premise.test.ts\n?? packages/cli/src/__tests__/pitch-fact-repair.test.ts\n?? packages/cli/src/commands/human-premise.ts\n?? packages/cli/src/commands/pitch-fact-repair.ts\n?? packages/cli/src/commands/source-first-pitch.ts\n?? packages/core/skills/inkos-human-premise-pitch/SKILL.md\n?? packages/core/skills/inkos-human-premise-review/SKILL.md\n?? packages/core/src/__tests__/bounded-json-repair.test.ts\n?? packages/core/src/__tests__/fixtures/source-first-pitch-review-fixture.ts\n?? packages/core/src/__tests__/fixtures/source-first-pitch-review-v3.json\n?? packages/core/src/__tests__/human-premise.test.ts\n?? packages/core/src/__tests__/model-invocation.test.ts\n?? packages/core/src/__tests__/source-fact-repair.test.ts\n?? packages/core/src/__tests__/source-first-spine-retention.test.ts\n?? packages/core/src/__tests__/webnovel-plan-format.test.ts\n?? packages/core/src/llm/model-invocation.ts\n?? packages/core/src/planning/bounded-json-repair.ts\n?? packages/core/src/planning/commercial-expansion.ts\n?? packages/core/src/planning/human-premise.ts\n?? packages/core/src/planning/source-fact-repair.ts\n?? packages/core/src/planning/spine-retention.ts\n?? packages/core/src/planning/webnovel-plan-format.ts\n?? packages/core/src/production/model-policy.ts\n?? packages/core/src/storyyard/human-premise-review-packet.ts\n"
+    },
+    {
+      "root": "/Users/a2501/Desktop/firefly_studio/edge_repos/firefly_reference_lab",
+      "head": "31e2b7788c28fa937f68ba7275860ce6552f5bce",
+      "status": " M analyses/doksik-chaebol3/arc_atlas.md\n M analyses/doksik-chaebol3/arc_map.csv\n M analyses/doksik-chaebol3/chapter_map.csv\n M analyses/doksik-chaebol3/project_bible.md\n M analyses/doksik-chaebol3/project_pitch.md\n M inkos_handoffs/doksik-chaebol3-transformation-pack/v1/receipt.json\n M inkos_handoffs/doksik-chaebol3-transformation-pack/v1/reference-pack.json\n M tests/blind-pair-evaluation-contract.test.mjs\n M tests/blind-pair-evaluation-runner.test.mjs\n M tests/blind-pair-storyyard-projection.test.mjs\n M tests/genre-soul-hermes-run-lib.test.mjs\n M tools/blind-pair-evaluation-contract.mjs\n M tools/blind-pair-evaluation-runner.mjs\n M tools/blind-pair-storyyard-projection.mjs\n M tools/genre-soul-hermes-run-lib.mjs\n M tools/hermes-runtime/firefly-auth-store/sitecustomize.py\n?? analyses/doksik-chaebol3/source_first_receipt_2026-09-05.json\n?? analyses/doksik-chaebol3/source_first_reconstruction_2026-09-05.md\n"
+    },
+    {
+      "root": "/Users/a2501/Desktop/firefly_studio/edge_repos/firefly_market_radar",
+      "head": "2b4a88adf2ecd44c66a017c9073fc420ff131803",
+      "status": ""
+    },
+    {
+      "root": "/Users/a2501/Desktop/firefly_studio/edge_repos/storyyard",
+      "head": "8c43e0ba7e640098211cba43abb574f56cfc1741",
+      "status": " M app/api/firefly/review-decisions/route.ts\n M app/firefly-review-contract.ts\n M app/globals.css\n M app/review/review-board.tsx\n M tests/firefly-review-v2.test.mjs\n M tests/firefly-review-v4.test.mjs\n?? app/review/planning-evidence.tsx\n?? tests/firefly-review-decision-storage.test.mjs\n?? tests/firefly-review-source-first.test.mjs\n?? tests/fixtures/README.md\n?? tests/fixtures/inkos-source-first-pitch-review-v3.json\n"
+    }
+  ],
+  "protectedFiles": [
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/config/genre-soul-adoptions.json",
+      "sha256": "1036cdca666314b8aae15b8406dec914001edbc3ccd673fd79bbe5bb1c09fbeb"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/config/blind-canary-batch.json",
+      "sha256": "0875f9bc5f542c9bbe788106512a91825f11c1ce366403e29eac490421373ad4"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/config/local-edge-paths.json",
+      "sha256": "c548854a7e9d44ed0bc52b32ccc1d9f21cfb29974baeab43b2882439122d4e47"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/config/hermes-production-profiles.json",
+      "sha256": "96271d112035e6d6b1adcd1f8f9524b23a236e6ce211179ac4c7aa4457a6312b"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/config/edge-repos.json",
+      "sha256": "93395634cf65d49475ecfa0d84866a5abfcabe8fb7cd6254c7428378d18c0b56"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/config/hermes-blind-evaluator.json",
+      "sha256": "36a63096f5baae55baaf5f5f7f798a8a963502ebe612115e6f92b3b61d7a2c6d"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/config/local-edge-paths.example.json",
+      "sha256": "9eeb212b29ce82105c3b9e17f0a26a388065562f1ef41ac5e9565870ac41f708"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/config/hermes-neutral-production-profile.json",
+      "sha256": "944d7cf269377f0e557c1eaa642a761b7b77d007f9b72833aa444dfb807bc824"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/inkos.json",
+      "sha256": "147dbc4fee1dbc2ed0a42c716a590dadc9fb74542798adb05806606bab5e336d"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.env",
+      "sha256": "54aedafbd3b7864698e790740312547eaa42dad1d0a343f83409d8575ce6b83a"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/packages/core/src/production/model-policy.ts",
+      "sha256": "097c90733aed87588e327dbb476194d4ad99e1a9fe1d0500fb1e0ca7e6705ce4"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/format-recovery-receipt.json",
+      "sha256": "c28292bcf145ace828ed73059a1f3fdc7957e91224e17e4908bbde7c9335e281"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/p01-independent-audit.md",
+      "sha256": "418d88b78b1e92b8869aca878f8ff202762776ad4d55bc5b019417fb24080ff1"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/comparison.md",
+      "sha256": "41850106e2e20ab72c67a57a01c17d4ed66cea1ce4eac7893ff648c51bdf3144"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/review-stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/review-blindness-audit.json",
+      "sha256": "6eced15c9eb1fc1a93f9a015463a975b03c43023827a65eb4b3cf704f2cf2e18"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/export-invocation.json",
+      "sha256": "d97bee5b8f8a22bf3988d23585c980bedf44d07dca90e6e13424730d51c9058b"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/verify-run.py",
+      "sha256": "9c436cad2579a71934545d2ccd35b70237433d732edb1e25ccb59c02a8d1e869"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/format-guidance-audit.json",
+      "sha256": "ad2c5d10eae4153285d2b4646220cf8031054e1986e772bdc302ff5b07566889"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/p02-candidate.json",
+      "sha256": "26d5abaacf014aa8a8336cf9ada17a165bfd73cfb95dc8d3d5054e0488391a1c"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/export-receipt.json",
+      "sha256": "1f427a0f52b708acbadbc7aebab892a38b9e9ea786c8537306a3d5c77c77e86e"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/review-receipt.json",
+      "sha256": "566871fb22c87614979e2726a272216ce49f2e837a7192a06d548fe8ecd37f0a"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/verify-storyyard-packet.mjs",
+      "sha256": "855fa3b1e6c48f5c04c780ea5c21f1d6c5ff278672f3a41b0033d28b8c1bc549"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/generation-readback.json",
+      "sha256": "9a72c1b8c28ef5f24a13008e764cdd07dcfdaaaabe4b878cf0c9c410733801d1"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/canary-plan.md",
+      "sha256": "7d75109efa0453d6eb6f4ee782071690618aafd35bc2f96e5c8dc98a8ea74c77"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/generate-invocation.json",
+      "sha256": "90cf23b91ff3b632521f9aea78078a0fadf5e8033571262e45a24a50da230a82"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/instruction.txt",
+      "sha256": "25185b23992b90ab4b7ac6716ff847d60d8c7f96f4a2548d44d6b352eb47d6f9"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/export-stdout.json",
+      "sha256": "565ebf8507cda2e933c2b821f41f865284502e2cbb066dff5e219720b229317a"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/recover-format.mjs",
+      "sha256": "484a1160d5bd243a5055e3b58e3af3e71219b133a37db9e9ff13359eb2b6e9a0"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/generate-stdout.json",
+      "sha256": "18b7371689a2acd037a3624a461df81e883b280a53dcb668dc8fb0634b33fc69"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/storyyard-packet.json",
+      "sha256": "582b00115afb924d784a9b4a80e4eea18ce0ac01f8445d8fc2578330523b8851"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/packet-verification.json",
+      "sha256": "556912df91f94cb515c4ba2b1063a66874c5d07c00e18a7c1092e6e6b5a7fe08"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/p01-candidate.json",
+      "sha256": "d50fb7c21b0e227e73f3f8640c986ecfac88378f36bc7df64895e9adf0ed8e68"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/p02-raw-response.txt",
+      "sha256": "a70bcd6900405be3687c891521a9affea9d365ffcffc0150037177c238ddec22"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/p02-plan.md",
+      "sha256": "a5202180a75fdbd47759ac764267ac22429e889bb75e43a9576f5888ba76f71d"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/review-blindness-audit.md",
+      "sha256": "d7378e9685ad89daff2ff36502bac7d48505dd5b0c43066cf007a9e6652bbc71"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/source-audit-checklist.md",
+      "sha256": "db6910707801272f0c3ad1e7bfedbf9f758e56b840e712e23b83676cdddb4f95"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/run-verification-final.json",
+      "sha256": "20b58ac8d291a46d1230f794cf11e683775b0075f84e958bf87cc30bb797d8a2"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/materialize.mjs",
+      "sha256": "4ec5127059d8460d4d944c3c02e0b7b4171331dd229b762ca7261a05007e6a0f"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/export-stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/generate-stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/review-input-readback.md",
+      "sha256": "de251ea6707ec48834714200ec5b17936da09c862215420e52c43301a34b9a33"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/p01-raw-response.txt",
+      "sha256": "50b09a10f7c7f8a7d43fc382e0dd5691ea5f28916157b37e499da5638b488cb6"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/review-stdout.json",
+      "sha256": "dad8f1869373205195b648d84e91773b96a8d3b85932f9f151436cd8d80854fe"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/run-stage.py",
+      "sha256": "72dc252eefd1ee15d53e007234adf46d7357bee99620bf80bea19ad71c07faea"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/runtime-receipt.json",
+      "sha256": "44fb5b795593d792e64a60f664097b5a8fc9319921ae9962713187ad393a400c"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/source-audit-checklist.json",
+      "sha256": "7503c3bc6704ed1e59462dc452f433ca03888636e5f1afea77722908ad3e4582"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/p02-independent-audit.json",
+      "sha256": "2cac71323ab5c313b3e3c616eb004180d51fddebb7567f0b06582d8b496a3216"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/p01-raw-candidate.json",
+      "sha256": "d50fb7c21b0e227e73f3f8640c986ecfac88378f36bc7df64895e9adf0ed8e68"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/inkos.json",
+      "sha256": "d27a168139a207967a70afa0110c1054bd9e5bee2ad4b7d1b25cc1ecdd22e276"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/run-verification.json",
+      "sha256": "f06481542411991e999ead7b6c045934ebb7b04aab9982e8815e1699ea763f7d"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/p01-plan.md",
+      "sha256": "f23a64ffa9d5c0d7e6dd605937bd346df424cbfac3608a7473b9a68e83017be0"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/input-receipt.json",
+      "sha256": "10fc998834db9ede1c5b7396bee4172604197036e7511c8802a7bf1bb9420939"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/generate-receipt.json",
+      "sha256": "7eff62e439058e6662bd2243bb78560bac45990acee6847c387a239e52ab8dd8"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/review-input-readback.json",
+      "sha256": "25dad6911f1d310be2eca0c5a4a6dfdc9155e0f744f319370a5dbd5a879a90fa"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/review-invocation.json",
+      "sha256": "b71571e4d01f712e8b948c2d75a1b0f80a4d6c2f61926bafebf8225b0f7b05ab"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/p02-raw-candidate.json",
+      "sha256": "6e9de00932359edaf60d10978ee8180701da5a10164358fd8e1b48db5d5b58c6"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/p02-independent-audit.md",
+      "sha256": "1eb3a9b191b261fff91f0171c223d173e3c8fa26b7bd5151346ed6aa3681de1b"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/protected-before.json",
+      "sha256": "ba46f329d784f62108650c3d078aea3389f1abd501e5871063cc728d135ae842"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/p01-independent-audit.json",
+      "sha256": "e85dffc75f56282605f54927c98ab84640a49c64a798e4c2aa0de076017c66ca"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/.inkos/sessions/astra-fresh-20260905-v1-independent-review.jsonl",
+      "sha256": "1c9666bf25910d030c445379b568d300c360357f9453cf3a006f2ecb97831f49"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/.inkos/sessions/astra-fresh-20260905-v1-p02.jsonl",
+      "sha256": "f67a5fea00cd0d3ddf7a602a9b56fbcc48eca55d7f44dd5ddf9bcfe321bfea89"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/.inkos/sessions/astra-fresh-20260905-v1-p01.jsonl",
+      "sha256": "2aec33d951134fec77a6228a06e50b1fb6dd215dc69faa9b10d18a7dc7f5e421"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/.inkos/pitch-diagnostics/chaebol-astra-fresh-20260905-v1/p02/attempt-KKhgLa/response.txt",
+      "sha256": "a70bcd6900405be3687c891521a9affea9d365ffcffc0150037177c238ddec22"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/.inkos/pitch-diagnostics/chaebol-astra-fresh-20260905-v1/p02/attempt-KKhgLa/diagnostic.json",
+      "sha256": "4405718cfc115359030b6e5794af9944a6fd7a8f5a88969e79452c9fef9f1d73"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/.inkos/pitch-diagnostics/chaebol-astra-fresh-20260905-v1/p02/attempt-KKhgLa/candidate-before.json",
+      "sha256": "6e9de00932359edaf60d10978ee8180701da5a10164358fd8e1b48db5d5b58c6"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/.inkos/pitch-slates/chaebol-astra-fresh-20260905-v2/review.md",
+      "sha256": "107484e0753b4821715bb811d299ca9bae24560c89246dc6564f9083a23b0afb"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/.inkos/pitch-slates/chaebol-astra-fresh-20260905-v2/slate.json",
+      "sha256": "7651d924450eb56248d048f87369512663768c9f4dd205c0011c1d3480d64eec"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/.inkos/pitch-slates/chaebol-astra-fresh-20260905-v2/survival-review/review.md",
+      "sha256": "0063683764c404f2e926a29a436047e296a05be9fa9225ea45c98041c8a36804"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/.inkos/pitch-slates/chaebol-astra-fresh-20260905-v2/survival-review/review.json",
+      "sha256": "e7bbb78519681d0371e3492a9d628e27c7d78a4d9f5496d3793a58cca285c7cd"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/.inkos/model-invocations/codex/c5dd5548-f9d6-40cd-addb-eac2f85bfc58/request.json",
+      "sha256": "556fdaec8805bb3fcdea85bae997083d48496525d9e8d144c71bb1b44a991d3c"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/.inkos/model-invocations/codex/c5dd5548-f9d6-40cd-addb-eac2f85bfc58/result.json",
+      "sha256": "221640f3821be2bb52ba3d0864513b24f01cc5d5d9e732c5abe8749fda7498b6"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/.inkos/model-invocations/codex/1dbb5050-779d-413a-b164-cf2f64ec8f9a/request.json",
+      "sha256": "7f1ec06f22e7dafeb70022d2556c361f0a35e8e99fa323b9659881636a86ad39"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/.inkos/model-invocations/codex/1dbb5050-779d-413a-b164-cf2f64ec8f9a/result.json",
+      "sha256": "232ba836e39ad3e9b6eeb6b766bebec86acbf45e2ee38a2261cae699f17c2c2f"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/.inkos/model-invocations/codex/bbc9d23b-90b1-44bb-a329-d90e7c373dfc/request.json",
+      "sha256": "ec401e202cdbf8f22fd0179a918bf2a5a52e4969014d14e6980978c0b9514d2e"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-astra-fresh-20260905-v1/.inkos/model-invocations/codex/bbc9d23b-90b1-44bb-a329-d90e7c373dfc/result.json",
+      "sha256": "bdd1d98856e0333f683004c84dc34f86f58ca078bda223a113816f9acc420612"
+    }
+  ]
+}

@@ -1,8 +1,22 @@
 # Planning Entry HIL
 
+> 2026-09-04 감사 결과: 아래 `chaebol-entry-hil-20260903-v1`의 구조적
+> PASS는 창작 품질 PASS로 사용할 수 없다. 피치 런에 Reference Transformation
+> Pack·원문 story index·문체 예문·장르 Soul이 결속되지 않았고, Entry Gate가
+> 필드 존재와 복원 가능성만 검사해 `권리·계약·지분` 중심 후보를 통과시켰다.
+> 두 후보는 승격 금지 상태로 보존하며, 후속 구현은
+> [Pitch Human-Grounding P0 Recovery Plan](2026-09-04-pitch-human-grounding-p0-plan.md)을
+> 따른다.
+
 ## Decision
 
 Firefly production now stops before Book creation until a human selects a planning candidate. The admission order is:
+
+Source-bound Human Premise 운영에서는 이 앞에
+`premise-slate → premise-review → premise-export-storyyard → premise-decision → premise-expand`
+가 온다. `premise-expand`는 선택 전제와 `firefly_spine_retention/v1`을 결속한
+schema-v2 피치 슬레이트를 만들며, 이후 단계는 아래 기존 기획 HIL 경로를 그대로
+재사용한다.
 
 1. HQ dispatches `pitch-slate` to InkOS with verified Reference Lab inputs.
 2. InkOS creates non-canonical candidates. Every candidate must define human desire, immediate situation, Series/Arc/Chapter purpose, repeatable reader fantasy, and first visible payment.

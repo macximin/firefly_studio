@@ -208,3 +208,23 @@ test("RunReceipt v2 schema keeps agent success bodyless and runtime strict", () 
   isolationBoundaryFailed.boundaryChecks.executionRootIsolated = false;
   assert.notDeepEqual(validateWithSchema("run-receipt-v2.schema.json", isolationBoundaryFailed), []);
 });
+
+
+test("WorkOrder and RunReceipt schemas preserve Sol and admit Astra high/medium evidence", () => {
+  const workOrder = agentWorkOrder();
+  workOrder.runtime.model = "gpt-6-astra";
+  assert.deepEqual(validateWithSchema("work-order-v2.schema.json", workOrder), []);
+  const receipt = agentReceipt();
+  receipt.effectiveRuntime.orchestrator.model = "gpt-6-astra";
+  receipt.effectiveRuntime.inkos.model = "gpt-6-astra";
+  receipt.modelCalls[0].model = "gpt-6-astra";
+  assert.deepEqual(validateWithSchema("run-receipt-v2.schema.json", receipt), []);
+  workOrder.runtime.reasoning = "medium";
+  assert.deepEqual(validateWithSchema("work-order-v2.schema.json", workOrder), []);
+  receipt.effectiveRuntime.orchestrator.reasoning = "medium";
+  receipt.effectiveRuntime.inkos.reasoning = "medium";
+  receipt.modelCalls[0].reasoningEffort = "medium";
+  assert.deepEqual(validateWithSchema("run-receipt-v2.schema.json", receipt), []);
+  workOrder.runtime.model = "gpt-5.6-sol";
+  assert.notDeepEqual(validateWithSchema("work-order-v2.schema.json", workOrder), []);
+});

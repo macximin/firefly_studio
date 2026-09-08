@@ -83,6 +83,31 @@
             "approval": "human"
           },
           {
+            "name": "pitch-premise-slate",
+            "mode": "mutating",
+            "approval": "human"
+          },
+          {
+            "name": "pitch-premise-review",
+            "mode": "mutating",
+            "approval": "human"
+          },
+          {
+            "name": "pitch-premise-export-storyyard",
+            "mode": "mutating",
+            "approval": "human"
+          },
+          {
+            "name": "pitch-premise-decision",
+            "mode": "mutating",
+            "approval": "human"
+          },
+          {
+            "name": "pitch-premise-expand",
+            "mode": "mutating",
+            "approval": "human"
+          },
+          {
             "name": "pitch-decision",
             "mode": "mutating",
             "approval": "human"
@@ -156,12 +181,27 @@
         "kind": "tool",
         "capabilities": []
       }
+    },
+    {
+      "name": "v3_ff_foundry",
+      "displayName": "V3 Webnovel Foundry",
+      "path": "edge_repos/v3_ff_foundry",
+      "remoteUrl": "https://github.com/macximin/v3_ff_foundry.git",
+      "branch": "main",
+      "managementState": "active",
+      "adoptionState": "ready",
+      "pullAllowed": true,
+      "writeAllowed": true,
+      "role": "Owner-directed webnovel planning and A/B Rail design workspace; historical v3 works retain their own authority; no direct writes into InkOS canon",
+      "execution": {
+        "kind": "library",
+        "capabilities": []
+      }
     }
   ],
   "excluded": [
     "shortform_hq and all shortform children",
     "v3_ff_command_center",
-    "v3_ff_sources",
-    "v3_ff_foundry"
+    "v3_ff_sources"
   ]
 }

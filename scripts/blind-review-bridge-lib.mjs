@@ -3,6 +3,7 @@ import { constants as fsConstants } from "node:fs";
 import { link, lstat, mkdir, open, readFile, realpath, unlink } from "node:fs/promises";
 import { dirname, isAbsolute, join, normalize, relative, resolve, sep } from "node:path";
 import { homedir } from "node:os";
+import { validateHermesBlindEvaluatorRegistry } from "./hermes-blind-evaluator-lib.mjs";
 
 import {
   FICTION_CONTENT_CONTRACT_ID,
@@ -38,8 +39,6 @@ const GENRE_SOUL_IDS = Object.freeze({
   "murim-ko": "male-murim-ko",
 });
 const GENRES = new Set(Object.keys(GENRE_SOUL_IDS));
-const REVIEWER_CONFIG_SHA256 = "4124e16bc40d28732d1dd02f9f2e8b78127a202313e1ace21021f16fca809f46";
-const REVIEWER_SOUL_SHA256 = "5c4cca60c9971312682f7b71cac5d4d61b6f9e2c42d19af99c8fe6daedacd94b";
 const MAX_REVIEW_ARTIFACT_BYTES = 10 * 1024 * 1024;
 
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
@@ -405,7 +404,9 @@ async function producerActorsFromMapping({ inkosRoot, sourcePair, mapping, byLan
   return actors;
 }
 
-export async function prepareBlindReviewPair({ root, manifest, sourcePair, genre, reviewerActorId, intensityDirectiveSha256 }) {
+export async function prepareBlindReviewPair({ root, manifest, sourcePair, genre, reviewerActorId, intensityDirectiveSha256 }, {
+  contextPreflight = preflightHermesStructuredContextBudget,
+} = {}) {
   sourcePair = safePair(sourcePair);
   if (!GENRES.has(genre)) fail("genre must be modern-fantasy-ko, fantasy-ko, or murim-ko.");
   reviewerActorId = safeId(reviewerActorId, "reviewer actor ID");
@@ -426,7 +427,12 @@ export async function prepareBlindReviewPair({ root, manifest, sourcePair, genre
   const byLane = validatePrivateMapping(mapping, transfer, mappingBytes, sourcePair, genre);
   const producerActors = await producerActorsFromMapping({ inkosRoot, sourcePair, mapping, byLane });
   const refPaths = refLabPaths(sourcePair, transfer.pairId, genre);
+  const registry = parseCanonical(await readStable(root, "config/hermes-blind-evaluator.json", "HQ blind evaluator registry"), "HQ blind evaluator registry");
+  const registryErrors = validateHermesBlindEvaluatorRegistry(registry);
+  if (registryErrors.length > 0) fail(registryErrors.join("; "));
+  const { provider, model, reasoning, configSha256, soulSha256 } = registry.profile;
   const input = assembleBlindPairEvaluationInputFromInkOSTransfer({
+    reviewerRuntime: { provider, model, reasoning, configSha256, soulSha256 },
     transfer,
     genre,
     reviewPacket: { path: refPaths.transferCopy, sha256: sha256(transferBytes), byteLength: transferBytes.byteLength },
@@ -442,7 +448,7 @@ export async function prepareBlindReviewPair({ root, manifest, sourcePair, genre
   if (JSON.stringify(input.candidates).includes("body") || JSON.stringify(input).includes("workOrderId")) fail("prepared input leaked a candidate body or WorkOrder.");
   const candidateContexts = candidateContextsFromTransfer(transfer);
   const evaluatorInputPreflight = buildBlindPairEvaluatorInput(input, candidateContexts);
-  const evaluatorContextPreflight = await preflightHermesStructuredContextBudget({
+  const evaluatorContextPreflight = await contextPreflight({
     profileHome: join(homedir(), ".hermes", "profiles", input.reviewer.profileId),
     profileId: input.reviewer.profileId,
     projectCwd: referenceRoot,
@@ -508,11 +514,11 @@ function validateEvaluatorHostReceipt(hostReceipt, input, inputBytes, resultByte
     validateHermesStructuredReceipt(hostReceipt, {
       role: "blind-pair-commercial-evaluator",
       profileId: "inkos_blind_evaluator",
-      profileConfigSha256: REVIEWER_CONFIG_SHA256,
-      soulSha256: REVIEWER_SOUL_SHA256,
-      provider: "openai-codex",
-      model: "gpt-5.6-sol",
-      reasoningEffort: "high",
+      profileConfigSha256: input.reviewer.configSha256,
+      soulSha256: input.reviewer.soulSha256,
+      provider: input.reviewer.provider,
+      model: input.reviewer.model,
+      reasoningEffort: input.reviewer.reasoning,
       inputDigest: hashBlindEvaluationArtifact(input),
       inputSha256: harnessInputSha256,
       expectedReadCount: 1,
@@ -521,7 +527,7 @@ function validateEvaluatorHostReceipt(hostReceipt, input, inputBytes, resultByte
       resultSha256: sha256(resultBytes),
     });
   } catch (error) {
-    fail(`Reference Lab evaluator host receipt does not bind the exact evaluator input/result or fixed reviewer: ${error.message}`);
+    fail(`Reference Lab evaluator host receipt does not bind the exact evaluator input/result or bound reviewer: ${error.message}`);
   }
 }
 

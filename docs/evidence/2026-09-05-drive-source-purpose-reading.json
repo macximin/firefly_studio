@@ -1,0 +1,128 @@
+{
+  "date": "2026-09-05",
+  "folderUrl": "https://drive.google.com/drive/u/0/folders/1ZD7ImiZJWmBnsshruDD1XLEtimUZKku0",
+  "inventoryScope": "Root 4 folders; corpus first 100 direct entries only (99 text files and 1 folder), not complete corpus inventory; QRP first level 5 folders; original-location folder empty.",
+  "readScope": "Selected passages only; fetched complete readable strings does not mean full-novel reading.",
+  "works": [
+    {
+      "title": "국세청 망나니_동면거북이_합본.txt",
+      "id": "17Y7PYzXivLn9hEiToTMNfShFovXLJL-p",
+      "url": "https://drive.google.com/file/d/17Y7PYzXivLn9hEiToTMNfShFovXLJL-p/view",
+      "mimeType": "text/plain",
+      "modifiedTime": "2026-08-24T11:07:12.825Z",
+      "readableCharacters": 3359148,
+      "chapterMarkerCount": 516,
+      "readScope": "1–3화 (full opening; no later chapter claims)",
+      "anchors": [
+        {
+          "term": "당연히 조집니다.",
+          "charOffset": 8034,
+          "line1": 342,
+          "chapter": "ⓚ2화. 다리 위의 아저씨"
+        },
+        {
+          "term": "다 엎어 버릴 거니까",
+          "charOffset": 13615,
+          "line1": 551,
+          "chapter": "ⓚ3화. 세무서의 망나니"
+        },
+        {
+          "term": "내 손으로 잡은 첫 탈세범",
+          "charOffset": 18812,
+          "line1": 779,
+          "chapter": "ⓚ3화. 세무서의 망나니"
+        },
+        {
+          "term": "성실히 납세의 의무",
+          "charOffset": 9870,
+          "line1": 408,
+          "chapter": "ⓚ2화. 다리 위의 아저씨"
+        }
+      ]
+    },
+    {
+      "title": "대기업 말단이 일을 잘함_동면거북이_합본.txt",
+      "id": "1A2oIYIYSNR5-qNvurxO7OqVD2M18mVof",
+      "url": "https://drive.google.com/file/d/1A2oIYIYSNR5-qNvurxO7OqVD2M18mVof/view",
+      "mimeType": "text/plain",
+      "modifiedTime": "2026-08-24T11:06:59.995Z",
+      "readableCharacters": 4467211,
+      "chapterMarkerCount": 712,
+      "readScope": "프롤로그 및 1–4화",
+      "anchors": [
+        {
+          "term": "나도 할 수 있는 놈",
+          "charOffset": 7882,
+          "line1": 295,
+          "chapter": "ⓚ1화. 물어볼 것이 생겼다"
+        },
+        {
+          "term": "내 목표는 태성 웰빙",
+          "charOffset": 13134,
+          "line1": 510,
+          "chapter": "ⓚ2화. 태성 제5연수원 (1)"
+        },
+        {
+          "term": "제가 원하는 쪽으로 시장 자체",
+          "charOffset": 27064,
+          "line1": 1025,
+          "chapter": "ⓚ4화. 태성 제5연수원 (3)"
+        },
+        {
+          "term": "내 이름을 아네",
+          "charOffset": 27932,
+          "line1": 1070,
+          "chapter": "ⓚ4화. 태성 제5연수원 (3)"
+        }
+      ]
+    },
+    {
+      "title": "망한 양식장을 물려받았다_하늘곰_합본.txt",
+      "id": "1GZE4mG5TjI4ulw6ASQLV2VzHz5V6prGc",
+      "url": "https://drive.google.com/file/d/1GZE4mG5TjI4ulw6ASQLV2VzHz5V6prGc/view",
+      "mimeType": "text/plain",
+      "modifiedTime": "2026-05-22T03:24:04.561Z",
+      "readableCharacters": 1729691,
+      "chapterMarkerCount": 300,
+      "readScope": "1–5화",
+      "anchors": [
+        {
+          "term": "오 년만 버티면",
+          "charOffset": 7467,
+          "line1": 300,
+          "chapter": "ⓚ002."
+        },
+        {
+          "term": "유산 상속 받았다구요",
+          "charOffset": 10839,
+          "line1": 425,
+          "chapter": "ⓚ002."
+        },
+        {
+          "term": "일당 좀 주세요",
+          "charOffset": 15014,
+          "line1": 557,
+          "chapter": "ⓚ003."
+        },
+        {
+          "term": "회사 생활을 할 때와는 달리",
+          "charOffset": 26293,
+          "line1": 933,
+          "chapter": "ⓚ005."
+        },
+        {
+          "term": "사료값 아끼고 좋지",
+          "charOffset": 28300,
+          "line1": 992,
+          "chapter": "ⓚ005."
+        },
+        {
+          "term": "사실상 수협에서 가격을 후려친",
+          "charOffset": 28943,
+          "line1": 1016,
+          "chapter": "ⓚ005."
+        }
+      ]
+    }
+  ]
+}

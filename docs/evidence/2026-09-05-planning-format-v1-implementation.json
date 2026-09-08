@@ -1,0 +1,254 @@
+{
+  "schemaVersion": "firefly_planning_format_implementation/v1",
+  "generatedAt": "2026-09-05T11:28:49.981841+00:00",
+  "formatVersion": "webnovel-project-plan/v1",
+  "status": "implemented-local",
+  "entryContractSchemaChanged": false,
+  "newSemanticGate": false,
+  "modelChanged": false,
+  "productionGenerationRun": false,
+  "commitOrPush": false,
+  "sourceFiles": {
+    "packages/core/src/planning/webnovel-plan-format.ts": {
+      "beforeSha256": null,
+      "afterSha256": "a5503e1b806c1d1b2cbcf417a0d0ed67664be4faf6e73f5ea55a7f709a8e10b4"
+    },
+    "packages/core/src/agents/architect.ts": {
+      "beforeSha256": "17f8f21bae5cda4c5b902b9987a5fd14f99fb76c997796d70d85ed16a909cf0b",
+      "afterSha256": "21c4334ff5d77467653078df51b81056dc0f2f23ca87c0d45e02b6cecd6150f1"
+    },
+    "packages/core/src/agents/planner-prompts.ts": {
+      "beforeSha256": "c6bcd08aee51b63d3b7ed7ca3c60e04acf59566bad231fb85b380ed054efe88b",
+      "afterSha256": "fb2daf44ec3606cbd79c2b35104408c5a33c714c47259833b57d7bd22ad19d72"
+    },
+    "packages/core/src/agents/writer-prompts.ts": {
+      "beforeSha256": "8642e438d1c7b93073e14b20befa67b541ed42f61104ab89ef12d73c0fdf2903",
+      "afterSha256": "b209fba10967cba51c43ca9530e41e5d44c7fde520c22602e41b38b802ad9f40"
+    },
+    "packages/core/src/forecast/prompts.ts": {
+      "beforeSha256": "f8c27c6892bddb053cad8278c6d8077c047513add26ce06d3d5a2da33a8af4be",
+      "afterSha256": "2c51b8776ebd390d96a634831adf0a00cd50eb57cff8b58568aefb6b3727ab0b"
+    },
+    "packages/core/src/index.ts": {
+      "beforeSha256": "46e58081d6b8bb0eeafcbf419ff50b1dd3213b0bcf11ac3d7d8ad61eb1ba74d5",
+      "afterSha256": "d7fe56dfb83b73698d373841e360709a8ceeedceca07aefdb0b0f443dfcc55d0"
+    },
+    "packages/cli/src/commands/pitch.ts": {
+      "beforeSha256": "b109340ce17d4ceed3ab6e92e5a65122dee6bce16e66cdfc0ed229476ee87b4c",
+      "afterSha256": "d3dd403c02d6fe56bd6b3758e853795ac1026a473726f3fc4dcd268acf3a5d8e"
+    },
+    "packages/cli/src/commands/human-premise.ts": {
+      "beforeSha256": "eba13e54df235928e12077657b713cda226542668ad8b5cc0b80923025517e0c",
+      "afterSha256": "30cfc0ff6fa855ef5244cfd7a8df86654044d746a9d419fdc1d6ce36ea33934b"
+    },
+    "packages/core/skills/inkos-commercial-webnovel-pitch/SKILL.md": {
+      "beforeSha256": "aee298b77b18bbbc51e85e10cdfb3fe2bfdc80f56e9ee72f54eda8a02bc6c1e6",
+      "afterSha256": "1c8de548e7181ff2de19bd757adcf40c0bad3555cd2d8fd630fcf9679a47641b"
+    },
+    "packages/core/skills/inkos-commercial-pitch-review/SKILL.md": {
+      "beforeSha256": "c0682c0bdf9bd47e558efabf4a0cc43f6c0b7934dc74235f2979a2f9899afa0f",
+      "afterSha256": "ff1353988b9dff5a009ccdbe10c975b51943f37919b1e0d9d400143123ade2f9"
+    },
+    "packages/core/skills/inkos-commercial-pitch-review/references/survival-rubric.md": {
+      "beforeSha256": "eabd3289eeda32307473b18dac127e05c688d8158384a9f0b6868e3b9d2495bf",
+      "afterSha256": "332d514edb00d6ec04e5947c66e022a0779a2742100270261cab4114ef47a375"
+    },
+    "packages/core/skills/inkos-commercial-webnovel-pitch/references/pitch-vitality-rubric.md": {
+      "beforeSha256": "868e1218fb4af0d29e3a90807a423f70174df209bf58afa26c5828339bfcc472",
+      "afterSha256": "bd7bbac6c03fe6236187faffc883f5e44e371ccbe957ea7ceea1fb2f5e772805"
+    },
+    "packages/core/src/agent/story-rail-tools.ts": {
+      "beforeSha256": "d23eb340da5190a0d603f089db8432ab3cc254eea6ce654026fc8b24eb11d5a2",
+      "afterSha256": "1a914614390bff89dd363229b2a18d256fa5a8d7e070abac288960f07a4f2e18"
+    }
+  },
+  "testFiles": {
+    "packages/core/src/__tests__/webnovel-plan-format.test.ts": "5e20ebda4302f0bbd9f52f1eeb07f51c3f175c9e48f393a88938e39eec0c307f",
+    "packages/core/src/__tests__/planning-entry-contract.test.ts": "5857742a7b8bf54527976363b2429f05ede128f75eb941b166ca97bd4ea576bf",
+    "packages/cli/src/__tests__/pitch-command.test.ts": "9241209c2d4d1e85f080288f546cc63e30e8a9ed33c427e1e47a0e5e1f97f7ad",
+    "packages/cli/src/__tests__/human-premise.test.ts": "e52aa3e873ab94b313790a09da45973d01187463571de0fb4acce37cf4afde76"
+  },
+  "tests": [
+    {
+      "package": "core",
+      "files": [
+        "webnovel-plan-format",
+        "planning-entry-contract",
+        "korean-language-contract",
+        "planner-prompts",
+        "writer-prompts",
+        "forecast-agent",
+        "persisted-governed-plan",
+        "arc-rail-store",
+        "human-premise",
+        "architect-phase5-consolidated"
+      ],
+      "passed": 111
+    },
+    {
+      "package": "core",
+      "files": [
+        "story-rail-tools"
+      ],
+      "passed": 9
+    },
+    {
+      "package": "cli",
+      "files": [
+        "pitch-command",
+        "human-premise"
+      ],
+      "passed": 13
+    }
+  ],
+  "totalUniqueTestsPassed": 133,
+  "build": {
+    "command": "pnpm --filter @actalk/inkos build",
+    "passed": true,
+    "builtArtifacts": {
+      "packages/core/dist/planning/webnovel-plan-format.js": "5df27e8462bfc004b45f1863e04286be918f5bffdd096df908aa3327f1a49341",
+      "packages/core/dist/agents/architect.js": "84488b2d681073e2f7499173cf9e36c10bede8cfe1d454fda3a8327c477318e5",
+      "packages/core/dist/agents/planner-prompts.js": "2116ef7eab63c8ca0b46e6bede2590f4e441b7b7213334797eecd323675b2356",
+      "packages/core/dist/agents/writer-prompts.js": "ef8478f1dbb920c01fa0b720b1e066af33285db1f32edf856b4658dac508a837",
+      "packages/core/dist/forecast/prompts.js": "5293f765fb51d80afe857dc6691ca2bc0750963ebdc9614aae8774cfd698980c",
+      "packages/core/dist/agent/story-rail-tools.js": "44c2245b108990224ef2933f057b26644efe248949ad67381ccad7542d4612ee",
+      "packages/cli/dist/commands/pitch.js": "1cec2091215ea70fb0d3d6000424e8d6215516490d6637903e8d586a78fbb15b",
+      "packages/cli/dist/commands/human-premise.js": "56136fe1e688cfd92edbfeb2dd324f698cff1f94fc18d6b6a66aa5e6f91c1494"
+    },
+    "distImportSmokePassed": true
+  },
+  "protectedFiles": [
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/human-premise-slates/chaebol-human-premise-20260904-v3/review.md",
+      "sha256": "6fc000f4046d251e49ea7476ce14eb65a76c0147a24e5aa2f083e51345b12928",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/human-premise-slates/chaebol-human-premise-20260904-v3/slate.json",
+      "sha256": "3f1faafb316e3c8cc0fb9aa9af43bc68c578f238002ea822cd1eeb610191babd",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/human-premise-slates/chaebol-human-premise-20260904-v3/independent-review/review.md",
+      "sha256": "a51031f81c578d9a8f43e2aa3df43fc5f0d2c07c645746fe2273c9ca69d8f555",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/human-premise-slates/chaebol-human-premise-20260904-v3/independent-review/review.json",
+      "sha256": "d7e96afcfd7ab34c7db4ab10d46d1638e843e126e3c2131b210f73804adaf196",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/exports/storyyard/human-premise-slates/chaebol-human-premise-20260904-v3/packet.json",
+      "sha256": "c08bf0b39d04e5b2d53ade8b17fb18732da2ad4b97926503792dd67fa902f795",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/storyyard/data/firefly/review-packets/immutable/frp-5f7d2056b4d39c9a8d2c8f88.json",
+      "sha256": "e434a0763aca11c9cd3c423d06f0cdefa87a0e7b8530b8f806eb7c0d96ea06ae",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/storyyard/data/firefly/review-packets/immutable/frp-eb74b3a148affeeea868f785.json",
+      "sha256": "11cfa8114f473974522d67b3919f1926e86f0b4069de79636b1e10aa957208d9",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/storyyard/data/firefly/review-packets/immutable/frp-7671ee771362e321a1a82db6.json",
+      "sha256": "98c51ec118026ef5b7ad620db5d67ffefefac6b154173764ea493a3d871e0c2e",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/storyyard/data/firefly/review-packets/immutable/frp-984253c92d9b3bd1fb06c976.json",
+      "sha256": "31cebae3b410e66584b9442ba88f22b67db6393c03589bdecf4005f4ece706cf",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/storyyard/data/firefly/review-packets/immutable/frp-8b0fe55e293b565696ec5931.json",
+      "sha256": "21259cdee908bafeeb7df645a2d21ab168ea9f2a294c1764949b02bf7efd7b54",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/storyyard/data/firefly/review-packets/immutable/frp-1616c37e921e296eeccaf032.json",
+      "sha256": "752e66d25d3bcb952999fe9b14562086188a704e95998b1d0474ba9ed5df30d3",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/storyyard/data/firefly/review-packets/immutable/frp-8ef0cc30ac12d9a3d3116ac9.json",
+      "sha256": "f89a5c776a73dd731917e4307cc8e801e442143e02519191e990b87644a2d6d7",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/storyyard/data/firefly/review-packets/immutable/frp-326a79098a01aabd990f4abb.json",
+      "sha256": "5a47e8d12eda3e56386388dccecfa8aeb9310306c3212ba2b2862ece1d51b7e9",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/storyyard/data/firefly/review-packets/immutable/frp-657075751933415b74ccbc32.json",
+      "sha256": "65ebdfc6c97c9d1216081788825ff3cf3caa01757b6c2a12c39b59269c099528",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/storyyard/data/firefly/review-packets/immutable/frp-fa1b5699b0fdc6efed4b22e5.json",
+      "sha256": "1a59b10b7280e39dc63a9cf789ad436fcb584f77f3d2103a0badc46c4b1d5292",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/storyyard/data/firefly/review-packets/immutable/frp-643e0fc8422a6ba2f6962176.json",
+      "sha256": "c08bf0b39d04e5b2d53ade8b17fb18732da2ad4b97926503792dd67fa902f795",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/storyyard/data/firefly/review-packets/immutable/frp-0e3ce561b1db95ef01021942.json",
+      "sha256": "f389b927d95ba8b8e329b50395a7dd849ad04c217cf9584df416444a9fa8f36e",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/storyyard/data/firefly/review-packets/immutable/frp-349306f41a648c80a0f883b6.json",
+      "sha256": "912611bffe4170d987a7a3a3b32a8c4b508ea2698edef614720b03a95b161457",
+      "unchanged": true
+    }
+  ],
+  "repositories": [
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio",
+      "head": "b7b1c217ae450d9da9907d7e1be79ca855948148",
+      "headUnchanged": true,
+      "statusBefore": " M config/edge-repos.json\n M contracts/work-order-v1.schema.json\n M docs/2026-09-03-planning-entry-hil.md\n M scripts/dispatch-lib.mjs\n M tests/dispatch.test.mjs\n?? docs/2026-09-04-pitch-human-grounding-p0-plan.md\n?? docs/2026-09-05-human-premise-canary-handoff.md\n?? docs/2026-09-05-human-purpose-production-contract-audit.md\n?? docs/2026-09-05-industry-planning-templates-research.md\n?? docs/2026-09-05-planning-format-candidate.md\n?? docs/evidence/\n?? docs/templates/\n",
+      "statusAfter": " M config/edge-repos.json\n M contracts/work-order-v1.schema.json\n M docs/2026-09-03-planning-entry-hil.md\n M scripts/dispatch-lib.mjs\n M tests/dispatch.test.mjs\n?? docs/2026-09-04-pitch-human-grounding-p0-plan.md\n?? docs/2026-09-05-human-premise-canary-handoff.md\n?? docs/2026-09-05-human-purpose-production-contract-audit.md\n?? docs/2026-09-05-industry-planning-templates-research.md\n?? docs/2026-09-05-planning-format-candidate.md\n?? docs/2026-09-05-planning-format-v1-implementation.md\n?? docs/evidence/\n?? docs/templates/\n"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos",
+      "head": "e375a8cab945556980b90490e214d42aa8336a36",
+      "headUnchanged": true,
+      "statusBefore": " M packages/cli/src/commands/pitch.ts\n M packages/core/skills/inkos-commercial-webnovel-pitch/SKILL.md\n M packages/core/src/__tests__/external-skill-loader.test.ts\n M packages/core/src/index.ts\n M packages/core/src/storyyard/pitch-review-packet.ts\n?? config/\n?? packages/cli/src/__tests__/human-premise.test.ts\n?? packages/cli/src/commands/human-premise.ts\n?? packages/core/skills/inkos-human-premise-pitch/\n?? packages/core/skills/inkos-human-premise-review/\n?? packages/core/src/__tests__/human-premise.test.ts\n?? packages/core/src/planning/commercial-expansion.ts\n?? packages/core/src/planning/human-premise.ts\n?? packages/core/src/planning/spine-retention.ts\n?? packages/core/src/storyyard/human-premise-review-packet.ts\n",
+      "statusAfter": " M packages/cli/src/__tests__/pitch-command.test.ts\n M packages/cli/src/commands/pitch.ts\n M packages/core/skills/inkos-commercial-pitch-review/SKILL.md\n M packages/core/skills/inkos-commercial-pitch-review/references/survival-rubric.md\n M packages/core/skills/inkos-commercial-webnovel-pitch/SKILL.md\n M packages/core/skills/inkos-commercial-webnovel-pitch/references/pitch-vitality-rubric.md\n M packages/core/src/__tests__/external-skill-loader.test.ts\n M packages/core/src/__tests__/planning-entry-contract.test.ts\n M packages/core/src/agent/story-rail-tools.ts\n M packages/core/src/agents/architect.ts\n M packages/core/src/agents/planner-prompts.ts\n M packages/core/src/agents/writer-prompts.ts\n M packages/core/src/forecast/prompts.ts\n M packages/core/src/index.ts\n M packages/core/src/storyyard/pitch-review-packet.ts\n?? config/\n?? packages/cli/src/__tests__/human-premise.test.ts\n?? packages/cli/src/commands/human-premise.ts\n?? packages/core/skills/inkos-human-premise-pitch/\n?? packages/core/skills/inkos-human-premise-review/\n?? packages/core/src/__tests__/human-premise.test.ts\n?? packages/core/src/__tests__/webnovel-plan-format.test.ts\n?? packages/core/src/planning/commercial-expansion.ts\n?? packages/core/src/planning/human-premise.ts\n?? packages/core/src/planning/spine-retention.ts\n?? packages/core/src/planning/webnovel-plan-format.ts\n?? packages/core/src/storyyard/human-premise-review-packet.ts\n"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/firefly_reference_lab",
+      "head": "31e2b7788c28fa937f68ba7275860ce6552f5bce",
+      "headUnchanged": true,
+      "statusBefore": "",
+      "statusAfter": ""
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/firefly_market_radar",
+      "head": "2b4a88adf2ecd44c66a017c9073fc420ff131803",
+      "headUnchanged": true,
+      "statusBefore": "",
+      "statusAfter": ""
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/storyyard",
+      "head": "8c43e0ba7e640098211cba43abb574f56cfc1741",
+      "headUnchanged": true,
+      "statusBefore": "",
+      "statusAfter": ""
+    }
+  ],
+  "limitations": [
+    "Actual model prose quality has not been benchmarked.",
+    "Existing pitch and Rail storage counts retained.",
+    "Multi-reference loader expansion and automatic Rail fallback redesign remain outside this patch."
+  ]
+}

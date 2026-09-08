@@ -53,6 +53,7 @@ function config() {
 function authority(value = config()) {
   const profiles = new Map(value.genres.map((item, index) => [item.genreId, {
     profileId: item.profileId,
+    model: "gpt-5.6-sol", reasoning: "high",
     soulId: item.soulId,
     soulVersion: item.soulVersion,
     configSha256: `${index + 1}`.repeat(64),
@@ -73,9 +74,10 @@ function authority(value = config()) {
       sourceRegistry: artifact("evidence/source.json"),
     },
     profiles: {
-      neutral: { profileId: "inkos_neutral_baseline", configSha256: "9".repeat(64), soulSha256: "0".repeat(64) },
+      neutral: { profileId: "inkos_neutral_baseline", model: "gpt-5.6-sol", reasoning: "high", configSha256: "9".repeat(64), soulSha256: "0".repeat(64) },
       evaluator: {
         profileId: "inkos_blind_evaluator",
+        model: "gpt-5.6-sol", reasoning: "high",
         configSha256: "4124e16bc40d28732d1dd02f9f2e8b78127a202313e1ace21021f16fca809f46",
         soulSha256: "5c4cca60c9971312682f7b71cac5d4d61b6f9e2c42d19af99c8fe6daedacd94b",
       },
@@ -348,4 +350,22 @@ test("committed artifact readback and reachable-origin checks fail closed on sta
     await rm(remote, { recursive: true, force: true });
     await rm(peer, { recursive: true, force: true });
   }
+});
+
+
+test("Astra batch uses the sealed profile runtime and rejects a mixed-model pair", () => {
+  const value = config();
+  const bound = authority(value);
+  for (const profile of [bound.profiles.neutral, bound.profiles.evaluator, ...bound.genres.map((item) => item.profile)]) {
+    profile.model = "gpt-6-astra";
+    profile.configSha256 = "a".repeat(64);
+  }
+  const plan = buildBlindCanaryBatchBundle({ config: value, authority: bound, approvedAt: "2026-09-05T00:00:00.000Z" }).plan;
+  assert.deepEqual(validateBlindCanaryBatchPlan(plan), []);
+  assert.ok(plan.pairs.every((pair) => pair.workOrderDrafts.neutral.runtime.model === "gpt-6-astra" && pair.workOrderDrafts.genreSoul.runtime.model === "gpt-6-astra"));
+  const mixed = structuredClone(plan);
+  mixed.pairs[0].workOrderDrafts.neutral.runtime = { model: "gpt-5.6-sol", reasoning: "high" };
+  assert.match(validateBlindCanaryBatchPlan(rehashPlan(mixed))[0], /exact task inputs/);
+  bound.profiles.neutral.model = "gpt-5.6-sol";
+  assert.throws(() => buildBlindCanaryBatchBundle({ config: value, authority: bound, approvedAt: "2026-09-05T00:00:00.000Z" }), /runtime must match exactly/);
 });

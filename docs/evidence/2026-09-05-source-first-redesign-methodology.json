@@ -1,0 +1,114 @@
+{
+  "date": "2026-09-05",
+  "scope": "Methodology only; code inspection and source comparison, no model run or production mutation",
+  "sources": [
+    {
+      "path": "config/edge-repos.json",
+      "sha256": "93395634cf65d49475ecfa0d84866a5abfcabe8fb7cd6254c7428378d18c0b56"
+    },
+    {
+      "path": "edge_repos/firefly_reference_lab/templates/work-arc-analysis-contract.md",
+      "sha256": "58d194dce093beab08526a6301ffdc62e6c353cbff8fec93f6d035de9f8434f0"
+    },
+    {
+      "path": "edge_repos/firefly_reference_lab/tools/build-corpus-reference-pack.mjs",
+      "sha256": "6c2d0c336297457a38b52b2f001cc66799403b3bd443d74653367403fa2690c4"
+    },
+    {
+      "path": "edge_repos/firefly_reference_lab/analyses/doksik-chaebol3/chapter_map.csv",
+      "sha256": "3e6ade1b048df571a4bd327f4c699751eabbe4e403761b4b17f1e54610dd5167"
+    },
+    {
+      "path": "edge_repos/firefly_reference_lab/inkos_handoffs/doksik-chaebol3-transformation-pack/v1/README.md",
+      "sha256": "0f1aed7b9a12274969709f4a43c9a1cb85511f8cb148479aea429fe81ed002e7"
+    },
+    {
+      "path": "edge_repos/inkos/packages/cli/src/commands/human-premise.ts",
+      "sha256": "30cfc0ff6fa855ef5244cfd7a8df86654044d746a9d419fdc1d6ce36ea33934b"
+    },
+    {
+      "path": "edge_repos/inkos/packages/cli/src/commands/pitch.ts",
+      "sha256": "d3dd403c02d6fe56bd6b3758e853795ac1026a473726f3fc4dcd268acf3a5d8e"
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/planning/human-premise.ts",
+      "sha256": "09dd1cf4849699c86e4b5adced350d5735ad6cf68e4496f859ecd27b333e5242"
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/planning/spine-retention.ts",
+      "sha256": "1f4c26a81ed7824474568b64d04f5607f0b77e5f62bf943b191306889c4055e7"
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/planning/entry-contract.ts",
+      "sha256": "54b66ddd6d8cbe25c69f6513499b23cd6d70b4afa4d11ad873ce616e603162ec"
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/planning/webnovel-plan-format.ts",
+      "sha256": "a5503e1b806c1d1b2cbcf417a0d0ed67664be4faf6e73f5ea55a7f709a8e10b4"
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/reference/store.ts",
+      "sha256": "a737359c314d479ca2c4f23e8407d981df785eb19938ae4c4441a93a7fab5f5d"
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/reference/firefly-preflight.ts",
+      "sha256": "2934850aec34a6807528f1964d6d54edc170aa396199766de445636c704790ff"
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/agents/writer.ts",
+      "sha256": "4e15377ebef89a6e8515e8f8e8d4f6b917e57129ec45af3cc574f916c117a60d"
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/skills/inkos-commercial-webnovel-pitch/SKILL.md",
+      "sha256": "1c8de548e7181ff2de19bd757adcf40c0bad3555cd2d8fd630fcf9679a47641b"
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/skills/inkos-human-premise-pitch/SKILL.md",
+      "sha256": "6125e4d465132fce0b4b2cfdfc6f247265125873a4a754e140552153ad03431c"
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/skills/inkos-human-premise-review/SKILL.md",
+      "sha256": "3dc9a51e9fc1732c131623801c2d2d1adcdfb7a9be2b244ba6ab7072c376ad7b"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/human-premise-slates/chaebol-human-premise-20260905-plan-v1/slate.json",
+      "sha256": "1127e0d7c7f70dc347e47254ce8bc8c63fc093adaac7c3820f4ae01ef5fece8d"
+    },
+    {
+      "path": "edge_repos/firefly_reference_lab/private_sources/korean_webnovel_corpus/서오/독식하는 재벌 3세_서오_합본.txt",
+      "sha256": "66f3e7df3123343c14a7134108dc59940511f40372493a549cba8ae709df4b45"
+    }
+  ],
+  "directSourceReadingThisTurn": "독식하는 재벌 3세 52화 후반 약 2200자와 53화 앞부분 약 2500자. 52화 전체 또는 53화 전체 정독 주장이 아님. 기존 Drive 독해 기록은 별도 문서 참조.",
+  "externalSources": [
+    "https://www.cs.auckland.ac.nz/~ian/CBR/AICom.pdf",
+    "https://groups.psych.northwestern.edu/gentner/papers/Gentner83.2b.pdf"
+  ],
+  "repos": [
+    {
+      "path": ".",
+      "head": "b7b1c217ae450d9da9907d7e1be79ca855948148",
+      "status": " M config/edge-repos.json\n M contracts/work-order-v1.schema.json\n M docs/2026-09-03-planning-entry-hil.md\n M scripts/dispatch-lib.mjs\n M tests/dispatch.test.mjs\n?? docs/2026-09-04-pitch-human-grounding-p0-plan.md\n?? docs/2026-09-05-drive-corpus-purpose-comparison.md\n?? docs/2026-09-05-human-premise-canary-handoff.md\n?? docs/2026-09-05-human-purpose-production-contract-audit.md\n?? docs/2026-09-05-industry-planning-templates-research.md\n?? docs/2026-09-05-planning-format-candidate.md\n?? docs/2026-09-05-planning-format-v1-implementation.md\n?? docs/2026-09-05-premise-canary-source-fidelity-diagnosis.md\n?? docs/evidence/\n?? docs/templates/\n"
+    },
+    {
+      "path": "edge_repos/inkos",
+      "head": "e375a8cab945556980b90490e214d42aa8336a36",
+      "status": " M packages/cli/src/__tests__/pitch-command.test.ts\n M packages/cli/src/commands/pitch.ts\n M packages/core/skills/inkos-commercial-pitch-review/SKILL.md\n M packages/core/skills/inkos-commercial-pitch-review/references/survival-rubric.md\n M packages/core/skills/inkos-commercial-webnovel-pitch/SKILL.md\n M packages/core/skills/inkos-commercial-webnovel-pitch/references/pitch-vitality-rubric.md\n M packages/core/src/__tests__/external-skill-loader.test.ts\n M packages/core/src/__tests__/planning-entry-contract.test.ts\n M packages/core/src/agent/story-rail-tools.ts\n M packages/core/src/agents/architect.ts\n M packages/core/src/agents/planner-prompts.ts\n M packages/core/src/agents/writer-prompts.ts\n M packages/core/src/forecast/prompts.ts\n M packages/core/src/index.ts\n M packages/core/src/storyyard/pitch-review-packet.ts\n?? config/\n?? packages/cli/src/__tests__/human-premise.test.ts\n?? packages/cli/src/commands/human-premise.ts\n?? packages/core/skills/inkos-human-premise-pitch/\n?? packages/core/skills/inkos-human-premise-review/\n?? packages/core/src/__tests__/human-premise.test.ts\n?? packages/core/src/__tests__/webnovel-plan-format.test.ts\n?? packages/core/src/planning/commercial-expansion.ts\n?? packages/core/src/planning/human-premise.ts\n?? packages/core/src/planning/spine-retention.ts\n?? packages/core/src/planning/webnovel-plan-format.ts\n?? packages/core/src/storyyard/human-premise-review-packet.ts\n"
+    },
+    {
+      "path": "edge_repos/firefly_reference_lab",
+      "head": "31e2b7788c28fa937f68ba7275860ce6552f5bce",
+      "status": ""
+    }
+  ],
+  "validation": {
+    "allLocalLinksResolve": true,
+    "observedSourcesUnchanged": 19,
+    "methodologySha256": "e944f293b4603a45ccf7a3ddf6cf73ef32504cd65faf064c592e92c32a1ac297",
+    "productionCodeModified": false,
+    "newModelRuns": 0,
+    "newPremises": 0,
+    "testsRun": "No production tests; methodology-only document and source-link/hash validation.",
+    "empiricalMethodSuccess": "Not yet tested; proposed controlled canary protocol only."
+  }
+}

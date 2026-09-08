@@ -1,0 +1,705 @@
+{
+  "kind": "first-revision-implementation-evidence",
+  "createdAt": "2026-09-05T13:29:56.872520+00:00",
+  "status": "local-implementation-and-assisted-canary-complete",
+  "model": "gpt-5.6-sol",
+  "reasoning": "high",
+  "astraComparison": false,
+  "stubEnabled": false,
+  "initialNativeGenerationSucceeded": false,
+  "recovery": [
+    "lossless shape key correction with source anchor receipt",
+    "same-Sol source fact repairs: 35 spans",
+    "same-Sol source fact repairs: 7 spans",
+    "Codex supervisor duplicate factual summary correction: 1 span"
+  ],
+  "finalSlateId": "chaebol-source-first-20260905-v4",
+  "slateSha256": "3730de16e9fa553c85c5e04e03c15c26a56db9e0c650d15025b85a63ed28bcf0",
+  "reviewSha256": "5a1d8958fda4b42849e4f5df926dace1a1aec5caeab8ae394591152b1ef2836e",
+  "packetId": "frp-f6ccb1851f1466c328ce7ac9",
+  "packetSha256": "f6ccb1851f1466c328ce7ac9c274e174c47b65af199c8e7b76ede26b770b275d",
+  "packetFileSha256": "cfa3a7c4a657ccd1b9165eb3a3200942fb27984cfbd479abb0aaba061921b4d0",
+  "referenceInputs": [
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/firefly_reference_lab/analyses/doksik-chaebol3/source_first_reconstruction_2026-09-05.md",
+      "bytes": 19390,
+      "sha256": "4b5d5dde10ce23b7b0442477ba3e6dfa8f37f6f0e17ef4353515e597216894fe"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/firefly_reference_lab/exports/reference-packs/doksik-chaebol3-ko-v1/source-first-20260905/source-excerpts.txt",
+      "bytes": 168340,
+      "sha256": "6185b4febf52bb89c8a4ec1be58ee7fe2c6a7278ef44293506356c6444dfdcc0"
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/firefly_reference_lab/inkos_handoffs/doksik-chaebol3-transformation-pack/v1/reference-pack.json",
+      "bytes": 11691,
+      "sha256": "4e77659d6e079f78c07b0fec1bbe69d350c181db7ae003603f3d49cdb081daa0"
+    }
+  ],
+  "nativeRecommendation": "p01",
+  "candidateVerdicts": {
+    "p01": "SURVIVE",
+    "p02": "HOLD"
+  },
+  "tests": {
+    "totalUniquePassed": 168,
+    "suites": [
+      {
+        "name": "HQ dispatch",
+        "passed": 61
+      },
+      {
+        "name": "InkOS core target",
+        "passed": 27
+      },
+      {
+        "name": "InkOS CLI pitch",
+        "passed": 14
+      },
+      {
+        "name": "InkOS Studio display",
+        "passed": 6
+      },
+      {
+        "name": "Reference pack builder",
+        "passed": 4
+      },
+      {
+        "name": "Storyyard all",
+        "passed": 56
+      }
+    ],
+    "latestCliBuildAndTestsAfterReviewGuidance": "passed",
+    "storyyardBuild": "passed",
+    "storyyardFullTypecheck": {
+      "baselineErrors": 34,
+      "remainingPreexistingErrors": 30,
+      "modifiedContractAndRendererStrictCheck": "passed"
+    }
+  },
+  "sharedProducerFixture": {
+    "sha256": "8db5e29791f1da59720028676c8ec2272df5ba1ebd9a1ba90bb453e855447e37",
+    "byteIdentical": true,
+    "synthetic": true
+  },
+  "baselineFileChecks": [
+    {
+      "path": "AGENTS.md",
+      "beforeSha256": "c2051ec3d6038cb043c2919b1969dd0ca28fcdb94427f2a4f837aec286f280b8",
+      "afterSha256": "c2051ec3d6038cb043c2919b1969dd0ca28fcdb94427f2a4f837aec286f280b8",
+      "unchanged": true
+    },
+    {
+      "path": "config/edge-repos.json",
+      "beforeSha256": "93395634cf65d49475ecfa0d84866a5abfcabe8fb7cd6254c7428378d18c0b56",
+      "afterSha256": "93395634cf65d49475ecfa0d84866a5abfcabe8fb7cd6254c7428378d18c0b56",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/firefly-review-packet-v2.schema.json",
+      "beforeSha256": "156ace062e9e99779127a7d5417fed41eaf205622d0d198c3f6bd3066b6607a9",
+      "afterSha256": "156ace062e9e99779127a7d5417fed41eaf205622d0d198c3f6bd3066b6607a9",
+      "unchanged": true
+    },
+    {
+      "path": "contracts/production-routing.md",
+      "beforeSha256": "8d285788652ec698928254ee7d18987e565726ac4864bda086483b16ac3a260f",
+      "afterSha256": "8d285788652ec698928254ee7d18987e565726ac4864bda086483b16ac3a260f",
+      "unchanged": true
+    },
+    {
+      "path": "docs/2026-09-05-inkos-storyyard-terminology-contract-audit.md",
+      "beforeSha256": "5fffad4b44635b505b267c4fa98e52512d1fd47b37bccffcac278c38248f36df",
+      "afterSha256": "5fffad4b44635b505b267c4fa98e52512d1fd47b37bccffcac278c38248f36df",
+      "unchanged": true
+    },
+    {
+      "path": "docs/2026-09-05-source-first-redesign-methodology.md",
+      "beforeSha256": "e944f293b4603a45ccf7a3ddf6cf73ef32504cd65faf064c592e92c32a1ac297",
+      "afterSha256": "e944f293b4603a45ccf7a3ddf6cf73ef32504cd65faf064c592e92c32a1ac297",
+      "unchanged": true
+    },
+    {
+      "path": "docs/templates/webnovel-project-plan-v1.md",
+      "beforeSha256": "78092576c0e1a4f3e0bd21a39edb59844a60494e74aa397d124d7eadf8b2aaca",
+      "afterSha256": "edb6e8cd7543cafc96a936a9da886d43c2509a973b75aade392db2c2a8104721",
+      "unchanged": false
+    },
+    {
+      "path": "edge_repos/firefly_reference_lab/analyses/doksik-chaebol3/chapter_map.csv",
+      "beforeSha256": "3e6ade1b048df571a4bd327f4c699751eabbe4e403761b4b17f1e54610dd5167",
+      "afterSha256": "923567f63c814b2e9a456d76e253b5b9d2bff92333738173e95b0825f6b0cc98",
+      "unchanged": false
+    },
+    {
+      "path": "edge_repos/inkos/packages/cli/src/commands/pitch.ts",
+      "beforeSha256": "d3dd403c02d6fe56bd6b3758e853795ac1026a473726f3fc4dcd268acf3a5d8e",
+      "afterSha256": "3e7be1249080067f08472eb8edca79498599122908762e3a962e46b52ce77bd2",
+      "unchanged": false
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/skills/inkos-commercial-pitch-review/SKILL.md",
+      "beforeSha256": "ff1353988b9dff5a009ccdbe10c975b51943f37919b1e0d9d400143123ade2f9",
+      "afterSha256": "d9abb1258cc89ed711418b8bd9d222fc4093f65331b332a1e37d5600dcae11f1",
+      "unchanged": false
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/skills/inkos-commercial-webnovel-pitch/SKILL.md",
+      "beforeSha256": "1c8de548e7181ff2de19bd757adcf40c0bad3555cd2d8fd630fcf9679a47641b",
+      "afterSha256": "8128ec7d8d7e5198f569fcd5406d07a10a9ed014baae891ab8939d6b8c1c04ee",
+      "unchanged": false
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/arc/allocation-schema.ts",
+      "beforeSha256": "632ff733409b2755d555b42b72748beac4f1c956c2c790b020452787388713ec",
+      "afterSha256": "632ff733409b2755d555b42b72748beac4f1c956c2c790b020452787388713ec",
+      "unchanged": true
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/arc/allocation-store.ts",
+      "beforeSha256": "489aea26174685d1e84daab51ab5225aba5a0c9c8e93b28ae9fc70ca5a1ba889",
+      "afterSha256": "489aea26174685d1e84daab51ab5225aba5a0c9c8e93b28ae9fc70ca5a1ba889",
+      "unchanged": true
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/arc/forecast.ts",
+      "beforeSha256": "30ace11b7ac1a8708825880129808aaefbd85fe7a29dc0b8beaab84a698d5b55",
+      "afterSha256": "30ace11b7ac1a8708825880129808aaefbd85fe7a29dc0b8beaab84a698d5b55",
+      "unchanged": true
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/arc/rail-context.ts",
+      "beforeSha256": "e2c9f7d3fb686ec0dc3d70d42124665ffc05d5b49b9f5336fbe1ffbc709380aa",
+      "afterSha256": "e2c9f7d3fb686ec0dc3d70d42124665ffc05d5b49b9f5336fbe1ffbc709380aa",
+      "unchanged": true
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/arc/rail-schema.ts",
+      "beforeSha256": "b74289eb0ef2f12366f4592b54894dd9a970e614f77c9f5290e3c3ec2ca35d67",
+      "afterSha256": "b74289eb0ef2f12366f4592b54894dd9a970e614f77c9f5290e3c3ec2ca35d67",
+      "unchanged": true
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/arc/rail-store.ts",
+      "beforeSha256": "74571074b513ad635d94801586108f117a01ec34c237c31b1c759eb48a8b74ce",
+      "afterSha256": "74571074b513ad635d94801586108f117a01ec34c237c31b1c759eb48a8b74ce",
+      "unchanged": true
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/arc/reflow-schema.ts",
+      "beforeSha256": "434bb2eb7a9e5eca322d8caa20511f1d490da37ef1ed70d7a11472b7dd111c2d",
+      "afterSha256": "434bb2eb7a9e5eca322d8caa20511f1d490da37ef1ed70d7a11472b7dd111c2d",
+      "unchanged": true
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/arc/reflow-store.ts",
+      "beforeSha256": "d827b80b34aa5817f71abd2709f4a26ba32cf734dba22e7fccc4ae995f9d5a8b",
+      "afterSha256": "d827b80b34aa5817f71abd2709f4a26ba32cf734dba22e7fccc4ae995f9d5a8b",
+      "unchanged": true
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/arc/schema.ts",
+      "beforeSha256": "63efc8b85f43cad089fddf537baf6ebc7215049319a96f7790107a22c220a52d",
+      "afterSha256": "63efc8b85f43cad089fddf537baf6ebc7215049319a96f7790107a22c220a52d",
+      "unchanged": true
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/arc/store.ts",
+      "beforeSha256": "081f7de895ce69db864cfe7f45928ebb2656bdea702bc056b8d30f6e2b095900",
+      "afterSha256": "081f7de895ce69db864cfe7f45928ebb2656bdea702bc056b8d30f6e2b095900",
+      "unchanged": true
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/models/book.ts",
+      "beforeSha256": "ad70e6d99d97ce54e0d43ccd73188f670c06859bc9d5880f0c11f1450fb58e6c",
+      "afterSha256": "ad70e6d99d97ce54e0d43ccd73188f670c06859bc9d5880f0c11f1450fb58e6c",
+      "unchanged": true
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/planning/entry-contract.ts",
+      "beforeSha256": "54b66ddd6d8cbe25c69f6513499b23cd6d70b4afa4d11ad873ce616e603162ec",
+      "afterSha256": "54b66ddd6d8cbe25c69f6513499b23cd6d70b4afa4d11ad873ce616e603162ec",
+      "unchanged": true
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/planning/spine-retention.ts",
+      "beforeSha256": "1f4c26a81ed7824474568b64d04f5607f0b77e5f62bf943b191306889c4055e7",
+      "afterSha256": "27f01d5284e4340e0432cc90688ed7be721d9ebc3c8050d596ab4f3b8a804bbe",
+      "unchanged": false
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/planning/webnovel-plan-format.ts",
+      "beforeSha256": "a5503e1b806c1d1b2cbcf417a0d0ed67664be4faf6e73f5ea55a7f709a8e10b4",
+      "afterSha256": "cc86d3833114d374c7dddbb3c2a924a2e137cbc81ba6011d76d17ce63db39646",
+      "unchanged": false
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/storyyard/blind-pair-materialization.ts",
+      "beforeSha256": "b0c1a09c02884197bbe873455c2c754e0c134e7e4ebb485e97fc1bca82b089b7",
+      "afterSha256": "b0c1a09c02884197bbe873455c2c754e0c134e7e4ebb485e97fc1bca82b089b7",
+      "unchanged": true
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/storyyard/human-premise-review-packet.ts",
+      "beforeSha256": "3db04cc6f8c10610d9f4c038b282fcccb682881777612e009d274c6fb5998589",
+      "afterSha256": "3db04cc6f8c10610d9f4c038b282fcccb682881777612e009d274c6fb5998589",
+      "unchanged": true
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/storyyard/pitch-review-packet.ts",
+      "beforeSha256": "f5333e33c948106807a30addd3b4b82ce3623e99a5bc8e214725c0be350e796d",
+      "afterSha256": "a27e00788409b439b4341c06d81cb9e34452fd4c455796ae40979b70354312fb",
+      "unchanged": false
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/storyyard/review-packet-v2.ts",
+      "beforeSha256": "e5f3cf02b083896d44e1602b58312b70084abe5082a899d0c426b3bdb27dcaa8",
+      "afterSha256": "e5f3cf02b083896d44e1602b58312b70084abe5082a899d0c426b3bdb27dcaa8",
+      "unchanged": true
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/storyyard/review-packet.ts",
+      "beforeSha256": "c7b4e10cc77b440996aedf4cb4526ae8d102924c708d75bdce699e3af8c6c440",
+      "afterSha256": "c7b4e10cc77b440996aedf4cb4526ae8d102924c708d75bdce699e3af8c6c440",
+      "unchanged": true
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/storyyard/surface-selector-bridge.ts",
+      "beforeSha256": "3790656c8c29a63990d113cd1cb4d63bc59c097a7f6da68a87a86262b0a3ea73",
+      "afterSha256": "3790656c8c29a63990d113cd1cb4d63bc59c097a7f6da68a87a86262b0a3ea73",
+      "unchanged": true
+    },
+    {
+      "path": "edge_repos/inkos/packages/studio/src/components/chat/StoryRailsPreview.tsx",
+      "beforeSha256": "b23e5c514f62a38efd4c1983e3c058918e4eb45999395228c829032b0c35cadc",
+      "afterSha256": "13e5a80c4eea219dd054d2bb569f2c11bbfee0d816d568864391ce7104d66529",
+      "unchanged": false
+    },
+    {
+      "path": "edge_repos/inkos/packages/studio/src/pages/ArcCanvas.tsx",
+      "beforeSha256": "4324db74019475cd93577025993692e918609fa7452cd7c5574d99609a09409d",
+      "afterSha256": "5466621324aed9c4d15bc05fddbd8629db24743489e28c281b268b03f84c6667",
+      "unchanged": false
+    },
+    {
+      "path": "edge_repos/storyyard/app/api/projects/[id]/foundry-sync/route.ts",
+      "beforeSha256": "f8d8d9909ad3ae32a7c8160abec36d668fd86577c54443082c752c02c5a838c2",
+      "afterSha256": "f8d8d9909ad3ae32a7c8160abec36d668fd86577c54443082c752c02c5a838c2",
+      "unchanged": true
+    },
+    {
+      "path": "edge_repos/storyyard/app/canon-packages.ts",
+      "beforeSha256": "4edaeffade0960dc9ca5d278af95fa598cc9327abd2a522085b3ab8d0445945a",
+      "afterSha256": "4edaeffade0960dc9ca5d278af95fa598cc9327abd2a522085b3ab8d0445945a",
+      "unchanged": true
+    },
+    {
+      "path": "edge_repos/storyyard/app/canon/canon-review-board.tsx",
+      "beforeSha256": "3ffffcf260c59ad66c4d3ee966c5ff84e8ce1a3a2314c5d31d4b0d6acefee342",
+      "afterSha256": "3ffffcf260c59ad66c4d3ee966c5ff84e8ce1a3a2314c5d31d4b0d6acefee342",
+      "unchanged": true
+    },
+    {
+      "path": "edge_repos/storyyard/app/firefly-review-ack.ts",
+      "beforeSha256": "55a8b18a4f19d8ba46a0db2df862dd515b7f07a2c816da2473a0a72c780c7d29",
+      "afterSha256": "55a8b18a4f19d8ba46a0db2df862dd515b7f07a2c816da2473a0a72c780c7d29",
+      "unchanged": true
+    },
+    {
+      "path": "edge_repos/storyyard/app/firefly-review-contract.ts",
+      "beforeSha256": "84e603f7f28854edd48ba373cd4779d8569721f45bd3e51298c2ea5989c0d4ad",
+      "afterSha256": "18bc9d0996aa1f9c4d24c4553ff5e6dff86806fc1e62cb9f8e335c39fb54a89d",
+      "unchanged": false
+    },
+    {
+      "path": "edge_repos/storyyard/app/firefly-review-data.ts",
+      "beforeSha256": "547dea211b1a01477c23d310ee23709977062646fc66d79b9a049db559a711ca",
+      "afterSha256": "547dea211b1a01477c23d310ee23709977062646fc66d79b9a049db559a711ca",
+      "unchanged": true
+    },
+    {
+      "path": "edge_repos/storyyard/app/firefly-review-packet-index.mjs",
+      "beforeSha256": "e12ed8ddde3309c79f7670fc229bb59262844342a28894befc6512b4c196667f",
+      "afterSha256": "e12ed8ddde3309c79f7670fc229bb59262844342a28894befc6512b4c196667f",
+      "unchanged": true
+    },
+    {
+      "path": "edge_repos/storyyard/app/project-workspace.tsx",
+      "beforeSha256": "d72270bb1423aae1affb8a91aa47f0f0185cb3094abb0384229e9d3c9f485dc6",
+      "afterSha256": "d72270bb1423aae1affb8a91aa47f0f0185cb3094abb0384229e9d3c9f485dc6",
+      "unchanged": true
+    },
+    {
+      "path": "edge_repos/storyyard/scripts/export-firefly-canon-package.mjs",
+      "beforeSha256": "8b0b3d083b3ec1d2b1f558645698dcc91616686acd03e54f514022c1f7402c8b",
+      "afterSha256": "8b0b3d083b3ec1d2b1f558645698dcc91616686acd03e54f514022c1f7402c8b",
+      "unchanged": true
+    }
+  ],
+  "baselineSameCount": 31,
+  "baselineChangedCount": 11,
+  "repoStates": [
+    {
+      "path": ".",
+      "head": "b7b1c217ae450d9da9907d7e1be79ca855948148",
+      "baselineHead": null,
+      "status": "M config/edge-repos.json\n M contracts/work-order-v1.schema.json\n M docs/2026-09-03-planning-entry-hil.md\n M scripts/dispatch-lib.mjs\n M tests/dispatch.test.mjs\n?? docs/2026-09-04-pitch-human-grounding-p0-plan.md\n?? docs/2026-09-05-drive-corpus-purpose-comparison.md\n?? docs/2026-09-05-first-revision-implementation.md\n?? docs/2026-09-05-first-revision-plan.md\n?? docs/2026-09-05-human-premise-canary-handoff.md\n?? docs/2026-09-05-human-purpose-production-contract-audit.md\n?? docs/2026-09-05-industry-planning-templates-research.md\n?? docs/2026-09-05-inkos-storyyard-terminology-contract-audit.md\n?? docs/2026-09-05-planning-format-candidate.md\n?? docs/2026-09-05-planning-format-v1-implementation.md\n?? docs/2026-09-05-premise-canary-source-fidelity-diagnosis.md\n?? docs/2026-09-05-source-first-redesign-methodology.md\n?? docs/evidence/\n?? docs/templates/",
+      "stagedPaths": "",
+      "deletedOrRenamedTrackedPaths": "",
+      "diffCheck": "passed"
+    },
+    {
+      "path": "edge_repos/inkos",
+      "head": "e375a8cab945556980b90490e214d42aa8336a36",
+      "baselineHead": "e375a8cab945556980b90490e214d42aa8336a36",
+      "status": "M packages/cli/src/__tests__/pitch-command.test.ts\n M packages/cli/src/commands/pitch.ts\n M packages/core/skills/inkos-commercial-pitch-review/SKILL.md\n M packages/core/skills/inkos-commercial-pitch-review/references/survival-rubric.md\n M packages/core/skills/inkos-commercial-webnovel-pitch/SKILL.md\n M packages/core/skills/inkos-commercial-webnovel-pitch/references/pitch-vitality-rubric.md\n M packages/core/src/__tests__/external-skill-loader.test.ts\n M packages/core/src/__tests__/planning-entry-contract.test.ts\n M packages/core/src/agent/story-rail-tools.ts\n M packages/core/src/agents/architect.ts\n M packages/core/src/agents/planner-prompts.ts\n M packages/core/src/agents/writer-prompts.ts\n M packages/core/src/forecast/prompts.ts\n M packages/core/src/index.ts\n M packages/core/src/storyyard/pitch-review-packet.ts\n M packages/studio/src/components/chat/StoryRailsPreview.tsx\n M packages/studio/src/components/chat/__tests__/StoryRailsPreview.test.ts\n M packages/studio/src/pages/ArcCanvas.tsx\n?? config/\n?? packages/cli/src/__tests__/human-premise.test.ts\n?? packages/cli/src/commands/human-premise.ts\n?? packages/cli/src/commands/source-first-pitch.ts\n?? packages/core/skills/inkos-human-premise-pitch/\n?? packages/core/skills/inkos-human-premise-review/\n?? packages/core/src/__tests__/fixtures/source-first-pitch-review-fixture.ts\n?? packages/core/src/__tests__/fixtures/source-first-pitch-review-v3.json\n?? packages/core/src/__tests__/human-premise.test.ts\n?? packages/core/src/__tests__/source-first-spine-retention.test.ts\n?? packages/core/src/__tests__/webnovel-plan-format.test.ts\n?? packages/core/src/planning/commercial-expansion.ts\n?? packages/core/src/planning/human-premise.ts\n?? packages/core/src/planning/spine-retention.ts\n?? packages/core/src/planning/webnovel-plan-format.ts\n?? packages/core/src/storyyard/human-premise-review-packet.ts",
+      "stagedPaths": "",
+      "deletedOrRenamedTrackedPaths": "",
+      "diffCheck": "passed"
+    },
+    {
+      "path": "edge_repos/storyyard",
+      "head": "8c43e0ba7e640098211cba43abb574f56cfc1741",
+      "baselineHead": "8c43e0ba7e640098211cba43abb574f56cfc1741",
+      "status": "M app/api/firefly/review-decisions/route.ts\n M app/firefly-review-contract.ts\n M app/globals.css\n M app/review/review-board.tsx\n?? app/review/planning-evidence.tsx\n?? tests/firefly-review-decision-storage.test.mjs\n?? tests/firefly-review-source-first.test.mjs\n?? tests/fixtures/",
+      "stagedPaths": "",
+      "deletedOrRenamedTrackedPaths": "",
+      "diffCheck": "passed"
+    },
+    {
+      "path": "edge_repos/firefly_reference_lab",
+      "head": "31e2b7788c28fa937f68ba7275860ce6552f5bce",
+      "baselineHead": "31e2b7788c28fa937f68ba7275860ce6552f5bce",
+      "status": "M analyses/doksik-chaebol3/arc_atlas.md\n M analyses/doksik-chaebol3/arc_map.csv\n M analyses/doksik-chaebol3/chapter_map.csv\n M analyses/doksik-chaebol3/project_bible.md\n M analyses/doksik-chaebol3/project_pitch.md\n M inkos_handoffs/doksik-chaebol3-transformation-pack/v1/receipt.json\n M inkos_handoffs/doksik-chaebol3-transformation-pack/v1/reference-pack.json\n?? analyses/doksik-chaebol3/source_first_receipt_2026-09-05.json\n?? analyses/doksik-chaebol3/source_first_reconstruction_2026-09-05.md",
+      "stagedPaths": "",
+      "deletedOrRenamedTrackedPaths": "",
+      "diffCheck": "passed"
+    }
+  ],
+  "boundaryChecks": {
+    "humanDecision": "pending",
+    "bookCreated": false,
+    "productionRailsCreated": false,
+    "arcPacketCreated": false,
+    "manuscriptCreated": false,
+    "operatingStoryyardDeployed": false,
+    "operatingStoryyardDbChanged": false,
+    "commitOrPush": false,
+    "preview": "read-only-local-component-preview"
+  },
+  "readbackReceipt": {
+    "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/storyyard-local-readback.json",
+    "sha256": "19ad0bf3e6fcd7c3da48d9a4e304003151e008560281255fdd2520c344057f48"
+  },
+  "browserReceipt": {
+    "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/storyyard-browser-verification.json",
+    "sha256": "116e911a661cde180fc8387486e0065d2c5d2fa2a0534ba71d95f498d6bc702e"
+  },
+  "implementationFiles": [
+    {
+      "path": "edge_repos/inkos/packages/cli/src/commands/pitch.ts",
+      "sha256": "3e7be1249080067f08472eb8edca79498599122908762e3a962e46b52ce77bd2"
+    },
+    {
+      "path": "edge_repos/inkos/packages/cli/src/commands/source-first-pitch.ts",
+      "sha256": "9bef1ba4f7be7c5117a63f5875aa27cdc3f628047305c958369300f05ad8dbeb"
+    },
+    {
+      "path": "edge_repos/inkos/packages/cli/dist/commands/pitch.js",
+      "sha256": "298923de373e5aa54d5c67d72d2ff621e096313e9b5d0284e5e4024fa4321dc1"
+    },
+    {
+      "path": "edge_repos/inkos/packages/cli/dist/commands/source-first-pitch.js",
+      "sha256": "646e04d0a78cc174126fc6cdd62689cbb5703001e868d93aa56444df66266bbe"
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/skills/inkos-commercial-pitch-review/SKILL.md",
+      "sha256": "d9abb1258cc89ed711418b8bd9d222fc4093f65331b332a1e37d5600dcae11f1"
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/skills/inkos-commercial-pitch-review/references/survival-rubric.md",
+      "sha256": "aabceecaeb46b06f1accbbb14835dc3777da7b618f061df6c8d518bee629d8da"
+    },
+    {
+      "path": "edge_repos/storyyard/app/firefly-review-contract.ts",
+      "sha256": "18bc9d0996aa1f9c4d24c4553ff5e6dff86806fc1e62cb9f8e335c39fb54a89d"
+    },
+    {
+      "path": "edge_repos/storyyard/app/review/planning-evidence.tsx",
+      "sha256": "ad17cbc8606bb2695abd902a3664f06544d6261963c03702c8c5aeb84190bb22"
+    },
+    {
+      "path": "contracts/work-order-v1.schema.json",
+      "sha256": "0108280c9308d7c55a624e1db38438e0ffd08013210d483074529654b36e75e5"
+    },
+    {
+      "path": "scripts/dispatch-lib.mjs",
+      "sha256": "48843ffb1d32d5c13fbcc65150ca0f0289452cbb9a05e02e6dcdbf7fc481d1f1"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/.inkos/pitch-slates/chaebol-source-first-20260905-v2/review.md",
+      "bytes": 43044,
+      "sha256": "e5395c0d9db3367bc52a67b1cb917a458ce3121150bf7e37d073cde19aecfe1a"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/.inkos/pitch-slates/chaebol-source-first-20260905-v2/semantic-repair-receipt.json",
+      "bytes": 25047,
+      "sha256": "5a568d7ed7eb2b21e0c06744e393adf957cb8be81c84f88f9bfeb6dff7472eff"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/.inkos/pitch-slates/chaebol-source-first-20260905-v2/slate.json",
+      "bytes": 110740,
+      "sha256": "a288dc487cbe035f07d8a886f082b4ffa68658f7808450ac1c48d7bdc9ac906d"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/.inkos/pitch-slates/chaebol-source-first-20260905-v2/survival-review/review.json",
+      "bytes": 9469,
+      "sha256": "cbe829a2e3deed22acf2cbaa4104bc1e05bff7d0674f996b2027d16f01357594"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/.inkos/pitch-slates/chaebol-source-first-20260905-v2/survival-review/review.md",
+      "bytes": 7628,
+      "sha256": "c61e1284e86165ecc9950b072a7df967e1622612662adc4d5faef9b05dcd3cf9"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/.inkos/pitch-slates/chaebol-source-first-20260905-v3/final-fact-repair-receipt.json",
+      "bytes": 6950,
+      "sha256": "f75a5d40c9b9ffe0773ccef52dc59c46ca028a58b46a45834fcd9e02c8f87804"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/.inkos/pitch-slates/chaebol-source-first-20260905-v3/review.md",
+      "bytes": 43351,
+      "sha256": "f3814f88302f4b9d16d6221ba7bb97636986f246632cb155f0c4dc757a60a3f2"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/.inkos/pitch-slates/chaebol-source-first-20260905-v3/slate.json",
+      "bytes": 111235,
+      "sha256": "cde5978a3ddcb36797549aee9899449e492c9edb0f5fb96c0b3931546e22fd85"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/.inkos/pitch-slates/chaebol-source-first-20260905-v4/review.md",
+      "bytes": 43347,
+      "sha256": "82d5c97d7e9ee3a8410a6333d9559c65b3a27634976860f4d607b53d0fa862e2"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/.inkos/pitch-slates/chaebol-source-first-20260905-v4/slate.json",
+      "bytes": 111676,
+      "sha256": "3730de16e9fa553c85c5e04e03c15c26a56db9e0c650d15025b85a63ed28bcf0"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/.inkos/pitch-slates/chaebol-source-first-20260905-v4/supervisor-consistency-receipt.json",
+      "bytes": 2426,
+      "sha256": "c3f2200862dac2e9113714f506575560449cb4a532db531861df1fe66995d106"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/.inkos/pitch-slates/chaebol-source-first-20260905-v4/survival-review/review.json",
+      "bytes": 13395,
+      "sha256": "5a1d8958fda4b42849e4f5df926dace1a1aec5caeab8ae394591152b1ef2836e"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/.inkos/pitch-slates/chaebol-source-first-20260905-v4/survival-review/review.md",
+      "bytes": 11554,
+      "sha256": "0638fa64eaa661d0f4611d9944db5a8ffbf8824ce217faa2e5cfe12aac9dbc17"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/.inkos/sessions/source-first-20260905-v1-p01.jsonl",
+      "bytes": 133479,
+      "sha256": "6d90635193219740dbf5ffe7bfc3dc9bec703882973ba2bf96804b0c883cdd20"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/.inkos/sessions/source-first-20260905-v1-p02.jsonl",
+      "bytes": 135830,
+      "sha256": "72cbf98431809d7dc09ebee4745bb13c1a1ced72b6579f7967264515d660cf67"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/.inkos/sessions/source-first-20260905-v2-fact-repair.jsonl",
+      "bytes": 227353,
+      "sha256": "b6e6becc3a5664f716c5ba5ff51e3a3e8f8ebc1631c8151f7e8e0a7e4049394d"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/.inkos/sessions/source-first-20260905-v2-independent-review.jsonl",
+      "bytes": 232213,
+      "sha256": "aea99a93ff8eccc13e61d9fd78c5ccd7e428b5bde4c116a709b18ca15a01b67b"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/.inkos/sessions/source-first-20260905-v3-fact-repair.jsonl",
+      "bytes": 211135,
+      "sha256": "2351cb3f857405411655fafc3e501fc4734f92956487a30d3ffd64bb2dfe0613"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/.inkos/sessions/source-first-20260905-v4-independent-review.jsonl",
+      "bytes": 241049,
+      "sha256": "4e09b194fbabf590fb4dd7118be8566ddda2631dcb7f917fa20516ee08083e52"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/apply-final-consistency.mjs",
+      "bytes": 3791,
+      "sha256": "933327903e03b3f3e5e819c6f7d7554117711225b8d4986bd131d097a5b0fcb8"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/comparison.md",
+      "bytes": 4012,
+      "sha256": "de3a26048ace5a383bc51be66159855dcf4f2fe350506a1e4030b79c11219239"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/final-fact-repair-link.json",
+      "bytes": 483,
+      "sha256": "1cdf250a99c19b5bb262a14b4182c70ffd1dd96e6357fe783a85efbf9be6d4b4"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/final-fact-repair-response.txt",
+      "bytes": 5088,
+      "sha256": "25d609cac6a01403ec8dddb78a1fcee61d42d1f174b4a06986fef87a7c91c893"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/final-fact-repair-result.json",
+      "bytes": 267,
+      "sha256": "d6178c281f98f06951d9d488b1679358dec603b27036e99a2257492932530bc6"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/final-independent-review-result.json",
+      "bytes": 891,
+      "sha256": "17f384d2374ce03831eb767ae59f8cbf508ad1c1e53258144486947fdc1aa073"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/final-scoped-source-audit.json",
+      "bytes": 1927,
+      "sha256": "a90e9f2af99528fb23f82f4e8f98afe59ed2926acb5036d51cbc7d9f015f046a"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/generation-result.json",
+      "bytes": 1371,
+      "sha256": "33eae4587849655a6a2b890adefcf73f6d92491b726f55bdd064b091aaebe057"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/generator-implementation-hashes.json",
+      "bytes": 354,
+      "sha256": "350309dfc5b358ac2e4d20079b43bff2057881cbdf060574d57c3f14d2bb331c"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/independent-review-result.json",
+      "bytes": 891,
+      "sha256": "31d2bd649206b87719e96c3a8da210d351a2854a6b790341ca603275e28faf0b"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/inkos.json",
+      "bytes": 1114,
+      "sha256": "720c3a2e337cea36938c43ca5ba24cad93717c061cdbedbd9cd0763e42fef82c"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/p01-initial-unvalidated.json",
+      "bytes": 49710,
+      "sha256": "7cd96e50293487f46508d6f96f1fd58b596bc49dcddefac547c5a2c9beaf1b28"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/p01-plan.md",
+      "bytes": 13744,
+      "sha256": "87387f845821772c5ae3205613143a47a5392f2073a564df915156b4cacfd62b"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/p01-unvalidated-response.json",
+      "bytes": 49007,
+      "sha256": "9444082105dc98990cbff8857a6e0ac27cf0bb5afd79a035d22a17afbc1ca1d7"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/p01-validated-response.json",
+      "bytes": 48962,
+      "sha256": "057a154629a2317d576c3a86489b90c257862a175799e9f47a68b6bef40e5f4a"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/p02-final-unvalidated-response.json",
+      "bytes": 50889,
+      "sha256": "30af76b188d9fae52742debff5ed5246b56cc36b2e78329046fff29009013420"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/p02-initial-response.json",
+      "bytes": 49739,
+      "sha256": "b25408263d36b124150768c335e12c7abedb1eebb833681eb8bafdadd727bf68"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/p02-plan.md",
+      "bytes": 14723,
+      "sha256": "9970e9dbb807dcb343aecc256e780ab0cabd3fe4f7be963d185bd4feb605875e"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/recovery-input.json",
+      "bytes": 108420,
+      "sha256": "eba457dadac9dde6d7ed887ca874a438d0e9fdadc95431950bd304a4e7d6e305"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/repair-final-source-facts.mjs",
+      "bytes": 14515,
+      "sha256": "cc63a2706b57d01a6dd2ab74db5a92b2ff0609007764c357e94ff0217037f1f2"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/repair-source-facts.mjs",
+      "bytes": 15830,
+      "sha256": "00cf1b47c72c4bcecbd37e323b88f1e656ceefb7d537b3eba51eb15e0d45c5d6"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/runtime-receipt.json",
+      "bytes": 1161,
+      "sha256": "0d62a539c08e6f5f7d02330a1cdaee33e90c0e133ee7cc1ff7671aaca3d0cac8"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/semantic-repair-apply-result.json",
+      "bytes": 268,
+      "sha256": "b77fbfd4127b6f0a88964301659de52e84ca279296e637f60323e1d3fa685cb4"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/semantic-repair-link.json",
+      "bytes": 483,
+      "sha256": "341e352ed597b0e125924614c1c1723fa63403b19e07aefea8384bbd461123bd"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/semantic-repair-response.txt",
+      "bytes": 21785,
+      "sha256": "5ce0d803b6db4d3e2d73f506e3590f0897b6fff2af8874cebee000e252099ca1"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/semantic-repair-result.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/shape-recovery-receipt.json",
+      "bytes": 11667,
+      "sha256": "781acf54324b24ddd53f991d06c0a7ad56baa8906e90020e633ffab7d1e5d7af"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/storyyard-browser-verification.json",
+      "bytes": 1832,
+      "sha256": "116e911a661cde180fc8387486e0065d2c5d2fa2a0534ba71d95f498d6bc702e"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/storyyard-export-result.json",
+      "bytes": 510,
+      "sha256": "39c8c7e80ca8f8851381987800de9ea109eb6273c892d1c6b2f60df85522e81d"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/storyyard-local-readback.json",
+      "bytes": 16362,
+      "sha256": "19ad0bf3e6fcd7c3da48d9a4e304003151e008560281255fdd2520c344057f48"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/storyyard-packet.json",
+      "bytes": 111484,
+      "sha256": "cfa3a7c4a657ccd1b9165eb3a3200942fb27984cfbd479abb0aaba061921b4d0"
+    },
+    {
+      "path": "edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/supervisor-consistency-result.json",
+      "bytes": 253,
+      "sha256": "5c11757f85e9558089be6fb5d830d4798f5590e20c06de5355eaef482258f6ff"
+    }
+  ],
+  "limitations": [
+    "Assisted recovery is not an uninterrupted native generation success.",
+    "Independent reviewer opinions are not human decisions, original-text certification, or production authorization.",
+    "Direct original reading is limited to chapters1-10 and52-53; long-run outline uses prior analysis.",
+    "Existing dirty source edits were retained; baseline does not contain every file before-content.",
+    "HQ routing tests passed but the real model canary ran native CLI rather than an HQ WorkOrder.",
+    "Local rendering and exact response readback are not authenticated operating Storyyard end-to-end verification."
+  ]
+}

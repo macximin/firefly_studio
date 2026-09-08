@@ -1,3 +1,4 @@
+import { isFireflyHighRuntime } from "./firefly-runtime-lib.mjs";
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
@@ -49,10 +50,15 @@ const WORK_ORDER_KEYS = new Set([
   "capability",
   "bookId",
   "slateId",
+  "outputSlateId",
   "candidateId",
   "humanDecision",
   "comment",
   "candidateCount",
+  "planningMode",
+  "sourcePackId",
+  "sourceSequences",
+  "styleExampleIds",
   "sessionId",
   "instruction",
   "approvalMode",
@@ -262,7 +268,7 @@ export function validateWorkOrder(workOrder, manifest) {
   }
   if (!hasText(workOrder.repo)) errors.push("repo is required");
   if (!hasText(workOrder.capability)) errors.push("capability is required");
-  for (const field of ["bookId", "slateId", "candidateId", "humanDecision", "comment", "sessionId", "instruction"]) {
+  for (const field of ["bookId", "slateId", "outputSlateId", "candidateId", "humanDecision", "comment", "sessionId", "instruction"]) {
     if (workOrder[field] !== undefined && !hasText(workOrder[field])) {
       errors.push(`${field} must be a non-empty string when provided`);
     }
@@ -273,12 +279,36 @@ export function validateWorkOrder(workOrder, manifest) {
   if (workOrder.slateId !== undefined && !SAFE_SLATE_ID.test(workOrder.slateId)) {
     errors.push("slateId must use 1-80 safe filename characters");
   }
+  if (workOrder.outputSlateId !== undefined && !SAFE_SLATE_ID.test(workOrder.outputSlateId)) {
+    errors.push("outputSlateId must use 1-80 safe filename characters");
+  }
   if (workOrder.comment !== undefined && workOrder.comment.length > 2000) {
     errors.push("comment must be 2,000 characters or fewer");
   }
   if (workOrder.candidateCount !== undefined
     && (!Number.isInteger(workOrder.candidateCount) || workOrder.candidateCount < 1 || workOrder.candidateCount > 20)) {
     errors.push("candidateCount must be an integer between 1 and 20");
+  }
+  if (workOrder.sourcePackId !== undefined && (!hasText(workOrder.sourcePackId) || !SAFE_SLATE_ID.test(workOrder.sourcePackId))) {
+    errors.push("sourcePackId must use safe filename characters");
+  }
+  if (workOrder.planningMode !== undefined && !["general", "source-first"].includes(workOrder.planningMode)) {
+    errors.push("planningMode must be general or source-first");
+  }
+  if (workOrder.planningMode !== undefined && workOrder.capability !== "pitch-slate") {
+    errors.push("planningMode is only valid for pitch-slate");
+  }
+  if (workOrder.sourceSequences !== undefined && (!Array.isArray(workOrder.sourceSequences)
+    || workOrder.sourceSequences.length < 1 || workOrder.sourceSequences.length > 12
+    || workOrder.sourceSequences.some((value) => !Number.isInteger(value) || value < 1)
+    || new Set(workOrder.sourceSequences).size !== workOrder.sourceSequences.length)) {
+    errors.push("sourceSequences must contain 1-12 unique positive integers");
+  }
+  if (workOrder.styleExampleIds !== undefined && (!Array.isArray(workOrder.styleExampleIds)
+    || workOrder.styleExampleIds.length < 1 || workOrder.styleExampleIds.length > 12
+    || workOrder.styleExampleIds.some((value) => !hasText(value))
+    || new Set(workOrder.styleExampleIds).size !== workOrder.styleExampleIds.length)) {
+    errors.push("styleExampleIds must contain 1-12 unique non-empty strings");
   }
   if (!Array.isArray(workOrder.approvedInputs)) errors.push("approvedInputs must be an array");
   if (workOrder.privateInputs !== undefined && !Array.isArray(workOrder.privateInputs)) {
@@ -342,6 +372,12 @@ export function validateWorkOrder(workOrder, manifest) {
     if (!workOrder.approvedInputs?.some((input) => input.role === "pitch-reference-pack")) {
       errors.push("pitch-slate requires approved input role: pitch-reference-pack");
     }
+    const sourcePacks = (Array.isArray(workOrder.approvedInputs) ? workOrder.approvedInputs : []).filter((input) => input?.role === "pitch-source-pack");
+    if (workOrder.planningMode === "source-first" && sourcePacks.length !== 1) {
+      errors.push("source-first pitch-slate requires exactly one approved pitch-source-pack");
+    } else if (workOrder.planningMode !== "source-first" && sourcePacks.length > 0) {
+      errors.push("pitch-source-pack requires explicit source-first planningMode");
+    }
   }
   if (workOrder.capability === "pitch-review") {
     if (workOrder.bookId !== undefined) errors.push("pitch-review must not bind a bookId");
@@ -354,6 +390,38 @@ export function validateWorkOrder(workOrder, manifest) {
     if (!hasText(workOrder.slateId)) errors.push("slateId is required for pitch-export-storyyard v1");
     if (workOrder.candidateCount !== undefined) errors.push("pitch-export-storyyard does not accept candidateCount");
     if (workOrder.instruction !== undefined) errors.push("pitch-export-storyyard does not accept instruction");
+  }
+  if (workOrder.capability === "pitch-premise-slate") {
+    if (workOrder.bookId !== undefined) errors.push("pitch-premise-slate must not bind a bookId");
+    if (!hasText(workOrder.slateId)) errors.push("slateId is required for pitch-premise-slate v1");
+    if (!Number.isInteger(workOrder.candidateCount) || workOrder.candidateCount > 6) errors.push("candidateCount must be 1-6 for pitch-premise-slate v1");
+    if (!hasText(workOrder.instruction)) errors.push("instruction is required for pitch-premise-slate v1");
+    if (!hasText(workOrder.sourcePackId)) errors.push("sourcePackId is required for pitch-premise-slate v1");
+    if (!Array.isArray(workOrder.sourceSequences)) errors.push("sourceSequences are required for pitch-premise-slate v1");
+    if (!Array.isArray(workOrder.styleExampleIds)) errors.push("styleExampleIds are required for pitch-premise-slate v1");
+    const roles = new Set((workOrder.approvedInputs ?? []).map((input) => input?.role));
+    for (const role of ["pitch-source-receipt", "pitch-structure-project-bible", "pitch-structure-chapter-map", "pitch-structure-arc-atlas"]) {
+      if (!roles.has(role)) errors.push(`pitch-premise-slate requires approved input role: ${role}`);
+    }
+  }
+  if (["pitch-premise-review", "pitch-premise-export-storyyard"].includes(workOrder.capability)) {
+    if (workOrder.bookId !== undefined) errors.push(`${workOrder.capability} must not bind a bookId`);
+    if (!hasText(workOrder.slateId)) errors.push(`slateId is required for ${workOrder.capability} v1`);
+    if (workOrder.candidateCount !== undefined) errors.push(`${workOrder.capability} does not accept candidateCount`);
+    if (workOrder.instruction !== undefined) errors.push(`${workOrder.capability} does not accept instruction`);
+  }
+  if (workOrder.capability === "pitch-premise-decision") {
+    if (workOrder.bookId !== undefined) errors.push("pitch-premise-decision must not bind a bookId");
+    if (!hasText(workOrder.slateId)) errors.push("slateId is required for pitch-premise-decision v1");
+    if (!/^p\d{2}$/.test(workOrder.candidateId ?? "")) errors.push("candidateId must use pNN format for pitch-premise-decision v1");
+    if (!["select", "hold", "reject"].includes(workOrder.humanDecision)) errors.push("humanDecision must be select, hold, or reject for pitch-premise-decision v1");
+    if (["hold", "reject"].includes(workOrder.humanDecision) && !hasText(workOrder.comment)) errors.push("pitch-premise-decision hold or reject requires comment");
+    if (workOrder.instruction !== undefined) errors.push("pitch-premise-decision does not accept instruction");
+  }
+  if (workOrder.capability === "pitch-premise-expand") {
+    if (workOrder.bookId !== undefined) errors.push("pitch-premise-expand must not bind a bookId");
+    if (!hasText(workOrder.slateId)) errors.push("slateId is required for pitch-premise-expand v1");
+    if (!hasText(workOrder.outputSlateId)) errors.push("outputSlateId is required for pitch-premise-expand v1");
   }
   if (workOrder.capability === "pitch-decision") {
     if (workOrder.bookId !== undefined) errors.push("pitch-decision must not bind a bookId");
@@ -372,16 +440,25 @@ export function validateWorkOrder(workOrder, manifest) {
     if (!hasText(workOrder.slateId)) errors.push("slateId is required for pitch-promote v1");
     if (workOrder.instruction !== undefined) errors.push("pitch-promote does not accept instruction");
   }
-  if (!["pitch-slate", "pitch-review", "pitch-export-storyyard", "pitch-decision", "pitch-promote"].includes(workOrder.capability) && workOrder.slateId !== undefined) {
+  const pitchCapabilities = ["pitch-slate", "pitch-review", "pitch-export-storyyard", "pitch-decision", "pitch-promote", "pitch-premise-slate", "pitch-premise-review", "pitch-premise-export-storyyard", "pitch-premise-decision", "pitch-premise-expand"];
+  if (!pitchCapabilities.includes(workOrder.capability) && workOrder.slateId !== undefined) {
     errors.push("slateId is only valid for pitch capabilities v1");
   }
-  if (workOrder.capability !== "pitch-slate" && workOrder.candidateCount !== undefined) {
-    errors.push("candidateCount is only valid for pitch-slate v1");
+  if (workOrder.capability !== "pitch-premise-expand" && workOrder.outputSlateId !== undefined) {
+    errors.push("outputSlateId is only valid for pitch-premise-expand v1");
   }
-  if (workOrder.capability !== "pitch-decision") {
-    if (workOrder.candidateId !== undefined) errors.push("candidateId is only valid for pitch-decision v1");
-    if (workOrder.humanDecision !== undefined) errors.push("humanDecision is only valid for pitch-decision v1");
-    if (workOrder.comment !== undefined) errors.push("comment is only valid for pitch-decision v1");
+  if (!["pitch-slate", "pitch-premise-slate"].includes(workOrder.capability) && workOrder.candidateCount !== undefined) {
+    errors.push("candidateCount is only valid for pitch-slate or pitch-premise-slate v1");
+  }
+  if (workOrder.capability !== "pitch-premise-slate") {
+    if (workOrder.sourcePackId !== undefined) errors.push("sourcePackId is only valid for pitch-premise-slate v1");
+    if (workOrder.sourceSequences !== undefined) errors.push("sourceSequences are only valid for pitch-premise-slate v1");
+    if (workOrder.styleExampleIds !== undefined) errors.push("styleExampleIds are only valid for pitch-premise-slate v1");
+  }
+  if (!["pitch-decision", "pitch-premise-decision"].includes(workOrder.capability)) {
+    if (workOrder.candidateId !== undefined) errors.push("candidateId is only valid for pitch decision capabilities v1");
+    if (workOrder.humanDecision !== undefined) errors.push("humanDecision is only valid for pitch decision capabilities v1");
+    if (workOrder.comment !== undefined) errors.push("comment is only valid for pitch decision capabilities v1");
   }
 
   if (Array.isArray(workOrder.approvedInputs)) {
@@ -528,9 +605,8 @@ export function validateWorkOrderV2(workOrder, manifest) {
     }
     if (!isPlainObject(workOrder.modeEvidence)) errors.push("agent-operate modeEvidence is required");
     if (
-      workOrder.runtime?.model !== "gpt-5.6-sol"
-      || workOrder.runtime?.reasoning !== "high"
-    ) errors.push("agent-operate runtime must be gpt-5.6-sol/high");
+      !isFireflyHighRuntime(workOrder.runtime?.model, workOrder.runtime?.reasoning)
+    ) errors.push("agent-operate runtime must be a supported Firefly model/high");
     if (!Array.isArray(workOrder.privateInputs) || workOrder.privateInputs.length !== 0) {
       errors.push("agent-operate privateInputs must be an explicit empty array");
     }
@@ -636,9 +712,12 @@ function buildInkosCliPlan({ root, manifest, repoPath, repo, capability, workOrd
       String(workOrder.candidateCount),
       "--session",
       sessionId,
-      "--reference",
-      ...referenceInputs.map(absoluteInput),
     );
+    if (workOrder.planningMode === "source-first") {
+      const sourcePack = workOrder.approvedInputs.find((input) => input.role === "pitch-source-pack");
+      args.push("--source-first", "--source-pack", absoluteInput(sourcePack));
+    }
+    args.push("--reference", ...referenceInputs.map(absoluteInput));
     stdin = `${workOrder.instruction.trim()}\n`;
   } else if (capability.name === "pitch-review") {
     const readableSlate = workOrder.slateId
@@ -651,6 +730,47 @@ function buildInkosCliPlan({ root, manifest, repoPath, repo, capability, workOrd
     args.push("pitch", "review", "--json", "--id", workOrder.slateId, "--session", sessionId);
   } else if (capability.name === "pitch-export-storyyard") {
     args.push("pitch", "export-storyyard", "--json", "--id", workOrder.slateId);
+  } else if (capability.name === "pitch-premise-slate") {
+    const sourceByRole = new Map(workOrder.approvedInputs.map((input) => [input.role, input]));
+    const absoluteInput = (input) => {
+      const sourceRepo = manifest.repos.find((candidate) => candidate.name === input.repo);
+      return join(root, sourceRepo.path, input.path);
+    };
+    const readableSlate = workOrder.slateId.normalize("NFKD").replace(/[^A-Za-z0-9._-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80) || "slate";
+    const sessionId = workOrder.sessionId ?? `hq-premise-${readableSlate}-${createHash("sha256").update(workOrder.slateId).digest("hex").slice(0, 10)}`;
+    args.push("pitch", "premise-slate", "--json", "--id", workOrder.slateId, "--count", String(workOrder.candidateCount), "--session", sessionId,
+      "--pack-id", workOrder.sourcePackId,
+      "--source-receipt", absoluteInput(sourceByRole.get("pitch-source-receipt")),
+      "--source-sequence", ...workOrder.sourceSequences.map(String),
+      "--style-example", ...workOrder.styleExampleIds,
+      "--structure",
+      `project-bible=${absoluteInput(sourceByRole.get("pitch-structure-project-bible"))}`,
+      `chapter-map=${absoluteInput(sourceByRole.get("pitch-structure-chapter-map"))}`,
+      `arc-atlas=${absoluteInput(sourceByRole.get("pitch-structure-arc-atlas"))}`,
+    );
+    stdin = `${workOrder.instruction.trim()}\n`;
+  } else if (capability.name === "pitch-premise-review") {
+    const sessionId = workOrder.sessionId ?? `hq-premise-review-${workOrder.slateId}`;
+    args.push("pitch", "premise-review", "--json", "--id", workOrder.slateId, "--session", sessionId);
+  } else if (capability.name === "pitch-premise-export-storyyard") {
+    args.push("pitch", "premise-export-storyyard", "--json", "--id", workOrder.slateId);
+  } else if (capability.name === "pitch-premise-decision") {
+    args.push(
+      "pitch",
+      "premise-decision",
+      "--json",
+      "--id",
+      workOrder.slateId,
+      "--candidate",
+      workOrder.candidateId,
+      "--decision",
+      workOrder.humanDecision,
+    );
+    if (workOrder.comment !== undefined) args.push("--comment", workOrder.comment.trim());
+  } else if (capability.name === "pitch-premise-expand") {
+    const sessionId = workOrder.sessionId ?? `hq-premise-expand-${workOrder.slateId}`;
+    args.push("pitch", "premise-expand", "--json", "--id", workOrder.slateId, "--out-id", workOrder.outputSlateId, "--session", sessionId);
+    if (workOrder.instruction !== undefined) args.push("--instruction", workOrder.instruction.trim());
   } else if (capability.name === "pitch-decision") {
     args.push(
       "pitch",
@@ -674,8 +794,8 @@ function buildInkosCliPlan({ root, manifest, repoPath, repo, capability, workOrd
     executable: process.execPath,
     args,
     stdin,
-    timeoutMs: workOrder.timeoutMs ?? (["pitch-slate", "pitch-review", "pitch-promote"].includes(capability.name) ? 3600000 : capability.mode === "mutating" ? 1800000 : 30000),
-    sessionId: ["interact", "pitch-slate", "pitch-review"].includes(capability.name) ? args[args.indexOf("--session") + 1] : null,
+    timeoutMs: workOrder.timeoutMs ?? (["pitch-slate", "pitch-review", "pitch-promote", "pitch-premise-slate", "pitch-premise-review", "pitch-premise-expand"].includes(capability.name) ? 3600000 : capability.mode === "mutating" ? 1800000 : 30000),
+    sessionId: ["interact", "pitch-slate", "pitch-review", "pitch-premise-slate", "pitch-premise-review", "pitch-premise-expand"].includes(capability.name) ? args[args.indexOf("--session") + 1] : null,
   };
 }
 
@@ -701,7 +821,7 @@ function buildInkosCliV2Plan({ repoPath, repo, capability, workOrder }) {
     executable: process.execPath,
     args: [
       entrypoint,
-      ...(workOrder.capability === "agent-operate" ? ["--service", "codex", "--model", "gpt-5.6-sol"] : []),
+      ...(workOrder.capability === "agent-operate" ? ["--service", "codex", "--model", workOrder.runtime.model] : []),
       "production",
       workOrder.capability,
       "--work-order-sha",
@@ -1174,8 +1294,8 @@ async function runHermesControlInvocation({
     },
     runtime: {
       provider: "openai-codex",
-      model: "gpt-5.6-sol",
-      reasoning: "high",
+      model: workOrder.runtime.model,
+      reasoning: workOrder.runtime.reasoning,
       platform: "cli",
       openaiRuntime: "auto",
       toolsCount: 0,
@@ -1209,7 +1329,7 @@ async function runHermesControlInvocation({
     "chat",
     "-q", HERMES_CONTROL_QUERY,
     "-Q",
-    "--model", "gpt-5.6-sol",
+    "--model", workOrder.runtime.model,
     "--provider", "openai-codex",
     "--max-turns", "1",
     "--source", "tool",
@@ -1491,8 +1611,8 @@ function validateProductionV2Child(value, workOrder, expectedWorkOrderSha256, he
     const allowedInkosRuntimeKeys = new Set(["configMode", "model", "reasoning"]);
     for (const key of Object.keys(value.effectiveRuntime.inkos)) if (!allowedInkosRuntimeKeys.has(key)) errors.push(`unknown InkOS runtime field: ${key}`);
     if (!hasText(value.effectiveRuntime.inkos.model) || !hasText(value.effectiveRuntime.inkos.reasoning) || !hasText(value.effectiveRuntime.inkos.configMode)) errors.push("InkOS effective model/reasoning readback is incomplete");
-    if (agentOperate && (value.effectiveRuntime.inkos.model !== "gpt-5.6-sol" || value.effectiveRuntime.inkos.reasoning !== "high")) {
-      errors.push("agent-operate InkOS runtime must be gpt-5.6-sol/high");
+    if (agentOperate && (value.effectiveRuntime.inkos.model !== workOrder.runtime.model || value.effectiveRuntime.inkos.reasoning !== workOrder.runtime.reasoning)) {
+      errors.push("agent-operate InkOS runtime must match the WorkOrder model/high exactly");
     }
   }
   if (!Array.isArray(value.modelCalls)) errors.push("modelCalls must be an array");
@@ -1511,8 +1631,8 @@ function validateProductionV2Child(value, workOrder, expectedWorkOrderSha256, he
     if (!["completed", "provider-refused", "failed"].includes(call.status)) errors.push(`modelCalls[${index}].status is invalid`);
     if (invocationIds.has(call.invocationId)) errors.push(`modelCalls[${index}].invocationId is duplicated`);
     invocationIds.add(call.invocationId);
-    if (agentOperate && (call.model !== "gpt-5.6-sol" || call.reasoningEffort !== "high" || call.status !== "completed")) {
-      errors.push(`agent-operate modelCalls[${index}] must be completed gpt-5.6-sol/high`);
+    if (agentOperate && (call.model !== workOrder.runtime.model || call.reasoningEffort !== workOrder.runtime.reasoning || call.status !== "completed")) {
+      errors.push(`agent-operate modelCalls[${index}] must be completed with the exact WorkOrder model/high`);
     }
     validateRelativePath(call.receiptPath, `modelCalls[${index}].receiptPath`, errors);
     validateRelativePath(call.outcomePath, `modelCalls[${index}].outcomePath`, errors);
@@ -1721,7 +1841,7 @@ export function validateChildArtifacts(value, repoName) {
 }
 
 export function validateCapabilityArtifacts(capability, report, workOrder = null) {
-  if (!["reference-bind", "pitch-slate", "pitch-review", "pitch-export-storyyard", "pitch-decision", "pitch-promote", "agent-operate"].includes(capability)) return report;
+  if (!["reference-bind", "pitch-slate", "pitch-review", "pitch-export-storyyard", "pitch-decision", "pitch-promote", "pitch-premise-slate", "pitch-premise-review", "pitch-premise-export-storyyard", "pitch-premise-decision", "pitch-premise-expand", "agent-operate"].includes(capability)) return report;
   const requiredRoles = capability === "agent-operate"
     ? ["hermes-control-action", "hermes-invocation-receipt", "agent-operation-receipt", "production-run"]
     : capability === "reference-bind"
@@ -1732,6 +1852,16 @@ export function validateCapabilityArtifacts(capability, report, workOrder = null
         ? ["pitch-survival-review-data", "pitch-survival-review-readable"]
         : capability === "pitch-export-storyyard"
           ? ["pitch-storyyard-planning-packet"]
+        : capability === "pitch-premise-slate"
+          ? ["human-premise-slate-data", "human-premise-slate-readable"]
+        : capability === "pitch-premise-review"
+          ? ["human-premise-review-data", "human-premise-review-readable"]
+        : capability === "pitch-premise-export-storyyard"
+          ? ["human-premise-storyyard-packet"]
+        : capability === "pitch-premise-decision"
+          ? ["human-premise-decision-data", "human-premise-decision-readable"]
+        : capability === "pitch-premise-expand"
+          ? ["pitch-slate-data", "pitch-slate-review"]
         : capability === "pitch-decision"
           ? ["pitch-human-decision-data", "pitch-human-decision-readable"]
           : ["pitch-promotion-receipt", "book-config", "book-pitch-selection-data", "book-pitch-selection-readable"];
@@ -1772,6 +1902,32 @@ export function validateCapabilityArtifacts(capability, report, workOrder = null
       }
     }
   }
+  if (capability === "pitch-premise-slate" && workOrder?.slateId) {
+    const expected = new Map([["human-premise-slate-data", `.inkos/human-premise-slates/${workOrder.slateId}/slate.json`], ["human-premise-slate-readable", `.inkos/human-premise-slates/${workOrder.slateId}/review.md`]]);
+    for (const artifact of report.artifacts) if (expected.has(artifact.role) && normalizedRelativePath(artifact.path) !== expected.get(artifact.role)) errors.push(`${artifact.role} must report exact path: ${expected.get(artifact.role)}`);
+  }
+  if (capability === "pitch-premise-review" && workOrder?.slateId) {
+    const expected = new Map([["human-premise-review-data", `.inkos/human-premise-slates/${workOrder.slateId}/independent-review/review.json`], ["human-premise-review-readable", `.inkos/human-premise-slates/${workOrder.slateId}/independent-review/review.md`]]);
+    for (const artifact of report.artifacts) if (expected.has(artifact.role) && normalizedRelativePath(artifact.path) !== expected.get(artifact.role)) errors.push(`${artifact.role} must report exact path: ${expected.get(artifact.role)}`);
+  }
+  if (capability === "pitch-premise-export-storyyard" && workOrder?.slateId) {
+    const expected = `.inkos/exports/storyyard/human-premise-slates/${workOrder.slateId}/packet.json`;
+    for (const artifact of report.artifacts) if (artifact.role === "human-premise-storyyard-packet" && normalizedRelativePath(artifact.path) !== expected) errors.push(`human-premise-storyyard-packet must report exact path: ${expected}`);
+  }
+  if (capability === "pitch-premise-decision" && workOrder?.slateId) {
+    const expected = new Map([
+      ["human-premise-decision-data", `.inkos/human-premise-slates/${workOrder.slateId}/human-decision/decision.json`],
+      ["human-premise-decision-readable", `.inkos/human-premise-slates/${workOrder.slateId}/human-decision/decision.md`],
+    ]);
+    for (const artifact of report.artifacts) if (expected.has(artifact.role) && normalizedRelativePath(artifact.path) !== expected.get(artifact.role)) errors.push(`${artifact.role} must report exact path: ${expected.get(artifact.role)}`);
+  }
+  if (capability === "pitch-premise-expand" && workOrder?.outputSlateId) {
+    const expected = new Map([
+      ["pitch-slate-data", `.inkos/pitch-slates/${workOrder.outputSlateId}/slate.json`],
+      ["pitch-slate-review", `.inkos/pitch-slates/${workOrder.outputSlateId}/review.md`],
+    ]);
+    for (const artifact of report.artifacts) if (expected.has(artifact.role) && normalizedRelativePath(artifact.path) !== expected.get(artifact.role)) errors.push(`${artifact.role} must report exact path: ${expected.get(artifact.role)}`);
+  }
   if (capability === "pitch-decision" && workOrder?.slateId) {
     const expectedPaths = new Map([
       ["pitch-human-decision-data", `.inkos/pitch-slates/${workOrder.slateId}/human-decision/decision.json`],
@@ -1801,10 +1957,32 @@ export function validateCapabilityArtifacts(capability, report, workOrder = null
   return { artifacts: report.artifacts, errors };
 }
 
-export function validatePitchSlateData(value, workOrder) {
+export function validatePitchSlateData(value, workOrder, { sourcePackPath } = {}) {
   const errors = [];
   if (!isPlainObject(value)) return ["pitch slate data must be an object"];
-  if (value.schemaVersion !== 1) errors.push("pitch slate schemaVersion must be 1");
+  if (![1, 2].includes(value.schemaVersion)) errors.push("pitch slate schemaVersion must be 1 or 2");
+  const mode = value.planningMode ?? "general";
+  const expectedMode = workOrder.planningMode ?? "general";
+  if (!["general", "source-first"].includes(mode) || mode !== expectedMode) errors.push("pitch slate planningMode does not match the work order");
+  if (mode === "source-first") {
+    if (value.schemaVersion !== 2) errors.push("source-first pitch slate schemaVersion must be 2");
+    const binding = value.sourceFirstReference;
+    const approvedPack = workOrder.approvedInputs?.filter((input) => input.role === "pitch-source-pack") ?? [];
+    if (!isPlainObject(binding) || !hasText(binding.packPath) || !hasText(binding.packId)
+      || !SHA256.test(binding.packSha256 ?? "") || !SHA256.test(binding.sourceSha256 ?? "")
+      || !hasText(binding.workSlug) || !hasText(binding.workTitle)
+      || !Number.isSafeInteger(binding.chapterCount) || binding.chapterCount < 1) {
+      errors.push("source-first pitch slate requires a complete source pack binding");
+    } else {
+      if (approvedPack.length !== 1 || binding.packSha256 !== approvedPack[0].sha256) errors.push("source-first pack SHA does not match its approved input");
+      if (sourcePackPath !== undefined && binding.packPath !== sourcePackPath) errors.push("source-first pack path does not match the dispatched approved input");
+    }
+    if (value.sourcePremiseBinding !== undefined) errors.push("source-first slate must not include a Human Premise binding");
+    if (!Array.isArray(value.referenceInputs) || value.referenceInputs.length === 0
+      || value.referenceInputs.some((input) => !isPlainObject(input) || !hasText(input.path) || !SHA256.test(input.sha256 ?? "") || !Number.isSafeInteger(input.bytes) || input.bytes < 0)) {
+      errors.push("source-first slate requires hash-bound reference inputs");
+    }
+  }
   if (value.slateId !== workOrder.slateId) errors.push("pitch slate slateId does not match the work order");
   if (value.canonStatus !== "non-canonical") errors.push("pitch slate canonStatus must be non-canonical");
   if (value.reviewStatus !== "pending") errors.push("pitch slate reviewStatus must be pending");
@@ -1825,6 +2003,19 @@ export function validatePitchSlateData(value, workOrder) {
     if (candidate.decision !== "pending") {
       errors.push(`pitch slate ${expectedIds[index]} decision must be pending`);
     }
+    const sourceV2 = candidate.spineRetention?.schemaVersion === "firefly_spine_retention/v2";
+    if ((mode === "source-first") !== sourceV2) errors.push(`pitch slate ${expectedIds[index]} mode and source evidence version differ`);
+    if (sourceV2) {
+      if (candidate.sourcePremise !== undefined || candidate.humanPremise !== undefined) errors.push("source-first candidate must not include a Human Premise");
+      const primary = candidate.spineRetention?.primaryReference;
+      const binding = value.sourceFirstReference;
+      for (const key of ["packId", "packSha256", "sourceSha256"]) {
+        if (!isPlainObject(primary) || !isPlainObject(binding) || primary[key] !== binding[key]) errors.push(`source-first candidate ${key} differs from its source binding`);
+      }
+      if (candidate.spineRetention?.referenceDisclosure?.workSlug !== binding?.workSlug) errors.push("source-first candidate workSlug differs from its source binding");
+      if (candidate.projectPlan?.format !== "webnovel-project-plan/v1" || !hasText(candidate.projectPlan?.markdown)
+        || candidate.projectPlan.markdown.trim().length < 600 || candidate.projectPlan.markdown.trim().length > 30000) errors.push("source-first candidate is missing its full project plan");
+    }
   });
   return errors;
 }
@@ -1832,7 +2023,14 @@ export function validatePitchSlateData(value, workOrder) {
 export function validatePitchSurvivalReviewData(value, workOrder, sourceSlate) {
   const errors = [];
   if (!isPlainObject(value)) return ["pitch survival review data must be an object"];
-  if (value.schemaVersion !== 1) errors.push("pitch survival review schemaVersion must be 1");
+  if (![1, 2].includes(value.schemaVersion)) errors.push("pitch survival review schemaVersion must be 1 or 2");
+  const mode = sourceSlate?.planningMode ?? "general";
+  if (!["general", "source-first"].includes(mode) || (value.planningMode ?? "general") !== mode) errors.push("pitch survival review planningMode differs from its source slate");
+  if (mode === "source-first") {
+    if (value.schemaVersion !== 2 || sourceSlate?.schemaVersion !== 2) errors.push("source-first slate and review must use schemaVersion 2");
+    if (!Array.isArray(value.referenceInputs) || value.referenceInputs.length === 0
+      || canonicalStringify(value.referenceInputs) !== canonicalStringify(sourceSlate?.referenceInputs)) errors.push("source-first review reference inputs differ from generation");
+  }
   if (value.reviewKind !== "independent-blind-comparison") errors.push("pitch survival review kind is invalid");
   if (value.slateId !== workOrder.slateId) errors.push("pitch survival review slateId does not match the work order");
   if (!SHA256.test(value.sourceSlateSha256 ?? "")) errors.push("pitch survival review sourceSlateSha256 is invalid");
@@ -1840,6 +2038,20 @@ export function validatePitchSurvivalReviewData(value, workOrder, sourceSlate) {
   const candidateIds = Array.isArray(sourceSlate?.candidates)
     ? sourceSlate.candidates.map((candidate) => candidate?.candidateId)
     : [];
+  for (const candidate of Array.isArray(sourceSlate?.candidates) ? sourceSlate.candidates : []) {
+    if ((mode === "source-first") !== (candidate?.spineRetention?.schemaVersion === "firefly_spine_retention/v2")) {
+      errors.push("pitch review source slate mode and candidate evidence version differ");
+    }
+    if (mode === "source-first") {
+      const binding = sourceSlate.sourceFirstReference;
+      const primary = candidate?.spineRetention?.primaryReference;
+      for (const key of ["packId", "packSha256", "sourceSha256"]) {
+        if (!isPlainObject(primary) || !isPlainObject(binding) || !hasText(primary[key]) || primary[key] !== binding[key]) {
+          errors.push(`pitch review source candidate ${key} differs from its source binding`);
+        }
+      }
+    }
+  }
   if (candidateIds.length === 0) errors.push("source pitch slate has no candidates");
   if (!Array.isArray(value.ranking)
     || value.ranking.length !== candidateIds.length
@@ -1856,6 +2068,21 @@ export function validatePitchSurvivalReviewData(value, workOrder, sourceSlate) {
     errors.push("pitch survival review verdict ids must contain every source candidate exactly once");
   }
   const survivors = value.verdicts.filter((verdict) => verdict?.verdict === "SURVIVE").map((verdict) => verdict.candidateId);
+  for (const verdict of value.verdicts) {
+    if (mode !== "source-first") {
+      if (verdict?.sourceChecks !== undefined) errors.push("legacy pitch reviews must not include source-first checks");
+      continue;
+    }
+    const checks = verdict?.sourceChecks;
+    for (const key of ["selfInterest", "sourceFidelity"]) {
+      if (!isPlainObject(checks?.[key]) || typeof checks[key].passed !== "boolean" || !hasText(checks[key].evidence)) {
+        errors.push(`source-first review requires ${key} judgment and evidence`);
+      } else if (!checks[key].passed && (verdict.verdict === "SURVIVE" || verdict.entryGate?.passed !== false)) {
+        errors.push(`source-first ${key} failure cannot pass the entry gate or SURVIVE`);
+      }
+    }
+    if (!hasText(checks?.commercialReading?.assessment) || !hasText(checks?.commercialReading?.evidence)) errors.push("source-first review requires commercial reading evidence");
+  }
   if (survivors.length > 1) errors.push("pitch survival review may recommend at most one SURVIVE candidate");
   if ((value.winnerCandidateId ?? null) !== (survivors[0] ?? null)) {
     errors.push("pitch survival review winner must match the sole SURVIVE candidate");
@@ -1885,9 +2112,98 @@ async function verifyChildArtifacts(repoPath, report) {
   return { artifacts, errors };
 }
 
-async function verifyCapabilityArtifactContents(repoPath, capability, workOrder, report) {
-  if (!["pitch-slate", "pitch-review", "pitch-export-storyyard", "pitch-decision", "pitch-promote"].includes(capability) || report.errors.length > 0) return report;
+async function verifyCapabilityArtifactContents(repoPath, capability, workOrder, report, { sourcePackPath } = {}) {
+  if (!["pitch-slate", "pitch-review", "pitch-export-storyyard", "pitch-decision", "pitch-promote", "pitch-premise-slate", "pitch-premise-review", "pitch-premise-export-storyyard", "pitch-premise-decision", "pitch-premise-expand"].includes(capability) || report.errors.length > 0) return report;
   const errors = [...report.errors];
+  if (capability === "pitch-premise-slate") {
+    const artifact = report.artifacts.find((item) => item.role === "human-premise-slate-data");
+    try {
+      const slate = JSON.parse(await readFile(join(repoPath, artifact.path), "utf8"));
+      if (slate.schemaVersion !== "firefly_human_premise_slate/v1" || slate.slateId !== workOrder.slateId) errors.push("Human Premise slate identity is invalid");
+      if (slate.canonStatus !== "non-canonical" || slate.reviewStatus !== "pending") errors.push("Human Premise slate must remain non-canonical and pending");
+      if (!isFireflyHighRuntime(slate.runtimeReceipt?.model, slate.runtimeReceipt?.reasoning) || slate.runtimeReceipt?.soul?.mode !== "canary-scoped") errors.push("Human Premise slate runtime is not a supported model/high with a canary Soul");
+      if (slate.sourceBinding?.packId !== workOrder.sourcePackId || slate.sourceBinding?.storyIndex?.selected?.some((item) => !workOrder.sourceSequences.includes(item.sequence))) errors.push("Human Premise slate source binding differs from the work order");
+      if (!Array.isArray(slate.candidates) || slate.candidates.length !== workOrder.candidateCount) errors.push("Human Premise slate candidate count differs from the work order");
+    } catch {
+      errors.push("Human Premise slate is not valid JSON");
+    }
+    return { artifacts: report.artifacts, errors };
+  }
+  if (capability === "pitch-premise-review") {
+    const artifact = report.artifacts.find((item) => item.role === "human-premise-review-data");
+    try {
+      const sourceBytes = await readFile(join(repoPath, ".inkos", "human-premise-slates", workOrder.slateId, "slate.json"));
+      const review = JSON.parse(await readFile(join(repoPath, artifact.path), "utf8"));
+      if (review.schemaVersion !== "firefly_human_premise_review/v1" || review.slateId !== workOrder.slateId) errors.push("Human Premise review identity is invalid");
+      if (review.sourceSlateSha256 !== createHash("sha256").update(sourceBytes).digest("hex")) errors.push("Human Premise review source hash does not match");
+      if (review.humanDecision !== "pending" || !isFireflyHighRuntime(review.reviewerRuntimeReceipt?.model, review.reviewerRuntimeReceipt?.reasoning)) errors.push("Human Premise review must remain pending and use a supported model/high");
+      if ((review.verdicts ?? []).some((item) => item.verdict === "SURVIVE" && Object.values(item.gates ?? {}).some((pass) => pass !== true))) errors.push("Human Premise review allowed a failed gate to SURVIVE");
+    } catch {
+      errors.push("Human Premise review or source slate is not valid JSON");
+    }
+    return { artifacts: report.artifacts, errors };
+  }
+  if (capability === "pitch-premise-export-storyyard") {
+    const artifact = report.artifacts.find((item) => item.role === "human-premise-storyyard-packet");
+    try {
+      const packet = JSON.parse(await readFile(join(repoPath, artifact.path), "utf8"));
+      if (packet.schemaVersion !== "firefly_review_packet/v4" || packet.purpose !== "human-premise" || packet.source?.slateId !== workOrder.slateId) errors.push("Storyyard Human Premise packet identity is invalid");
+      if (packet.authority?.decisionEffect !== "human-premise-selection" || packet.authority?.commercialExpansion !== false || packet.authority?.bookCreation !== false || packet.authority?.manuscriptApply !== false) errors.push("Storyyard Human Premise packet exceeds HIL authority");
+    } catch {
+      errors.push("Storyyard Human Premise packet is not valid JSON");
+    }
+    return { artifacts: report.artifacts, errors };
+  }
+  if (capability === "pitch-premise-decision") {
+    const artifact = report.artifacts.find((item) => item.role === "human-premise-decision-data");
+    try {
+      const decision = JSON.parse(await readFile(join(repoPath, artifact.path), "utf8"));
+      const slateBytes = await readFile(join(repoPath, ".inkos", "human-premise-slates", workOrder.slateId, "slate.json"));
+      const reviewBytes = await readFile(join(repoPath, ".inkos", "human-premise-slates", workOrder.slateId, "independent-review", "review.json"));
+      if (decision.schemaVersion !== "firefly_human_premise_decision/v1" || decision.slateId !== workOrder.slateId) errors.push("Human Premise decision identity is invalid");
+      if (decision.candidateId !== workOrder.candidateId || decision.decision !== workOrder.humanDecision) errors.push("Human Premise decision differs from the work order");
+      if (decision.sourceSlateSha256 !== createHash("sha256").update(slateBytes).digest("hex") || decision.sourceReviewSha256 !== createHash("sha256").update(reviewBytes).digest("hex")) errors.push("Human Premise decision source hashes do not match");
+      if (decision.manuscriptAuthorized !== false || (decision.decision === "select") !== (decision.canonEffect === "commercial-expansion-authorized")) errors.push("Human Premise decision exceeds its authority");
+    } catch {
+      errors.push("Human Premise decision or its sources are not valid JSON");
+    }
+    return { artifacts: report.artifacts, errors };
+  }
+  if (capability === "pitch-premise-expand") {
+    const artifact = report.artifacts.find((item) => item.role === "pitch-slate-data");
+    try {
+      const slate = JSON.parse(await readFile(join(repoPath, artifact.path), "utf8"));
+      if (slate.schemaVersion !== 2 || slate.slateId !== workOrder.outputSlateId || slate.sourcePremiseBinding?.premiseSlateId !== workOrder.slateId) errors.push("commercial expansion slate lineage is invalid");
+      if (slate.canonStatus !== "non-canonical" || slate.reviewStatus !== "pending" || slate.candidateCount !== 1) errors.push("commercial expansion must remain one non-canonical pending candidate");
+      const candidate = slate.candidates?.[0];
+      const mappings = candidate?.spineRetention?.openingEpisodeMappings;
+      if (!candidate || !Array.isArray(mappings) || mappings.length !== 4 || new Set(mappings.map((item) => item.sourceBeatSequence)).size < 2) errors.push("commercial expansion is missing a multi-beat spine retention contract");
+      if (!candidate?.spineRetention?.payoffPair?.material || !candidate?.spineRetention?.payoffPair?.emotional || !candidate?.spineRetention?.payoffPair?.witness) errors.push("commercial expansion must pair material and emotional payoff with a witness");
+      const disclosure = candidate?.spineRetention?.referenceDisclosure;
+      if (!disclosure?.workTitle || !disclosure?.workSlug || !disclosure?.selectionReason
+        || !Array.isArray(disclosure.usageRoles) || disclosure.usageRoles.length < 1
+        || !Array.isArray(disclosure.preservedElements) || disclosure.preservedElements.length < 4
+        || !Array.isArray(disclosure.transformedElements) || disclosure.transformedElements.length < 1) {
+        errors.push("commercial expansion must disclose the source work, usage, preservation, and surface transformation");
+      }
+      const packId = slate.sourceBinding?.packId;
+      if (!/^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$/u.test(packId ?? "")) {
+        errors.push("commercial expansion source pack ID is invalid");
+      } else {
+        const packBytes = await readFile(join(repoPath, ".inkos", "reference-packs", packId, "reference-pack.json"));
+        const pack = JSON.parse(packBytes.toString("utf8"));
+        if (createHash("sha256").update(packBytes).digest("hex") !== slate.sourceBinding?.packSha256
+          || pack.source?.sourceSha256 !== slate.sourceBinding?.sourceSha256
+          || disclosure?.workTitle !== pack.source?.workTitle
+          || disclosure?.workSlug !== pack.source?.workSlug) {
+          errors.push("commercial expansion reference disclosure does not match its bound reference pack");
+        }
+      }
+    } catch {
+      errors.push("commercial expansion slate is not valid JSON");
+    }
+    return { artifacts: report.artifacts, errors };
+  }
   if (capability === "pitch-export-storyyard") {
     const packetArtifact = report.artifacts.find((artifact) => artifact.role === "pitch-storyyard-planning-packet");
     if (!packetArtifact) return report;
@@ -1979,7 +2295,21 @@ async function verifyCapabilityArtifactContents(repoPath, capability, workOrder,
     errors.push("pitch-slate-data is not valid JSON");
     return { artifacts: report.artifacts, errors };
   }
-  errors.push(...validatePitchSlateData(slate, workOrder));
+  errors.push(...validatePitchSlateData(slate, workOrder, { sourcePackPath }));
+  if (workOrder.planningMode === "source-first" && sourcePackPath) {
+    try {
+      const bytes = await readFile(sourcePackPath);
+      const pack = JSON.parse(bytes.toString("utf8"));
+      const binding = slate.sourceFirstReference;
+      if (pack.kind !== "reference-transformation-pack" || pack.id !== binding?.packId
+        || sha256Bytes(bytes) !== binding?.packSha256
+        || pack.source?.sourceSha256 !== binding?.sourceSha256
+        || pack.source?.workSlug !== binding?.workSlug || pack.source?.workTitle !== binding?.workTitle
+        || pack.source?.chapterCount !== binding?.chapterCount) errors.push("source-first slate source binding differs from the approved pack contents");
+    } catch {
+      errors.push("source-first approved pack is unavailable or invalid JSON");
+    }
+  }
   try {
     const review = await readFile(join(repoPath, reviewArtifact.path), "utf8");
     for (let index = 1; index <= workOrder.candidateCount; index += 1) {
@@ -2388,6 +2718,7 @@ export async function executeWorkOrder({
             workOrder,
           ),
         ),
+        { sourcePackPath: workOrder.planningMode === "source-first" ? plan.invocation.args[plan.invocation.args.indexOf("--source-pack") + 1] : undefined },
       );
       const productionV2 = workOrder.schemaVersion === 2
         ? validateProductionV2Child(

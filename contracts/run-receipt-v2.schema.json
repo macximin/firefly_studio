@@ -4,339 +4,1697 @@
   "title": "Firefly HQ bodyless RunReceipt v2",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "receiptId", "receiptSelfHash", "workOrderId", "workOrderSha256", "idempotencyKey", "repo", "capability", "status", "mutating", "startedAt", "approval", "inputVerification", "artifacts"],
+  "required": [
+    "schemaVersion",
+    "receiptId",
+    "receiptSelfHash",
+    "workOrderId",
+    "workOrderSha256",
+    "idempotencyKey",
+    "repo",
+    "capability",
+    "status",
+    "mutating",
+    "startedAt",
+    "approval",
+    "inputVerification",
+    "artifacts"
+  ],
   "properties": {
-    "schemaVersion": { "const": 2 },
-    "receiptId": { "type": "string", "minLength": 1 },
-    "receiptSelfHash": { "$ref": "#/$defs/sha256" },
-    "workOrderId": { "type": "string", "minLength": 1 },
-    "workOrderSha256": { "$ref": "#/$defs/sha256" },
-    "idempotencyKey": { "type": "string", "minLength": 1 },
-    "repo": { "const": "inkos" },
-    "capability": { "enum": ["write-next", "agent-operate"] },
-    "status": { "enum": ["running", "succeeded", "failed", "needs-attention"] },
-    "mutating": { "const": true },
-    "startedAt": { "type": "string", "format": "date-time" },
-    "finishedAt": { "type": "string", "format": "date-time" },
-    "durationMs": { "type": "integer", "minimum": 0 },
-    "control": { "$ref": "#/$defs/control" },
-    "approval": { "$ref": "#/$defs/approval" },
-    "inputVerification": { "$ref": "#/$defs/inputVerification" },
-    "child": { "$ref": "#/$defs/child" },
-    "execution": { "$ref": "#/$defs/execution" },
-    "boundaryChecks": { "$ref": "#/$defs/boundaryChecks" },
-    "observedWrites": { "$ref": "#/$defs/observedWrites" },
-    "productionRun": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/productionRun" }] },
-    "effectiveRuntime": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/writeNextRuntime" }, { "$ref": "#/$defs/agentOperateRuntime" }] },
-    "hermesInvocation": { "oneOf": [{ "$ref": "#/$defs/hermesCompleted" }, { "$ref": "#/$defs/hermesAttention" }] },
-    "agentOperation": { "$ref": "#/$defs/agentOperation" },
-    "modelCalls": { "type": "array", "items": { "$ref": "#/$defs/modelCall" } },
-    "artifacts": { "type": "array", "items": { "$ref": "#/$defs/artifact" } },
-    "diagnostics": {
-      "type": "object", "additionalProperties": false, "required": ["artifactErrors", "writeScopeViolations"],
-      "properties": {
-        "artifactErrors": { "type": "array", "maxItems": 100, "items": { "type": "string", "maxLength": 1000 } },
-        "writeScopeViolations": { "type": "array", "maxItems": 100, "items": { "type": "string", "maxLength": 1000 } }
+    "schemaVersion": {
+      "const": 2
+    },
+    "receiptId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "receiptSelfHash": {
+      "$ref": "#/$defs/sha256"
+    },
+    "workOrderId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "workOrderSha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "idempotencyKey": {
+      "type": "string",
+      "minLength": 1
+    },
+    "repo": {
+      "const": "inkos"
+    },
+    "capability": {
+      "enum": [
+        "write-next",
+        "agent-operate"
+      ]
+    },
+    "status": {
+      "enum": [
+        "running",
+        "succeeded",
+        "failed",
+        "needs-attention"
+      ]
+    },
+    "mutating": {
+      "const": true
+    },
+    "startedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "finishedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "durationMs": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "control": {
+      "$ref": "#/$defs/control"
+    },
+    "approval": {
+      "$ref": "#/$defs/approval"
+    },
+    "inputVerification": {
+      "$ref": "#/$defs/inputVerification"
+    },
+    "child": {
+      "$ref": "#/$defs/child"
+    },
+    "execution": {
+      "$ref": "#/$defs/execution"
+    },
+    "boundaryChecks": {
+      "$ref": "#/$defs/boundaryChecks"
+    },
+    "observedWrites": {
+      "$ref": "#/$defs/observedWrites"
+    },
+    "productionRun": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/productionRun"
+        }
+      ]
+    },
+    "effectiveRuntime": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/writeNextRuntime"
+        },
+        {
+          "$ref": "#/$defs/agentOperateRuntime"
+        }
+      ]
+    },
+    "hermesInvocation": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/hermesCompleted"
+        },
+        {
+          "$ref": "#/$defs/hermesAttention"
+        }
+      ]
+    },
+    "agentOperation": {
+      "$ref": "#/$defs/agentOperation"
+    },
+    "modelCalls": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/modelCall"
       }
     },
-    "error": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/error" }] },
-    "replayed": { "type": "boolean" }
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/artifact"
+      }
+    },
+    "diagnostics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifactErrors",
+        "writeScopeViolations"
+      ],
+      "properties": {
+        "artifactErrors": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        },
+        "writeScopeViolations": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        }
+      }
+    },
+    "error": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/error"
+        }
+      ]
+    },
+    "replayed": {
+      "type": "boolean"
+    }
   },
   "allOf": [
     {
-      "if": { "properties": { "capability": { "const": "write-next" } }, "required": ["capability"] },
-      "then": { "not": { "anyOf": [{ "required": ["control"] }, { "required": ["hermesInvocation"] }] } }
-    },
-    {
-      "if": { "properties": { "capability": { "const": "agent-operate" } }, "required": ["capability"] },
-      "then": { "required": ["control"] }
-    },
-    {
       "if": {
         "properties": {
-          "capability": { "const": "agent-operate" },
-          "control": { "properties": { "executionMode": { "const": "promotion-canary" } }, "required": ["executionMode"] }
+          "capability": {
+            "const": "write-next"
+          }
         },
-        "required": ["capability", "control"]
+        "required": [
+          "capability"
+        ]
       },
       "then": {
-        "properties": {
-          "control": { "$ref": "#/$defs/canaryControl" },
-          "boundaryChecks": { "$ref": "#/$defs/canaryBoundaryChecks" }
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "control"
+              ]
+            },
+            {
+              "required": [
+                "hermesInvocation"
+              ]
+            }
+          ]
         }
       }
     },
     {
       "if": {
         "properties": {
-          "capability": { "const": "agent-operate" },
-          "status": { "const": "succeeded" },
-          "control": { "properties": { "executionMode": { "const": "promotion-canary" } }, "required": ["executionMode"] }
+          "capability": {
+            "const": "agent-operate"
+          }
         },
-        "required": ["capability", "status", "control"]
+        "required": [
+          "capability"
+        ]
       },
-      "then": { "properties": { "boundaryChecks": { "$ref": "#/$defs/succeededCanaryBoundaryChecks" } } }
+      "then": {
+        "required": [
+          "control"
+        ]
+      }
     },
     {
-      "if": { "properties": { "capability": { "const": "agent-operate" }, "status": { "const": "succeeded" } }, "required": ["capability", "status"] },
-      "then": {
-        "required": ["finishedAt", "durationMs", "child", "execution", "boundaryChecks", "observedWrites", "hermesInvocation", "agentOperation", "effectiveRuntime", "productionRun", "modelCalls", "error"],
+      "if": {
         "properties": {
-          "execution": { "$ref": "#/$defs/succeededExecution" },
-          "boundaryChecks": { "$ref": "#/$defs/succeededBoundaryChecks" },
-          "productionRun": { "$ref": "#/$defs/succeededProductionRun" },
-          "effectiveRuntime": { "$ref": "#/$defs/agentOperateRuntime" },
-          "hermesInvocation": { "$ref": "#/$defs/hermesCompleted" },
-          "modelCalls": { "$ref": "#/$defs/succeededAgentModelCalls" },
-          "artifacts": { "$ref": "#/$defs/succeededAgentArtifacts" },
-          "error": { "type": "null" }
+          "capability": {
+            "const": "agent-operate"
+          },
+          "control": {
+            "properties": {
+              "executionMode": {
+                "const": "promotion-canary"
+              }
+            },
+            "required": [
+              "executionMode"
+            ]
+          }
+        },
+        "required": [
+          "capability",
+          "control"
+        ]
+      },
+      "then": {
+        "properties": {
+          "control": {
+            "$ref": "#/$defs/canaryControl"
+          },
+          "boundaryChecks": {
+            "$ref": "#/$defs/canaryBoundaryChecks"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "capability": {
+            "const": "agent-operate"
+          },
+          "status": {
+            "const": "succeeded"
+          },
+          "control": {
+            "properties": {
+              "executionMode": {
+                "const": "promotion-canary"
+              }
+            },
+            "required": [
+              "executionMode"
+            ]
+          }
+        },
+        "required": [
+          "capability",
+          "status",
+          "control"
+        ]
+      },
+      "then": {
+        "properties": {
+          "boundaryChecks": {
+            "$ref": "#/$defs/succeededCanaryBoundaryChecks"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "capability": {
+            "const": "agent-operate"
+          },
+          "status": {
+            "const": "succeeded"
+          }
+        },
+        "required": [
+          "capability",
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "finishedAt",
+          "durationMs",
+          "child",
+          "execution",
+          "boundaryChecks",
+          "observedWrites",
+          "hermesInvocation",
+          "agentOperation",
+          "effectiveRuntime",
+          "productionRun",
+          "modelCalls",
+          "error"
+        ],
+        "properties": {
+          "execution": {
+            "$ref": "#/$defs/succeededExecution"
+          },
+          "boundaryChecks": {
+            "$ref": "#/$defs/succeededBoundaryChecks"
+          },
+          "productionRun": {
+            "$ref": "#/$defs/succeededProductionRun"
+          },
+          "effectiveRuntime": {
+            "$ref": "#/$defs/agentOperateRuntime"
+          },
+          "hermesInvocation": {
+            "$ref": "#/$defs/hermesCompleted"
+          },
+          "modelCalls": {
+            "$ref": "#/$defs/succeededAgentModelCalls"
+          },
+          "artifacts": {
+            "$ref": "#/$defs/succeededAgentArtifacts"
+          },
+          "error": {
+            "type": "null"
+          }
         }
       }
     }
   ],
   "$defs": {
-    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
     "fileEvidence": {
-      "type": "object", "additionalProperties": false, "required": ["path", "sha256", "byteLength"],
-      "properties": { "path": { "type": "string", "minLength": 1 }, "sha256": { "$ref": "#/$defs/sha256" }, "byteLength": { "type": "integer", "minimum": 0 } }
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "byteLength"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "byteLength": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
     },
     "artifactRef": {
-      "type": "object", "additionalProperties": false, "required": ["path", "sha256"],
-      "properties": { "path": { "type": "string", "minLength": 1 }, "sha256": { "$ref": "#/$defs/sha256" } }
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
     },
     "agentOperation": {
-      "type": "object", "additionalProperties": false,
-      "required": ["status", "executionMode", "canaryIsolation", "finalLaneManifestSha256", "receipt", "importReceipt", "action", "hermesReceipt", "terminal", "chapterCommit"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "executionMode",
+        "canaryIsolation",
+        "finalLaneManifestSha256",
+        "receipt",
+        "importReceipt",
+        "action",
+        "hermesReceipt",
+        "terminal",
+        "chapterCommit"
+      ],
       "properties": {
-        "status": { "const": "succeeded" },
-        "executionMode": { "enum": ["promotion-canary", "production"] },
-        "canaryIsolation": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/canaryIsolationVerification" }] },
-        "finalLaneManifestSha256": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/sha256" }] },
-        "receipt": { "$ref": "#/$defs/artifactRef" },
-        "importReceipt": { "$ref": "#/$defs/artifactRef" },
-        "action": {
-          "type": "object", "additionalProperties": false, "required": ["path", "sha256", "textSha256"],
-          "properties": { "path": { "type": "string", "minLength": 1 }, "sha256": { "$ref": "#/$defs/sha256" }, "textSha256": { "$ref": "#/$defs/sha256" } }
+        "status": {
+          "const": "succeeded"
         },
-        "hermesReceipt": { "$ref": "#/$defs/artifactRef" },
+        "executionMode": {
+          "enum": [
+            "promotion-canary",
+            "production"
+          ]
+        },
+        "canaryIsolation": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/canaryIsolationVerification"
+            }
+          ]
+        },
+        "finalLaneManifestSha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/sha256"
+            }
+          ]
+        },
+        "receipt": {
+          "$ref": "#/$defs/artifactRef"
+        },
+        "importReceipt": {
+          "$ref": "#/$defs/artifactRef"
+        },
+        "action": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256",
+            "textSha256"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "textSha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          }
+        },
+        "hermesReceipt": {
+          "$ref": "#/$defs/artifactRef"
+        },
         "terminal": {
-          "type": "object", "additionalProperties": false, "required": ["path", "sha256", "receiptSelfHash", "status"],
-          "properties": { "path": { "type": "string", "minLength": 1 }, "sha256": { "$ref": "#/$defs/sha256" }, "receiptSelfHash": { "$ref": "#/$defs/sha256" }, "status": { "const": "succeeded" } }
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256",
+            "receiptSelfHash",
+            "status"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "receiptSelfHash": {
+              "$ref": "#/$defs/sha256"
+            },
+            "status": {
+              "const": "succeeded"
+            }
+          }
         },
         "chapterCommit": {
-          "type": "object", "additionalProperties": false, "required": ["path", "sha256", "receiptId", "receiptSelfHash", "commitState"],
-          "properties": { "path": { "type": "string", "minLength": 1 }, "sha256": { "$ref": "#/$defs/sha256" }, "receiptId": { "type": "string", "minLength": 1 }, "receiptSelfHash": { "$ref": "#/$defs/sha256" }, "commitState": { "const": "verified" } }
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256",
+            "receiptId",
+            "receiptSelfHash",
+            "commitState"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "receiptId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "receiptSelfHash": {
+              "$ref": "#/$defs/sha256"
+            },
+            "commitState": {
+              "const": "verified"
+            }
+          }
         }
       },
       "allOf": [
         {
-          "if": { "properties": { "executionMode": { "const": "promotion-canary" } }, "required": ["executionMode"] },
-          "then": { "properties": { "canaryIsolation": { "$ref": "#/$defs/canaryIsolationVerification" }, "finalLaneManifestSha256": { "$ref": "#/$defs/sha256" } } },
-          "else": { "properties": { "canaryIsolation": { "type": "null" }, "finalLaneManifestSha256": { "type": "null" } } }
+          "if": {
+            "properties": {
+              "executionMode": {
+                "const": "promotion-canary"
+              }
+            },
+            "required": [
+              "executionMode"
+            ]
+          },
+          "then": {
+            "properties": {
+              "canaryIsolation": {
+                "$ref": "#/$defs/canaryIsolationVerification"
+              },
+              "finalLaneManifestSha256": {
+                "$ref": "#/$defs/sha256"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "canaryIsolation": {
+                "type": "null"
+              },
+              "finalLaneManifestSha256": {
+                "type": "null"
+              }
+            }
+          }
         }
       ]
     },
     "control": {
-      "type": "object", "additionalProperties": false, "required": ["executionMode", "lane", "modeEvidenceSha256"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "executionMode",
+        "lane",
+        "modeEvidenceSha256"
+      ],
       "properties": {
-        "executionMode": { "enum": ["promotion-canary", "production"] },
-        "lane": { "enum": ["genre-soul", "neutral-baseline"] },
-        "modeEvidenceSha256": { "$ref": "#/$defs/sha256" },
-        "canaryIsolation": { "$ref": "#/$defs/canaryIsolationVerification" }
+        "executionMode": {
+          "enum": [
+            "promotion-canary",
+            "production"
+          ]
+        },
+        "lane": {
+          "enum": [
+            "genre-soul",
+            "neutral-baseline"
+          ]
+        },
+        "modeEvidenceSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "canaryIsolation": {
+          "$ref": "#/$defs/canaryIsolationVerification"
+        }
       },
       "allOf": [
         {
-          "if": { "properties": { "executionMode": { "const": "production" } }, "required": ["executionMode"] },
-          "then": { "not": { "required": ["canaryIsolation"] } }
+          "if": {
+            "properties": {
+              "executionMode": {
+                "const": "production"
+              }
+            },
+            "required": [
+              "executionMode"
+            ]
+          },
+          "then": {
+            "not": {
+              "required": [
+                "canaryIsolation"
+              ]
+            }
+          }
         }
       ]
     },
     "canaryControl": {
       "allOf": [
-        { "$ref": "#/$defs/control" },
-        { "required": ["canaryIsolation"], "properties": { "executionMode": { "const": "promotion-canary" } } }
+        {
+          "$ref": "#/$defs/control"
+        },
+        {
+          "required": [
+            "canaryIsolation"
+          ],
+          "properties": {
+            "executionMode": {
+              "const": "promotion-canary"
+            }
+          }
+        }
       ]
     },
     "soulBinding": {
-      "type": "object", "additionalProperties": false, "required": ["soulId", "soulVersion", "bindingSha256"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "soulId",
+        "soulVersion",
+        "bindingSha256"
+      ],
       "properties": {
-        "soulId": { "type": "string", "minLength": 1 },
-        "soulVersion": { "type": "string", "minLength": 1 },
-        "bindingSha256": { "$ref": "#/$defs/sha256" }
+        "soulId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "soulVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "bindingSha256": {
+          "$ref": "#/$defs/sha256"
+        }
       }
     },
     "canaryIsolationVerification": {
-      "type": "object", "additionalProperties": false,
-      "required": ["schemaVersion", "scopeId", "pairId", "bookId", "lane", "projectRoot", "sourceProjectRootFingerprint", "sourceBookManifestSha256", "laneManifestSha256", "receipt", "isolationScopeSha256", "commonSnapshotSha256", "expectedSoulBinding"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "scopeId",
+        "pairId",
+        "bookId",
+        "lane",
+        "projectRoot",
+        "sourceProjectRootFingerprint",
+        "sourceBookManifestSha256",
+        "laneManifestSha256",
+        "receipt",
+        "isolationScopeSha256",
+        "commonSnapshotSha256",
+        "expectedSoulBinding"
+      ],
       "properties": {
-        "schemaVersion": { "const": "inkos-canary-execution-root-verification/v1" },
-        "scopeId": { "type": "string", "minLength": 1 },
-        "pairId": { "type": "string", "minLength": 1 },
-        "bookId": { "type": "string", "minLength": 1 },
-        "lane": { "enum": ["neutral", "soul"] },
-        "projectRoot": { "type": "string", "minLength": 1 },
-        "sourceProjectRootFingerprint": { "$ref": "#/$defs/sha256" },
-        "sourceBookManifestSha256": { "$ref": "#/$defs/sha256" },
-        "laneManifestSha256": { "$ref": "#/$defs/sha256" },
+        "schemaVersion": {
+          "const": "inkos-canary-execution-root-verification/v1"
+        },
+        "scopeId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pairId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "bookId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lane": {
+          "enum": [
+            "neutral",
+            "soul"
+          ]
+        },
+        "projectRoot": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceProjectRootFingerprint": {
+          "$ref": "#/$defs/sha256"
+        },
+        "sourceBookManifestSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "laneManifestSha256": {
+          "$ref": "#/$defs/sha256"
+        },
         "receipt": {
-          "type": "object", "additionalProperties": false,
-          "required": ["path", "sha256", "byteLength", "selfHash"],
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256",
+            "byteLength",
+            "selfHash"
+          ],
           "properties": {
-            "path": { "type": "string", "minLength": 1 },
-            "sha256": { "$ref": "#/$defs/sha256" },
-            "byteLength": { "type": "integer", "minimum": 1 },
-            "selfHash": { "$ref": "#/$defs/sha256" }
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "byteLength": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "selfHash": {
+              "$ref": "#/$defs/sha256"
+            }
           }
         },
-        "isolationScopeSha256": { "$ref": "#/$defs/sha256" },
-        "commonSnapshotSha256": { "$ref": "#/$defs/sha256" },
-        "expectedSoulBinding": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/soulBinding" }] }
+        "isolationScopeSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "commonSnapshotSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "expectedSoulBinding": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/soulBinding"
+            }
+          ]
+        }
       }
     },
     "approval": {
-      "type": "object", "additionalProperties": false, "required": ["required", "status"],
-      "properties": { "required": { "const": true }, "status": { "enum": ["pending", "blocked"] }, "ownerDecisionReceiptSha256": { "$ref": "#/$defs/sha256" } }
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "required",
+        "status"
+      ],
+      "properties": {
+        "required": {
+          "const": true
+        },
+        "status": {
+          "enum": [
+            "pending",
+            "blocked"
+          ]
+        },
+        "ownerDecisionReceiptSha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
     },
     "inputVerification": {
-      "type": "object", "additionalProperties": false, "required": ["approvedCount", "privateCount", "setSha256"],
-      "properties": { "approvedCount": { "type": "integer", "minimum": 0 }, "privateCount": { "type": "integer", "minimum": 0 }, "setSha256": { "$ref": "#/$defs/sha256" } }
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "approvedCount",
+        "privateCount",
+        "setSha256"
+      ],
+      "properties": {
+        "approvedCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "privateCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "setSha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
     },
     "child": {
-      "type": "object", "additionalProperties": false, "required": ["path", "branchBefore", "branchAfter", "headBefore", "headAfter"],
-      "properties": { "path": { "type": "string" }, "branchBefore": { "type": "string" }, "branchAfter": { "type": "string" }, "headBefore": { "type": "string" }, "headAfter": { "type": "string" } }
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "branchBefore",
+        "branchAfter",
+        "headBefore",
+        "headAfter"
+      ],
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "branchBefore": {
+          "type": "string"
+        },
+        "branchAfter": {
+          "type": "string"
+        },
+        "headBefore": {
+          "type": "string"
+        },
+        "headAfter": {
+          "type": "string"
+        }
+      }
     },
     "execution": {
-      "type": "object", "additionalProperties": false, "required": ["adapter", "exitCode", "signal", "instructionTransport", "manifestCapabilitySha256", "codeRepoPath", "executionRoot"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "adapter",
+        "exitCode",
+        "signal",
+        "instructionTransport",
+        "manifestCapabilitySha256",
+        "codeRepoPath",
+        "executionRoot"
+      ],
       "properties": {
-        "adapter": { "const": "inkos-cli-dual" }, "exitCode": { "type": ["integer", "null"] }, "signal": { "type": ["string", "null"] },
-        "instructionTransport": { "enum": ["stdin", "stdin-envelope"] }, "manifestCapabilitySha256": { "$ref": "#/$defs/sha256" },
-        "codeRepoPath": { "type": "string", "minLength": 1 }, "executionRoot": { "type": "string", "minLength": 1 }
+        "adapter": {
+          "const": "inkos-cli-dual"
+        },
+        "exitCode": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "signal": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "instructionTransport": {
+          "enum": [
+            "stdin",
+            "stdin-envelope"
+          ]
+        },
+        "manifestCapabilitySha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "codeRepoPath": {
+          "type": "string",
+          "minLength": 1
+        },
+        "executionRoot": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
     "succeededExecution": {
       "allOf": [
-        { "$ref": "#/$defs/execution" },
-        { "properties": { "exitCode": { "const": 0 }, "signal": { "type": "null" } } }
+        {
+          "$ref": "#/$defs/execution"
+        },
+        {
+          "properties": {
+            "exitCode": {
+              "const": 0
+            },
+            "signal": {
+              "type": "null"
+            }
+          }
+        }
       ]
     },
     "boundaryChecks": {
-      "type": "object", "additionalProperties": false, "required": ["trackedWorktreeUnchanged", "artifactReportsValid", "observationComplete", "writesWithinDeclaredScopes", "privateBodyExcluded"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "trackedWorktreeUnchanged",
+        "artifactReportsValid",
+        "observationComplete",
+        "writesWithinDeclaredScopes",
+        "privateBodyExcluded"
+      ],
       "properties": {
-        "trackedWorktreeUnchanged": { "type": "boolean" }, "artifactReportsValid": { "type": "boolean" }, "observationComplete": { "type": "boolean" }, "writesWithinDeclaredScopes": { "type": "boolean" }, "privateBodyExcluded": { "const": true },
-        "isolationReceiptVerified": { "type": "boolean" }, "executionRootIsolated": { "type": "boolean" }, "sourceSnapshotUnchanged": { "type": "boolean" },
-        "sourceBookBeforeSha256": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/sha256" }] },
-        "sourceBookAfterSha256": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/sha256" }] },
-        "sourceSnapshotBeforeSha256": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/sha256" }] },
-        "sourceSnapshotAfterSha256": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/sha256" }] }
+        "trackedWorktreeUnchanged": {
+          "type": "boolean"
+        },
+        "artifactReportsValid": {
+          "type": "boolean"
+        },
+        "observationComplete": {
+          "type": "boolean"
+        },
+        "writesWithinDeclaredScopes": {
+          "type": "boolean"
+        },
+        "privateBodyExcluded": {
+          "const": true
+        },
+        "isolationReceiptVerified": {
+          "type": "boolean"
+        },
+        "executionRootIsolated": {
+          "type": "boolean"
+        },
+        "sourceSnapshotUnchanged": {
+          "type": "boolean"
+        },
+        "sourceBookBeforeSha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/sha256"
+            }
+          ]
+        },
+        "sourceBookAfterSha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/sha256"
+            }
+          ]
+        },
+        "sourceSnapshotBeforeSha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/sha256"
+            }
+          ]
+        },
+        "sourceSnapshotAfterSha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/sha256"
+            }
+          ]
+        }
       }
     },
     "canaryBoundaryChecks": {
       "allOf": [
-        { "$ref": "#/$defs/boundaryChecks" },
         {
-          "required": ["isolationReceiptVerified", "executionRootIsolated", "sourceSnapshotUnchanged", "sourceBookBeforeSha256", "sourceBookAfterSha256", "sourceSnapshotBeforeSha256", "sourceSnapshotAfterSha256"]
+          "$ref": "#/$defs/boundaryChecks"
+        },
+        {
+          "required": [
+            "isolationReceiptVerified",
+            "executionRootIsolated",
+            "sourceSnapshotUnchanged",
+            "sourceBookBeforeSha256",
+            "sourceBookAfterSha256",
+            "sourceSnapshotBeforeSha256",
+            "sourceSnapshotAfterSha256"
+          ]
         }
       ]
     },
     "succeededCanaryBoundaryChecks": {
       "allOf": [
-        { "$ref": "#/$defs/canaryBoundaryChecks" },
+        {
+          "$ref": "#/$defs/canaryBoundaryChecks"
+        },
         {
           "properties": {
-            "isolationReceiptVerified": { "const": true },
-            "executionRootIsolated": { "const": true },
-            "sourceSnapshotUnchanged": { "const": true },
-            "sourceBookBeforeSha256": { "$ref": "#/$defs/sha256" },
-            "sourceBookAfterSha256": { "$ref": "#/$defs/sha256" },
-            "sourceSnapshotBeforeSha256": { "$ref": "#/$defs/sha256" },
-            "sourceSnapshotAfterSha256": { "$ref": "#/$defs/sha256" }
+            "isolationReceiptVerified": {
+              "const": true
+            },
+            "executionRootIsolated": {
+              "const": true
+            },
+            "sourceSnapshotUnchanged": {
+              "const": true
+            },
+            "sourceBookBeforeSha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "sourceBookAfterSha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "sourceSnapshotBeforeSha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "sourceSnapshotAfterSha256": {
+              "$ref": "#/$defs/sha256"
+            }
           }
         }
       ]
     },
     "succeededBoundaryChecks": {
       "allOf": [
-        { "$ref": "#/$defs/boundaryChecks" },
-        { "properties": { "trackedWorktreeUnchanged": { "const": true }, "artifactReportsValid": { "const": true }, "observationComplete": { "const": true }, "writesWithinDeclaredScopes": { "const": true }, "privateBodyExcluded": { "const": true } } }
+        {
+          "$ref": "#/$defs/boundaryChecks"
+        },
+        {
+          "properties": {
+            "trackedWorktreeUnchanged": {
+              "const": true
+            },
+            "artifactReportsValid": {
+              "const": true
+            },
+            "observationComplete": {
+              "const": true
+            },
+            "writesWithinDeclaredScopes": {
+              "const": true
+            },
+            "privateBodyExcluded": {
+              "const": true
+            }
+          }
+        }
       ]
     },
     "observedWrites": {
-      "type": "object", "additionalProperties": false, "required": ["count", "setSha256"],
-      "properties": { "count": { "type": "integer", "minimum": 0 }, "setSha256": { "$ref": "#/$defs/sha256" } }
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "count",
+        "setSha256"
+      ],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "setSha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
     },
     "productionRun": {
-      "type": "object", "additionalProperties": false, "required": ["commandId", "productionOperationId", "attemptId", "path", "sha256", "executionStatus", "approvalStatus", "completionHealth", "projectionOrigin"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commandId",
+        "productionOperationId",
+        "attemptId",
+        "path",
+        "sha256",
+        "executionStatus",
+        "approvalStatus",
+        "completionHealth",
+        "projectionOrigin"
+      ],
       "properties": {
-        "commandId": { "type": "string", "minLength": 1 }, "productionOperationId": { "type": "string", "minLength": 1 }, "attemptId": { "type": "string", "minLength": 1 },
-        "path": { "type": "string", "minLength": 1 }, "sha256": { "$ref": "#/$defs/sha256" }, "executionStatus": { "enum": ["succeeded", "failed", "cancelled"] },
-        "approvalStatus": { "enum": ["not-required", "pending", "held", "approved", "rejected"] }, "completionHealth": { "enum": ["verified", "needs-recovery"] }, "projectionOrigin": { "enum": ["direct", "reconciled"] }
+        "commandId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "productionOperationId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "attemptId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "executionStatus": {
+          "enum": [
+            "succeeded",
+            "failed",
+            "cancelled"
+          ]
+        },
+        "approvalStatus": {
+          "enum": [
+            "not-required",
+            "pending",
+            "held",
+            "approved",
+            "rejected"
+          ]
+        },
+        "completionHealth": {
+          "enum": [
+            "verified",
+            "needs-recovery"
+          ]
+        },
+        "projectionOrigin": {
+          "enum": [
+            "direct",
+            "reconciled"
+          ]
+        }
       }
     },
     "succeededProductionRun": {
       "allOf": [
-        { "$ref": "#/$defs/productionRun" },
-        { "properties": { "executionStatus": { "const": "succeeded" }, "completionHealth": { "const": "verified" } } }
+        {
+          "$ref": "#/$defs/productionRun"
+        },
+        {
+          "properties": {
+            "executionStatus": {
+              "const": "succeeded"
+            },
+            "completionHealth": {
+              "const": "verified"
+            }
+          }
+        }
       ]
     },
     "inkosRuntime": {
-      "type": "object", "additionalProperties": false, "required": ["configMode", "model", "reasoning"],
-      "properties": { "configMode": { "type": "string" }, "model": { "type": "string" }, "reasoning": { "type": "string" } }
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "configMode",
+        "model",
+        "reasoning"
+      ],
+      "properties": {
+        "configMode": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "reasoning": {
+          "type": "string"
+        }
+      }
     },
     "agentInkosRuntime": {
-      "type": "object", "additionalProperties": false, "required": ["configMode", "model", "reasoning"],
-      "properties": { "configMode": { "type": "string" }, "model": { "const": "gpt-5.6-sol" }, "reasoning": { "const": "high" } }
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "configMode",
+        "model",
+        "reasoning"
+      ],
+      "properties": {
+        "configMode": {
+          "type": "string"
+        },
+        "model": {
+          "enum": [
+            "gpt-5.6-sol",
+            "gpt-6-astra"
+          ]
+        },
+        "reasoning": {
+          "enum": [
+            "high",
+            "medium"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "reasoning": {
+                "const": "medium"
+              }
+            },
+            "required": [
+              "reasoning"
+            ]
+          },
+          "then": {
+            "properties": {
+              "model": {
+                "const": "gpt-6-astra"
+              }
+            }
+          }
+        }
+      ]
     },
     "writeNextRuntime": {
-      "type": "object", "additionalProperties": false, "required": ["hermesE2E", "orchestrator", "inkos"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hermesE2E",
+        "orchestrator",
+        "inkos"
+      ],
       "properties": {
-        "hermesE2E": { "const": false },
-        "orchestrator": { "type": "object", "additionalProperties": false, "required": ["hermesProfile", "model", "reasoning", "invoked", "evidence"], "properties": { "hermesProfile": { "type": "string" }, "model": { "type": "string" }, "reasoning": { "type": "string" }, "invoked": { "const": false }, "evidence": { "const": "work-order-declaration" } } },
-        "inkos": { "$ref": "#/$defs/inkosRuntime" }
+        "hermesE2E": {
+          "const": false
+        },
+        "orchestrator": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "hermesProfile",
+            "model",
+            "reasoning",
+            "invoked",
+            "evidence"
+          ],
+          "properties": {
+            "hermesProfile": {
+              "type": "string"
+            },
+            "model": {
+              "type": "string"
+            },
+            "reasoning": {
+              "type": "string"
+            },
+            "invoked": {
+              "const": false
+            },
+            "evidence": {
+              "const": "work-order-declaration"
+            }
+          }
+        },
+        "inkos": {
+          "$ref": "#/$defs/inkosRuntime"
+        }
       }
     },
     "agentOperateRuntime": {
-      "type": "object", "additionalProperties": false, "required": ["hermesE2E", "orchestrator", "inkos"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hermesE2E",
+        "orchestrator",
+        "inkos"
+      ],
       "properties": {
-        "hermesE2E": { "const": true },
-        "orchestrator": { "type": "object", "additionalProperties": false, "required": ["hermesProfile", "model", "reasoning", "invoked", "evidence", "sessionId", "toolsCount", "toolCallCount"], "properties": { "hermesProfile": { "type": "string" }, "model": { "const": "gpt-5.6-sol" }, "reasoning": { "const": "high" }, "invoked": { "const": true }, "evidence": { "const": "verified-hermes-invocation-receipt" }, "sessionId": { "type": "string", "minLength": 1 }, "toolsCount": { "const": 0 }, "toolCallCount": { "const": 0 } } },
-        "inkos": { "$ref": "#/$defs/agentInkosRuntime" }
+        "hermesE2E": {
+          "const": true
+        },
+        "orchestrator": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "hermesProfile",
+            "model",
+            "reasoning",
+            "invoked",
+            "evidence",
+            "sessionId",
+            "toolsCount",
+            "toolCallCount"
+          ],
+          "properties": {
+            "hermesProfile": {
+              "type": "string"
+            },
+            "model": {
+              "enum": [
+                "gpt-5.6-sol",
+                "gpt-6-astra"
+              ]
+            },
+            "reasoning": {
+              "enum": [
+                "high",
+                "medium"
+              ]
+            },
+            "invoked": {
+              "const": true
+            },
+            "evidence": {
+              "const": "verified-hermes-invocation-receipt"
+            },
+            "sessionId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "toolsCount": {
+              "const": 0
+            },
+            "toolCallCount": {
+              "const": 0
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "reasoning": {
+                    "const": "medium"
+                  }
+                },
+                "required": [
+                  "reasoning"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "model": {
+                    "const": "gpt-6-astra"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "inkos": {
+          "$ref": "#/$defs/agentInkosRuntime"
+        }
       }
     },
     "modelCall": {
-      "type": "object", "additionalProperties": false, "required": ["invocationId", "agentName", "stage", "model", "reasoningEffort", "receiptPath", "receiptSha256", "outcomePath", "outcomeSha256", "status"],
-      "properties": { "invocationId": { "type": "string" }, "agentName": { "type": "string" }, "stage": { "type": "string" }, "model": { "type": "string" }, "reasoningEffort": { "type": ["string", "null"] }, "receiptPath": { "type": "string" }, "receiptSha256": { "$ref": "#/$defs/sha256" }, "outcomePath": { "type": "string" }, "outcomeSha256": { "$ref": "#/$defs/sha256" }, "status": { "enum": ["completed", "provider-refused", "failed"] } }
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "invocationId",
+        "agentName",
+        "stage",
+        "model",
+        "reasoningEffort",
+        "receiptPath",
+        "receiptSha256",
+        "outcomePath",
+        "outcomeSha256",
+        "status"
+      ],
+      "properties": {
+        "invocationId": {
+          "type": "string"
+        },
+        "agentName": {
+          "type": "string"
+        },
+        "stage": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "reasoningEffort": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "receiptPath": {
+          "type": "string"
+        },
+        "receiptSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "outcomePath": {
+          "type": "string"
+        },
+        "outcomeSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "status": {
+          "enum": [
+            "completed",
+            "provider-refused",
+            "failed"
+          ]
+        }
+      }
     },
     "agentModelCall": {
-      "type": "object", "additionalProperties": false, "required": ["invocationId", "agentName", "stage", "model", "reasoningEffort", "receiptPath", "receiptSha256", "outcomePath", "outcomeSha256", "status"],
-      "properties": { "invocationId": { "type": "string", "minLength": 1 }, "agentName": { "type": "string", "minLength": 1 }, "stage": { "type": "string", "minLength": 1 }, "model": { "const": "gpt-5.6-sol" }, "reasoningEffort": { "const": "high" }, "receiptPath": { "type": "string", "minLength": 1 }, "receiptSha256": { "$ref": "#/$defs/sha256" }, "outcomePath": { "type": "string", "minLength": 1 }, "outcomeSha256": { "$ref": "#/$defs/sha256" }, "status": { "const": "completed" } }
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "invocationId",
+        "agentName",
+        "stage",
+        "model",
+        "reasoningEffort",
+        "receiptPath",
+        "receiptSha256",
+        "outcomePath",
+        "outcomeSha256",
+        "status"
+      ],
+      "properties": {
+        "invocationId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "agentName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stage": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model": {
+          "enum": [
+            "gpt-5.6-sol",
+            "gpt-6-astra"
+          ]
+        },
+        "reasoningEffort": {
+          "enum": [
+            "high",
+            "medium"
+          ]
+        },
+        "receiptPath": {
+          "type": "string",
+          "minLength": 1
+        },
+        "receiptSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "outcomePath": {
+          "type": "string",
+          "minLength": 1
+        },
+        "outcomeSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "status": {
+          "const": "completed"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "reasoningEffort": {
+                "const": "medium"
+              }
+            },
+            "required": [
+              "reasoningEffort"
+            ]
+          },
+          "then": {
+            "properties": {
+              "model": {
+                "const": "gpt-6-astra"
+              }
+            }
+          }
+        }
+      ]
     },
     "succeededAgentModelCalls": {
-      "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/agentModelCall" },
-      "contains": { "type": "object", "required": ["agentName"], "properties": { "agentName": { "const": "Writer" } } },
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/agentModelCall"
+      },
+      "contains": {
+        "type": "object",
+        "required": [
+          "agentName"
+        ],
+        "properties": {
+          "agentName": {
+            "const": "Writer"
+          }
+        }
+      },
       "minContains": 1
     },
-    "artifact": { "type": "object", "additionalProperties": false, "required": ["repo", "path", "sha256", "role"], "properties": { "repo": { "const": "inkos" }, "path": { "type": "string", "minLength": 1 }, "sha256": { "$ref": "#/$defs/sha256" }, "role": { "type": "string", "minLength": 1 } } },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "path",
+        "sha256",
+        "role"
+      ],
+      "properties": {
+        "repo": {
+          "const": "inkos"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "role": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
     "succeededAgentArtifacts": {
-      "type": "array", "minItems": 4, "items": { "$ref": "#/$defs/artifact" },
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "$ref": "#/$defs/artifact"
+      },
       "allOf": [
-        { "contains": { "type": "object", "required": ["role"], "properties": { "role": { "const": "hermes-control-action" } } }, "minContains": 1 },
-        { "contains": { "type": "object", "required": ["role"], "properties": { "role": { "const": "hermes-invocation-receipt" } } }, "minContains": 1 },
-        { "contains": { "type": "object", "required": ["role"], "properties": { "role": { "const": "agent-operation-receipt" } } }, "minContains": 1 },
-        { "contains": { "type": "object", "required": ["role"], "properties": { "role": { "const": "production-run" } } }, "minContains": 1 }
+        {
+          "contains": {
+            "type": "object",
+            "required": [
+              "role"
+            ],
+            "properties": {
+              "role": {
+                "const": "hermes-control-action"
+              }
+            }
+          },
+          "minContains": 1
+        },
+        {
+          "contains": {
+            "type": "object",
+            "required": [
+              "role"
+            ],
+            "properties": {
+              "role": {
+                "const": "hermes-invocation-receipt"
+              }
+            }
+          },
+          "minContains": 1
+        },
+        {
+          "contains": {
+            "type": "object",
+            "required": [
+              "role"
+            ],
+            "properties": {
+              "role": {
+                "const": "agent-operation-receipt"
+              }
+            }
+          },
+          "minContains": 1
+        },
+        {
+          "contains": {
+            "type": "object",
+            "required": [
+              "role"
+            ],
+            "properties": {
+              "role": {
+                "const": "production-run"
+              }
+            }
+          },
+          "minContains": 1
+        }
       ]
     },
     "hermesEvidence": {
-      "type": "object", "additionalProperties": false,
-      "properties": { "operationContract": { "$ref": "#/$defs/fileEvidence" }, "prepared": { "$ref": "#/$defs/fileEvidence" }, "stdout": { "$ref": "#/$defs/fileEvidence" }, "stderr": { "$ref": "#/$defs/fileEvidence" }, "action": { "$ref": "#/$defs/fileEvidence" }, "sessionExport": { "$ref": "#/$defs/fileEvidence" }, "sessionExportStderr": { "$ref": "#/$defs/fileEvidence" }, "receipt": { "$ref": "#/$defs/fileEvidence" }, "needsAttention": { "$ref": "#/$defs/fileEvidence" } }
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operationContract": {
+          "$ref": "#/$defs/fileEvidence"
+        },
+        "prepared": {
+          "$ref": "#/$defs/fileEvidence"
+        },
+        "stdout": {
+          "$ref": "#/$defs/fileEvidence"
+        },
+        "stderr": {
+          "$ref": "#/$defs/fileEvidence"
+        },
+        "action": {
+          "$ref": "#/$defs/fileEvidence"
+        },
+        "sessionExport": {
+          "$ref": "#/$defs/fileEvidence"
+        },
+        "sessionExportStderr": {
+          "$ref": "#/$defs/fileEvidence"
+        },
+        "receipt": {
+          "$ref": "#/$defs/fileEvidence"
+        },
+        "needsAttention": {
+          "$ref": "#/$defs/fileEvidence"
+        }
+      }
     },
     "hermesCompleted": {
-      "type": "object", "additionalProperties": false, "required": ["schemaVersion", "receiptSelfHash", "sessionId", "evidence"],
-      "properties": { "schemaVersion": { "const": "hermes-invocation-receipt/v1" }, "receiptSelfHash": { "$ref": "#/$defs/sha256" }, "sessionId": { "type": "string", "minLength": 1 }, "evidence": { "allOf": [{ "$ref": "#/$defs/hermesEvidence" }, { "required": ["operationContract", "prepared", "stdout", "stderr", "action", "sessionExport", "sessionExportStderr", "receipt"] }] } }
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "receiptSelfHash",
+        "sessionId",
+        "evidence"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": "hermes-invocation-receipt/v1"
+        },
+        "receiptSelfHash": {
+          "$ref": "#/$defs/sha256"
+        },
+        "sessionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/hermesEvidence"
+            },
+            {
+              "required": [
+                "operationContract",
+                "prepared",
+                "stdout",
+                "stderr",
+                "action",
+                "sessionExport",
+                "sessionExportStderr",
+                "receipt"
+              ]
+            }
+          ]
+        }
+      }
     },
     "hermesAttention": {
-      "type": "object", "additionalProperties": false, "required": ["status", "evidence"],
-      "properties": { "status": { "const": "needs-attention" }, "evidence": { "allOf": [{ "$ref": "#/$defs/hermesEvidence" }, { "required": ["needsAttention"] }] } }
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "evidence"
+      ],
+      "properties": {
+        "status": {
+          "const": "needs-attention"
+        },
+        "evidence": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/hermesEvidence"
+            },
+            {
+              "required": [
+                "needsAttention"
+              ]
+            }
+          ]
+        }
+      }
     },
-    "error": { "type": "object", "additionalProperties": false, "required": ["category", "messageSha256"], "properties": { "category": { "type": "string", "minLength": 1 }, "messageSha256": { "$ref": "#/$defs/sha256" } } }
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "category",
+        "messageSha256"
+      ],
+      "properties": {
+        "category": {
+          "type": "string",
+          "minLength": 1
+        },
+        "messageSha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    }
   }
 }

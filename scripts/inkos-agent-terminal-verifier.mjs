@@ -434,8 +434,8 @@ export async function verifyInkosAgentOperationTerminal({
         || hermes.profile?.soulVersion !== workOrder.modeEvidence.soulVersion
         || hermes.profile?.configSha256 !== workOrder.modeEvidence.profileConfigSha256
         || hermes.profile?.soulSha256 !== workOrder.modeEvidence.soulSha256
-        || hermes.runtime?.provider !== "openai-codex" || hermes.runtime?.model !== "gpt-5.6-sol"
-        || hermes.runtime?.reasoning !== "high" || hermes.runtime?.toolsCount !== 0
+        || hermes.runtime?.provider !== "openai-codex" || hermes.runtime?.model !== workOrder.runtime?.model
+        || hermes.runtime?.reasoning !== workOrder.runtime?.reasoning || hermes.runtime?.toolsCount !== 0
         || hermes.runtime?.platform !== "cli" || hermes.runtime?.openaiRuntime !== "auto"
         || hermes.runtime?.transport !== "codex_responses" || hermes.runtime?.toolCallCount !== 0
         || hermes.invocation?.sessionId !== hermesInvocationSessionId

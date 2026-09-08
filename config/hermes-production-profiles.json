@@ -9,11 +9,11 @@
       "productionEnabled": false,
       "promotionDecisionSha256": null,
       "provider": "openai-codex",
-      "model": "gpt-5.6-sol",
-      "reasoning": "high",
+      "model": "gpt-6-astra",
+      "reasoning": "medium",
       "skillsPolicy": "none",
-      "configSha256": "12da7a753a62853c5e37e69e6b41815ed1818134cfaf0eba7ab7165218c9b101",
-      "soulSha256": "1f34b90e2c13d1234b08f6406aa7d84afee13adcc4bf04e4ab90fedce6608349"
+      "configSha256": "9b871a295ae297ca5e505c7d2795be1adafd3948619a0c30cb538eb893f22c6d",
+      "soulSha256": "28c7660460a7648ddb41303a6e4fa77f868840c02426d761fefb2bdfcfaecb28"
     },
     {
       "profileId": "inkos_male_fantasy",
@@ -23,11 +23,11 @@
       "productionEnabled": false,
       "promotionDecisionSha256": null,
       "provider": "openai-codex",
-      "model": "gpt-5.6-sol",
-      "reasoning": "high",
+      "model": "gpt-6-astra",
+      "reasoning": "medium",
       "skillsPolicy": "none",
-      "configSha256": "12da7a753a62853c5e37e69e6b41815ed1818134cfaf0eba7ab7165218c9b101",
-      "soulSha256": "240a6e392f6c67af722c8670d543f39a6fe097bc2cc0d0ef261bc823278ad75e"
+      "configSha256": "9b871a295ae297ca5e505c7d2795be1adafd3948619a0c30cb538eb893f22c6d",
+      "soulSha256": "ec74b1c74e8829ba276d89d8ebf3c06f80da55d64ba468dd4f0520b274693330"
     },
     {
       "profileId": "inkos_male_murim",
@@ -37,11 +37,11 @@
       "productionEnabled": false,
       "promotionDecisionSha256": null,
       "provider": "openai-codex",
-      "model": "gpt-5.6-sol",
-      "reasoning": "high",
+      "model": "gpt-6-astra",
+      "reasoning": "medium",
       "skillsPolicy": "none",
-      "configSha256": "12da7a753a62853c5e37e69e6b41815ed1818134cfaf0eba7ab7165218c9b101",
-      "soulSha256": "c393861771f842cdf52073e535a50fe9cbe8e23bc5e07bc35b54f46bd084f418"
+      "configSha256": "9b871a295ae297ca5e505c7d2795be1adafd3948619a0c30cb538eb893f22c6d",
+      "soulSha256": "00d4e6c7ffe06dda5b3a79fbc8335499726d6f11c2937d401b4587836b9f9f28"
     }
   ]
 }

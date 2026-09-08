@@ -4,3 +4,10 @@ node_modules/
 config/local-edge-paths.json
 edge_repos/*
 !edge_repos/README.md
+
+# Python bytecode and downloaded research source copies stay local.
+__pycache__/
+*.py[cod]
+docs/evidence/industry-templates-*/*.docx
+docs/evidence/industry-templates-*/*.pdf
+docs/evidence/industry-templates-*/*.hwp

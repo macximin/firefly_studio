@@ -10,7 +10,19 @@ import {
   buildBlindReviewReceiptFromRawEvidence,
   hashBlindEvaluationArtifact,
 } from "../edge_repos/firefly_reference_lab/tools/blind-pair-evaluation-contract.mjs";
-import { importBlindReviewEvidence, prepareBlindReviewPair } from "../scripts/blind-review-bridge-lib.mjs";
+import { importBlindReviewEvidence, prepareBlindReviewPair as prepareBlindReviewPairWithRuntime } from "../scripts/blind-review-bridge-lib.mjs";
+
+import { measureHermesExactInputTranscript, planHermesStructuredContextBudget } from "../edge_repos/firefly_reference_lab/tools/genre-soul-hermes-run-lib.mjs";
+
+// Contract tests use a fixed runtime context; live Hermes attestation is tested separately.
+const prepareBlindReviewPair = (args) => prepareBlindReviewPairWithRuntime(args, {
+  contextPreflight: async ({ prompt, inputBuffers, outputReserveTokens }) => {
+    const measurement = measureHermesExactInputTranscript(inputBuffers);
+    const budget = planHermesStructuredContextBudget({ profilePromptContextBytes: 1024, projectPromptContextBytes: 0, pluginContextBytes: 1024, prompt, readTranscriptProxyBytes: measurement.readTranscriptProxyBytes, outputReserveTokens, contextLimit: 400_000 });
+    if (!budget.fits) throw new Error(`Hermes structured preflight context boundary failed: ${budget.preflightBudgetTokens} >= ${budget.contextLimit}`);
+    return { ...budget, runtimeIdentitySha256: digest("synthetic-runtime") };
+  },
+});
 
 const sha = (value) => createHash("sha256").update(value).digest("hex");
 const bytes = (value) => Buffer.from(`${JSON.stringify(value, null, 2)}\n`, "utf8");
@@ -52,6 +64,10 @@ async function fixture(t, options = {}) {
   const inkos = join(root, "edge_repos", "inkos");
   const reflab = join(root, "edge_repos", "firefly_reference_lab");
   const bookId = options.bookId ?? "bridge-book";
+  await writeJson(join(root, "config", "hermes-blind-evaluator.json"), {
+    schemaVersion: "hermes-blind-evaluator-profile/v1",
+    profile: { profileId: "inkos_blind_evaluator", role: "blind-commercial-evaluator", authority: "evaluation-only", provider: "openai-codex", model: "gpt-5.6-sol", reasoning: "high", codingContext: false, openaiRuntime: "auto", cliToolsets: [], toolsCount: 0, skillsPolicy: "none", configSha256: configDigest, soulSha256: soulDigest, ...options.evaluatorProfile },
+  });
   await Promise.all([mkdir(inkos, { recursive: true }), mkdir(reflab, { recursive: true })]);
   const manifest = { repos: [{ name: "inkos", path: "edge_repos/inkos" }, { name: "firefly_reference_lab", path: "edge_repos/firefly_reference_lab" }] };
   const bodies = options.bodies ?? ["후보 A는 계약을 뒤집고 회사를 샀다.\n다음 전쟁을 선언했다.", "후보 B는 자산을 꿰뚫고 적의 판을 빼앗았다.\n다음 거래를 개시했다."];
@@ -164,9 +180,9 @@ function hostReceiptFor({ input, evaluatorInputBytes, evaluatorInputPath, result
     role: "blind-pair-commercial-evaluator",
     runId: "host-run-001",
     profileId: "inkos_blind_evaluator",
-    profileConfigSha256: configDigest,
-    soulSha256: soulDigest,
-    model: "gpt-5.6-sol",
+    profileConfigSha256: input.reviewer.configSha256,
+    soulSha256: input.reviewer.soulSha256,
+    model: input.reviewer.model,
     provider: "openai-codex",
     readCapabilityTool: "firefly_read_source",
     readCapabilityToolset: "firefly-source-read",
@@ -414,8 +430,13 @@ test("rejects an under-source-cap evaluator input that exceeds the exact Hermes 
     (error) => error?.code === "ENOENT");
 });
 
-test("imports completed RefLab raw evidence under distinct public/private input names and emits materialize paths", async (t) => {
-  const value = await fixture(t);
+for (const evaluatorProfile of [undefined, {
+  model: "gpt-6-astra",
+  configSha256: "e75d85c0085769a347820ba9f040e4098112f7ae84aa5c22f82a0b33f6476c27",
+  soulSha256: "abd78aa24facfaa885128aa3a995af5e7116d8f1038c856813fec000682bd2d1",
+}]) {
+test(`imports completed ${evaluatorProfile?.model ?? "legacy Sol"} RefLab evidence with an exact reviewer runtime`, async (t) => {
+  const value = await fixture(t, { evaluatorProfile });
   const prepared = await prepareBlindReviewPair({ root: value.root, manifest: value.manifest, sourcePair, genre: "modern-fantasy-ko", reviewerActorId: "blind-reviewer", intensityDirectiveSha256: digest("intensity") });
   const inputBytes = await readFile(join(value.reflab, prepared.input.path));
   const input = JSON.parse(inputBytes.toString("utf8"));
@@ -468,7 +489,14 @@ test("imports completed RefLab raw evidence under distinct public/private input 
   assert.equal(await readFile(join(value.inkos, imported.downstream.evaluatorInput), "utf8"), evaluatorInputBytes.toString("utf8"));
   assert.equal(await readFile(join(value.inkos, ".inkos", "canaries", sourcePair, "review", "reflab", "attempt-completed.json"), "utf8"), attemptCompletionBytes.toString("utf8"));
   assert.equal(JSON.parse(await readFile(join(value.inkos, ".inkos", "canaries", sourcePair, "review", "reflab", "bridge-receipt.json"), "utf8")).authority.mayWriteInkOSCanon, false);
+  // Even a fully resealed host receipt cannot replace the input-bound model.
+  const wrongHostBytes = bytes({ ...host, model: host.model === "gpt-6-astra" ? "gpt-5.6-sol" : "gpt-6-astra" });
+  await writeFile(join(base, "hermes-run", "attempts", attempt, "host-receipt.json"), wrongHostBytes);
+  const wrongCompletionBytes = await writeJson(join(base, "hermes-run", "attempts", attempt, "completed.json"), { schemaVersion: "private-hermes-structured-attempt-completion/v1", role: "blind-pair-commercial-evaluator", attemptId: attempt, runId: host.runId, hostReceiptSha256: sha(wrongHostBytes), completed: true });
+  await writeJson(join(base, "hermes-run", "completed.json"), { schemaVersion: "private-hermes-structured-completed-pointer/v1", role: "blind-pair-commercial-evaluator", attempt: `attempts/${attempt}`, attemptCompletionSha256: sha(wrongCompletionBytes), hostReceiptSha256: sha(wrongHostBytes) });
+  await assert.rejects(importBlindReviewEvidence({ root: value.root, manifest: value.manifest, sourcePair, genre: "modern-fantasy-ko" }), /bound reviewer/);
 });
+}
 
 test("refuses a symbolic-link source artifact", async (t) => {
   const value = await fixture(t);

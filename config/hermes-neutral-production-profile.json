@@ -8,10 +8,10 @@
     "productionEnabled": false,
     "promotionDecisionSha256": null,
     "provider": "openai-codex",
-    "model": "gpt-5.6-sol",
-    "reasoning": "high",
+    "model": "gpt-6-astra",
+    "reasoning": "medium",
     "skillsPolicy": "none",
-    "configSha256": "12da7a753a62853c5e37e69e6b41815ed1818134cfaf0eba7ab7165218c9b101",
-    "soulSha256": "d24157fc3295a717edd21d2bbc814e19c9818720ce5e5d9b5b2f22d08967679c"
+    "configSha256": "9b871a295ae297ca5e505c7d2795be1adafd3948619a0c30cb538eb893f22c6d",
+    "soulSha256": "e283526bf636f68a1504a7ce5068066d32079f43ce3e1f02e1a18c95b277684d"
   }
 }

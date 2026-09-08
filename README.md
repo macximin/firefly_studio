@@ -12,6 +12,9 @@ Firefly Market Radar ─┐
                        ├─> InkOS
 Firefly Reference Lab ─┘   planning, A/B Rails, drafting, review, revision
   structural references
+
+V3 Webnovel Foundry: owner-directed planning and A/B Rail design workspace
+  restored separately; its InkOS input handoff is not yet wired
 ```
 
 ## Repository model
@@ -19,13 +22,18 @@ Firefly Reference Lab ─┘   planning, A/B Rails, drafting, review, revision
 - This root owns family boundaries, routing contracts, and repository status.
 - Every `edge_repos/` entry is an independent Git repository.
 - Child repository bodies are ignored by this root.
-- The current four children are physical sibling checkouts under `edge_repos/`.
+- The current five children are physical sibling checkouts under `edge_repos/`.
   Bootstrap can still link an existing checkout on another machine; it never
   copies, resets, or silently replaces a child.
 - InkOS keeps its existing package names, file formats, Git history, and upstream
   fork relationship.
 
 The canonical child registry is [`config/edge-repos.json`](config/edge-repos.json).
+
+The webnovel Foundry is `edge_repos/v3_ff_foundry`. The similarly named
+`v4_shortform_script_foundry` belongs to Shortform HQ and produces short-drama
+scripts. See [V3 Foundry restoration](docs/2026-09-06-v3-foundry-edge-restoration.md)
+for the restored templates, path audit, and current integration boundary.
 
 ## Local commands
 

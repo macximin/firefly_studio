@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "firefly-prose-audit-policy/v1",
+  "mode": "observe-only",
+  "automaticRewrite": false,
+  "automaticQualityVerdict": false,
+  "upstream": {
+    "repository": "https://github.com/epoko77-ai/im-not-ai",
+    "commit": "9747f036cdc28a1a8aea4dc71fef1f7846eb96f7",
+    "license": "MIT",
+    "snapshot": ".firefly/vendor/im-not-ai/9747f036cdc28a1a8aea4dc71fef1f7846eb96f7",
+    "manifestSha256": "5e2d2ad7aa0ef91953bdbb6856d632e4632a28dabb7484b200b6c54cf9e01418",
+    "files": {
+      "LICENSE": {
+        "sha256": "4cc7e8c439fe42f09d98457599c129ea6df9e5d0e622750d75952b441a38343f",
+        "bytes": 1067
+      },
+      "README.md": {
+        "sha256": "f6754ed32c078cb00074161556968e7c670af7fcfdd808d4ecb98a2f407146b2",
+        "bytes": 60641
+      },
+      "codex/skills/humanize-korean/SKILL.md": {
+        "sha256": "7a60c8240218ac7a3cb15f26f0824a682958cdc0475ba2d828c8375edc870569",
+        "bytes": 4397
+      },
+      "skills/humanize-korean/references/ai-tell-taxonomy.md": {
+        "sha256": "9215ced84745fc5e03220e6f47df65f4d7f62d0aaf6548c30b939cfb6043e557",
+        "bytes": 123564
+      },
+      "skills/humanize-korean/references/quick-rules.md": {
+        "sha256": "a54d695b00175ed89c0c8f72c1db09506e873257c7001e4e3f9fc6c9a72ce9e0",
+        "bytes": 16583
+      },
+      "skills/humanize-korean/references/empirical-validation.md": {
+        "sha256": "9c6c43a7de27b6ea6f3c3789e7c39e78009a2a1e93c891858f8d5942c7043216",
+        "bytes": 15004
+      },
+      "skills/humanize-korean/references/metrics.py": {
+        "sha256": "48c695c714c98b4452c11b6d8fce814de53fc74036f13e355a1c605c37f0fb8c",
+        "bytes": 15100
+      },
+      "skills/humanize-korean/references/metrics_v2.py": {
+        "sha256": "e73ef18e0a5165f4e67250bc26808410394c92cda39efd456f1cea0cd90cc5cc",
+        "bytes": 31306
+      },
+      "skills/humanize-korean/references/baseline.json": {
+        "sha256": "6b64904daa27c3f759f39a664bf8e7e6c2ea1f9dcacd6d457e97b10f60f43dc5",
+        "bytes": 8680
+      },
+      "skills/humanize-korean/references/baseline_v2.json": {
+        "sha256": "b5f1725bd02fb4cc40eece68c5b8f1d7c7655775743196d8fd0bc5978f2ed916",
+        "bytes": 13487
+      }
+    }
+  },
+  "baselinePolicy": {
+    "usedForScoring": false,
+    "unknownGenreFallbackAllowed": false,
+    "note": "Upstream baseline_v2 contains placeholder calibration cells. No baseline, z-score, route hint, AI grade, or quality verdict is used."
+  },
+  "protected": {
+    "markdownHeadings": true,
+    "tables": true,
+    "code": true,
+    "quotes": true,
+    "referenceSection8": true,
+    "hilAndReceipts": true
+  },
+  "disabledAssessments": [
+    "short-sentence-penalty",
+    "long-sentence-quota",
+    "paragraph-rhythm-grade",
+    "protagonist-motivation-rewrite",
+    "commercial-payoff-rewrite",
+    "global-word-ban",
+    "ai-authorship-verdict"
+  ],
+  "metrics": [
+    "lexical_diversity_ttr",
+    "by_passive_count",
+    "double_particle_count"
+  ],
+  "rules": [
+    {
+      "id": "A-3",
+      "pattern": "에\\s*있어서",
+      "mode": "observe-only",
+      "note": "문맥에 따라 자연스러운 표현일 수 있음. 해당 위치 확인용."
+    },
+    {
+      "id": "A-8",
+      "pattern": "(?:되어진다|되어졌다|되어지는|되어진)",
+      "mode": "observe-only",
+      "note": "일부 이중 피동 표면 후보. 인물의 말투와 장면 기능을 먼저 확인."
+    },
+    {
+      "id": "D-1",
+      "pattern": "(?:결론적으로|요약하면|정리하자면)",
+      "mode": "observe-only",
+      "note": "결산 표현 위치만 기록. 실제 결산이나 의도된 반복은 보존."
+    }
+  ]
+}

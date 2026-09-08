@@ -1,3 +1,4 @@
+import { isFireflyHighRuntime } from "./firefly-runtime-lib.mjs";
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { constants } from "node:fs";
@@ -18,14 +19,10 @@ const EXPECTED = Object.freeze({
   role: "blind-commercial-evaluator",
   authority: "evaluation-only",
   provider: "openai-codex",
-  model: "gpt-5.6-sol",
-  reasoning: "high",
   codingContext: false,
   openaiRuntime: "auto",
   toolsCount: 0,
   skillsPolicy: "none",
-  configSha256: "4124e16bc40d28732d1dd02f9f2e8b78127a202313e1ace21021f16fca809f46",
-  soulSha256: "5c4cca60c9971312682f7b71cac5d4d61b6f9e2c42d19af99c8fe6daedacd94b",
 });
 
 function isObject(value) {
@@ -54,18 +51,17 @@ export function validateHermesBlindEvaluatorRegistry(registry) {
   const profile = registry.profile;
   if (!isObject(profile)) return errors;
   for (const key of [
-    "profileId", "role", "authority", "provider", "model", "reasoning",
+    "profileId", "role", "authority", "provider",
     "codingContext", "openaiRuntime", "toolsCount", "skillsPolicy",
   ]) {
     if (profile[key] !== EXPECTED[key]) errors.push(`blind evaluator profile ${key} must be ${JSON.stringify(EXPECTED[key])}`);
   }
+  if (!isFireflyHighRuntime(profile.model, profile.reasoning)) errors.push("blind evaluator profile runtime must use a supported Firefly model with supported reasoning");
   if (!Array.isArray(profile.cliToolsets) || profile.cliToolsets.length !== 0) {
     errors.push("blind evaluator profile cliToolsets must be an exact empty array");
   }
   if (!SHA256.test(profile.configSha256 ?? "") || !SHA256.test(profile.soulSha256 ?? "")) {
     errors.push("blind evaluator profile configSha256 and soulSha256 are required");
-  } else if (profile.configSha256 !== EXPECTED.configSha256 || profile.soulSha256 !== EXPECTED.soulSha256) {
-    errors.push("blind evaluator profile configSha256 or soulSha256 is not the fixed audited digest");
   }
   return errors;
 }

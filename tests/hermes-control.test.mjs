@@ -857,3 +857,34 @@ test("self-hashes the bodyless Hermes receipt projection and binds raw output se
     /does not match the exact invocation artifacts/u,
   );
 });
+
+
+test("Astra binds profile, WorkOrder, session export and receipt without reusing Sol session IDs", () => {
+  const authority = authorityFixture();
+  const solWorkOrder = canaryWorkOrder(authority);
+  const historicalIdentity = { v: 1, bookId: solWorkOrder.bookId, lane: solWorkOrder.modeEvidence.lane, profileId: solWorkOrder.modeEvidence.profileId, soulId: solWorkOrder.modeEvidence.soulId, soulVersion: solWorkOrder.modeEvidence.soulVersion, bindingSha256: solWorkOrder.expectedSoulBinding.bindingSha256, isolationScopeSha256: solWorkOrder.modeEvidence.canaryIsolation.isolationScopeSha256 };
+  assert.equal(solWorkOrder.sessionId, `hq-agent-${digest(canonicalStringify(historicalIdentity)).slice(0, 40)}`);
+  authority.profile.model = "gpt-6-astra";
+  const workOrder = canaryWorkOrder(authority, { runtime: { ...solWorkOrder.runtime, model: "gpt-6-astra" } });
+  assert.notEqual(workOrder.sessionId, solWorkOrder.sessionId);
+  assert.notEqual(deriveAgentOperateSessionId({ ...workOrder, modeEvidence: { ...workOrder.modeEvidence, profileConfigSha256: "f".repeat(64) } }), workOrder.sessionId);
+  assert.deepEqual(validateAgentOperateModeEvidence(workOrder, authority), []);
+  const mixed = structuredClone(workOrder);
+  mixed.runtime.model = "gpt-5.6-sol";
+  mixed.sessionId = deriveAgentOperateSessionId(mixed);
+  assert.ok(validateAgentOperateModeEvidence(mixed, authority).some((error) => error.includes("bound profile model")));
+
+  const session = { id: "astra-fixture", profile_name: authority.profile.profileId, source: "tool", model: "gpt-6-astra", model_config: JSON.stringify({ max_iterations: 1, reasoning_config: { effort: "high" } }), system_prompt: "exact contract", end_reason: "agent_close", ended_at: 1, message_count: 2, api_call_count: 1, tool_call_count: 0, messages: [{ role: "user", content: "query" }, { role: "assistant", content: "action", finish_reason: "stop" }] };
+  const expected = { workOrder, sessionId: session.id, profileId: authority.profile.profileId, queryText: "query", operationPromptText: "exact contract", promptSha256: digest("exact contract"), actionText: "action", actionSha256: digest("action") };
+  const exportBytes = Buffer.from(JSON.stringify(session));
+  assert.equal(validateHermesSessionExport(exportBytes, expected).model, "gpt-6-astra");
+  assert.throws(() => validateHermesSessionExport(Buffer.from(JSON.stringify({ ...session, model: "gpt-5.6-sol" })), expected), /runtime identity mismatch/);
+  const input = { workOrder, workOrderSha256: SHA, profile: authority.profile, promptBytes: Buffer.from("exact contract"), systemPromptBytes: Buffer.from("exact contract"), rawOutputBytes: Buffer.from("action"), actionBytes: Buffer.from("action"), action: { guidanceSha256: digest("action") }, sessionId: session.id, startedAt: "2026-09-05T00:00:00.000Z", completedAt: "2026-09-05T00:00:01.000Z", sessionExportBytes: exportBytes };
+  const receipt = buildHermesInvocationReceipt(input);
+  assert.equal(validateHermesInvocationReceipt(Buffer.from(canonicalStringify(receipt)), input).runtime.model, "gpt-6-astra");
+  assert.throws(() => buildHermesInvocationReceipt({ ...input, workOrder: mixed }), /bound profile and WorkOrder exactly/);
+  const wrong = { ...receipt, runtime: { ...receipt.runtime, model: "gpt-5.6-sol" } };
+  const { receiptSelfHash: _hash, ...projection } = wrong;
+  wrong.receiptSelfHash = digest(canonicalStringify(projection));
+  assert.throws(() => validateHermesInvocationReceipt(Buffer.from(canonicalStringify(wrong)), input), /exact invocation artifacts/);
+});

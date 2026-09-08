@@ -1,3 +1,4 @@
+import { isFireflyHighRuntime } from "./firefly-runtime-lib.mjs";
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { constants } from "node:fs";
@@ -285,8 +286,8 @@ export function validateBlindCanaryBatchPlan(plan) {
       throw new Error("batch plan count or blind-mapping boundary is invalid");
     }
     if (plan.authorities?.evaluator?.profileId !== "inkos_blind_evaluator"
-      || plan.authorities.evaluator.configSha256 !== "4124e16bc40d28732d1dd02f9f2e8b78127a202313e1ace21021f16fca809f46"
-      || plan.authorities.evaluator.soulSha256 !== "5c4cca60c9971312682f7b71cac5d4d61b6f9e2c42d19af99c8fe6daedacd94b") {
+      || !SHA256.test(plan.authorities.evaluator.configSha256 ?? "")
+      || !SHA256.test(plan.authorities.evaluator.soulSha256 ?? "")) {
       throw new Error("batch plan evaluator authority mismatch");
     }
     assertOpaquePlan(plan);
@@ -317,7 +318,8 @@ export function validateBlindCanaryBatchPlan(plan) {
       }
       if (pair.workOrderDrafts.neutral.instructionSha256 !== pair.workOrderDrafts.genreSoul.instructionSha256
         || hashCanonical(pair.workOrderDrafts.neutral.args) !== hashCanonical(pair.workOrderDrafts.genreSoul.args)
-        || pair.workOrderDrafts.neutral.timeoutMs !== pair.workOrderDrafts.genreSoul.timeoutMs) {
+        || pair.workOrderDrafts.neutral.timeoutMs !== pair.workOrderDrafts.genreSoul.timeoutMs
+        || hashCanonical(pair.workOrderDrafts.neutral.runtime) !== hashCanonical(pair.workOrderDrafts.genreSoul.runtime)) {
         throw new Error("batch plan WorkOrder pair does not share exact task inputs");
       }
       for (const draft of [pair.workOrderDrafts.neutral, pair.workOrderDrafts.genreSoul]) {
@@ -325,7 +327,7 @@ export function validateBlindCanaryBatchPlan(plan) {
           || draft.repo !== "inkos" || draft.capability !== "agent-operate" || draft.executionMode !== "promotion-canary"
           || draft.schemaVersion !== "firefly-agent-operate-work-order-draft/v1"
           || draft.canaryIsolationBinding !== "pending-inkos-prepare"
-          || draft.runtime?.model !== "gpt-5.6-sol" || draft.runtime?.reasoning !== "high"
+          || !isFireflyHighRuntime(draft.runtime?.model, draft.runtime?.reasoning)
           || draft.timeoutMs !== plan.timeoutMs) {
           throw new Error("batch plan WorkOrder identity or runtime mismatch");
         }
@@ -496,9 +498,13 @@ function assertBundleAuthority(config, authority) {
   if (authority?.profiles?.neutral?.profileId !== "inkos_neutral_baseline") throw new Error("neutral authority profile mismatch");
   if (
     authority?.profiles?.evaluator?.profileId !== "inkos_blind_evaluator"
-    || authority.profiles.evaluator.configSha256 !== "4124e16bc40d28732d1dd02f9f2e8b78127a202313e1ace21021f16fca809f46"
-    || authority.profiles.evaluator.soulSha256 !== "5c4cca60c9971312682f7b71cac5d4d61b6f9e2c42d19af99c8fe6daedacd94b"
+    || !SHA256.test(authority.profiles.evaluator.configSha256 ?? "")
+    || !SHA256.test(authority.profiles.evaluator.soulSha256 ?? "")
   ) throw new Error("blind evaluator authority mismatch");
+  if (!isFireflyHighRuntime(authority.profiles.neutral.model, authority.profiles.neutral.reasoning)
+    || !isFireflyHighRuntime(authority.profiles.evaluator.model, authority.profiles.evaluator.reasoning)) {
+    throw new Error("batch authority runtime must use a supported Firefly model with high reasoning");
+  }
   if (!Array.isArray(authority?.genres) || authority.genres.length !== config.genres.length) throw new Error("batch authority genre count mismatch");
   for (const configured of config.genres) {
     const item = authority.genres.find((candidate) => candidate.genreId === configured.genreId);
@@ -507,6 +513,9 @@ function assertBundleAuthority(config, authority) {
       || item.profile?.soulId !== configured.soulId || item.profile?.soulVersion !== configured.soulVersion
       || item.soulId !== configured.soulId || item.soulVersion !== configured.soulVersion
     ) throw new Error(`${configured.genreId} batch authority cross-genre/profile mismatch`);
+    if (item.profile.model !== authority.profiles.neutral.model || item.profile.reasoning !== authority.profiles.neutral.reasoning) {
+      throw new Error(`${configured.genreId} neutral and genre Soul runtime must match exactly`);
+    }
   }
 }
 
@@ -605,7 +614,7 @@ export function buildBlindCanaryBatchBundle({ config, authority, approvedAt }) {
         bookId: item.bookId,
         instructionSha256,
         args,
-        runtime: { model: "gpt-5.6-sol", reasoning: "high" },
+        runtime: { model: item.profile.model, reasoning: item.profile.reasoning },
         timeoutMs: config.timeoutMs,
         canaryIsolationBinding: "pending-inkos-prepare",
       };

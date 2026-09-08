@@ -5,14 +5,14 @@
     "role": "blind-commercial-evaluator",
     "authority": "evaluation-only",
     "provider": "openai-codex",
-    "model": "gpt-5.6-sol",
-    "reasoning": "high",
+    "model": "gpt-6-astra",
+    "reasoning": "medium",
     "codingContext": false,
     "openaiRuntime": "auto",
     "cliToolsets": [],
     "toolsCount": 0,
     "skillsPolicy": "none",
-    "configSha256": "4124e16bc40d28732d1dd02f9f2e8b78127a202313e1ace21021f16fca809f46",
-    "soulSha256": "5c4cca60c9971312682f7b71cac5d4d61b6f9e2c42d19af99c8fe6daedacd94b"
+    "configSha256": "29b62899ee1ef10fe021c9dd028a8ddd690d38a0e0da475d132b071eb50a800e",
+    "soulSha256": "abd78aa24facfaa885128aa3a995af5e7116d8f1038c856813fec000682bd2d1"
   }
 }

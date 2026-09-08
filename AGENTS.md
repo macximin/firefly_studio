@@ -19,6 +19,11 @@
 - `storyyard` owns private human-review projection, decision receipts, and
   explicitly approved publication snapshots. It never owns InkOS canon and may
   not write directly into an InkOS project.
+- `v3_ff_foundry` is an owner-directed webnovel planning and A/B Rail design
+  workspace, restored as an independent edge on 2026-09-06. Its historical
+  works and charter remain scoped to that repository. This registration does
+  not activate its old automation or transfer InkOS canon authority. Planning
+  handoff to InkOS still requires an explicit, verified input mapping.
 
 ## Safety
 
@@ -38,5 +43,6 @@
 
 ## Excluded families
 
-Shortform repositories, V3 Command Center, V3 Sources, and V3 Foundry are not
-members of this HQ unless the owner explicitly adds them to the manifest.
+Shortform repositories, V3 Command Center, and V3 Sources are not members of
+this HQ unless the owner explicitly adds them to the manifest. V3 Foundry is
+registered separately; the archived V3 HQ is not reactivated by that addition.

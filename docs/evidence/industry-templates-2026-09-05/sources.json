@@ -1,0 +1,161 @@
+{
+  "schemaVersion": "firefly_template_research/v1",
+  "observedAt": "2026-09-05T11:08:41.762283+00:00",
+  "scope": "External template discovery and HQ candidate adaptation; no production adoption",
+  "originalFiles": [
+    {
+      "file": "tenbook-submission.hwp",
+      "sourceUrl": "https://tenbook.co.kr/submit.php",
+      "sha256": "1eb3b7a5bd09c3c3e39b34a61a72a80d481f94aceda9b9b25c48f23e379da7e5",
+      "bytes": 22016,
+      "inspection": "publisher submission form; HWP body text inspected"
+    },
+    {
+      "file": "gwangju-2023-synopsis.docx",
+      "sourceUrl": "https://muncre.gwangju.ac.kr/bbs/download.php?bo_table=d0101&wr_id=250&no=1&page=1",
+      "sha256": "8130bf83ba97d354a6bb0c2e81e0777fbd90ab2548513c95b7a891e9c25fda73",
+      "bytes": 20581,
+      "inspection": "historical educational contest; DOCX XML inspected including example"
+    },
+    {
+      "file": "hankyung-2023-story-proposal.docx",
+      "sourceUrl": "https://event.hankyung.com/seminar/story/down?v=2",
+      "sha256": "dd6399448c7615507cc7fc48899f741e81c6410df333487ecdc318e5eb30fa7d",
+      "bytes": 21874,
+      "inspection": "historical professional contest; proposal and treatment DOCX extracted from official ZIP; XML inspected"
+    },
+    {
+      "file": "screen-australia-story-documents-2018.pdf",
+      "sourceUrl": "https://www.screenaustralia.gov.au/wp-content/uploads/2025/08/Story-Documents-Drama.pdf?v=1775615761",
+      "sha256": "e7c46003f2daf03408f0d231f2e6c907b0ed6a02a3bc7a61d1fb4346952d7f47",
+      "bytes": 900411,
+      "inspection": "official 2018 screen industry guidance; currently hosted under 2025 upload path; 15 PDF pages inspected via text, Bible pp 11-12"
+    }
+  ],
+  "github": [
+    {
+      "repo": "giapnguyen74/xnovelist",
+      "head": "7abd8c1252fdf65120feeef3c977fc3283c08bfc",
+      "stars": 5,
+      "license": {
+        "key": "mit",
+        "name": "MIT License",
+        "spdx_id": "MIT",
+        "url": "https://api.github.com/licenses/mit",
+        "node_id": "MDc6TGljZW5zZTEz"
+      },
+      "files": [
+        "LICENSE",
+        "docs/STORY_BIBLE.md",
+        "src/storage/schemas.ts"
+      ]
+    },
+    {
+      "repo": "wnsdy95/writer-skills",
+      "head": "7bfe4aac3edca88cadc64775b52d2bc192950ce0",
+      "stars": 1,
+      "license": {
+        "key": "mit",
+        "name": "MIT License",
+        "spdx_id": "MIT",
+        "url": "https://api.github.com/licenses/mit",
+        "node_id": "MDc6TGljZW5zZTEz"
+      },
+      "files": [
+        ".github/ISSUE_TEMPLATE",
+        ".github/ISSUE_TEMPLATE/bug_report.yml",
+        ".github/ISSUE_TEMPLATE/config.yml",
+        ".github/ISSUE_TEMPLATE/feature_request.yml",
+        ".github/PULL_REQUEST_TEMPLATE.md",
+        "LICENSE",
+        "docs/story-bible-schema.md",
+        "skills/fiction-story-bible-manager/assets/story-bible-template",
+        "skills/fiction-story-bible-manager/assets/story-bible-template/00-index.md",
+        "skills/fiction-story-bible-manager/assets/story-bible-template/canon-ledger.md",
+        "skills/fiction-story-bible-manager/assets/story-bible-template/characters.md",
+        "skills/fiction-story-bible-manager/assets/story-bible-template/continuity-issues.md",
+        "skills/fiction-story-bible-manager/assets/story-bible-template/foreshadowing-payoff-ledger.md",
+        "skills/fiction-story-bible-manager/assets/story-bible-template/glossary.md",
+        "skills/fiction-story-bible-manager/assets/story-bible-template/locations.md",
+        "skills/fiction-story-bible-manager/assets/story-bible-template/plot-thread-ledger.md",
+        "skills/fiction-story-bible-manager/assets/story-bible-template/relationship-map.md",
+        "skills/fiction-story-bible-manager/assets/story-bible-template/revision-queue.md",
+        "skills/fiction-story-bible-manager/assets/story-bible-template/scene-ledger.md",
+        "skills/fiction-story-bible-manager/assets/story-bible-template/style-guide.md",
+        "skills/fiction-story-bible-manager/assets/story-bible-template/timeline.md",
+        "skills/fiction-story-bible-manager/assets/story-bible-template/world-rules.md",
+        "story-bible-template",
+        "story-bible-template/00-index.md",
+        "story-bible-template/canon-ledger.md",
+        "story-bible-template/characters.md",
+        "story-bible-template/continuity-issues.md",
+        "story-bible-template/foreshadowing-payoff-ledger.md",
+        "story-bible-template/glossary.md",
+        "story-bible-template/locations.md",
+        "story-bible-template/plot-thread-ledger.md",
+        "story-bible-template/relationship-map.md",
+        "story-bible-template/revision-queue.md",
+        "story-bible-template/scene-ledger.md",
+        "story-bible-template/style-guide.md",
+        "story-bible-template/timeline.md",
+        "story-bible-template/world-rules.md"
+      ]
+    }
+  ],
+  "githubInspection": "Pinned raw story-bible scene ledger, plot-thread ledger, characters and xnovelist continuity specification read. No repository installed.",
+  "repositoriesAtDocumentationStart": [
+    {
+      "path": ".",
+      "head": "b7b1c217ae450d9da9907d7e1be79ca855948148",
+      "status": " M config/edge-repos.json\u0000 M contracts/work-order-v1.schema.json\u0000 M docs/2026-09-03-planning-entry-hil.md\u0000 M scripts/dispatch-lib.mjs\u0000 M tests/dispatch.test.mjs\u0000?? docs/2026-09-04-pitch-human-grounding-p0-plan.md\u0000?? docs/2026-09-05-human-premise-canary-handoff.md\u0000?? docs/2026-09-05-human-purpose-production-contract-audit.md\u0000?? docs/evidence/\u0000",
+      "trackedDiffSha256": "af06af760bf1563324c8458b5af7960b08f27d6d1f6001f348c91651867f9ac0"
+    },
+    {
+      "path": "edge_repos/inkos",
+      "head": "e375a8cab945556980b90490e214d42aa8336a36",
+      "status": " M packages/cli/src/commands/pitch.ts\u0000 M packages/core/skills/inkos-commercial-webnovel-pitch/SKILL.md\u0000 M packages/core/src/__tests__/external-skill-loader.test.ts\u0000 M packages/core/src/index.ts\u0000 M packages/core/src/storyyard/pitch-review-packet.ts\u0000?? config/\u0000?? packages/cli/src/__tests__/human-premise.test.ts\u0000?? packages/cli/src/commands/human-premise.ts\u0000?? packages/core/skills/inkos-human-premise-pitch/\u0000?? packages/core/skills/inkos-human-premise-review/\u0000?? packages/core/src/__tests__/human-premise.test.ts\u0000?? packages/core/src/planning/commercial-expansion.ts\u0000?? packages/core/src/planning/human-premise.ts\u0000?? packages/core/src/planning/spine-retention.ts\u0000?? packages/core/src/storyyard/human-premise-review-packet.ts\u0000",
+      "trackedDiffSha256": "2d7e2a3fe081f9049b10f357c6777c5873a75f5979b2f3a832a7056b73480922"
+    },
+    {
+      "path": "edge_repos/firefly_reference_lab",
+      "head": "31e2b7788c28fa937f68ba7275860ce6552f5bce",
+      "status": "",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "edge_repos/firefly_market_radar",
+      "head": "2b4a88adf2ecd44c66a017c9073fc420ff131803",
+      "status": "",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "edge_repos/storyyard",
+      "head": "8c43e0ba7e640098211cba43abb574f56cfc1741",
+      "status": "",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "verification": {
+    "at": "2026-09-05T11:09:03.080218+00:00",
+    "result": "PASS",
+    "localLinksChecked": 8,
+    "originalFileHashesChecked": 4,
+    "trackedDiffsAndHeadsUnchanged": true,
+    "childrenGitStatusUnchanged": true,
+    "gitDiffCheck": true,
+    "reportWhitespaceCheck": true,
+    "scope": "Research and template candidates only; no production code or canon edits."
+  },
+  "reports": [
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/docs/2026-09-05-industry-planning-templates-research.md",
+      "sha256": "c22aa74c77bfb5622e507fba51ffb5ecdc2e53e167208cf6aabee018d0703fcd",
+      "lines": 87
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/docs/2026-09-05-planning-format-candidate.md",
+      "sha256": "178026fcd5720484a3d35594a92f0f02d644937e16db65b11b2dd4a22a43e970",
+      "lines": 116
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "firefly-daily-planning/v1",
+  "timezone": "Asia/Seoul",
+  "hour": 2,
+  "routes": ["astra", "grok-cli", "gemini-cli", "chatgpt-web", "grok-web", "gemini-web"],
+  "genre": "현대판타지",
+  "notionDatabaseId": "1a561b271642497eb052ce442ad36b3c",
+  "notionEnvFile": "/Users/a2501/Desktop/hq_control/.env",
+  "secretsFile": "~/.config/firefly-planning/secrets.json",
+  "storyyardOrigin": "https://storyyard-wjjo.macximin11123.chatgpt.site",
+  "outputRoot": "edge_repos/v3_ff_foundry/20_model_runs/multi_provider",
+  "sourcePool": [
+    {"id":"doksik-chaebol3", "title":"독식하는 재벌 3세", "source":"서오/독식하는 재벌 3세_서오_합본.txt"},
+    {"id":"goldspoon-investment-manual", "title":"금수저 투자백서", "source":"강동호/금수저 투자백서_강동호_합본.txt"},
+    {"id":"trillion-salary-rookie", "title":"연봉 1조 신입사원", "source":"서오/연봉 1조 신입사원_서오_합본.txt"},
+    {"id":"goldspoon-life-manual", "title":"금수저생활백서", "source":"강동호/금수저생활백서_강동호_합본.txt"},
+    {"id":"nouveau-riche-rascal", "title":"졸부집 망나니(개정판)", "source":"흑곰작가/졸부집 망나니(개정판)_흑곰작가_합본.txt"},
+    {"id":"chaebol-youngest-genius", "title":"재벌가 막둥이는 만능 천재(개정판)", "source":"흑곰작가/재벌가 막둥이는 만능 천재(개정판)_흑곰작가_합본.txt"}
+  ]
+}

@@ -1,3 +1,4 @@
+import { isFireflyHighRuntime } from "./firefly-runtime-lib.mjs";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -82,6 +83,12 @@ export function deriveAgentOperateSessionId(workOrder) {
     bindingSha256: workOrder.expectedSoulBinding?.bindingSha256 ?? null,
     isolationScopeSha256: workOrder.modeEvidence?.canaryIsolation?.isolationScopeSha256 ?? null,
   };
+  // Preserve historical Sol IDs while isolating the new runtime session namespace.
+  if (workOrder.runtime?.model === "gpt-6-astra") {
+    identity.v = 2;
+    identity.runtime = workOrder.runtime;
+    identity.profileConfigSha256 = workOrder.modeEvidence?.profileConfigSha256;
+  }
   return `hq-agent-${sha256Bytes(Buffer.from(canonicalStringify(identity), "utf8")).slice(0, 40)}`;
 }
 
@@ -225,9 +232,10 @@ export function validateAgentOperateModeEvidence(workOrder, authority) {
   }
   if (
     workOrder.runtime?.hermesProfile !== evidence.profileId
-    || workOrder.runtime?.model !== "gpt-5.6-sol"
-    || workOrder.runtime?.reasoning !== "high"
-  ) errors.push("agent-operate runtime must match the bound gpt-5.6-sol/high profile");
+    || workOrder.runtime?.model !== profile.model
+    || workOrder.runtime?.reasoning !== profile.reasoning
+    || !isFireflyHighRuntime(profile.model, profile.reasoning)
+  ) errors.push("agent-operate runtime must match the bound profile model/high exactly");
   if (workOrder.executionMode === "promotion-canary") {
     if (!Array.isArray(workOrder.approvedInputs) || workOrder.approvedInputs.length !== 0) {
       errors.push("promotion-canary approvedInputs must be empty; isolation is a live InkOS receipt binding");
@@ -403,7 +411,10 @@ function validateHermesSessionExportStructure(bytes, expected, { allowSuccessful
     throw new Error("Hermes session export is not valid JSONL");
   }
   if (session.id !== expected.sessionId) throw new Error("Hermes session export ID mismatch");
-  if (session.profile_name !== expected.profileId || session.model !== "gpt-5.6-sol" || session.source !== "tool") {
+  const expectedModel = expected.workOrder?.runtime?.model ?? expected.model ?? "gpt-5.6-sol";
+  const expectedReasoning = expected.workOrder?.runtime?.reasoning ?? "high";
+  if (!isFireflyHighRuntime(expectedModel, expectedReasoning)
+    || session.profile_name !== expected.profileId || session.model !== expectedModel || session.source !== "tool") {
     throw new Error("Hermes session export runtime identity mismatch");
   }
   let modelConfig;
@@ -412,7 +423,7 @@ function validateHermesSessionExportStructure(bytes, expected, { allowSuccessful
   } catch {
     throw new Error("Hermes session export model_config is invalid");
   }
-  if (modelConfig?.reasoning_config?.effort !== "high" || modelConfig?.max_iterations !== 1) {
+  if (modelConfig?.reasoning_config?.effort !== expectedReasoning || modelConfig?.max_iterations !== 1) {
     throw new Error("Hermes session export does not prove high reasoning and one turn");
   }
   if (session.tool_call_count !== 0) throw new Error("Hermes session export contains tool calls");
@@ -525,6 +536,10 @@ export function validateHermesRenderedControlStdout(stdout, { actionText, reason
 }
 
 export function buildHermesInvocationReceipt({ workOrder, workOrderSha256, profile, promptBytes, systemPromptBytes, rawOutputBytes, actionBytes, action, sessionId, startedAt, completedAt, sessionExportBytes }) {
+  if (!isFireflyHighRuntime(workOrder.runtime?.model, workOrder.runtime?.reasoning)
+    || workOrder.runtime.model !== profile.model || workOrder.runtime.reasoning !== profile.reasoning) {
+    throw new Error("Hermes invocation runtime must match the bound profile and WorkOrder exactly");
+  }
   const projection = {
     schemaVersion: "hermes-invocation-receipt/v1",
     status: "completed",
@@ -539,8 +554,8 @@ export function buildHermesInvocationReceipt({ workOrder, workOrderSha256, profi
     },
     runtime: {
       provider: "openai-codex",
-      model: "gpt-5.6-sol",
-      reasoning: "high",
+      model: workOrder.runtime.model,
+      reasoning: workOrder.runtime.reasoning,
       platform: "cli",
       openaiRuntime: "auto",
       transport: "codex_responses",

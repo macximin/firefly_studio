@@ -27,7 +27,14 @@
       "maxLength": 80,
       "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$"
     },
+    "outputSlateId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$"
+    },
     "candidateCount": { "type": "integer", "minimum": 1, "maximum": 20 },
+    "planningMode": { "enum": ["general", "source-first"] },
     "candidateId": { "type": "string", "pattern": "^p[0-9]{2}$" },
     "humanDecision": { "enum": ["select", "hold", "reject"] },
     "comment": { "type": "string", "minLength": 1, "maxLength": 2000 },
@@ -72,5 +79,27 @@
     },
     "requestedAt": { "type": "string", "format": "date-time" },
     "timeoutMs": { "type": "integer", "minimum": 1000, "maximum": 3600000 }
-  }
+  },
+  "allOf": [
+    {
+      "if": { "required": ["planningMode"] },
+      "then": { "properties": { "capability": { "const": "pitch-slate" } } }
+    },
+    {
+      "if": { "required": ["planningMode"], "properties": { "planningMode": { "const": "source-first" } } },
+      "then": {
+        "properties": {
+          "approvedInputs": {
+            "contains": { "required": ["role"], "properties": { "role": { "const": "pitch-source-pack" } } },
+            "minContains": 1,
+            "maxContains": 1
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "capability": { "const": "pitch-slate" } }, "not": { "required": ["planningMode"], "properties": { "planningMode": { "const": "source-first" } } } },
+      "then": { "properties": { "approvedInputs": { "not": { "contains": { "required": ["role"], "properties": { "role": { "const": "pitch-source-pack" } } } } } } }
+    }
+  ]
 }

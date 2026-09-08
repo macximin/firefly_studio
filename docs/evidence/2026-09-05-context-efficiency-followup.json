@@ -1,0 +1,359 @@
+{
+  "kind": "firefly-context-efficiency-followup/v1",
+  "createdAt": "2026-09-05T14:37:03.007428+00:00",
+  "plan": "/Users/a2501/Desktop/firefly_studio/docs/2026-09-05-context-efficiency-followup-plan.md",
+  "pairedProbe": {
+    "order": [
+      "baseline",
+      "thin",
+      "thin",
+      "baseline"
+    ],
+    "allAnswersMatched": true,
+    "serializedPromptSha256": "92bd654a4d10a76244af33908f13c64bde95b73da2c42a4850f4b3d3e647790e",
+    "serializedInputIdentical": true,
+    "variants": {
+      "thin": {
+        "calls": 2,
+        "inputTokensMean": 7647,
+        "outputTokensMean": 129.5,
+        "cachedInputTokens": 0,
+        "reasoningOutputTokens": 73,
+        "totalTokens": 15553
+      },
+      "baseline": {
+        "calls": 2,
+        "inputTokensMean": 11537,
+        "outputTokensMean": 138.5,
+        "cachedInputTokens": 0,
+        "reasoningOutputTokens": 91,
+        "totalTokens": 23351
+      }
+    },
+    "meanInputReduction": 0.33717604229869114,
+    "totalTokensAllCalls": 38904,
+    "scope": "Same fixed-answer synthetic extraction, actual Astra/high. Neither creative quality nor whole-process savings established."
+  },
+  "actualValidationCalls": 6,
+  "actualValidationTokens": 179864,
+  "formatter": {
+    "modelCalls": 0,
+    "exactExpectedMatched": true,
+    "originalSha256": "bdd58cc0d0fe493cccb4abc0451517602ba2f60b615a535245c54e8693c661e9",
+    "afterSha256": "b63b082eb0ce3673ad8cca60d7ddea77c43aafca2e49aae4800197683bf1067c",
+    "validationErrors": [],
+    "changedPaths": [
+      "commercialScore.promise",
+      "commercialScore.total"
+    ],
+    "reviewPromptBeforeBytes": 5147,
+    "reviewPromptAfterBytes": 1558,
+    "reviewPromptMeasurement": "Role prompt only, excluding attached reference bundle and review skill/rubric; no-tools guidance included after change."
+  },
+  "actualCanary": {
+    "kind": "context-efficiency-actual-canary-verification/v1",
+    "generatedAt": "2026-09-05T14:37:02.929Z",
+    "sourceSlatePath": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/.inkos/pitch-slates/chaebol-source-first-20260905-v2/slate.json",
+    "sourceSlateSha256": "a288dc487cbe035f07d8a886f082b4ffa68658f7808450ac1c48d7bdc9ac906d",
+    "slatePath": "/Users/a2501/Desktop/firefly_studio/.firefly/context-efficiency/astra-20260905-v1/source-fact-canary/.inkos/pitch-slates/astra-context-fact-canary-20260905-v1/slate.json",
+    "slateSha256": "28307073de6730a93cb4757436061001ba53a227c24f14732d67ad8de5d9f7e0",
+    "reviewPath": "/Users/a2501/Desktop/firefly_studio/.firefly/context-efficiency/astra-20260905-v1/source-fact-canary/.inkos/pitch-slates/astra-context-fact-canary-20260905-v1/survival-review/review.json",
+    "reviewSha256": "cc32283dcb53db2e42756ee0b5b670af388a7a1bb0311a20eb30d39085d24ac7",
+    "requestSha256": "6f20a2aab46d1225db011e50e197bde3bf9806ff2a7ed721cd24a2383b28ac38",
+    "exactBoundedReplayMatchesSavedCandidates": true,
+    "declaredOccurrences": 36,
+    "decisions": {
+      "replace": 10,
+      "keep": 26
+    },
+    "changedFields": [
+      {
+        "candidateId": "p01",
+        "pointer": "/arcLadder/0/externalMove",
+        "beforeSha256": "cf0188dd90c0149620f72c0583dd05e8bba9a8848b039fc194aa3025d0d28799",
+        "afterSha256": "b9ede917527fe9c0fbbde1c359089ebe1dd32833ffd5eea85beda5f44d002e34"
+      },
+      {
+        "candidateId": "p01",
+        "pointer": "/spineRetention/preservedEngine/progressionLadder",
+        "beforeSha256": "5805927ec0b66a5137ad79948ed4697cade544f1b45a64eb61e9240fa3cdab78",
+        "afterSha256": "feca7f0d93330700373493f1691fe9510ca0fdc833b880a83b91b26816f704cf"
+      },
+      {
+        "candidateId": "p01",
+        "pointer": "/spineRetention/rewards/1/sourceReward",
+        "beforeSha256": "bb6cd5700337bdfba875a83506f64d8e78756cf3a43017e81864a9ce6582493d",
+        "afterSha256": "7fb0a5a1968b027c7b10c23da1c978fbf1ee1eca99ea3df79b0057f67806c070"
+      },
+      {
+        "candidateId": "p01",
+        "pointer": "/spineRetention/rewards/1/targetReward",
+        "beforeSha256": "48acfb2837cadafb132b687904ec33b70b9d3dce584473211ca8d6d766981dbd",
+        "afterSha256": "d30ed31303e9f740761cac2166da1578b07dc9f598ab311ac15b7abe660917c2"
+      },
+      {
+        "candidateId": "p01",
+        "pointer": "/projectPlan/markdown",
+        "beforeSha256": "2c73a2055196d3ee3034f76d2b6c89ad67d3440ce6cb6cdbf1aa3060043bb884",
+        "afterSha256": "9161bfb91f7972a627565addd23271aa651ad3916fdb7d700e92864d31b7a49c"
+      },
+      {
+        "candidateId": "p02",
+        "pointer": "/spineRetention/preservedEngine/progressionLadder",
+        "beforeSha256": "ccc7cad7d213353bc551087d2ba909f6341a28bc9d5e02f89e4d07f1a226a4ea",
+        "afterSha256": "df60b8000c3476d4fee85fd684e306ed9fe8956c49ccd63ed4f9e2468c1ac40d"
+      },
+      {
+        "candidateId": "p02",
+        "pointer": "/projectPlan/markdown",
+        "beforeSha256": "fcdc6c22792d99a54fe7d726f4bcc07a3a23eec75afd99124c6619915b11b625",
+        "afterSha256": "8b90e207ecb880ad02e588e79ff90d9787152960d5bd6d4eb5c25b1289ae756b"
+      },
+      {
+        "candidateId": "p01",
+        "pointer": "/spineRetention/referenceDisclosure/preservedElements/3",
+        "beforeSha256": "e4d344a383d459b0b8f8e933d380446eea60849e71920924d5ecbf2d0dc41054",
+        "afterSha256": "9d458244849cbb7f122151ca772d9a1d036d6b9c7fd5e9655542cf85c21d9c9d"
+      }
+    ],
+    "protectedVariationsUnchanged": 2,
+    "protectedOriginalFilesUnchanged": 65,
+    "referenceBundleBytes": 199421,
+    "sameCompleteReferenceBundleReceivedByReview": true,
+    "reviewVerdicts": [
+      {
+        "candidateId": "p01",
+        "verdict": "SURVIVE",
+        "score": 93,
+        "requiredRepair": "초반의 필수 인과 수리는 없다. 최소 표기 정리로 arcLadder[1].externalMove의 1~188화가 해당 단계의 연재 배정 범위가 아니라 원문 참고 범위임을 명시한다. 장기 가설을 실행 A/B레일로 바꾸거나 새 회차 범위를 확정할 필요는 없다."
+      },
+      {
+        "candidateId": "p02",
+        "verdict": "HOLD",
+        "score": 91,
+        "requiredRepair": "entryContract.commercialPromise.howAdvantage의 일본 투자 결과는 도윤의 개인 투자자금과 그 실현 수익으로 귀속되며, 이후 미국 법인 설립 뒤 포트원 자금으로 투입된다는 시간 구분을 명시한다. projectPlan.markdown 제2장 HOW 행의 ‘실현 수익은 자기 회사에 남기고’도 미국 법인 설립 이후의 반복 운용을 뜻한다고 한정한다. 나머지 자금 규모·수익·인재 협상 변주는 유지하면 된다."
+      }
+    ],
+    "humanDecision": "pending",
+    "canonStatus": "non-canonical",
+    "coverage": "declared-occurrences-only",
+    "limitation": "One declared factual sequence in existing v2; unrelated old defects remain subject to independent review. Not a fresh full-planning or whole-novel quality benchmark.",
+    "invocationCount": 2,
+    "totalTokens": 140960
+  },
+  "stages": [
+    {
+      "stage": "pitch-fact-repair",
+      "sessionId": "pitch-fact-repair-156e6fa0-1472-426c-a3c6-bdcc0eade223",
+      "inputBytes": 65007,
+      "usage": {
+        "inputTokens": 26341,
+        "outputTokens": 9341,
+        "cachedInputTokens": 0,
+        "cacheWriteInputTokens": 0,
+        "reasoningOutputTokens": 2588,
+        "totalTokens": 35682
+      },
+      "seconds": 365.4,
+      "directory": "/Users/a2501/Desktop/firefly_studio/.firefly/context-efficiency/astra-20260905-v1/source-fact-canary/.inkos/model-invocations/codex/cf75e64c-9a1e-4b55-aef3-452e1a9e2e0c"
+    },
+    {
+      "stage": "pitch-review",
+      "sessionId": "astra-context-fact-independent-review-20260905-v1",
+      "inputBytes": 330963,
+      "usage": {
+        "inputTokens": 97545,
+        "outputTokens": 7733,
+        "cachedInputTokens": 0,
+        "cacheWriteInputTokens": 0,
+        "reasoningOutputTokens": 2588,
+        "totalTokens": 105278
+      },
+      "seconds": 386.5,
+      "directory": "/Users/a2501/Desktop/firefly_studio/.firefly/context-efficiency/astra-20260905-v1/source-fact-canary/.inkos/model-invocations/codex/4d3d4570-2f55-43f8-976c-b4803bc6d3e6"
+    }
+  ],
+  "tests": {
+    "kind": "context-efficiency-targeted-verification/v1",
+    "core": {
+      "files": [
+        "model-invocation.test.ts",
+        "codex-cli.test.ts",
+        "provider.test.ts",
+        "agent-session.test.ts",
+        "agent-trajectory.test.ts",
+        "agent-system-prompt.test.ts",
+        "bounded-json-repair.test.ts",
+        "source-fact-repair.test.ts"
+      ],
+      "testsPassed": 340,
+      "testFilesPassed": 8
+    },
+    "cli": {
+      "files": [
+        "pitch-command.test.ts",
+        "pitch-fact-repair.test.ts"
+      ],
+      "testsPassed": 30,
+      "testFilesPassed": 2
+    },
+    "totalUniqueTestsPassed": 370,
+    "builds": {
+      "coreTsc": "passed",
+      "cliTsc": "passed"
+    },
+    "hqValidators": {
+      "manifest": "passed-4-children",
+      "hermesProfiles": "passed-5-profiles",
+      "genreSoulAdoptions": "passed-0-active"
+    },
+    "nativeCliRegistration": "pitch-fact-repair --help passed; prepare-v1 and prepare-v2 passed",
+    "scope": "Focused regression for touched transport, session, role, bounded formatting, fact repair and CLI integration. These tests are independent of actual model canary evidence."
+  },
+  "adoption": {
+    "kind": "inkos-thin-instructions-adoption/v1",
+    "appliedAt": "2026-09-05T14:36:11.602Z",
+    "configPath": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/inkos.json",
+    "beforeConfigSha256": "e943af2caf2d140713eb17bbd7e40c55aabed8f7c0e08f0af83b83f06f6938fc",
+    "afterConfigSha256": "147dbc4fee1dbc2ed0a42c716a590dadc9fb74542798adb05806606bab5e336d",
+    "onlyChangedField": "llm.extra.codexModelInstructions",
+    "binding": {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/config/codex/inkos-model-instructions-v1.md",
+      "sha256": "10db295f892b9e41c3f9184539566dbeb2733bc117b19fa8d983ef84f63d6e66"
+    },
+    "instructionBytes": 1219,
+    "roles": [
+      {
+        "role": "default",
+        "model": "gpt-6-astra",
+        "provider": "codex-cli",
+        "reasoning": "high",
+        "executable": "/Applications/ChatGPT.app/Contents/Resources/codex",
+        "modelCatalog": {
+          "path": "/Users/a2501/Desktop/firefly_studio/.firefly/runtime/astra-text-model-catalog.json",
+          "sha256": "53dac4fda1a3ea548a3ec21efcf1eadfd3b012429b88f4b467c2ee78cbd527c0"
+        },
+        "modelInstructions": {
+          "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/config/codex/inkos-model-instructions-v1.md",
+          "sha256": "10db295f892b9e41c3f9184539566dbeb2733bc117b19fa8d983ef84f63d6e66"
+        }
+      },
+      {
+        "role": "planner",
+        "model": "gpt-6-astra",
+        "provider": "codex-cli",
+        "reasoning": "high",
+        "executable": "/Applications/ChatGPT.app/Contents/Resources/codex",
+        "modelCatalog": {
+          "path": "/Users/a2501/Desktop/firefly_studio/.firefly/runtime/astra-text-model-catalog.json",
+          "sha256": "53dac4fda1a3ea548a3ec21efcf1eadfd3b012429b88f4b467c2ee78cbd527c0"
+        },
+        "modelInstructions": {
+          "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/config/codex/inkos-model-instructions-v1.md",
+          "sha256": "10db295f892b9e41c3f9184539566dbeb2733bc117b19fa8d983ef84f63d6e66"
+        }
+      },
+      {
+        "role": "composer",
+        "model": "gpt-6-astra",
+        "provider": "codex-cli",
+        "reasoning": "high",
+        "executable": "/Applications/ChatGPT.app/Contents/Resources/codex",
+        "modelCatalog": {
+          "path": "/Users/a2501/Desktop/firefly_studio/.firefly/runtime/astra-text-model-catalog.json",
+          "sha256": "53dac4fda1a3ea548a3ec21efcf1eadfd3b012429b88f4b467c2ee78cbd527c0"
+        },
+        "modelInstructions": {
+          "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/config/codex/inkos-model-instructions-v1.md",
+          "sha256": "10db295f892b9e41c3f9184539566dbeb2733bc117b19fa8d983ef84f63d6e66"
+        }
+      },
+      {
+        "role": "writer",
+        "model": "gpt-6-astra",
+        "provider": "codex-cli",
+        "reasoning": "high",
+        "executable": "/Applications/ChatGPT.app/Contents/Resources/codex",
+        "modelCatalog": {
+          "path": "/Users/a2501/Desktop/firefly_studio/.firefly/runtime/astra-text-model-catalog.json",
+          "sha256": "53dac4fda1a3ea548a3ec21efcf1eadfd3b012429b88f4b467c2ee78cbd527c0"
+        },
+        "modelInstructions": {
+          "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/config/codex/inkos-model-instructions-v1.md",
+          "sha256": "10db295f892b9e41c3f9184539566dbeb2733bc117b19fa8d983ef84f63d6e66"
+        }
+      },
+      {
+        "role": "length-normalizer",
+        "model": "gpt-6-astra",
+        "provider": "codex-cli",
+        "reasoning": "high",
+        "executable": "/Applications/ChatGPT.app/Contents/Resources/codex",
+        "modelCatalog": {
+          "path": "/Users/a2501/Desktop/firefly_studio/.firefly/runtime/astra-text-model-catalog.json",
+          "sha256": "53dac4fda1a3ea548a3ec21efcf1eadfd3b012429b88f4b467c2ee78cbd527c0"
+        },
+        "modelInstructions": {
+          "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/config/codex/inkos-model-instructions-v1.md",
+          "sha256": "10db295f892b9e41c3f9184539566dbeb2733bc117b19fa8d983ef84f63d6e66"
+        }
+      },
+      {
+        "role": "auditor",
+        "model": "gpt-6-astra",
+        "provider": "codex-cli",
+        "reasoning": "high",
+        "executable": "/Applications/ChatGPT.app/Contents/Resources/codex",
+        "modelCatalog": {
+          "path": "/Users/a2501/Desktop/firefly_studio/.firefly/runtime/astra-text-model-catalog.json",
+          "sha256": "53dac4fda1a3ea548a3ec21efcf1eadfd3b012429b88f4b467c2ee78cbd527c0"
+        },
+        "modelInstructions": {
+          "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/config/codex/inkos-model-instructions-v1.md",
+          "sha256": "10db295f892b9e41c3f9184539566dbeb2733bc117b19fa8d983ef84f63d6e66"
+        }
+      },
+      {
+        "role": "reviser",
+        "model": "gpt-6-astra",
+        "provider": "codex-cli",
+        "reasoning": "high",
+        "executable": "/Applications/ChatGPT.app/Contents/Resources/codex",
+        "modelCatalog": {
+          "path": "/Users/a2501/Desktop/firefly_studio/.firefly/runtime/astra-text-model-catalog.json",
+          "sha256": "53dac4fda1a3ea548a3ec21efcf1eadfd3b012429b88f4b467c2ee78cbd527c0"
+        },
+        "modelInstructions": {
+          "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/config/codex/inkos-model-instructions-v1.md",
+          "sha256": "10db295f892b9e41c3f9184539566dbeb2733bc117b19fa8d983ef84f63d6e66"
+        }
+      },
+      {
+        "role": "state-validator",
+        "model": "gpt-6-astra",
+        "provider": "codex-cli",
+        "reasoning": "high",
+        "executable": "/Applications/ChatGPT.app/Contents/Resources/codex",
+        "modelCatalog": {
+          "path": "/Users/a2501/Desktop/firefly_studio/.firefly/runtime/astra-text-model-catalog.json",
+          "sha256": "53dac4fda1a3ea548a3ec21efcf1eadfd3b012429b88f4b467c2ee78cbd527c0"
+        },
+        "modelInstructions": {
+          "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/config/codex/inkos-model-instructions-v1.md",
+          "sha256": "10db295f892b9e41c3f9184539566dbeb2733bc117b19fa8d983ef84f63d6e66"
+        }
+      }
+    ],
+    "canarySlateSha256": "28307073de6730a93cb4757436061001ba53a227c24f14732d67ad8de5d9f7e0",
+    "qualityScope": "Scoped factual repair passed and independent whole-candidate review completed. No claim that a new full planning or novel-writing benchmark passed.",
+    "backupPath": "/Users/a2501/Desktop/firefly_studio/.firefly/context-efficiency/astra-20260905-v1/inkos-before.json"
+  },
+  "limitations": [
+    "Fixed-answer ABBA probe measures small-input transport overhead, not whole-process or literary quality improvement.",
+    "Source-fact index covers declared occurrences only; manual independent review found and fixed one omission before execution.",
+    "Independent review receives the same complete 199421-byte reference bundle, not the 751-chapter entire manuscript.",
+    "Review JSON formatting retains its existing full-response retry, now separately journaled.",
+    "New journal is authoritative for this efficiency report; legacy session Usage remains compatible and must not be added to it.",
+    "This repaired existing v2 candidates; it is not a newly generated end-to-end planning benchmark."
+  ]
+}

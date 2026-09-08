@@ -24,8 +24,8 @@ test("publishes additive strict Firefly review v2 packet and decision contracts"
   assert.equal(packet.properties.comparison.properties.runtime.properties.piWorker.const, "off");
   assert.equal(packet.properties.comparison.properties.runtime.properties.retrieval.const, "legacy");
   assert.equal(packet.properties.comparison.properties.runtime.properties.fts.const, "off");
-  assert.equal(packet.properties.comparison.properties.runtime.properties.model.const, "gpt-5.6-sol");
-  assert.equal(packet.properties.comparison.properties.runtime.properties.reasoning.const, "high");
+  assert.deepEqual(packet.properties.comparison.properties.runtime.properties.model.enum, ["gpt-5.6-sol", "gpt-6-astra"]);
+  assert.deepEqual(packet.properties.comparison.properties.runtime.properties.reasoning.enum, ["high", "medium"]);
   assert.equal(packet.properties.comparison.required.includes("canaryIsolation"), true);
   assert.equal(packet.properties.comparison.properties.canaryIsolation.$ref, "#/$defs/canaryIsolation");
   assert.equal(packet.properties.recommendation.type, "null");
@@ -58,6 +58,11 @@ test("publishes additive strict Firefly review v2 packet and decision contracts"
   const ajv = new Ajv2020({ allErrors: true, strict: true });
   addFormats(ajv);
   assert.doesNotThrow(() => ajv.compile(packet));
+  const validateRuntime = ajv.compile(packet.properties.comparison.properties.runtime);
+  const runtime = { kernel: "enforce", piWorker: "off", retrieval: "legacy", fts: "off" };
+  assert.equal(validateRuntime({ ...runtime, model: "gpt-6-astra", reasoning: "medium" }), true);
+  assert.equal(validateRuntime({ ...runtime, model: "gpt-5.6-sol", reasoning: "high" }), true);
+  assert.equal(validateRuntime({ ...runtime, model: "gpt-5.6-sol", reasoning: "medium" }), false);
   const validateDecision = ajv.compile(decision);
   const pending = {
     schemaVersion: "firefly_review_decision/v2",

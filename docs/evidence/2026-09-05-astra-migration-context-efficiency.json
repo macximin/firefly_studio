@@ -1,0 +1,285 @@
+{
+  "schemaVersion": "firefly-astra-migration-context-audit/v1",
+  "recordedAt": "2026-09-05T13:59:46.862718+00:00",
+  "status": "completed-local-model-migration-and-context-audit",
+  "authorization": "이번 Firefly 공정 전체: 헤르메스 + InkOS 작성·심사",
+  "targetModel": "gpt-6-astra",
+  "reasoning": "high",
+  "evidence": {
+    "configuration": {
+      "path": "/Users/a2501/Desktop/firefly_studio/.firefly/model-migrations/astra-20260905T133438Z/final-configuration-verification.json",
+      "sha256": "3c5831585bdd73ece8216c2aab650ad5792b3665804bad23e2453383e617d978"
+    },
+    "hermesReadback": {
+      "path": "/Users/a2501/Desktop/firefly_studio/.firefly/model-migrations/astra-20260905T133438Z/hermes-readback.json",
+      "sha256": "5c2d137ead713e77f5d5933c203e692b426846ef05d66161d01096b4f70202aa"
+    },
+    "hermesDefaultProbe": {
+      "path": "/Users/a2501/Desktop/firefly_studio/.firefly/model-migrations/astra-20260905T133438Z/hermes-default-probe.json",
+      "sha256": "88d43f6b87cb6c1b33887e3b3f08700f1c26f18b70cbeaeb90ab513e1669be3e"
+    },
+    "inkosDirectProbe": {
+      "path": "/Users/a2501/Desktop/firefly_studio/.firefly/model-migrations/astra-20260905T133438Z/inkos-native-probe.json",
+      "sha256": "a239e6b82eb72ef61fc89a1b08dc901c7d9c2d78b28bdaf04fe0338b8996d77f"
+    },
+    "inkosProviderProbe": {
+      "path": "/Users/a2501/Desktop/firefly_studio/.firefly/model-migrations/astra-20260905T133438Z/inkos-provider-probe.json",
+      "sha256": "6883a5e18ab7c602454d5e2858ba494a829482a57aeb5ffa82a7598e9ecc09ce"
+    },
+    "inkosImplementation": {
+      "path": "/Users/a2501/Desktop/firefly_studio/.firefly/model-migrations/astra-20260905T133438Z/inkos-implementation-verification.json",
+      "sha256": "ce2cfb41ded5e96966cf6fd02ccc18a1cdcd478ef628da878e1bd029f00b4ac5"
+    },
+    "catalogProvenance": {
+      "path": "/Users/a2501/Desktop/firefly_studio/.firefly/model-migrations/astra-20260905T133438Z/text-catalog-provenance.json",
+      "sha256": "3b60f7d9236541dbb1a561e9fd5b011ac9282b45257ecf2ee861a9532b4193f3"
+    },
+    "hermesContextCache": {
+      "path": "/Users/a2501/Desktop/firefly_studio/.firefly/model-migrations/astra-20260905T133438Z/hermes-context-cache-change.json",
+      "sha256": "18c19da03c4b8b9101e638c70bc20fb61d1162900e38e322c4a2bce8d93f98c5"
+    },
+    "referenceLabAndStoryyard": {
+      "path": "/Users/a2501/Desktop/firefly_studio/.firefly/model-migrations/astra-20260905T133438Z/reflab-implementation-verification.json",
+      "sha256": "9d93aa6c9ebd1791435e06ef78d58e7121543e82be366c51884f21e275df5b05"
+    },
+    "cliPromptOverhead": {
+      "path": "/Users/a2501/Desktop/firefly_studio/.firefly/model-migrations/astra-20260905T133438Z/inkos-cli-prompt-overhead-audit.json",
+      "sha256": "6cea010c8de7270d153c35243dc7bb45de41fe317aa92695ca0ce546afd09eb6"
+    },
+    "gitReadback": {
+      "path": "/Users/a2501/Desktop/firefly_studio/.firefly/model-migrations/astra-20260905T133438Z/final-git-readback.json",
+      "sha256": "67bd7791fd6a604bdc314c71bd83a6e5917930993a713644668bd78a87d1cc0f"
+    }
+  },
+  "nativeHermes": {
+    "id": "20260905_223711_926f8a",
+    "source": "tool",
+    "model": "gpt-6-astra",
+    "profile_name": "inkos_male_modern_fantasy",
+    "input_tokens": 2168,
+    "output_tokens": 8,
+    "reasoning_tokens": 0,
+    "cache_read_tokens": 0,
+    "tool_call_count": 0,
+    "api_call_count": 1,
+    "billing_provider": "openai-codex",
+    "billing_mode": "subscription_included",
+    "reasoning": "high",
+    "response": "ASTRA_DEFAULT_OK",
+    "scope": "Native generic Hermes chat default model connection; before SOUL runtime-label alignment; not production harness quality validation."
+  },
+  "nativeInkOS": {
+    "startedAt": "2026-09-05T13:49:40.028Z",
+    "completedAt": "2026-09-05T13:49:45.882Z",
+    "scope": "Actual current config -> createLLMClient -> chatCompletion -> configured Codex executable/catalog; no test executable override, no production mutation",
+    "runtime": {
+      "model": "gpt-6-astra",
+      "provider": "codex-cli",
+      "contextWindow": 272000,
+      "maxTokens": 32768,
+      "reasoning": "high",
+      "codexBin": "/Applications/ChatGPT.app/Contents/Resources/codex",
+      "codexModelCatalog": {
+        "path": "/Users/a2501/Desktop/firefly_studio/.firefly/runtime/astra-text-model-catalog.json",
+        "sha256": "53dac4fda1a3ea548a3ec21efcf1eadfd3b012429b88f4b467c2ee78cbd527c0"
+      }
+    },
+    "result": {
+      "content": "ASTRA_PROVIDER_OK",
+      "usage": {
+        "promptTokens": 11298,
+        "completionTokens": 30,
+        "totalTokens": 11328
+      }
+    }
+  },
+  "contextAudit": {
+    "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-source-first-20260905-v1/context-usage-audit.json",
+    "sha256": "ccca3ffcf9c4c0d3fffa7dd87e867ad56e5f63081853d8cfdfbbbbe03e80dcf6",
+    "totals": {
+      "calls": 8,
+      "sessionCount": 6,
+      "inputTokens": 742720,
+      "outputTokens": 86332,
+      "totalTokens": 829052,
+      "cachedInputTokens": 22016,
+      "recordedCacheWriteTokens": 0,
+      "inputExcludingRecordedCacheTokens": 720704,
+      "reasoningTokens": null,
+      "monetaryCost": null,
+      "cachedInputShare": 0.02964239551917277,
+      "inputShareOfTotal": 0.8958666042660774
+    },
+    "stages": {
+      "initial_generation": {
+        "calls": 2,
+        "inputTokens": 156104,
+        "outputTokens": 31825,
+        "totalTokens": 187929,
+        "cachedInputTokens": 0,
+        "shareOfTotalTokens": 0.22667938802391166
+      },
+      "contract_repair": {
+        "calls": 2,
+        "inputTokens": 182207,
+        "outputTokens": 28063,
+        "totalTokens": 210270,
+        "cachedInputTokens": 0,
+        "shareOfTotalTokens": 0.2536270342511688
+      },
+      "fact_repair": {
+        "calls": 2,
+        "inputTokens": 200679,
+        "outputTokens": 16657,
+        "totalTokens": 217336,
+        "cachedInputTokens": 11008,
+        "shareOfTotalTokens": 0.26215002195278464
+      },
+      "independent_review": {
+        "calls": 2,
+        "inputTokens": 203730,
+        "outputTokens": 9787,
+        "totalTokens": 213517,
+        "cachedInputTokens": 11008,
+        "shareOfTotalTokens": 0.25754355577213495
+      }
+    },
+    "combinedRepairs": {
+      "calls": 4,
+      "totalTokens": 427606,
+      "shareOfTotalTokens": 0.5157770562039534
+    },
+    "limitations": [
+      "The original raw Codex stdout and reasoning events are not retained here; these are adapter-projected turn.completed counts.",
+      "Eight persisted completed responses are proven, not all hidden upstream inference steps or unrecorded failed attempts.",
+      "Every recorded response is Sol; this sample cannot establish Astra/Hermes efficiency.",
+      "Parent goal accounting stays separate and is not labeled raw model usage.",
+      "Original generation failed to write a native slate; shape recovery, later Sol repairs and supervisor edits remain distinct from initial automatic generation success."
+    ]
+  },
+  "validation": {
+    "hqTests": {
+      "passed": 163,
+      "log": "/Users/a2501/Desktop/firefly_studio/.firefly/model-migrations/astra-20260905T133438Z/hq-tests-final.log"
+    },
+    "hqValidate": {
+      "passed": true,
+      "log": "/Users/a2501/Desktop/firefly_studio/.firefly/model-migrations/astra-20260905T133438Z/hq-validate-final.log"
+    },
+    "inkosTests": {
+      "passed": 106,
+      "transport": "fake process/mock, separate from live probes"
+    },
+    "storyyardTests": {
+      "passed": 58,
+      "buildPassed": true
+    },
+    "reflabTests": {
+      "passed": 43,
+      "failed": 0,
+      "skipped": 0,
+      "legacySharedRegression": {
+        "status": "passed",
+        "command": "node --test tests/genre-soul-survey-runner.test.mjs tests/genre-soul-deep-read-runner.test.mjs tests/genre-soul-evidence-lib.test.mjs tests/genre-soul-profile-runner.test.mjs tests/genre-soul-manager-qa-runner.test.mjs",
+        "passed": 161,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 232893.800917,
+        "log": "/Users/a2501/Desktop/firefly_studio/.firefly/model-migrations/astra-20260905T133438Z/reflab-legacy-runtime-regression.log",
+        "logSha256": "d27993a360985be044f284c9ce17295150cea9374d39bdcbf102941b970b5f10",
+        "externalModelCalls": false,
+        "slowPath": "Historical/current evidence cases repeatedly fingerprint actual installed Hermes implementation/dependencies and validate fixture receipt chains; profile execution is injected fake executor."
+      },
+      "legacySharedPassed": 161
+    }
+  },
+  "unchangedBoundaries": {
+    "humanDecision": "pending unchanged",
+    "productionEnabled": false,
+    "genreAdoptionActiveCount": 0,
+    "oldSolArtifacts": "preserved; no model relabeling",
+    "fullCreativeCanaryRerun": false,
+    "contextOptimizationsImplemented": false,
+    "commitPushDeploy": false
+  },
+  "nextPriorities": [
+    "Prevent complete candidate regeneration for shape errors",
+    "Scope fact repair to exact source facts and all dependent candidate fields",
+    "Measure role-specific prompt overhead and actual cache reuse"
+  ],
+  "limits": [
+    "Connection probes do not establish creative quality or Astra token savings.",
+    "Current local executable and catalog paths need independent setup on another PC.",
+    "Historical valid Sol packets remain readable; earliest already-incomplete packet lacks source-range fields and remains invalid."
+  ],
+  "nativeHermesEvaluatorPreflight": {
+    "checkedAt": "2026-09-05T13:54:30.776Z",
+    "reviewer": {
+      "provider": "openai-codex",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "configSha256": "e75d85c0085769a347820ba9f040e4098112f7ae84aa5c22f82a0b33f6476c27",
+      "soulSha256": "abd78aa24facfaa885128aa3a995af5e7116d8f1038c856813fec000682bd2d1"
+    },
+    "currentTupleVerified": true,
+    "contextLimit": 272000,
+    "contextLimitEntrySha256": "bbb5f800d612d26998571c86fb57fe7d8299a626313486e8e3d7fa86b231be7e",
+    "runtimeAttestation": "current-attested",
+    "hermesRuntimeIdentitySha256": "419c555a29aa21885bfffc5ed46996295b029d01946b13dede420cd270a39e58",
+    "hermesImplementationSha256": "a4f94d86b7ca10c3c4a8e0622c49e1d2b5bf22f7eeabc05a44fe825b82a5cadb",
+    "hermesDependencySha256": "0040e7829c80bac7cb9067b8ec0e86b872fbc13b66028ebeb4dcaed75a747afd",
+    "authAdapterPlanningEvidence": {
+      "schemaVersion": "hermes-auth-store-adapter-planning-evidence/v1",
+      "contractVersion": "hermes-global-auth-store-adapter/v1",
+      "files": [
+        {
+          "name": "sitecustomize.py",
+          "sha256": "7ac979584f58e37ba2a095d1de344d36fda46cd0080821d3c62f732a1f8105ae",
+          "sizeBytes": 11733
+        }
+      ],
+      "totalBytes": 11733,
+      "sha256": "6d21ecd7f05b7bab700c25994305b44ed8ddd26250006258e6f07e8213f8bec5"
+    }
+  },
+  "nativeHermesAuthIntegration": {
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "hermesVersion": "0.21.0",
+    "method": "Actual installed delegated Python and Hermes CLI with synthetic credentials in isolated temporary fixtures; no real credentials copied or printed.",
+    "invariants": [
+      "adapter/store owner-only regular-file checks",
+      "exact capsule HERMES_HOME",
+      "ambient dotenv disabled",
+      "auth and auth_codex importer identity and ambient CLI import disabled",
+      "central auth-store and credential-pool bindings",
+      "split-module negative tests conditional on observed module layout"
+    ],
+    "log": "/Users/a2501/Desktop/firefly_studio/.firefly/model-migrations/astra-20260905T133438Z/reflab-auth-adapter-native-test.log",
+    "logSha256": "d1c25aee21e9d29c09fbd5c96126e38ff191eb98f5f01c7c4626a9f12250c410"
+  },
+  "independentAuthReview": {
+    "reviewer": "/root/contract_plan_review",
+    "method": "read-only diff and installed auth_codex source comparison",
+    "actionableFindingsRemaining": 0,
+    "feedbackApplied": [
+      "split-only negative probes conditional on non-sensitive observed codexLayout"
+    ]
+  },
+  "promptOverheadFinding": {
+    "nativeProbeInputTokens": 11291,
+    "reconstructedInkosPromptBytes": 922,
+    "astraInstructionTemplateBytes": 21269,
+    "templateWords": 3282,
+    "exactTokenAttributionAvailable": false,
+    "debugMatchesActualExec": false,
+    "fictionBiasCausalityEstablished": false,
+    "proposedExperiment": "Thin base instructions through supported model_instructions_file; preserve exact source material and native tool restrictions",
+    "implemented": false
+  },
+  "report": {
+    "path": "/Users/a2501/Desktop/firefly_studio/docs/2026-09-05-astra-migration-context-efficiency.md",
+    "sha256": "c2cf2549e46cd966252e617347f2f89d36979b72f61dab37ffd32a247faee742"
+  }
+}

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { mkdtemp, mkdir, readFile, rm, symlink, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -46,17 +46,14 @@ async function fixture() {
   const root = await mkdtemp(join(tmpdir(), "firefly-blind-evaluator-"));
   const profileRoot = join(root, "profiles", "inkos_blind_evaluator");
   await mkdir(join(profileRoot, "skills"), { recursive: true });
-  const sourceRoot = "/Users/a2501/.hermes/profiles/inkos_blind_evaluator";
-  const [configBytes, soulBytes] = await Promise.all([
-    readFile(join(sourceRoot, "config.yaml")),
-    readFile(join(sourceRoot, "SOUL.md")),
-  ]);
+  const configBytes = Buffer.from("model:\n  provider: openai-codex\n  default: gpt-5.6-sol\nagent:\n  reasoning_effort: high\n");
+  const soulBytes = Buffer.from("Profile ID: `inkos_blind_evaluator`\nNever rewrite a manuscript\nNever write InkOS canon\n");
   await writeFile(join(profileRoot, "config.yaml"), configBytes);
   await writeFile(join(profileRoot, "SOUL.md"), soulBytes);
   return { root, profileRoot, configBytes, soulBytes };
 }
 
-test("blind evaluator registry fixes the exact independent sol/high/tool-less authority", () => {
+test("blind evaluator registry keeps the independent high/tool-less authority with supported models", () => {
   const value = {
     schemaVersion: "hermes-blind-evaluator-profile/v1",
     profile: {
@@ -88,9 +85,11 @@ test("blind evaluator registry fixes the exact independent sol/high/tool-less au
     Object.assign(changed.profile, overrides);
     assert.ok(validateHermesBlindEvaluatorRegistry(changed).length > 0);
   }
+  assert.deepEqual(validateHermesBlindEvaluatorRegistry({ ...value, profile: { ...value.profile, model: "gpt-6-astra" } }), []);
+  assert.deepEqual(validateHermesBlindEvaluatorRegistry({ ...value, profile: { ...value.profile, model: "gpt-6-astra", reasoning: "medium" } }), []);
   const wrongDigest = structuredClone(value);
-  wrongDigest.profile.soulSha256 = "0".repeat(64);
-  assert.ok(validateHermesBlindEvaluatorRegistry(wrongDigest).some((error) => error.includes("fixed audited digest")));
+  wrongDigest.profile.soulSha256 = "invalid";
+  assert.ok(validateHermesBlindEvaluatorRegistry(wrongDigest).some((error) => error.includes("soulSha256")));
 });
 
 test("blind evaluator readback binds exact local config/Soul hashes and zero tools", async () => {
@@ -133,4 +132,18 @@ test("blind evaluator fails closed on digest drift, tool drift, installed skills
   } finally {
     await rm(f.root, { recursive: true, force: true });
   }
+});
+
+
+test("Astra evaluator readback rejects a Sol effective model or wrong registry digest", async () => {
+  const f = await fixture();
+  try {
+    const configBytes = Buffer.from(f.configBytes.toString().replace("gpt-5.6-sol", "gpt-6-astra"));
+    await writeFile(join(f.profileRoot, "config.yaml"), configBytes);
+    const value = registry(configBytes, f.soulBytes, { model: "gpt-6-astra" });
+    const options = { hermesRoot: f.root, getConfigValue: (id, key) => key === "model.default" ? "gpt-6-astra" : configReadback(id, key), getPromptSize: () => ({ model: "gpt-6-astra", tools: { count: 0 } }) };
+    assert.equal((await verifyHermesBlindEvaluatorRegistry(value, options)).model, "gpt-6-astra");
+    await assert.rejects(verifyHermesBlindEvaluatorRegistry(value, { ...options, getPromptSize: promptSizeReadback }), /unauthorized model/);
+    await assert.rejects(verifyHermesBlindEvaluatorRegistry({ ...value, profile: { ...value.profile, configSha256: "0".repeat(64) } }, options), /configSha256/);
+  } finally { await rm(f.root, { recursive: true, force: true }); }
 });

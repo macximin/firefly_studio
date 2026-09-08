@@ -83,6 +83,11 @@ function manifestFixture(remoteUrl = "git@example.invalid:owner/inkos.git") {
           { name: "pitch-slate", mode: "mutating", approval: "human" },
           { name: "pitch-review", mode: "mutating", approval: "human" },
           { name: "pitch-export-storyyard", mode: "mutating", approval: "human" },
+          { name: "pitch-premise-slate", mode: "mutating", approval: "human" },
+          { name: "pitch-premise-review", mode: "mutating", approval: "human" },
+          { name: "pitch-premise-export-storyyard", mode: "mutating", approval: "human" },
+          { name: "pitch-premise-decision", mode: "mutating", approval: "human" },
+          { name: "pitch-premise-expand", mode: "mutating", approval: "human" },
           { name: "pitch-decision", mode: "mutating", approval: "human" },
           { name: "pitch-promote", mode: "mutating", approval: "human" },
         ],
@@ -189,7 +194,7 @@ function agentCanaryWorkOrder(root = process.cwd(), overrides = {}) {
     expectedSoulBinding: { soulId: profile.soulId, soulVersion: profile.soulVersion, bindingSha256: "d".repeat(64) },
     executionMode: "promotion-canary",
     modeEvidence,
-    runtime: { hermesProfile: profile.profileId, model: "gpt-5.6-sol", reasoning: "high" },
+    runtime: { hermesProfile: profile.profileId, model: profile.model, reasoning: profile.reasoning },
     approvalMode: "human",
     approvedInputs: [],
     privateInputs: [],
@@ -273,7 +278,7 @@ function activeAgentCanaryWorkOrder(root = process.cwd()) {
         path: `.inkos/canaries/${pairId}/common-snapshot.json`,
       },
     },
-    runtime: { hermesProfile: profile.profileId, model: "gpt-5.6-sol", reasoning: "high" },
+    runtime: { hermesProfile: profile.profileId, model: profile.model, reasoning: profile.reasoning },
     requestedAt,
     timeoutMs: config.timeoutMs,
   });
@@ -482,7 +487,7 @@ async function createAgentDispatchFixture({ lane = "genre-soul" } = {}) {
         commonSnapshotSha256,
       },
     },
-    runtime: { hermesProfile: profile.profileId, model: "gpt-5.6-sol", reasoning: "high" },
+    runtime: { hermesProfile: profile.profileId, model: profile.model, reasoning: profile.reasoning },
     approvedInputs: [],
     timeoutMs: batchConfig.timeoutMs,
   });
@@ -524,16 +529,18 @@ async function createAgentDispatchFixture({ lane = "genre-soul" } = {}) {
   return { root, repoPath, executionRoot: await realpath(executionRoot), canaryProjection, workOrder, manifest: manifestFixture(remoteUrl), profile, pairId };
 }
 
+const currentHermesProfile = JSON.parse(readFileSync(join(process.cwd(), "config", "hermes-production-profiles.json"), "utf8")).profiles[0];
+const currentHermesModel = currentHermesProfile.model;
 const hermesReadbackOptions = {
   getConfigValue: (_profileId, key) => ({
     "model.provider": "openai-codex",
-    "model.default": "gpt-5.6-sol",
-    "agent.reasoning_effort": "high",
+    "model.default": currentHermesModel,
+    "agent.reasoning_effort": currentHermesProfile.reasoning,
     "agent.coding_context": "off",
     "model.openai_runtime": "auto",
     "platform_toolsets.cli": "[]",
   })[key],
-  getPromptSize: () => ({ model: "gpt-5.6-sol", tools: { count: 0 } }),
+  getPromptSize: () => ({ model: currentHermesModel, tools: { count: 0 } }),
 };
 
 function writeStrictAgentChildResult({ repoPath, workOrder, plan, envelope, profile, hermesSessionId, canaryProjection }) {
@@ -718,7 +725,7 @@ function writeStrictAgentChildResult({ repoPath, workOrder, plan, envelope, prof
   };
   const runRef = writeJson(external(internal.run), seal(runUnsigned, "runSelfHash"));
   const modelReceiptRef = writeJson(external(internal.modelReceipt), {
-    invocationId: "writer-inv-1", agentName: "Writer", stage: "chapter-draft", model: "gpt-5.6-sol", reasoningEffort: "high", productionOperationId, attemptId,
+    invocationId: "writer-inv-1", agentName: "Writer", stage: "chapter-draft", model: workOrder.runtime.model, reasoningEffort: workOrder.runtime.reasoning, productionOperationId, attemptId,
   });
   const modelOutcomeRef = writeJson(external(internal.modelOutcome), {
     invocationId: "writer-inv-1", status: "completed", productionOperationId, attemptId,
@@ -763,11 +770,11 @@ function writeStrictAgentChildResult({ repoPath, workOrder, plan, envelope, prof
     },
     effectiveRuntime: {
       hermesE2E: true,
-      orchestrator: { hermesProfile: profile.profileId, model: "gpt-5.6-sol", reasoning: "high", invoked: true, evidence: "verified-hermes-invocation-receipt", sessionId: hermesSessionId, toolsCount: 0, toolCallCount: 0 },
-      inkos: { configMode: "project", model: "gpt-5.6-sol", reasoning: "high" },
+      orchestrator: { hermesProfile: profile.profileId, model: workOrder.runtime.model, reasoning: workOrder.runtime.reasoning, invoked: true, evidence: "verified-hermes-invocation-receipt", sessionId: hermesSessionId, toolsCount: 0, toolCallCount: 0 },
+      inkos: { configMode: "project", model: workOrder.runtime.model, reasoning: workOrder.runtime.reasoning },
     },
     modelCalls: [{
-      invocationId: "writer-inv-1", agentName: "Writer", stage: "chapter-draft", model: "gpt-5.6-sol", reasoningEffort: "high", status: "completed",
+      invocationId: "writer-inv-1", agentName: "Writer", stage: "chapter-draft", model: workOrder.runtime.model, reasoningEffort: workOrder.runtime.reasoning, status: "completed",
       receiptPath: external(internal.modelReceipt), receiptSha256: modelReceiptRef.sha256,
       outcomePath: external(internal.modelOutcome), outcomeSha256: modelOutcomeRef.sha256,
     }],
@@ -801,6 +808,50 @@ function pitchSlateWorkOrder(overrides = {}) {
   });
 }
 
+function sourceFirstPitchSlateWorkOrder(overrides = {}) {
+  const ordinary = pitchSlateWorkOrder();
+  return {
+    ...ordinary,
+    planningMode: "source-first",
+    approvedInputs: [...ordinary.approvedInputs, {
+      repo: "firefly_reference_lab", commit: "b".repeat(40),
+      path: "inkos_handoffs/doksik-chaebol3-transformation-pack/v1/reference-pack.json",
+      sha256: "d".repeat(64), role: "pitch-source-pack",
+    }],
+    ...overrides,
+  };
+}
+
+function sourceFirstPitchSlateData(workOrder) {
+  // HQ checks receipt identity; the child owns validation of the full pitch.
+  const candidate = {
+    spineRetention: { schemaVersion: "firefly_spine_retention/v2",
+      primaryReference: { packId: "receipt-source-pack", sourceSha256: "e".repeat(64) },
+      referenceDisclosure: { workSlug: "receipt-source-work", workTitle: "영수증 검증용 원작" } },
+    projectPlan: { format: "webnovel-project-plan/v1", markdown: "기획서 전달을 확인하는 영수증 테스트 문장이다. ".repeat(40) },
+  };
+  const sourcePack = workOrder.approvedInputs.find((input) => input.role === "pitch-source-pack");
+  const binding = {
+    ...candidate.spineRetention.primaryReference,
+    packPath: `/tmp/firefly/edge_repos/firefly_reference_lab/${sourcePack.path}`,
+    packSha256: sourcePack.sha256,
+    workSlug: candidate.spineRetention.referenceDisclosure.workSlug,
+    workTitle: candidate.spineRetention.referenceDisclosure.workTitle,
+    chapterCount: 100,
+  };
+  return {
+    schemaVersion: 2, slateId: workOrder.slateId, planningMode: "source-first",
+    canonStatus: "non-canonical", reviewStatus: "pending", candidateCount: workOrder.candidateCount,
+    sourceFirstReference: binding,
+    referenceInputs: [{ path: binding.packPath, sha256: sourcePack.sha256, bytes: 100 }],
+    candidates: Array.from({ length: workOrder.candidateCount }, (_, index) => ({
+      candidateId: `p${String(index + 1).padStart(2, "0")}`, decision: "pending",
+      spineRetention: { ...candidate.spineRetention, primaryReference: { packId: binding.packId, packSha256: binding.packSha256, sourceSha256: binding.sourceSha256 } },
+      projectPlan: candidate.projectPlan,
+    })),
+  };
+}
+
 function pitchReviewWorkOrder(overrides = {}) {
   return statusWorkOrder({
     workOrderId: "wo-pitch-review-1",
@@ -823,6 +874,30 @@ function pitchExportStoryyardWorkOrder(overrides = {}) {
     slateId: "chaebol-canary",
     approvalMode: "human",
     approvedInputs: [],
+    ...overrides,
+  });
+}
+
+function pitchPremiseSlateWorkOrder(overrides = {}) {
+  const input = (role, path) => ({ repo: "firefly_reference_lab", commit: "b".repeat(40), path, sha256: "c".repeat(64), role });
+  return statusWorkOrder({
+    workOrderId: "wo-pitch-premise-slate-1",
+    idempotencyKey: "pitch-premise-slate-1",
+    capability: "pitch-premise-slate",
+    bookId: undefined,
+    slateId: "chaebol-human-premise-canary",
+    candidateCount: 2,
+    sourcePackId: "doksik-chaebol3-ko-v1",
+    sourceSequences: [1, 2, 75],
+    styleExampleIds: ["phase-1-entry-1", "phase-1-escalation-75", "phase-1-payoff-150"],
+    instruction: "사람의 욕망과 감정 지급이 먼저인 현대판타지 재벌물 전제 두 개",
+    approvalMode: "human",
+    approvedInputs: [
+      input("pitch-source-receipt", "inkos_handoffs/doksik-chaebol3-transformation-pack/v1/receipt.json"),
+      input("pitch-structure-project-bible", "analyses/doksik-chaebol3/project_bible.md"),
+      input("pitch-structure-chapter-map", "analyses/doksik-chaebol3/chapter_map.csv"),
+      input("pitch-structure-arc-atlas", "analyses/doksik-chaebol3/arc_atlas.md"),
+    ],
     ...overrides,
   });
 }
@@ -895,12 +970,12 @@ test("routes strict WorkOrder v2 to the bodyless ProductionCommand adapter", () 
   assert.equal(createHash("sha256").update(plan.invocation.stdin).digest("hex"), plan.invocation.workOrderSha256);
 });
 
-test("routes agent-operate through the exact sol/codex global InkOS override", () => {
+test("routes agent-operate through the exact bound profile/codex global InkOS override", () => {
   const workOrder = activeAgentCanaryWorkOrder();
   const manifest = manifestFixture();
   assert.deepEqual(validateWorkOrder(workOrder, manifest), []);
   const plan = buildDispatchPlan({ root: process.cwd(), manifest, workOrder });
-  assert.deepEqual(plan.invocation.args.slice(1, 6), ["--service", "codex", "--model", "gpt-5.6-sol", "production"]);
+  assert.deepEqual(plan.invocation.args.slice(1, 6), ["--service", "codex", "--model", workOrder.runtime.model, "production"]);
   assert.deepEqual(plan.invocation.args.slice(6, 8), ["agent-operate", "--work-order-sha"]);
   assert.equal(plan.invocation.stdin, null);
 });
@@ -1014,6 +1089,7 @@ test("executes agent-operate once and resumes only the child from complete Herme
   let childCalls = 0;
   let childFailure = null;
   let corruptReportedTerminalHash = false;
+  let reportedModelDrift = null;
   let operationPromptText = "";
   let proposalText = "";
   const reasoningText = "**Planning next Book Arc Rail chapter review**\n**Finalizing precise chapter production guidance**";
@@ -1034,7 +1110,7 @@ test("executes agent-operate once and resumes only the child from complete Herme
     const hermesSpawn = (_executable, args, options) => {
       hermesCalls += 1;
       assert.deepEqual(args.slice(-2), ["--source", "tool"]);
-      assert.ok(args.includes("gpt-5.6-sol"));
+      assert.ok(args.includes(workOrder.runtime.model));
       assert.equal(args.includes(workOrder.instruction), false);
       assert.equal(options.env.HERMES_CODEX_EVENT_STALE_TIMEOUT_SECONDS, "120");
       assert.equal(options.env.HERMES_CODEX_TTFB_TIMEOUT_SECONDS, "120");
@@ -1058,8 +1134,8 @@ test("executes agent-operate once and resumes only the child from complete Herme
         id: hermesSessionId,
         source: "tool",
         profile_name: profile.profileId,
-        model: "gpt-5.6-sol",
-        model_config: JSON.stringify({ max_iterations: 1, reasoning_config: { effort: "high" } }),
+        model: workOrder.runtime.model,
+        model_config: JSON.stringify({ max_iterations: 1, reasoning_config: { effort: workOrder.runtime.reasoning } }),
         system_prompt: `Hermes prelude\n${operationPromptText}\nHermes suffix`,
         end_reason: null,
         ended_at: null,
@@ -1076,7 +1152,7 @@ test("executes agent-operate once and resumes only the child from complete Herme
     const childSpawn = (_executable, args, options) => {
       try {
         childCalls += 1;
-        assert.deepEqual(args.slice(1, 6), ["--service", "codex", "--model", "gpt-5.6-sol", "production"]);
+        assert.deepEqual(args.slice(1, 6), ["--service", "codex", "--model", workOrder.runtime.model, "production"]);
         const envelope = JSON.parse(options.input);
         assert.equal(envelope.schemaVersion, "inkos-agent-operation-request/v1");
         assert.equal(options.cwd, executionRoot);
@@ -1088,6 +1164,8 @@ test("executes agent-operate once and resumes only the child from complete Herme
         assert.equal(createHash("sha256").update(hermesReceiptBytes).digest("hex"), envelope.hermesReceipt.sha256);
         const result = writeStrictAgentChildResult({ repoPath: executionRoot, workOrder, plan, envelope, profile, hermesSessionId, canaryProjection });
         if (corruptReportedTerminalHash) result.agentOperation.receipt.sha256 = "0".repeat(64);
+        if (reportedModelDrift === "inkos") result.effectiveRuntime.inkos.model = "gpt-5.6-sol";
+        if (reportedModelDrift === "writer") result.modelCalls[0].model = "gpt-5.6-sol";
         return { status: 0, signal: null, stdout: `${JSON.stringify(result)}\n`, stderr: "" };
       } catch (error) {
         childFailure = error;
@@ -1097,7 +1175,7 @@ test("executes agent-operate once and resumes only the child from complete Herme
 
     const first = await executeWorkOrder({ root, manifest, workOrder, spawn: childSpawn, hermesSpawn, sessionExportSpawn, hermesOptions: hermesReadbackOptions });
     assert.equal(first.status, "succeeded", childFailure?.stack ?? JSON.stringify(first.diagnostics ?? {}));
-    assert.equal(first.effectiveRuntime.inkos.model, "gpt-5.6-sol");
+    assert.equal(first.effectiveRuntime.inkos.model, workOrder.runtime.model);
     assert.equal(first.execution.codeRepoPath, "edge_repos/inkos");
     assert.equal(first.execution.executionRoot, `edge_repos/inkos/.inkos/canaries/${pairId}/soul`);
     assert.deepEqual(first.control.canaryIsolation, canaryProjection);
@@ -1239,6 +1317,17 @@ test("executes agent-operate once and resumes only the child from complete Herme
       artifacts: [],
       replayed: false,
     });
+    // A valid Astra control run cannot accept a Sol child runtime or Writer call.
+    if (workOrder.runtime.model === "gpt-6-astra") {
+      for (reportedModelDrift of ["inkos", "writer"]) {
+        await writeFile(receiptPath, `${JSON.stringify(strictFailureRunningReceipt, null, 2)}\n`);
+        const mixed = await executeWorkOrder({ root, manifest, workOrder, spawn: childSpawn, hermesSpawn, sessionExportSpawn, hermesOptions: hermesReadbackOptions });
+        assert.equal(mixed.status, "needs-attention");
+        assert.ok(mixed.diagnostics.artifactErrors.some((error) => error.includes(reportedModelDrift === "inkos" ? "InkOS runtime must match" : "exact WorkOrder model/high")));
+      }
+      reportedModelDrift = null;
+    }
+    const childCallsBeforeStrictFailure = childCalls;
     await writeFile(receiptPath, `${JSON.stringify(strictFailureRunningReceipt, null, 2)}\n`);
     corruptReportedTerminalHash = true;
     const strictFailure = await executeWorkOrder({ root, manifest, workOrder, spawn: childSpawn, hermesSpawn, sessionExportSpawn, hermesOptions: hermesReadbackOptions });
@@ -1247,7 +1336,7 @@ test("executes agent-operate once and resumes only the child from complete Herme
     assert.deepEqual(validateWithContract("run-receipt-v2.schema.json", strictFailure), []);
     assert.equal(hermesCalls, 1);
     assert.equal(exportCalls, 1);
-    assert.equal(childCalls, 3);
+    assert.equal(childCalls, childCallsBeforeStrictFailure + 1);
   } finally {
     for (const [key, value] of Object.entries(previousTimeoutEnvironment)) {
       if (value === undefined) delete process.env[key];
@@ -1288,8 +1377,8 @@ test("executes neutral-baseline canary in the exact isolated lane with a null So
           id: hermesSessionId,
           source: "tool",
           profile_name: profile.profileId,
-          model: "gpt-5.6-sol",
-          model_config: JSON.stringify({ max_iterations: 1, reasoning_config: { effort: "high" } }),
+          model: workOrder.runtime.model,
+          model_config: JSON.stringify({ max_iterations: 1, reasoning_config: { effort: workOrder.runtime.reasoning } }),
           system_prompt: `Hermes prelude\n${operationPromptText}\nHermes suffix`,
           end_reason: "agent_close",
           ended_at: 1,
@@ -1321,7 +1410,7 @@ test("executes neutral-baseline canary in the exact isolated lane with a null So
       },
       hermesOptions: hermesReadbackOptions,
     });
-    assert.equal(receipt.status, "succeeded", JSON.stringify(receipt.diagnostics ?? {}));
+    assert.equal(receipt.status, "succeeded", JSON.stringify(receipt.diagnostics ?? receipt));
     assert.equal(receipt.control.lane, "neutral-baseline");
     assert.equal(receipt.control.canaryIsolation.lane, "neutral");
     assert.equal(receipt.control.canaryIsolation.expectedSoulBinding, null);
@@ -1581,8 +1670,8 @@ test("keeps completed Hermes evidence completed when the InkOS child throws", as
           id: hermesSessionId,
           source: "tool",
           profile_name: profile.profileId,
-          model: "gpt-5.6-sol",
-          model_config: JSON.stringify({ max_iterations: 1, reasoning_config: { effort: "high" } }),
+          model: workOrder.runtime.model,
+          model_config: JSON.stringify({ max_iterations: 1, reasoning_config: { effort: workOrder.runtime.reasoning } }),
           system_prompt: `Hermes prelude\n${operationPromptText}\nHermes suffix`,
           end_reason: "agent_close",
           ended_at: 1,
@@ -1742,7 +1831,7 @@ test("executes WorkOrder v2 with verified child evidence and persists a bodyless
       return { status: 0, signal: null, stdout: `${JSON.stringify(result)}\n`, stderr: "" };
     };
     const receipt = await executeWorkOrder({ root, manifest, workOrder, spawn });
-    assert.equal(receipt.status, "succeeded", JSON.stringify(receipt.diagnostics ?? {}));
+    assert.equal(receipt.status, "succeeded", JSON.stringify(receipt.diagnostics ?? receipt));
     assert.equal(receipt.boundaryChecks.artifactReportsValid, true);
     assert.equal(receipt.boundaryChecks.privateBodyExcluded, true);
     assert.equal(receipt.productionRun.sha256, result.productionRun.sha256);
@@ -1962,6 +2051,40 @@ test("routes pitch slate instructions on stdin and references as verified file p
   assert.equal(publicPlan.instructionExcludedFromArgs, true);
 });
 
+test("routes source-first pitch mode and exactly one approved source pack without changing general pitch arguments", () => {
+  const workOrder = sourceFirstPitchSlateWorkOrder();
+  assert.deepEqual(validateWorkOrder(workOrder, manifestFixture()), []);
+  assert.deepEqual(validateWithContract("work-order-v1.schema.json", workOrder), []);
+  const plan = buildDispatchPlan({ root: "/tmp/firefly", manifest: manifestFixture(), workOrder });
+  assert.ok(plan.invocation.args.includes("--source-first"));
+  assert.equal(plan.invocation.args[plan.invocation.args.indexOf("--source-pack") + 1],
+    "/tmp/firefly/edge_repos/firefly_reference_lab/inkos_handoffs/doksik-chaebol3-transformation-pack/v1/reference-pack.json");
+  assert.equal(plan.invocation.stdin, `${workOrder.instruction}\n`);
+  assert.equal(plan.invocation.args.includes(workOrder.instruction), false);
+  const ordinary = buildDispatchPlan({ root: "/tmp/firefly", manifest: manifestFixture(), workOrder: pitchSlateWorkOrder() });
+  assert.equal(ordinary.invocation.args.includes("--source-first"), false);
+  assert.equal(ordinary.invocation.args.includes("--source-pack"), false);
+});
+
+test("rejects unmarked, missing, duplicate, and misplaced source-first work-order inputs in both validators", () => {
+  const valid = sourceFirstPitchSlateWorkOrder();
+  const invalid = [
+    { ...valid, planningMode: "unsupported" },
+    { ...valid, planningMode: undefined },
+    { ...valid, planningMode: "general" },
+    { ...valid, approvedInputs: valid.approvedInputs.filter((input) => input.role !== "pitch-source-pack") },
+    { ...valid, approvedInputs: [...valid.approvedInputs, valid.approvedInputs.find((input) => input.role === "pitch-source-pack")] },
+    { ...pitchReviewWorkOrder(), planningMode: "source-first" },
+    { ...valid, sourcePackPath: "/unapproved/path.json" },
+  ];
+  for (const value of invalid) {
+    // JSON serialization removes the intentionally absent optional mode.
+    const wire = JSON.parse(JSON.stringify(value));
+    assert.ok(validateWorkOrder(wire, manifestFixture()).length > 0);
+    assert.ok(validateWithContract("work-order-v1.schema.json", wire).length > 0);
+  }
+});
+
 test("routes independent pitch review without generation instructions or candidate counts", () => {
   const workOrder = pitchReviewWorkOrder({ sessionId: "hq-pitch-review-canary" });
   assert.deepEqual(validateWorkOrder(workOrder, manifestFixture()), []);
@@ -1987,6 +2110,68 @@ test("routes a reviewed pitch slate to a non-applying Storyyard planning packet"
     .some((error) => error.includes("does not accept instruction")));
 });
 
+test("routes the source-bound Human Premise canary through sol/high InkOS sessions", () => {
+  const workOrder = pitchPremiseSlateWorkOrder({ sessionId: "hq-premise-canary" });
+  assert.deepEqual(validateWorkOrder(workOrder, manifestFixture()), []);
+  const plan = buildDispatchPlan({ root: "/tmp/firefly", manifest: manifestFixture(), workOrder });
+  assert.deepEqual(plan.invocation.args.slice(1, 3), ["pitch", "premise-slate"]);
+  assert.ok(plan.invocation.args.includes("doksik-chaebol3-ko-v1"));
+  assert.ok(plan.invocation.args.includes("phase-1-entry-1"));
+  assert.ok(plan.invocation.args.some((arg) => arg.startsWith("project-bible=/tmp/firefly/edge_repos/firefly_reference_lab/")));
+  assert.equal(plan.invocation.stdin, `${workOrder.instruction}\n`);
+  assert.equal(plan.invocation.sessionId, "hq-premise-canary");
+  assert.ok(validateWorkOrder(pitchPremiseSlateWorkOrder({ approvedInputs: [] }), manifestFixture()).some((error) => error.includes("pitch-source-receipt")));
+  assert.ok(validateWorkOrder(pitchPremiseSlateWorkOrder({ candidateCount: 7 }), manifestFixture()).some((error) => error.includes("1-6")));
+});
+
+test("routes Human Premise independent review and HIL export without commercial expansion", () => {
+  for (const [capability, command] of [["pitch-premise-review", "premise-review"], ["pitch-premise-export-storyyard", "premise-export-storyyard"]]) {
+    const workOrder = statusWorkOrder({ workOrderId: `wo-${capability}`, idempotencyKey: capability, capability, bookId: undefined, slateId: "chaebol-human-premise-canary", approvalMode: "human", approvedInputs: [] });
+    assert.deepEqual(validateWorkOrder(workOrder, manifestFixture()), []);
+    const plan = buildDispatchPlan({ root: "/tmp/firefly", manifest: manifestFixture(), workOrder });
+    assert.deepEqual(plan.invocation.args.slice(1, 3), ["pitch", command]);
+    assert.equal(plan.invocation.stdin, null);
+  }
+});
+
+test("routes Human Premise selection into a source-spine-bound commercial expansion", () => {
+  const decision = statusWorkOrder({
+    workOrderId: "wo-premise-decision",
+    idempotencyKey: "premise-decision",
+    capability: "pitch-premise-decision",
+    bookId: undefined,
+    slateId: "premise-canary",
+    candidateId: "p01",
+    humanDecision: "select",
+    comment: "원문 상업 엔진을 유지해 확장",
+    approvalMode: "human",
+    approvedInputs: [],
+  });
+  assert.deepEqual(validateWorkOrder(decision, manifestFixture()), []);
+  const decisionPlan = buildDispatchPlan({ root: "/tmp/firefly", manifest: manifestFixture(), workOrder: decision });
+  assert.deepEqual(decisionPlan.invocation.args.slice(1, 3), ["pitch", "premise-decision"]);
+  assert.ok(decisionPlan.invocation.args.includes("p01"));
+  assert.ok(decisionPlan.invocation.args.includes(decision.comment));
+
+  const expansion = statusWorkOrder({
+    workOrderId: "wo-premise-expand",
+    idempotencyKey: "premise-expand",
+    capability: "pitch-premise-expand",
+    bookId: undefined,
+    slateId: "premise-canary",
+    outputSlateId: "commercial-canary",
+    instruction: "원문의 업종과 보상 사다리를 유지한다.",
+    approvalMode: "human",
+    approvedInputs: [],
+  });
+  assert.deepEqual(validateWorkOrder(expansion, manifestFixture()), []);
+  const expansionPlan = buildDispatchPlan({ root: "/tmp/firefly", manifest: manifestFixture(), workOrder: expansion });
+  assert.deepEqual(expansionPlan.invocation.args.slice(1, 3), ["pitch", "premise-expand"]);
+  assert.ok(expansionPlan.invocation.args.includes("commercial-canary"));
+  assert.equal(expansionPlan.invocation.sessionId, "hq-premise-expand-premise-canary");
+  assert.ok(validateWorkOrder({ ...expansion, outputSlateId: undefined }, manifestFixture()).some((error) => error.includes("outputSlateId is required")));
+});
+
 test("routes a human pitch decision with the comment on stdin", () => {
   const workOrder = pitchDecisionWorkOrder({ comment: "p02를 상업성 우선으로 선택" });
   assert.deepEqual(validateWorkOrder(workOrder, manifestFixture()), []);
@@ -2009,7 +2194,7 @@ test("routes selected pitch promotion only into the requested Book", () => {
   assert.ok(plan.invocation.args.includes("selected-chaebol"));
   assert.equal(plan.invocation.stdin, null);
   assert.ok(validateWorkOrder(pitchPromoteWorkOrder({ candidateId: "p02" }), manifestFixture())
-    .some((error) => error.includes("only valid for pitch-decision")));
+    .some((error) => error.includes("only valid for pitch decision capabilities")));
 });
 
 test("validates reference-bind roles and keeps private bytes out of process arguments", () => {
@@ -2238,6 +2423,44 @@ test("requires the exact Storyyard planning packet artifact", () => {
   assert.ok(wrongPath.errors.some((error) => error.includes("exact path")));
 });
 
+test("requires exact Human Premise artifacts at every P0 handoff", () => {
+  const digest = "a".repeat(64);
+  const slate = validateCapabilityArtifacts("pitch-premise-slate", validateChildArtifacts([
+    { repo: "inkos", path: ".inkos/human-premise-slates/demo/slate.json", sha256: digest, role: "human-premise-slate-data" },
+    { repo: "inkos", path: ".inkos/human-premise-slates/demo/review.md", sha256: digest, role: "human-premise-slate-readable" },
+  ], "inkos"), { slateId: "demo" });
+  assert.deepEqual(slate.errors, []);
+
+  const review = validateCapabilityArtifacts("pitch-premise-review", validateChildArtifacts([
+    { repo: "inkos", path: ".inkos/human-premise-slates/demo/independent-review/review.json", sha256: digest, role: "human-premise-review-data" },
+    { repo: "inkos", path: ".inkos/human-premise-slates/demo/independent-review/review.md", sha256: digest, role: "human-premise-review-readable" },
+  ], "inkos"), { slateId: "demo" });
+  assert.deepEqual(review.errors, []);
+
+  const packet = validateCapabilityArtifacts("pitch-premise-export-storyyard", validateChildArtifacts([
+    { repo: "inkos", path: ".inkos/exports/storyyard/human-premise-slates/demo/packet.json", sha256: digest, role: "human-premise-storyyard-packet" },
+  ], "inkos"), { slateId: "demo" });
+  assert.deepEqual(packet.errors, []);
+
+  const wrongPath = validateCapabilityArtifacts("pitch-premise-review", validateChildArtifacts([
+    { repo: "inkos", path: ".inkos/human-premise-slates/other/independent-review/review.json", sha256: digest, role: "human-premise-review-data" },
+    { repo: "inkos", path: ".inkos/human-premise-slates/demo/independent-review/review.md", sha256: digest, role: "human-premise-review-readable" },
+  ], "inkos"), { slateId: "demo" });
+  assert.ok(wrongPath.errors.some((error) => error.includes("exact path")));
+
+  const decision = validateCapabilityArtifacts("pitch-premise-decision", validateChildArtifacts([
+    { repo: "inkos", path: ".inkos/human-premise-slates/demo/human-decision/decision.json", sha256: digest, role: "human-premise-decision-data" },
+    { repo: "inkos", path: ".inkos/human-premise-slates/demo/human-decision/decision.md", sha256: digest, role: "human-premise-decision-readable" },
+  ], "inkos"), { slateId: "demo" });
+  assert.deepEqual(decision.errors, []);
+
+  const expansion = validateCapabilityArtifacts("pitch-premise-expand", validateChildArtifacts([
+    { repo: "inkos", path: ".inkos/pitch-slates/commercial/slate.json", sha256: digest, role: "pitch-slate-data" },
+    { repo: "inkos", path: ".inkos/pitch-slates/commercial/review.md", sha256: digest, role: "pitch-slate-review" },
+  ], "inkos"), { slateId: "demo", outputSlateId: "commercial" });
+  assert.deepEqual(expansion.errors, []);
+});
+
 test("requires exact decision and planning-promotion artifact sets", () => {
   const digest = "a".repeat(64);
   const decision = validateCapabilityArtifacts("pitch-decision", validateChildArtifacts([
@@ -2275,10 +2498,61 @@ test("revalidates N non-canonical pending candidates from pitch-slate data", () 
     ],
   };
   assert.deepEqual(validatePitchSlateData(valid, workOrder), []);
+  assert.deepEqual(validatePitchSlateData({ ...valid, schemaVersion: 2 }, workOrder), []);
   assert.ok(validatePitchSlateData({
     ...valid,
     candidates: [{ candidateId: "p01", decision: "selected" }],
   }, workOrder).some((error) => error.includes("length")));
+});
+
+test("revalidates native v2 source-first slate mode, approved pack identity, and candidate bindings", () => {
+  const workOrder = sourceFirstPitchSlateWorkOrder({ slateId: "demo", candidateCount: 2 });
+  const valid = sourceFirstPitchSlateData(workOrder);
+  const sourcePackPath = valid.sourceFirstReference.packPath;
+  assert.deepEqual(validatePitchSlateData(valid, workOrder, { sourcePackPath }), []);
+  for (const value of [
+    { ...valid, schemaVersion: 1 },
+    { ...valid, planningMode: "general" },
+    { ...valid, sourceFirstReference: { ...valid.sourceFirstReference, packPath: "/unapproved/source.json" } },
+    { ...valid, sourceFirstReference: { ...valid.sourceFirstReference, packSha256: "f".repeat(64) } },
+    { ...valid, sourcePremiseBinding: { premiseSlateId: "invented-premise" } },
+    { ...valid, candidates: valid.candidates.map((candidate) => ({ ...candidate, spineRetention: { ...candidate.spineRetention, schemaVersion: "firefly_spine_retention/v1" } })) },
+    { ...valid, candidates: valid.candidates.map((candidate) => ({ ...candidate, spineRetention: { ...candidate.spineRetention, primaryReference: { ...candidate.spineRetention.primaryReference, sourceSha256: "f".repeat(64) } } })) },
+    { ...valid, candidates: valid.candidates.map((candidate) => ({ ...candidate, projectPlan: undefined })) },
+  ]) assert.ok(validatePitchSlateData(value, workOrder, { sourcePackPath }).length > 0);
+  assert.ok(validatePitchSlateData(valid, pitchSlateWorkOrder({ slateId: "demo", candidateCount: 2 })).length > 0);
+});
+
+test("revalidates source-first v2 reviews against generation references and independent source checks", () => {
+  const workOrder = pitchReviewWorkOrder({ slateId: "demo" });
+  const slate = sourceFirstPitchSlateData(sourceFirstPitchSlateWorkOrder({ slateId: "demo", candidateCount: 2 }));
+  const sourceChecks = {
+    selfInterest: { passed: true, evidence: "본인의 지분을 우선하는 선택이다." },
+    sourceFidelity: { passed: true, evidence: "원작과 후보의 소유 지급이 대응한다." },
+    commercialReading: { assessment: "소유 보상을 확인할 수 있다.", evidence: "직함 대신 지분과 매출을 얻는다." },
+  };
+  const valid = {
+    schemaVersion: 2, slateId: "demo", planningMode: "source-first", reviewKind: "independent-blind-comparison",
+    sourceSlateSha256: "a".repeat(64), humanDecision: "pending", referenceInputs: slate.referenceInputs,
+    ranking: ["p01", "p02"], winnerCandidateId: "p01",
+    verdicts: [{ candidateId: "p01", verdict: "SURVIVE", entryGate: { passed: true }, sourceChecks },
+      { candidateId: "p02", verdict: "HOLD", entryGate: { passed: true }, sourceChecks }],
+  };
+  assert.deepEqual(validatePitchSurvivalReviewData(valid, workOrder, slate), []);
+  for (const value of [
+    { ...valid, schemaVersion: 1 },
+    { ...valid, planningMode: "general" },
+    { ...valid, referenceInputs: [{ ...slate.referenceInputs[0], sha256: "f".repeat(64) }] },
+    { ...valid, verdicts: valid.verdicts.map(({ sourceChecks: _checks, ...verdict }) => verdict) },
+    { ...valid, verdicts: valid.verdicts.map((verdict) => ({ ...verdict, sourceChecks: { ...sourceChecks, selfInterest: { passed: false, evidence: "주인공이 자기 이익을 버렸다." } } })) },
+  ]) assert.ok(validatePitchSurvivalReviewData(value, workOrder, slate).length > 0);
+  const ordinarySlate = { ...slate, planningMode: undefined,
+    candidates: slate.candidates.map(({ candidateId, decision }) => ({ candidateId, decision })) };
+  const ordinaryReview = { ...valid, planningMode: undefined, referenceInputs: undefined,
+    verdicts: valid.verdicts.map(({ sourceChecks: _checks, ...verdict }) => verdict) };
+  assert.deepEqual(validatePitchSurvivalReviewData(ordinaryReview, workOrder, ordinarySlate), []);
+  assert.deepEqual(validatePitchSurvivalReviewData({ ...ordinaryReview, schemaVersion: 1 }, workOrder, { ...ordinarySlate, schemaVersion: 1 }), []);
+  assert.ok(validatePitchSurvivalReviewData(ordinaryReview, workOrder, { ...slate, planningMode: undefined }).length > 0);
 });
 
 test("executes a read-only child, persists a receipt, and replays idempotently", async () => {

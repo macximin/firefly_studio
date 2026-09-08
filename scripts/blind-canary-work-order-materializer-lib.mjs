@@ -123,7 +123,7 @@ function makeWorkOrder({ pair, lane, config, approval, authority, adoptionRegist
     instruction: config.instruction,
     args: { chapterCount: config.chapterCount, targetLength: config.targetLength },
     expectedSoulBinding,
-    runtime: { hermesProfile: profile.profileId, model: "gpt-5.6-sol", reasoning: "high" },
+    runtime: { hermesProfile: profile.profileId, model: profile.model, reasoning: profile.reasoning },
     approvalMode: "human",
     approvedInputs: [],
     privateInputs: [],
@@ -158,6 +158,7 @@ function makeWorkOrder({ pair, lane, config, approval, authority, adoptionRegist
   if (draft.pairId !== pair.pairId || draft.blindRunId !== pair.blindRunId || draft.bookId !== pair.bookId
     || draft.instructionSha256 !== instructionSha256 || planCanonicalStringify(draft.args) !== planCanonicalStringify(base.args)
     || draft.timeoutMs !== base.timeoutMs
+    || draft.runtime?.model !== base.runtime.model || draft.runtime?.reasoning !== base.runtime.reasoning
     || draft.profileId !== profile.profileId || draft.profileConfigSha256 !== profile.configSha256
     || draft.profileSoulSha256 !== profile.soulSha256
     || (isNeutral ? draft.expectedSoulBinding !== null : draft.expectedSoulBinding !== "from-inkos-canary-receipt")) {

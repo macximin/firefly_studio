@@ -1,0 +1,135 @@
+{
+  "schemaVersion": "source-variation-implementation-results/v1",
+  "checkedAt": "2026-09-06T02:00:16.864785+00:00",
+  "implementation": "local-complete",
+  "humanDecision": "pending",
+  "modelSettingsChanged": false,
+  "originalCanaryChanged": false,
+  "commitOrPushPerformed": false,
+  "storyyardImportOrDeploymentPerformed": false,
+  "runStatus": "passed",
+  "sourceAndArtifactIntegrityPassed": true,
+  "contentVerdicts": [
+    {
+      "candidateId": "v01",
+      "verdict": "ready",
+      "sourceAccuracy": true,
+      "selfInterest": true,
+      "causalCoherence": true,
+      "variationQuality": true
+    },
+    {
+      "candidateId": "v02",
+      "verdict": "revise",
+      "sourceAccuracy": true,
+      "selfInterest": true,
+      "causalCoherence": false,
+      "variationQuality": true
+    }
+  ],
+  "contentRepairsApplied": false,
+  "qualityLimitations": [
+    "v02 cash explanation and next development timing require revision",
+    "both variants reduce the source work growth and reward intensity"
+  ],
+  "usageScope": "3 actual InkOS production invocations only; excludes Codex conversation and subagents",
+  "usage": {
+    "inputTokens": 215435,
+    "outputTokens": 17060,
+    "cachedInputTokens": 117120,
+    "cacheWriteInputTokens": 0,
+    "reasoningOutputTokens": 2932,
+    "totalTokens": 232495
+  },
+  "testsObserved": {
+    "core": 34,
+    "cli": 37,
+    "storyyard": 35,
+    "total": 106
+  },
+  "buildsObserved": [
+    "InkOS Core",
+    "InkOS CLI",
+    "Storyyard vinext"
+  ],
+  "protectedFileCount": 76,
+  "repositories": [
+    {
+      "root": "/Users/a2501/Desktop/firefly_studio",
+      "head": "b7b1c217ae450d9da9907d7e1be79ca855948148",
+      "sameHead": true,
+      "status": " M config/edge-repos.json\n M config/hermes-blind-evaluator.json\n M config/hermes-neutral-production-profile.json\n M config/hermes-production-profiles.json\n M contracts/firefly-review-packet-v2.schema.json\n M contracts/run-receipt-v2.schema.json\n M contracts/work-order-v1.schema.json\n M contracts/work-order-v2.schema.json\n M docs/2026-09-03-planning-entry-hil.md\n M scripts/blind-canary-batch-plan-lib.mjs\n M scripts/blind-canary-work-order-materializer-lib.mjs\n M scripts/blind-review-bridge-lib.mjs\n M scripts/dispatch-lib.mjs\n M scripts/hermes-blind-evaluator-lib.mjs\n M scripts/hermes-control-lib.mjs\n M scripts/hermes-profile-lib.mjs\n M scripts/inkos-agent-terminal-verifier.mjs\n M tests/blind-canary-batch-plan.test.mjs\n M tests/blind-review-bridge.test.mjs\n M tests/dispatch-contracts.test.mjs\n M tests/dispatch.test.mjs\n M tests/hermes-blind-evaluator.test.mjs\n M tests/hermes-control.test.mjs\n M tests/review-contracts.test.mjs\n?? docs/2026-09-04-pitch-human-grounding-p0-plan.md\n?? docs/2026-09-05-astra-migration-context-efficiency.md\n?? docs/2026-09-05-context-efficiency-followup-plan.md\n?? docs/2026-09-05-context-efficiency-followup-results.md\n?? docs/2026-09-05-drive-corpus-purpose-comparison.md\n?? docs/2026-09-05-first-revision-implementation.md\n?? docs/2026-09-05-first-revision-plan.md\n?? docs/2026-09-05-human-premise-canary-handoff.md\n?? docs/2026-09-05-human-purpose-production-contract-audit.md\n?? docs/2026-09-05-industry-planning-templates-research.md\n?? docs/2026-09-05-inkos-storyyard-terminology-contract-audit.md\n?? docs/2026-09-05-planning-format-candidate.md\n?? docs/2026-09-05-planning-format-v1-implementation.md\n?? docs/2026-09-05-premise-canary-source-fidelity-diagnosis.md\n?? docs/2026-09-05-source-first-redesign-methodology.md\n?? docs/2026-09-06-astra-fresh-planning-canary-results.md\n?? docs/2026-09-06-source-variation-implementation-plan.md\n?? docs/2026-09-06-source-variation-implementation-results.md\n?? docs/evidence/\n?? docs/templates/\n?? scripts/firefly-runtime-lib.mjs\n",
+      "statusLineCount": 45
+    },
+    {
+      "root": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos",
+      "head": "e375a8cab945556980b90490e214d42aa8336a36",
+      "sameHead": true,
+      "status": " M packages/cli/src/__tests__/pitch-command.test.ts\n M packages/cli/src/__tests__/production-agent-operate-e2e.test.ts\n M packages/cli/src/__tests__/production-agent-operate.test.ts\n M packages/cli/src/commands/pitch.ts\n M packages/cli/src/commands/production.ts\n M packages/cli/src/program.ts\n M packages/core/skills/inkos-commercial-pitch-review/SKILL.md\n M packages/core/skills/inkos-commercial-pitch-review/references/survival-rubric.md\n M packages/core/skills/inkos-commercial-webnovel-pitch/SKILL.md\n M packages/core/skills/inkos-commercial-webnovel-pitch/references/pitch-vitality-rubric.md\n M packages/core/src/__tests__/agent-session.test.ts\n M packages/core/src/__tests__/agent-system-prompt.test.ts\n M packages/core/src/__tests__/blind-pair-materialization.test.ts\n M packages/core/src/__tests__/book-soul-binding-phase4.test.ts\n M packages/core/src/__tests__/codex-cli.test.ts\n M packages/core/src/__tests__/external-skill-loader.test.ts\n M packages/core/src/__tests__/hermes-control-operation.test.ts\n M packages/core/src/__tests__/planning-entry-contract.test.ts\n M packages/core/src/__tests__/provider.test.ts\n M packages/core/src/__tests__/storyyard-review-packet-v2.test.ts\n M packages/core/src/agent/agent-session.ts\n M packages/core/src/agent/agent-system-prompt.ts\n M packages/core/src/agent/story-rail-tools.ts\n M packages/core/src/agents/architect.ts\n M packages/core/src/agents/base.ts\n M packages/core/src/agents/planner-prompts.ts\n M packages/core/src/agents/writer-prompts.ts\n M packages/core/src/forecast/prompts.ts\n M packages/core/src/index.ts\n M packages/core/src/llm/codex-cli.ts\n M packages/core/src/llm/provider.ts\n M packages/core/src/llm/providers/endpoints/codex.ts\n M packages/core/src/production/book-soul-binding.ts\n M packages/core/src/production/hermes-control-operation.ts\n M packages/core/src/storyyard/blind-pair-materialization.ts\n M packages/core/src/storyyard/pitch-review-packet.ts\n M packages/core/src/storyyard/review-packet-v2.ts\n M packages/studio/src/components/chat/StoryRailsPreview.tsx\n M packages/studio/src/components/chat/__tests__/StoryRailsPreview.test.ts\n M packages/studio/src/pages/ArcCanvas.tsx\n?? config/\n?? packages/cli/src/__tests__/human-premise.test.ts\n?? packages/cli/src/__tests__/pitch-fact-repair.test.ts\n?? packages/cli/src/__tests__/pitch-variation.test.ts\n?? packages/cli/src/commands/human-premise.ts\n?? packages/cli/src/commands/pitch-fact-repair.ts\n?? packages/cli/src/commands/pitch-variation.ts\n?? packages/cli/src/commands/source-first-pitch.ts\n?? packages/core/skills/inkos-human-premise-pitch/\n?? packages/core/skills/inkos-human-premise-review/\n?? packages/core/src/__tests__/bounded-json-repair.test.ts\n?? packages/core/src/__tests__/fixtures/source-first-pitch-review-fixture.ts\n?? packages/core/src/__tests__/fixtures/source-first-pitch-review-v3.json\n?? packages/core/src/__tests__/human-premise.test.ts\n?? packages/core/src/__tests__/model-invocation.test.ts\n?? packages/core/src/__tests__/pitch-variation.test.ts\n?? packages/core/src/__tests__/source-fact-repair.test.ts\n?? packages/core/src/__tests__/source-first-spine-retention.test.ts\n?? packages/core/src/__tests__/webnovel-plan-format.test.ts\n?? packages/core/src/llm/model-invocation.ts\n?? packages/core/src/planning/bounded-json-repair.ts\n?? packages/core/src/planning/commercial-expansion.ts\n?? packages/core/src/planning/human-premise.ts\n?? packages/core/src/planning/pitch-variation.ts\n?? packages/core/src/planning/source-fact-repair.ts\n?? packages/core/src/planning/spine-retention.ts\n?? packages/core/src/planning/webnovel-plan-format.ts\n?? packages/core/src/production/model-policy.ts\n?? packages/core/src/storyyard/human-premise-review-packet.ts\n",
+      "statusLineCount": 69
+    },
+    {
+      "root": "/Users/a2501/Desktop/firefly_studio/edge_repos/firefly_reference_lab",
+      "head": "31e2b7788c28fa937f68ba7275860ce6552f5bce",
+      "sameHead": true,
+      "status": " M analyses/doksik-chaebol3/arc_atlas.md\n M analyses/doksik-chaebol3/arc_map.csv\n M analyses/doksik-chaebol3/chapter_map.csv\n M analyses/doksik-chaebol3/project_bible.md\n M analyses/doksik-chaebol3/project_pitch.md\n M inkos_handoffs/doksik-chaebol3-transformation-pack/v1/receipt.json\n M inkos_handoffs/doksik-chaebol3-transformation-pack/v1/reference-pack.json\n M tests/blind-pair-evaluation-contract.test.mjs\n M tests/blind-pair-evaluation-runner.test.mjs\n M tests/blind-pair-storyyard-projection.test.mjs\n M tests/genre-soul-hermes-run-lib.test.mjs\n M tools/blind-pair-evaluation-contract.mjs\n M tools/blind-pair-evaluation-runner.mjs\n M tools/blind-pair-storyyard-projection.mjs\n M tools/genre-soul-hermes-run-lib.mjs\n M tools/hermes-runtime/firefly-auth-store/sitecustomize.py\n?? analyses/doksik-chaebol3/source_first_receipt_2026-09-05.json\n?? analyses/doksik-chaebol3/source_first_reconstruction_2026-09-05.md\n?? analyses/doksik-chaebol3/variation-study-2026-09-06/\n",
+      "statusLineCount": 19
+    },
+    {
+      "root": "/Users/a2501/Desktop/firefly_studio/edge_repos/firefly_market_radar",
+      "head": "2b4a88adf2ecd44c66a017c9073fc420ff131803",
+      "sameHead": true,
+      "status": "",
+      "statusLineCount": 0
+    },
+    {
+      "root": "/Users/a2501/Desktop/firefly_studio/edge_repos/storyyard",
+      "head": "8c43e0ba7e640098211cba43abb574f56cfc1741",
+      "sameHead": true,
+      "status": " M app/api/firefly/review-decisions/route.ts\n M app/firefly-review-contract.ts\n M app/firefly-review-data.ts\n M app/firefly-review-decision-intent.ts\n M app/firefly-review-display.mjs\n M app/firefly-review-packet-index.mjs\n M app/firefly-review-packets.ts\n M app/globals.css\n M app/review/review-board.tsx\n M scripts/import-inkos-review-packets-v2.mjs\n M tests/firefly-review-v2.test.mjs\n M tests/firefly-review-v4.test.mjs\n M tsconfig.json\n?? app/firefly-variation-review-contract.ts\n?? app/review/planning-evidence.tsx\n?? app/review/planning-variation.tsx\n?? tests/firefly-review-decision-storage.test.mjs\n?? tests/firefly-review-source-first.test.mjs\n?? tests/firefly-review-v5.test.mjs\n?? tests/fixtures/\n",
+      "statusLineCount": 20
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/docs/2026-09-06-source-variation-implementation-plan.md",
+      "sha256": "9858838ddcd67932c115453f90e0dde853b8fe885f7afd9031a669983ad216e5",
+      "bytes": 3763
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/docs/2026-09-06-source-variation-implementation-results.md",
+      "sha256": "7380b68bb1dbdc9f02beec8676e8671c31ac923b736c8bd45dac17620e0b6092",
+      "bytes": 9663
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-event-variation-20260906-v1/hil-comparison.md",
+      "sha256": "9c59e2966dec45143914a7471cc3ca61ea20cfa47f862f9c9ea2995d55a4b785",
+      "bytes": 5830
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-event-variation-20260906-v1/v01-source-audit.md",
+      "sha256": "2e6fe3076d644ca7b6bb25eef5e42a42fb669ab0c73bbe5b18cc0330a3566638",
+      "bytes": 2389
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-event-variation-20260906-v1/v02-source-audit.md",
+      "sha256": "37ba581aa5acfd94c2dfaa84abff560a7045d87cd09517215910fb1ab4affede",
+      "bytes": 2843
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-event-variation-20260906-v1/run-verification.json",
+      "sha256": "01a1b9142f5e8cc70ae12f19feff21a8fe82ff836b18506ec0bc480f46236fe4",
+      "bytes": 24931
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-event-variation-20260906-v1/storyyard-contract-verification.json",
+      "sha256": "7410324e1b704c219d723c644cc418aae3853df7f209c9dab6cd9c1b3a905582",
+      "bytes": 863
+    },
+    {
+      "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/inkos/.inkos/source-first-canaries/chaebol-event-variation-20260906-v1/prepared/storyyard-packet.json",
+      "sha256": "bc430a5ebc7ce481136cd1e6e784dd94a394ba921f0148535f9d95b324689881",
+      "bytes": 64668
+    }
+  ]
+}

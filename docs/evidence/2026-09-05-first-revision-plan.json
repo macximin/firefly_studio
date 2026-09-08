@@ -1,0 +1,117 @@
+{
+  "date": "2026-09-05",
+  "status": "plan-reviewed-not-implemented",
+  "report": "docs/2026-09-05-first-revision-plan.md",
+  "reportSha256": "44ab1d7ddd8b06c743d995d42ad94ba5157a7d39130459f4a262a3db45a2ae84",
+  "goalScope": "first revision plan for source-faithful planning with existing Storyyard compatibility",
+  "sourcesMonitored": {
+    "AGENTS.md": "c2051ec3d6038cb043c2919b1969dd0ca28fcdb94427f2a4f837aec286f280b8",
+    "config/edge-repos.json": "93395634cf65d49475ecfa0d84866a5abfcabe8fb7cd6254c7428378d18c0b56",
+    "contracts/firefly-review-packet-v2.schema.json": "156ace062e9e99779127a7d5417fed41eaf205622d0d198c3f6bd3066b6607a9",
+    "contracts/production-routing.md": "8d285788652ec698928254ee7d18987e565726ac4864bda086483b16ac3a260f",
+    "docs/2026-09-05-inkos-storyyard-terminology-contract-audit.md": "5fffad4b44635b505b267c4fa98e52512d1fd47b37bccffcac278c38248f36df",
+    "docs/2026-09-05-source-first-redesign-methodology.md": "e944f293b4603a45ccf7a3ddf6cf73ef32504cd65faf064c592e92c32a1ac297",
+    "docs/templates/webnovel-project-plan-v1.md": "78092576c0e1a4f3e0bd21a39edb59844a60494e74aa397d124d7eadf8b2aaca",
+    "edge_repos/firefly_reference_lab/analyses/doksik-chaebol3/chapter_map.csv": "3e6ade1b048df571a4bd327f4c699751eabbe4e403761b4b17f1e54610dd5167",
+    "edge_repos/inkos/packages/cli/src/commands/pitch.ts": "d3dd403c02d6fe56bd6b3758e853795ac1026a473726f3fc4dcd268acf3a5d8e",
+    "edge_repos/inkos/packages/core/skills/inkos-commercial-pitch-review/SKILL.md": "ff1353988b9dff5a009ccdbe10c975b51943f37919b1e0d9d400143123ade2f9",
+    "edge_repos/inkos/packages/core/skills/inkos-commercial-webnovel-pitch/SKILL.md": "1c8de548e7181ff2de19bd757adcf40c0bad3555cd2d8fd630fcf9679a47641b",
+    "edge_repos/inkos/packages/core/src/arc/allocation-schema.ts": "632ff733409b2755d555b42b72748beac4f1c956c2c790b020452787388713ec",
+    "edge_repos/inkos/packages/core/src/arc/allocation-store.ts": "489aea26174685d1e84daab51ab5225aba5a0c9c8e93b28ae9fc70ca5a1ba889",
+    "edge_repos/inkos/packages/core/src/arc/forecast.ts": "30ace11b7ac1a8708825880129808aaefbd85fe7a29dc0b8beaab84a698d5b55",
+    "edge_repos/inkos/packages/core/src/arc/rail-context.ts": "e2c9f7d3fb686ec0dc3d70d42124665ffc05d5b49b9f5336fbe1ffbc709380aa",
+    "edge_repos/inkos/packages/core/src/arc/rail-schema.ts": "b74289eb0ef2f12366f4592b54894dd9a970e614f77c9f5290e3c3ec2ca35d67",
+    "edge_repos/inkos/packages/core/src/arc/rail-store.ts": "74571074b513ad635d94801586108f117a01ec34c237c31b1c759eb48a8b74ce",
+    "edge_repos/inkos/packages/core/src/arc/reflow-schema.ts": "434bb2eb7a9e5eca322d8caa20511f1d490da37ef1ed70d7a11472b7dd111c2d",
+    "edge_repos/inkos/packages/core/src/arc/reflow-store.ts": "d827b80b34aa5817f71abd2709f4a26ba32cf734dba22e7fccc4ae995f9d5a8b",
+    "edge_repos/inkos/packages/core/src/arc/schema.ts": "63efc8b85f43cad089fddf537baf6ebc7215049319a96f7790107a22c220a52d",
+    "edge_repos/inkos/packages/core/src/arc/store.ts": "081f7de895ce69db864cfe7f45928ebb2656bdea702bc056b8d30f6e2b095900",
+    "edge_repos/inkos/packages/core/src/models/book.ts": "ad70e6d99d97ce54e0d43ccd73188f670c06859bc9d5880f0c11f1450fb58e6c",
+    "edge_repos/inkos/packages/core/src/planning/entry-contract.ts": "54b66ddd6d8cbe25c69f6513499b23cd6d70b4afa4d11ad873ce616e603162ec",
+    "edge_repos/inkos/packages/core/src/planning/spine-retention.ts": "1f4c26a81ed7824474568b64d04f5607f0b77e5f62bf943b191306889c4055e7",
+    "edge_repos/inkos/packages/core/src/planning/webnovel-plan-format.ts": "a5503e1b806c1d1b2cbcf417a0d0ed67664be4faf6e73f5ea55a7f709a8e10b4",
+    "edge_repos/inkos/packages/core/src/storyyard/blind-pair-materialization.ts": "b0c1a09c02884197bbe873455c2c754e0c134e7e4ebb485e97fc1bca82b089b7",
+    "edge_repos/inkos/packages/core/src/storyyard/human-premise-review-packet.ts": "3db04cc6f8c10610d9f4c038b282fcccb682881777612e009d274c6fb5998589",
+    "edge_repos/inkos/packages/core/src/storyyard/pitch-review-packet.ts": "f5333e33c948106807a30addd3b4b82ce3623e99a5bc8e214725c0be350e796d",
+    "edge_repos/inkos/packages/core/src/storyyard/review-packet-v2.ts": "e5f3cf02b083896d44e1602b58312b70084abe5082a899d0c426b3bdb27dcaa8",
+    "edge_repos/inkos/packages/core/src/storyyard/review-packet.ts": "c7b4e10cc77b440996aedf4cb4526ae8d102924c708d75bdce699e3af8c6c440",
+    "edge_repos/inkos/packages/core/src/storyyard/surface-selector-bridge.ts": "3790656c8c29a63990d113cd1cb4d63bc59c097a7f6da68a87a86262b0a3ea73",
+    "edge_repos/inkos/packages/studio/src/components/chat/StoryRailsPreview.tsx": "b23e5c514f62a38efd4c1983e3c058918e4eb45999395228c829032b0c35cadc",
+    "edge_repos/inkos/packages/studio/src/pages/ArcCanvas.tsx": "4324db74019475cd93577025993692e918609fa7452cd7c5574d99609a09409d",
+    "edge_repos/storyyard/app/api/projects/[id]/foundry-sync/route.ts": "f8d8d9909ad3ae32a7c8160abec36d668fd86577c54443082c752c02c5a838c2",
+    "edge_repos/storyyard/app/canon-packages.ts": "4edaeffade0960dc9ca5d278af95fa598cc9327abd2a522085b3ab8d0445945a",
+    "edge_repos/storyyard/app/canon/canon-review-board.tsx": "3ffffcf260c59ad66c4d3ee966c5ff84e8ce1a3a2314c5d31d4b0d6acefee342",
+    "edge_repos/storyyard/app/firefly-review-ack.ts": "55a8b18a4f19d8ba46a0db2df862dd515b7f07a2c816da2473a0a72c780c7d29",
+    "edge_repos/storyyard/app/firefly-review-contract.ts": "84e603f7f28854edd48ba373cd4779d8569721f45bd3e51298c2ea5989c0d4ad",
+    "edge_repos/storyyard/app/firefly-review-data.ts": "547dea211b1a01477c23d310ee23709977062646fc66d79b9a049db559a711ca",
+    "edge_repos/storyyard/app/firefly-review-packet-index.mjs": "e12ed8ddde3309c79f7670fc229bb59262844342a28894befc6512b4c196667f",
+    "edge_repos/storyyard/app/project-workspace.tsx": "d72270bb1423aae1affb8a91aa47f0f0185cb3094abb0384229e9d3c9f485dc6",
+    "edge_repos/storyyard/scripts/export-firefly-canon-package.mjs": "8b0b3d083b3ec1d2b1f558645698dcc91616686acd03e54f514022c1f7402c8b"
+  },
+  "repoBaseline": {
+    "edge_repos/inkos": {
+      "head": "e375a8cab945556980b90490e214d42aa8336a36",
+      "status": " M packages/cli/src/__tests__/pitch-command.test.ts\n M packages/cli/src/commands/pitch.ts\n M packages/core/skills/inkos-commercial-pitch-review/SKILL.md\n M packages/core/skills/inkos-commercial-pitch-review/references/survival-rubric.md\n M packages/core/skills/inkos-commercial-webnovel-pitch/SKILL.md\n M packages/core/skills/inkos-commercial-webnovel-pitch/references/pitch-vitality-rubric.md\n M packages/core/src/__tests__/external-skill-loader.test.ts\n M packages/core/src/__tests__/planning-entry-contract.test.ts\n M packages/core/src/agent/story-rail-tools.ts\n M packages/core/src/agents/architect.ts\n M packages/core/src/agents/planner-prompts.ts\n M packages/core/src/agents/writer-prompts.ts\n M packages/core/src/forecast/prompts.ts\n M packages/core/src/index.ts\n M packages/core/src/storyyard/pitch-review-packet.ts\n?? config/\n?? packages/cli/src/__tests__/human-premise.test.ts\n?? packages/cli/src/commands/human-premise.ts\n?? packages/core/skills/inkos-human-premise-pitch/\n?? packages/core/skills/inkos-human-premise-review/\n?? packages/core/src/__tests__/human-premise.test.ts\n?? packages/core/src/__tests__/webnovel-plan-format.test.ts\n?? packages/core/src/planning/commercial-expansion.ts\n?? packages/core/src/planning/human-premise.ts\n?? packages/core/src/planning/spine-retention.ts\n?? packages/core/src/planning/webnovel-plan-format.ts\n?? packages/core/src/storyyard/human-premise-review-packet.ts\n"
+    },
+    "edge_repos/storyyard": {
+      "head": "8c43e0ba7e640098211cba43abb574f56cfc1741",
+      "status": ""
+    },
+    "edge_repos/firefly_reference_lab": {
+      "head": "31e2b7788c28fa937f68ba7275860ce6552f5bce",
+      "status": ""
+    }
+  },
+  "verification": {
+    "monitoredFilesUnchanged": 42,
+    "repoHeadAndStatusUnchanged": {
+      "edge_repos/inkos": true,
+      "edge_repos/storyyard": true,
+      "edge_repos/firefly_reference_lab": true
+    },
+    "localLinksValid": 19,
+    "runtimeTestsRun": false,
+    "modelCanaryRun": false,
+    "productionCodeChanged": false,
+    "existingContractOrTemplateChanged": false,
+    "published": false
+  },
+  "independentReviews": [
+    {
+      "agent": "contract_plan_review",
+      "rounds": 2,
+      "findings": [
+        "spine/sourcePremise coupling",
+        "outer mandatory relationships and witness",
+        "reader-first compatibility",
+        "Storyyard rendering coupling",
+        "InkOS/Storyyard artifact ID fixture mismatch"
+      ],
+      "adopted": [
+        "nested v2 source evidence with existing outer HIL v3",
+        "exact allowed legacy/new candidate combinations",
+        "mode persisted by CLI and checked across stages",
+        "same exported fixture validated on both sides",
+        "rendering and unsupported promotion boundaries"
+      ]
+    },
+    {
+      "agent": "source_plan_review",
+      "rounds": 2,
+      "findings": [
+        "reviewer receives no source context",
+        "supportingReferenceRoutes empty array rejected",
+        "loadReferenceContext hashes but does not compare saved hashes",
+        "avoid unnecessary outer EntryContract changes"
+      ],
+      "adopted": [
+        "same curated source bundle for generation and review plus hash drift check",
+        "single-source mode",
+        "existing source reconstruction verification without new HIL type",
+        "retain EntryContract strings and first-canary arc count constraint"
+      ],
+      "alternativeNotSelected": "Keep HIL v3 fully unchanged and review source-comparison Markdown locally; rejected as the primary recommendation because source evidence would remain outside the Storyyard review surface."
+    }
+  ],
+  "completionBoundary": "Planning plan only; implementation, source correction, source-first canary, human candidate selection, Book promotion, A/B allocation and drafting are not completed by this artifact."
+}

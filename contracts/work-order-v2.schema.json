@@ -4,152 +4,707 @@
   "title": "Firefly HQ WorkOrder v2 - InkOS production",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "workOrderId", "idempotencyKey", "repo", "capability", "bookId", "sessionId", "instruction", "args", "expectedSoulBinding", "ownerDecision", "runtime", "approvalMode", "approvedInputs", "requestedAt"],
+  "required": [
+    "schemaVersion",
+    "workOrderId",
+    "idempotencyKey",
+    "repo",
+    "capability",
+    "bookId",
+    "sessionId",
+    "instruction",
+    "args",
+    "expectedSoulBinding",
+    "ownerDecision",
+    "runtime",
+    "approvalMode",
+    "approvedInputs",
+    "requestedAt"
+  ],
   "properties": {
-    "schemaVersion": { "const": 2 },
-    "workOrderId": { "type": "string", "minLength": 1, "maxLength": 160, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,159}$" },
-    "idempotencyKey": { "type": "string", "minLength": 1, "maxLength": 240, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,239}$" },
-    "repo": { "const": "inkos" },
-    "capability": { "enum": ["write-next", "agent-operate"] },
-    "bookId": { "type": "string", "minLength": 1, "maxLength": 120, "pattern": "^(?!.*\\.\\.)(?![\\s\\uFEFF])(?!.*[\\s\\uFEFF]$)[^\\u0000-\\u001f\\u007f/\\\\:*?\"'`{}<>|]+$" },
-    "sessionId": { "type": "string", "minLength": 1, "maxLength": 160, "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,159}$" },
-    "instruction": { "type": "string", "minLength": 1 },
-    "args": { "$ref": "#/$defs/args" },
-    "expectedSoulBinding": { "$ref": "#/$defs/soulBinding" },
-    "ownerDecision": { "$ref": "#/$defs/ownerDecision" },
-    "runtime": { "$ref": "#/$defs/runtime" },
-    "approvalMode": { "const": "human" },
-    "approvedInputs": { "type": "array", "items": { "$ref": "#/$defs/approvedInput" } },
-    "privateInputs": { "type": "array", "maxItems": 0, "default": [] },
-    "executionMode": { "enum": ["promotion-canary", "production"] },
-    "modeEvidence": { "oneOf": [{ "$ref": "#/$defs/genreCanaryEvidence" }, { "$ref": "#/$defs/neutralCanaryEvidence" }, { "$ref": "#/$defs/productionEvidence" }] },
-    "requestedAt": { "type": "string", "format": "date-time" },
-    "timeoutMs": { "type": "integer", "minimum": 1000, "maximum": 3600000 }
+    "schemaVersion": {
+      "const": 2
+    },
+    "workOrderId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,159}$"
+    },
+    "idempotencyKey": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 240,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,239}$"
+    },
+    "repo": {
+      "const": "inkos"
+    },
+    "capability": {
+      "enum": [
+        "write-next",
+        "agent-operate"
+      ]
+    },
+    "bookId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "pattern": "^(?!.*\\.\\.)(?![\\s\\uFEFF])(?!.*[\\s\\uFEFF]$)[^\\u0000-\\u001f\\u007f/\\\\:*?\"'`{}<>|]+$"
+    },
+    "sessionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,159}$"
+    },
+    "instruction": {
+      "type": "string",
+      "minLength": 1
+    },
+    "args": {
+      "$ref": "#/$defs/args"
+    },
+    "expectedSoulBinding": {
+      "$ref": "#/$defs/soulBinding"
+    },
+    "ownerDecision": {
+      "$ref": "#/$defs/ownerDecision"
+    },
+    "runtime": {
+      "$ref": "#/$defs/runtime"
+    },
+    "approvalMode": {
+      "const": "human"
+    },
+    "approvedInputs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/approvedInput"
+      }
+    },
+    "privateInputs": {
+      "type": "array",
+      "maxItems": 0,
+      "default": []
+    },
+    "executionMode": {
+      "enum": [
+        "promotion-canary",
+        "production"
+      ]
+    },
+    "modeEvidence": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/genreCanaryEvidence"
+        },
+        {
+          "$ref": "#/$defs/neutralCanaryEvidence"
+        },
+        {
+          "$ref": "#/$defs/productionEvidence"
+        }
+      ]
+    },
+    "requestedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "timeoutMs": {
+      "type": "integer",
+      "minimum": 1000,
+      "maximum": 3600000
+    }
   },
   "allOf": [
     {
-      "if": { "properties": { "capability": { "const": "write-next" } }, "required": ["capability"] },
-      "then": {
-        "properties": { "approvedInputs": { "maxItems": 0 } },
-        "not": { "anyOf": [{ "required": ["executionMode"] }, { "required": ["modeEvidence"] }] }
-      }
-    },
-    {
-      "if": { "properties": { "capability": { "const": "agent-operate" } }, "required": ["capability"] },
-      "then": {
-        "required": ["executionMode", "modeEvidence", "privateInputs"],
-        "properties": { "runtime": { "$ref": "#/$defs/agentRuntime" }, "privateInputs": { "type": "array", "maxItems": 0 } }
-      }
-    },
-    {
-      "if": { "properties": { "capability": { "const": "agent-operate" }, "executionMode": { "const": "promotion-canary" } }, "required": ["capability", "executionMode"] },
+      "if": {
+        "properties": {
+          "capability": {
+            "const": "write-next"
+          }
+        },
+        "required": [
+          "capability"
+        ]
+      },
       "then": {
         "properties": {
-          "approvedInputs": { "maxItems": 0 },
-          "modeEvidence": { "oneOf": [{ "$ref": "#/$defs/genreCanaryEvidence" }, { "$ref": "#/$defs/neutralCanaryEvidence" }] }
+          "approvedInputs": {
+            "maxItems": 0
+          }
+        },
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "executionMode"
+              ]
+            },
+            {
+              "required": [
+                "modeEvidence"
+              ]
+            }
+          ]
         }
       }
     },
     {
-      "if": { "properties": { "capability": { "const": "agent-operate" }, "executionMode": { "const": "production" } }, "required": ["capability", "executionMode"] },
-      "then": { "properties": { "approvedInputs": { "maxItems": 0 }, "modeEvidence": { "$ref": "#/$defs/productionEvidence" } } }
+      "if": {
+        "properties": {
+          "capability": {
+            "const": "agent-operate"
+          }
+        },
+        "required": [
+          "capability"
+        ]
+      },
+      "then": {
+        "required": [
+          "executionMode",
+          "modeEvidence",
+          "privateInputs"
+        ],
+        "properties": {
+          "runtime": {
+            "$ref": "#/$defs/agentRuntime"
+          },
+          "privateInputs": {
+            "type": "array",
+            "maxItems": 0
+          }
+        }
+      }
     },
     {
-      "if": { "properties": { "capability": { "const": "agent-operate" }, "modeEvidence": { "properties": { "lane": { "const": "neutral-baseline" } }, "required": ["lane"] } }, "required": ["capability", "modeEvidence"] },
-      "then": { "properties": { "expectedSoulBinding": { "type": "null" } } }
+      "if": {
+        "properties": {
+          "capability": {
+            "const": "agent-operate"
+          },
+          "executionMode": {
+            "const": "promotion-canary"
+          }
+        },
+        "required": [
+          "capability",
+          "executionMode"
+        ]
+      },
+      "then": {
+        "properties": {
+          "approvedInputs": {
+            "maxItems": 0
+          },
+          "modeEvidence": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/genreCanaryEvidence"
+              },
+              {
+                "$ref": "#/$defs/neutralCanaryEvidence"
+              }
+            ]
+          }
+        }
+      }
     },
     {
-      "if": { "properties": { "capability": { "const": "agent-operate" }, "modeEvidence": { "properties": { "lane": { "const": "genre-soul" } }, "required": ["lane"] } }, "required": ["capability", "modeEvidence"] },
-      "then": { "properties": { "expectedSoulBinding": { "$ref": "#/$defs/nonNullSoulBinding" } } }
+      "if": {
+        "properties": {
+          "capability": {
+            "const": "agent-operate"
+          },
+          "executionMode": {
+            "const": "production"
+          }
+        },
+        "required": [
+          "capability",
+          "executionMode"
+        ]
+      },
+      "then": {
+        "properties": {
+          "approvedInputs": {
+            "maxItems": 0
+          },
+          "modeEvidence": {
+            "$ref": "#/$defs/productionEvidence"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "capability": {
+            "const": "agent-operate"
+          },
+          "modeEvidence": {
+            "properties": {
+              "lane": {
+                "const": "neutral-baseline"
+              }
+            },
+            "required": [
+              "lane"
+            ]
+          }
+        },
+        "required": [
+          "capability",
+          "modeEvidence"
+        ]
+      },
+      "then": {
+        "properties": {
+          "expectedSoulBinding": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "capability": {
+            "const": "agent-operate"
+          },
+          "modeEvidence": {
+            "properties": {
+              "lane": {
+                "const": "genre-soul"
+              }
+            },
+            "required": [
+              "lane"
+            ]
+          }
+        },
+        "required": [
+          "capability",
+          "modeEvidence"
+        ]
+      },
+      "then": {
+        "properties": {
+          "expectedSoulBinding": {
+            "$ref": "#/$defs/nonNullSoulBinding"
+          }
+        }
+      }
     }
   ],
   "$defs": {
-    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
     "args": {
-      "type": "object", "additionalProperties": false, "required": ["chapterCount"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "chapterCount"
+      ],
       "properties": {
-        "chapterCount": { "const": 1 },
+        "chapterCount": {
+          "const": 1
+        },
         "targetLength": {
-          "type": "object", "additionalProperties": false, "required": ["count", "unit"],
-          "properties": { "count": { "type": "integer", "minimum": 1 }, "unit": { "enum": ["ko-chars", "zh-chars", "words"] } }
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "count",
+            "unit"
+          ],
+          "properties": {
+            "count": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "unit": {
+              "enum": [
+                "ko-chars",
+                "zh-chars",
+                "words"
+              ]
+            }
+          }
         }
       }
     },
     "soulBinding": {
       "oneOf": [
-        { "type": "null" },
-        { "$ref": "#/$defs/nonNullSoulBinding" }
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/nonNullSoulBinding"
+        }
       ]
     },
     "nonNullSoulBinding": {
-      "type": "object", "additionalProperties": false, "required": ["soulId", "soulVersion", "bindingSha256"],
-      "properties": { "soulId": { "type": "string", "minLength": 1 }, "soulVersion": { "type": "string", "minLength": 1 }, "bindingSha256": { "$ref": "#/$defs/sha256" } }
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "soulId",
+        "soulVersion",
+        "bindingSha256"
+      ],
+      "properties": {
+        "soulId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "soulVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "bindingSha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
     },
     "ownerDecision": {
-      "type": "object", "additionalProperties": false, "required": ["receiptId", "status", "instructionSha256", "argsSha256", "decidedAt"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receiptId",
+        "status",
+        "instructionSha256",
+        "argsSha256",
+        "decidedAt"
+      ],
       "properties": {
-        "receiptId": { "type": "string", "minLength": 1 }, "status": { "const": "approved" },
-        "instructionSha256": { "$ref": "#/$defs/sha256" }, "argsSha256": { "$ref": "#/$defs/sha256" },
-        "decidedAt": { "type": "string", "format": "date-time" }
+        "receiptId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "const": "approved"
+        },
+        "instructionSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "argsSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "decidedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
       }
     },
     "runtime": {
-      "type": "object", "additionalProperties": false, "required": ["hermesProfile", "model", "reasoning"],
-      "properties": { "hermesProfile": { "type": "string", "minLength": 1 }, "model": { "type": "string", "minLength": 1 }, "reasoning": { "type": "string", "minLength": 1 } }
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hermesProfile",
+        "model",
+        "reasoning"
+      ],
+      "properties": {
+        "hermesProfile": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reasoning": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
     },
     "agentRuntime": {
-      "type": "object", "additionalProperties": false, "required": ["hermesProfile", "model", "reasoning"],
-      "properties": { "hermesProfile": { "type": "string", "minLength": 1 }, "model": { "const": "gpt-5.6-sol" }, "reasoning": { "const": "high" } }
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hermesProfile",
+        "model",
+        "reasoning"
+      ],
+      "properties": {
+        "hermesProfile": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model": {
+          "enum": [
+            "gpt-5.6-sol",
+            "gpt-6-astra"
+          ]
+        },
+        "reasoning": {
+          "enum": [
+            "high",
+            "medium"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "reasoning": {
+                "const": "medium"
+              }
+            },
+            "required": [
+              "reasoning"
+            ]
+          },
+          "then": {
+            "properties": {
+              "model": {
+                "const": "gpt-6-astra"
+              }
+            }
+          }
+        }
+      ]
     },
     "approvedInput": {
-      "type": "object", "additionalProperties": false, "required": ["repo", "commit", "path", "sha256", "role"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "commit",
+        "path",
+        "sha256",
+        "role"
+      ],
       "properties": {
-        "repo": { "type": "string", "minLength": 1 }, "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
-        "path": { "type": "string", "minLength": 1 }, "sha256": { "$ref": "#/$defs/sha256" }, "role": { "type": "string", "minLength": 1 }
+        "repo": {
+          "type": "string",
+          "minLength": 1
+        },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "role": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
     "canaryIsolation": {
-      "type": "object", "additionalProperties": false,
-      "required": ["pairId", "path", "sha256", "byteLength", "receiptSelfHash", "isolationScopeSha256", "commonSnapshotSha256"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pairId",
+        "path",
+        "sha256",
+        "byteLength",
+        "receiptSelfHash",
+        "isolationScopeSha256",
+        "commonSnapshotSha256"
+      ],
       "properties": {
-        "pairId": { "type": "string", "minLength": 1, "maxLength": 120, "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$" },
-        "path": { "type": "string", "minLength": 1 },
-        "sha256": { "$ref": "#/$defs/sha256" },
-        "byteLength": { "type": "integer", "minimum": 1 },
-        "receiptSelfHash": { "$ref": "#/$defs/sha256" },
-        "isolationScopeSha256": { "$ref": "#/$defs/sha256" },
-        "commonSnapshotSha256": { "$ref": "#/$defs/sha256" }
+        "pairId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "byteLength": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "receiptSelfHash": {
+          "$ref": "#/$defs/sha256"
+        },
+        "isolationScopeSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "commonSnapshotSha256": {
+          "$ref": "#/$defs/sha256"
+        }
       }
     },
     "modeEvidenceBase": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["lane", "profileId", "profileConfigSha256", "profileLifecycle", "productionEnabled", "adoptionRegistrySha256", "activeMatchingCount", "soulId", "soulVersion", "soulSha256", "promotionDecisionSha256"],
+      "required": [
+        "lane",
+        "profileId",
+        "profileConfigSha256",
+        "profileLifecycle",
+        "productionEnabled",
+        "adoptionRegistrySha256",
+        "activeMatchingCount",
+        "soulId",
+        "soulVersion",
+        "soulSha256",
+        "promotionDecisionSha256"
+      ],
       "properties": {
-        "lane": { "enum": ["genre-soul", "neutral-baseline"] }, "profileId": { "type": "string", "minLength": 1 },
-        "profileConfigSha256": { "$ref": "#/$defs/sha256" }, "profileLifecycle": { "enum": ["candidate", "promoted", "baseline"] },
-        "productionEnabled": { "type": "boolean" }, "adoptionRegistrySha256": { "$ref": "#/$defs/sha256" }, "activeMatchingCount": { "enum": [0, 1] },
-        "soulId": { "type": "string", "minLength": 1 }, "soulVersion": { "type": "string", "minLength": 1 }, "soulSha256": { "$ref": "#/$defs/sha256" },
-        "promotionDecisionSha256": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/sha256" }] },
-        "canaryIsolation": { "$ref": "#/$defs/canaryIsolation" }
+        "lane": {
+          "enum": [
+            "genre-soul",
+            "neutral-baseline"
+          ]
+        },
+        "profileId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "profileConfigSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "profileLifecycle": {
+          "enum": [
+            "candidate",
+            "promoted",
+            "baseline"
+          ]
+        },
+        "productionEnabled": {
+          "type": "boolean"
+        },
+        "adoptionRegistrySha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "activeMatchingCount": {
+          "enum": [
+            0,
+            1
+          ]
+        },
+        "soulId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "soulVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "soulSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "promotionDecisionSha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/sha256"
+            }
+          ]
+        },
+        "canaryIsolation": {
+          "$ref": "#/$defs/canaryIsolation"
+        }
       }
     },
     "genreCanaryEvidence": {
       "allOf": [
-        { "$ref": "#/$defs/modeEvidenceBase" },
-        { "required": ["canaryIsolation"], "properties": { "lane": { "const": "genre-soul" }, "profileLifecycle": { "const": "candidate" }, "productionEnabled": { "const": false }, "activeMatchingCount": { "const": 0 }, "promotionDecisionSha256": { "type": "null" } } }
+        {
+          "$ref": "#/$defs/modeEvidenceBase"
+        },
+        {
+          "required": [
+            "canaryIsolation"
+          ],
+          "properties": {
+            "lane": {
+              "const": "genre-soul"
+            },
+            "profileLifecycle": {
+              "const": "candidate"
+            },
+            "productionEnabled": {
+              "const": false
+            },
+            "activeMatchingCount": {
+              "const": 0
+            },
+            "promotionDecisionSha256": {
+              "type": "null"
+            }
+          }
+        }
       ]
     },
     "neutralCanaryEvidence": {
       "allOf": [
-        { "$ref": "#/$defs/modeEvidenceBase" },
-        { "required": ["canaryIsolation"], "properties": { "lane": { "const": "neutral-baseline" }, "profileLifecycle": { "const": "baseline" }, "productionEnabled": { "const": false }, "activeMatchingCount": { "const": 0 }, "promotionDecisionSha256": { "type": "null" } } }
+        {
+          "$ref": "#/$defs/modeEvidenceBase"
+        },
+        {
+          "required": [
+            "canaryIsolation"
+          ],
+          "properties": {
+            "lane": {
+              "const": "neutral-baseline"
+            },
+            "profileLifecycle": {
+              "const": "baseline"
+            },
+            "productionEnabled": {
+              "const": false
+            },
+            "activeMatchingCount": {
+              "const": 0
+            },
+            "promotionDecisionSha256": {
+              "type": "null"
+            }
+          }
+        }
       ]
     },
     "productionEvidence": {
       "allOf": [
-        { "$ref": "#/$defs/modeEvidenceBase" },
-        { "not": { "required": ["canaryIsolation"] }, "properties": { "lane": { "const": "genre-soul" }, "profileLifecycle": { "const": "promoted" }, "productionEnabled": { "const": true }, "activeMatchingCount": { "const": 1 }, "promotionDecisionSha256": { "$ref": "#/$defs/sha256" } } }
+        {
+          "$ref": "#/$defs/modeEvidenceBase"
+        },
+        {
+          "not": {
+            "required": [
+              "canaryIsolation"
+            ]
+          },
+          "properties": {
+            "lane": {
+              "const": "genre-soul"
+            },
+            "profileLifecycle": {
+              "const": "promoted"
+            },
+            "productionEnabled": {
+              "const": true
+            },
+            "activeMatchingCount": {
+              "const": 1
+            },
+            "promotionDecisionSha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          }
+        }
       ]
     }
   }

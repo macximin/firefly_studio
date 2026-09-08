@@ -1,3 +1,4 @@
+import { isFireflyHighRuntime } from "./firefly-runtime-lib.mjs";
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { lstat, readFile, readdir, realpath } from "node:fs/promises";
@@ -63,7 +64,7 @@ export function validateHermesProfileRegistry(registry) {
     if (!["candidate", "promoted"].includes(profile.lifecycle)) errors.push(`${label}.lifecycle is invalid`);
     if (typeof profile.productionEnabled !== "boolean") errors.push(`${label}.productionEnabled must be boolean`);
     if (!["openai-codex"].includes(profile.provider)) errors.push(`${label}.provider is invalid`);
-    if (!hasText(profile.model) || !hasText(profile.reasoning)) errors.push(`${label} model and reasoning are required`);
+    if (!isFireflyHighRuntime(profile.model, profile.reasoning)) errors.push(`${label} model and reasoning must be a supported Firefly high runtime`);
     if (profile.skillsPolicy !== "none") errors.push(`${label}.skillsPolicy must be none`);
     if (!SHA256.test(profile.configSha256 ?? "") || !SHA256.test(profile.soulSha256 ?? "")) {
       errors.push(`${label} configSha256 and soulSha256 are required`);
@@ -136,8 +137,8 @@ export function validateHermesNeutralProfileRegistry(registry) {
   if (profile.productionEnabled !== false || profile.promotionDecisionSha256 !== null) {
     errors.push("neutral profile must remain disabled without a promotion decision");
   }
-  if (profile.provider !== "openai-codex" || profile.model !== "gpt-5.6-sol" || profile.reasoning !== "high") {
-    errors.push("neutral profile runtime must be openai-codex/gpt-5.6-sol/high");
+  if (profile.provider !== "openai-codex" || !isFireflyHighRuntime(profile.model, profile.reasoning)) {
+    errors.push("neutral profile runtime must be openai-codex with a supported Firefly high runtime");
   }
   if (profile.skillsPolicy !== "none") errors.push("neutral profile skillsPolicy must be none");
   if (!SHA256.test(profile.configSha256 ?? "") || !SHA256.test(profile.soulSha256 ?? "")) {

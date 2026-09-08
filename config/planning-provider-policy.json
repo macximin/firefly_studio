@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "firefly-planning-provider-policy/v1",
+  "updatedAt": "2026-09-06",
+  "scope": "V3 planning only; existing InkOS profiles unchanged",
+  "retainedRoutes": [
+    "chatgpt-web",
+    "grok-web",
+    "gemini-web",
+    "astra",
+    "gemini-cli",
+    "grok-cli"
+  ],
+  "requiresRetest": [],
+  "disabledRoutes": [
+    "mimo",
+    "pickle",
+    "ling",
+    "nemotron-ultra",
+    "nemotron-lightning",
+    "muse"
+  ],
+  "reason": "User retired the experimental OpenCode free model pool after the first canary. This is an operating choice, not a model capability or nationality verdict.",
+  "preserveHistoricalResults": true,
+  "automaticSubstitution": false,
+  "grokCliVerifiedReceipt": "edge_repos/v3_ff_foundry/20_model_runs/multi_provider/sentinel-canary-20260907/grok-cli/receipt.json"
+}
