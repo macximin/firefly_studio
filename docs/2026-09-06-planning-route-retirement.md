@@ -1,5 +1,7 @@
 # 무료 기획 경로 제외와 관제 대안
 
+> 무료 6경로 제외는 현재도 유효하다. 아래 Grok CLI 재시험 요구는 후속 검증으로 해제됐으며, 현재 경로는 `config/planning-provider-policy.json`과 [피치 정책·연결 상태](pitch-policy-status.md)를 따른다.
+
 2026-09-06 · 사용자 후속 결정과 읽기 전용 대안 조사.
 
 ## 반영한 결정

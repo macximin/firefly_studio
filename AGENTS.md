@@ -10,6 +10,11 @@
 
 ## Production boundaries
 
+- For daily pitch/planning status, read `docs/pitch-policy-status.md` alongside
+  these ownership rules. It distinguishes current implementation, document
+  compatibility, and unimplemented InkOS handoff; historical proposals do not
+  establish current execution capability or waive production admission.
+
 - `inkos` owns production execution: planning, Arc/Rail state, drafting, review,
   revision, and continuation.
 - `firefly_reference_lab` owns derived work analysis, pitches, character cores,

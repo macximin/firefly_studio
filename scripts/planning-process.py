@@ -163,7 +163,9 @@ def command(route, directory):
     if route.startswith('grok'):
         return [str(Path.home()/'.grok/bin/grok'), '--cwd', str(directory/'work'),
                 '--model', model, '--reasoning-effort', 'high', '--verbatim',
-                '--no-plan', '--tools', '', '--disable-web-search', '--no-subagents',
+                '--no-plan', '--tools', 'read_file',
+                '--disallowed-tools', 'read_file,search_tool,use_tool',
+                '--disable-web-search', '--no-subagents',
                 '--max-turns', '2', '--output-format', 'json', '--prompt-file', prompt]
     if route == 'gemini-cli':
         return [str(Path.home()/'.gemini/bin/agy'), '--model', model, '--effort', 'high',

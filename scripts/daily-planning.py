@@ -188,11 +188,43 @@ def alive(pid):
     try:os.kill(pid,0);return True
     except (ProcessLookupError,TypeError):return False
 
+def verified_capture_recovery(directory,route,receipt,web):
+    """Read an explicit same-conversation Copy recovery; retain failed transport history."""
+    path=directory/'capture-recovery.json'
+    if not path.exists():return None
+    recovery=read(path)
+    if not route.endswith('-web') or recovery.get('schemaVersion')!='firefly-capture-recovery/v1' or recovery.get('route')!=route:
+        raise lifecycle.LifecycleConflict('Capture recovery route/schema mismatch')
+    if (directory/'browser-blocked.json').exists() or (directory/'browser-runtime-error.json').exists():
+        raise lifecycle.LifecycleConflict('Capture recovery cannot waive a browser stop marker')
+    if receipt.get('status') not in ('failed','interrupted','timed_out','process_completed'):
+        raise lifecycle.LifecycleConflict('Capture recovery requires a terminal transport receipt')
+    for filename,key in [('receipt.json','sourceProcessReceiptSha256'),('web-receipt.json','sourceWebReceiptSha256')]:
+        if sha((directory/filename).read_text())!=recovery.get(key):
+            raise lifecycle.LifecycleConflict('Capture recovery source receipt changed')
+    if not web.get('conversationUrl') or recovery.get('conversationUrl')!=web['conversationUrl']:
+        raise lifecycle.LifecycleConflict('Capture recovery conversation mismatch')
+    if recovery.get('inputSha256')!=receipt.get('inputSha256') or recovery.get('inputSha256')!=sha((directory/'input.md').read_text()):
+        raise lifecycle.LifecycleConflict('Capture recovery input mismatch')
+    folder=directory/'capture-recovery'
+    for target in [folder/'plan.md',folder/'copy-receipt.json']:
+        if not target.resolve().is_relative_to(directory.resolve()):
+            raise lifecycle.LifecycleConflict('Capture recovery escaped its route')
+    text=(folder/'plan.md').read_text();copy=read(folder/'copy-receipt.json')
+    if not text.strip() or sha(text)!=recovery.get('outputSha256') or copy.get('sha256')!=sha(text):
+        raise lifecycle.LifecycleConflict('Capture recovery output hash mismatch')
+    if copy.get('status')!='complete' or copy.get('verified') is not True or copy.get('method')!='ego-copy+os-pbpaste' or copy.get('copyExitCode')!=0:
+        raise lifecycle.LifecycleConflict('Capture recovery lacks a verified Copy receipt')
+    return text,{**recovery,'verified':True,'originalTransportStatus':receipt['status'],'copyReceipt':copy}
+
 def extract(directory,route):
     receipt=read(directory/'receipt.json');web={};text='';usage=None
     if route.endswith('-web'):
         if (directory/'web-receipt.json').exists():web=read(directory/'web-receipt.json')
-        if web.get('status')=='complete' and (directory/'plan.md').exists():
+        recovered=verified_capture_recovery(directory,route,receipt,web)
+        if recovered:
+            text,evidence=recovered;web={**web,'captureRecovery':evidence}
+        elif web.get('status')=='complete' and (directory/'plan.md').exists():
             text=(directory/'plan.md').read_text()
             if web.get('outputSha256') and web['outputSha256']!=sha(text):raise RuntimeError('Web extraction hash mismatch')
             if web.get('inputSha256')!=receipt['inputSha256']:raise RuntimeError('Web input identity mismatch')
@@ -217,7 +249,7 @@ def operational_events(batch):
     events=[]
     for path in sorted(batch.glob('*exception.json')):
         events.append({'path':str(path.relative_to(batch)),'evidence':read(path)})
-    for pattern in ('*/browser-blocked.json','*/browser-runtime-error.json'):
+    for pattern in ('*/browser-blocked.json','*/browser-runtime-error.json','*/capture-recovery.json'):
         for path in sorted(batch.glob(pattern)):
             events.append({'route':path.parent.name,'path':str(path.relative_to(batch)),
                            'evidence':read(path)})
@@ -275,7 +307,9 @@ def collect(batch,route):
         return c
     raw,r,web,usage=extract(directory,route);text,issues=format_body(raw)
     marker=(directory/'browser-blocked.json').exists() or (directory/'browser-runtime-error.json').exists()
-    state='failed' if not text or r['status']!='process_completed' else 'incomplete' if issues else 'complete'
+    recovered=bool(web.get('captureRecovery',{}).get('verified'))
+    state='failed' if not text or (r['status']!='process_completed' and not recovered) else 'incomplete' if issues else 'complete'
+    if recovered:issues.append('원래 운반은 종료됐으며 같은 대화의 본문을 운영자가 별도 회수했습니다. 자동 무개입 성공이 아닙니다.')
     if marker:state='failed';issues.append('브라우저 제어 중단 기록이 있어 실행 완료로 인정하지 않습니다.')
     if r.get('error'):issues.append(r['error'])
     if route.endswith('-web') and not text:issues.append(str(web.get('error','Web response was not verified complete')))
