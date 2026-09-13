@@ -1,0 +1,714 @@
+{
+  "schema_version": 1,
+  "title": "웹소설 작법론 채널별 자료 목록",
+  "checked_on": "2026-09-11",
+  "scope": "공개 접근 가능한 한국·중국·일본·영어권 자료. 비공개 카페·유료 원문·전체 인터넷의 완전 조사가 아님.",
+  "counts": {
+    "assets": 32,
+    "channels": 10,
+    "by_channel": {
+      "GitHub": 8,
+      "작가 웹문서": 6,
+      "플랫폼·공공 교육": 5,
+      "유료 강의": 2,
+      "책": 3,
+      "영상": 3,
+      "창작자 연재·구독": 1,
+      "팟캐스트": 2,
+      "학술": 1,
+      "커뮤니티": 1
+    },
+    "prior_round_baselines": 5
+  },
+  "items": [
+    {
+      "id": "R01",
+      "title": "worldwonderer/oh-story-claudecode",
+      "channel": "GitHub",
+      "language": "zh",
+      "urls": [
+        "https://github.com/worldwonderer/oh-story-claudecode"
+      ],
+      "access": "pinned_selected_passages",
+      "use": "장르의 독자 약속, 보상 귀속, 기능 없는 몸짓 교정, 작품별 문체 우선순위",
+      "limitation": "같은 모델 계열이 평가한 단일 장면 실험이다. 기본 심리·시점 규칙과 수치 처방은 별도 검토가 필요하다.",
+      "priority": "selective_adaptation",
+      "publication_date": null,
+      "prior_round_baseline": false,
+      "checked_on": "2026-09-11",
+      "commit": "fde17546758c58ad4d3306ef93d0db8ad28f9f3c",
+      "last_commit_at": "2026-09-09T10:54:00Z",
+      "license": "MIT",
+      "runtime_tested": false,
+      "fetched_files": [
+        {
+          "repo": "worldwonderer/oh-story-claudecode",
+          "path": "skills/story-long-write/references/writing-craft.md",
+          "sha": "fde17546758c58ad4d3306ef93d0db8ad28f9f3c",
+          "bytes": 32942,
+          "sha256": "37c542c95f7fa29e9a0087ed94b7ec1a84dfb53d0707520fb90967000bd70610",
+          "url": "https://github.com/worldwonderer/oh-story-claudecode/blob/fde17546758c58ad4d3306ef93d0db8ad28f9f3c/skills/story-long-write/references/writing-craft.md",
+          "reading_scope": "selected_passages"
+        },
+        {
+          "repo": "worldwonderer/oh-story-claudecode",
+          "path": "skills/story-long-write/references/reader-contract-and-progression.md",
+          "sha": "fde17546758c58ad4d3306ef93d0db8ad28f9f3c",
+          "bytes": 11144,
+          "sha256": "e5c66dad88095dfb25f67294d70a2a5a98b035f9fa87e83b9876676d97840fde",
+          "url": "https://github.com/worldwonderer/oh-story-claudecode/blob/fde17546758c58ad4d3306ef93d0db8ad28f9f3c/skills/story-long-write/references/reader-contract-and-progression.md",
+          "reading_scope": "selected_passages"
+        },
+        {
+          "repo": "worldwonderer/oh-story-claudecode",
+          "path": "skills/story-long-write/references/character-design-methods.md",
+          "sha": "fde17546758c58ad4d3306ef93d0db8ad28f9f3c",
+          "bytes": 16262,
+          "sha256": "ec5e733a901de8b4dfc7f099eb091b38f3bd980c9131b0d63e6ba093c8673fcc",
+          "url": "https://github.com/worldwonderer/oh-story-claudecode/blob/fde17546758c58ad4d3306ef93d0db8ad28f9f3c/skills/story-long-write/references/character-design-methods.md",
+          "reading_scope": "downloaded_not_content_reviewed"
+        },
+        {
+          "repo": "worldwonderer/oh-story-claudecode",
+          "path": "demo/craft-stock-reaction-eval/README.md",
+          "sha": "fde17546758c58ad4d3306ef93d0db8ad28f9f3c",
+          "bytes": 5147,
+          "sha256": "358481c6b1eea4ffe53adb057d1a445794ca4aab0881126cf7686610f6214089",
+          "url": "https://github.com/worldwonderer/oh-story-claudecode/blob/fde17546758c58ad4d3306ef93d0db8ad28f9f3c/demo/craft-stock-reaction-eval/README.md",
+          "reading_scope": "full_text"
+        },
+        {
+          "repo": "worldwonderer/oh-story-claudecode",
+          "path": "skills/story-long-write/references/style-resolution.md",
+          "sha": "fde17546758c58ad4d3306ef93d0db8ad28f9f3c",
+          "bytes": 4017,
+          "sha256": "95a863cd7cd89b983d9d3702756e176d51ea69996e6ba7ed671123368f7ee1d5",
+          "url": "https://github.com/worldwonderer/oh-story-claudecode/blob/fde17546758c58ad4d3306ef93d0db8ad28f9f3c/skills/story-long-write/references/style-resolution.md",
+          "reading_scope": "full_text"
+        }
+      ]
+    },
+    {
+      "id": "R02",
+      "title": "HZ-KMNO/web-novel-writing-guidance-skill",
+      "channel": "GitHub",
+      "language": "zh",
+      "urls": [
+        "https://github.com/HZ-KMNO/web-novel-writing-guidance-skill"
+      ],
+      "access": "pinned_selected_passages",
+      "use": "독자 경험에서 출발하는 작품 분석, 기술 카드와 연습으로 변환",
+      "limitation": "로컬 사례집의 60 EPUB 구조 추출은 60권 정독 증거가 아니다. Bilibili/커뮤니티 재정리의 원발언은 미검증이다.",
+      "priority": "selective_adaptation",
+      "publication_date": null,
+      "prior_round_baseline": false,
+      "checked_on": "2026-09-11",
+      "commit": "24dd6d40099c97c3120dc37942e8dc99263c0259",
+      "last_commit_at": "2026-07-09T01:25:23Z",
+      "license": "MIT",
+      "runtime_tested": false,
+      "fetched_files": [
+        {
+          "repo": "HZ-KMNO/web-novel-writing-guidance-skill",
+          "path": "references/writer-oriented-literary-analysis-protocol.md",
+          "sha": "24dd6d40099c97c3120dc37942e8dc99263c0259",
+          "bytes": 10343,
+          "sha256": "6ac82f10c273da0c1c4d1d7a66bdc332ada0fda89f1eb4c8ae0aa7ad0b6cd8d1",
+          "url": "https://github.com/HZ-KMNO/web-novel-writing-guidance-skill/blob/24dd6d40099c97c3120dc37942e8dc99263c0259/references/writer-oriented-literary-analysis-protocol.md",
+          "reading_scope": "selected_passages"
+        },
+        {
+          "repo": "HZ-KMNO/web-novel-writing-guidance-skill",
+          "path": "references/excellent-novel-case-methods.md",
+          "sha": "24dd6d40099c97c3120dc37942e8dc99263c0259",
+          "bytes": 85988,
+          "sha256": "38cb13b4600be2a84621c910201df68ce932956095c9c6b5723d55dd31b8d185",
+          "url": "https://github.com/HZ-KMNO/web-novel-writing-guidance-skill/blob/24dd6d40099c97c3120dc37942e8dc99263c0259/references/excellent-novel-case-methods.md",
+          "reading_scope": "introductory_passages"
+        },
+        {
+          "repo": "HZ-KMNO/web-novel-writing-guidance-skill",
+          "path": "references/web-novel-craft.md",
+          "sha": "24dd6d40099c97c3120dc37942e8dc99263c0259",
+          "bytes": 52875,
+          "sha256": "d19d0093430ba9cbb7d12ab1401089c29ceb718c9f28509c909f0185a88799a8",
+          "url": "https://github.com/HZ-KMNO/web-novel-writing-guidance-skill/blob/24dd6d40099c97c3120dc37942e8dc99263c0259/references/web-novel-craft.md",
+          "reading_scope": "downloaded_not_content_reviewed"
+        },
+        {
+          "repo": "HZ-KMNO/web-novel-writing-guidance-skill",
+          "path": "references/bilibili-author-tutorial-batch-2026-06-13.md",
+          "sha": "24dd6d40099c97c3120dc37942e8dc99263c0259",
+          "bytes": 10206,
+          "sha256": "ff1370322b53e2ca4fd42b134abbc9cc0df2aee04316cc97609543e511adeeb2",
+          "url": "https://github.com/HZ-KMNO/web-novel-writing-guidance-skill/blob/24dd6d40099c97c3120dc37942e8dc99263c0259/references/bilibili-author-tutorial-batch-2026-06-13.md",
+          "reading_scope": "headings_and_source_links"
+        },
+        {
+          "repo": "HZ-KMNO/web-novel-writing-guidance-skill",
+          "path": "references/qidianclub-author-advice-2026-06-09.md",
+          "sha": "24dd6d40099c97c3120dc37942e8dc99263c0259",
+          "bytes": 13878,
+          "sha256": "73901fcd3797bc12e8cb7b4f8f346d1b7d06b2b765ea14e95e45762d5f71c7dc",
+          "url": "https://github.com/HZ-KMNO/web-novel-writing-guidance-skill/blob/24dd6d40099c97c3120dc37942e8dc99263c0259/references/qidianclub-author-advice-2026-06-09.md",
+          "reading_scope": "headings_and_source_links"
+        }
+      ]
+    },
+    {
+      "id": "R03",
+      "title": "LAY-lgtm/novel-writing-framework",
+      "channel": "GitHub",
+      "language": "zh",
+      "urls": [
+        "https://github.com/LAY-lgtm/novel-writing-framework"
+      ],
+      "access": "pinned_selected_passages",
+      "use": "인물별 말투 카드, 대화의 신분·정보 필터, 중반 반복 점검",
+      "limitation": "사람처럼 보이기 위한 문장 파괴, 매회 특정 표현·동작, 미회수 허용 등 강제 규칙이 섞여 있다. 전체 도입 비추천.",
+      "priority": "selective_adaptation",
+      "publication_date": null,
+      "prior_round_baseline": false,
+      "checked_on": "2026-09-11",
+      "commit": "76291596ae91047743fc620b9647971f034acf7a",
+      "last_commit_at": "2026-05-31T13:05:38Z",
+      "license": "MIT",
+      "runtime_tested": false,
+      "fetched_files": [
+        {
+          "repo": "LAY-lgtm/novel-writing-framework",
+          "path": "skills/writing-novel.md",
+          "sha": "76291596ae91047743fc620b9647971f034acf7a",
+          "bytes": 71523,
+          "sha256": "3f14036f18095e21ff614445de7cbcee17917aa396052d26e2ccd4fa14ca5e2f",
+          "url": "https://github.com/LAY-lgtm/novel-writing-framework/blob/76291596ae91047743fc620b9647971f034acf7a/skills/writing-novel.md",
+          "reading_scope": "selected_passages"
+        },
+        {
+          "repo": "LAY-lgtm/novel-writing-framework",
+          "path": "skills/zhi-dou-writing.md",
+          "sha": "76291596ae91047743fc620b9647971f034acf7a",
+          "bytes": 40124,
+          "sha256": "1c6395abe1b01a44958496915978f3907b312f64c28c78377edfe0d4d72338dc",
+          "url": "https://github.com/LAY-lgtm/novel-writing-framework/blob/76291596ae91047743fc620b9647971f034acf7a/skills/zhi-dou-writing.md",
+          "reading_scope": "selected_passages"
+        },
+        {
+          "repo": "LAY-lgtm/novel-writing-framework",
+          "path": "skills/piqie-writing.md",
+          "sha": "76291596ae91047743fc620b9647971f034acf7a",
+          "bytes": 18431,
+          "sha256": "69e67d53175c80d8cd65592b420adf9c2585272429dfa4f7a6fdabe5984fa0cb",
+          "url": "https://github.com/LAY-lgtm/novel-writing-framework/blob/76291596ae91047743fc620b9647971f034acf7a/skills/piqie-writing.md",
+          "reading_scope": "downloaded_not_content_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "R04",
+      "title": "wordflowlab/novel-writer",
+      "channel": "GitHub",
+      "language": "zh",
+      "urls": [
+        "https://github.com/wordflowlab/novel-writer"
+      ],
+      "access": "pinned_selected_passages",
+      "use": "장편·권·회차마다 계획을 갱신하는 계층적 창작 관리",
+      "limitation": "MRU 명칭 아래 Scene/Sequel 규모 규칙을 묶는다. 모든 장면의 좌절과 전 단계 노출을 강제하는 부분은 보편 규칙으로 쓰지 않는다.",
+      "priority": "selective_adaptation",
+      "publication_date": null,
+      "prior_round_baseline": false,
+      "checked_on": "2026-09-11",
+      "commit": "e4190d407e736affa42ba55a70d91961c6ce3932",
+      "last_commit_at": "2025-10-26T00:36:13Z",
+      "license": "MIT",
+      "runtime_tested": false,
+      "fetched_files": [
+        {
+          "repo": "wordflowlab/novel-writer",
+          "path": "docs/writing/practical-guide.md",
+          "sha": "e4190d407e736affa42ba55a70d91961c6ce3932",
+          "bytes": 50450,
+          "sha256": "4675d2cecbee339c6d1bcd9ccaafe6770a2f5eda12186e2a4fdf8cfa96732a16",
+          "url": "https://github.com/wordflowlab/novel-writer/blob/e4190d407e736affa42ba55a70d91961c6ce3932/docs/writing/practical-guide.md",
+          "reading_scope": "selected_passages"
+        },
+        {
+          "repo": "wordflowlab/novel-writer",
+          "path": "plugins/genre-knowledge/knowledge/fundamentals/scene-mru-structure.md",
+          "sha": "e4190d407e736affa42ba55a70d91961c6ce3932",
+          "bytes": 7085,
+          "sha256": "daca00ec58eb8cd08f31935da9dd6e792c1e9fe30d42b1ea329ec5c8818a47f9",
+          "url": "https://github.com/wordflowlab/novel-writer/blob/e4190d407e736affa42ba55a70d91961c6ce3932/plugins/genre-knowledge/knowledge/fundamentals/scene-mru-structure.md",
+          "reading_scope": "selected_passages"
+        },
+        {
+          "repo": "wordflowlab/novel-writer",
+          "path": "plugins/authentic-voice/experts/authentic-editor.md",
+          "sha": "e4190d407e736affa42ba55a70d91961c6ce3932",
+          "bytes": 926,
+          "sha256": "dc937e82b80b64ed509b0dcaeee56ccdb98400f9408944da4ab5bb5e34bd4dbd",
+          "url": "https://github.com/wordflowlab/novel-writer/blob/e4190d407e736affa42ba55a70d91961c6ce3932/plugins/authentic-voice/experts/authentic-editor.md",
+          "reading_scope": "downloaded_not_content_reviewed"
+        }
+      ]
+    },
+    {
+      "id": "R05",
+      "title": "wgwtest/novel-writing",
+      "channel": "GitHub",
+      "language": "zh",
+      "urls": [
+        "https://github.com/wgwtest/novel-writing"
+      ],
+      "access": "prior_round_selected_files",
+      "use": "인지 층위, 인물의 선택과 장면 인과, 원래 문체 보존",
+      "limitation": "앞선 같은 날짜 조사 결과를 재사용한다. 한국어 장편 품질 입증이 아니며 고정 횟수·설명 금지 등은 원고와 대조한다.",
+      "priority": "selective_adaptation",
+      "publication_date": null,
+      "prior_round_baseline": true,
+      "checked_on": "2026-09-11"
+    },
+    {
+      "id": "R06",
+      "title": "haowjy/creative-writing-skills",
+      "channel": "GitHub",
+      "language": "en",
+      "urls": [
+        "https://github.com/haowjy/creative-writing-skills"
+      ],
+      "access": "prior_round_selected_files",
+      "use": "독자 보상, 실패 양상, 작품에서 추출하는 스타일 관찰",
+      "limitation": "앞선 같은 날짜 조사 결과를 재사용한다. 한국어 장편 품질 입증이 아니며 고정 횟수·설명 금지 등은 원고와 대조한다.",
+      "priority": "selective_adaptation",
+      "publication_date": null,
+      "prior_round_baseline": true,
+      "checked_on": "2026-09-11"
+    },
+    {
+      "id": "R07",
+      "title": "miserylee/webnovel-handbook",
+      "channel": "GitHub",
+      "language": "zh",
+      "urls": [
+        "https://github.com/miserylee/webnovel-handbook"
+      ],
+      "access": "prior_round_selected_files",
+      "use": "내면 독백, 설명과 장면 선택, 일상·저강도 장면, 독자 피드백 진단",
+      "limitation": "앞선 같은 날짜 조사 결과를 재사용한다. 한국어 장편 품질 입증이 아니며 고정 횟수·설명 금지 등은 원고와 대조한다.",
+      "priority": "selective_adaptation",
+      "publication_date": null,
+      "prior_round_baseline": true,
+      "checked_on": "2026-09-11"
+    },
+    {
+      "id": "R08",
+      "title": "MJbae/awesome-novel-studio",
+      "channel": "GitHub",
+      "language": "ko",
+      "urls": [
+        "https://github.com/MJbae/awesome-novel-studio"
+      ],
+      "access": "prior_round_selected_files",
+      "use": "한국어 캐릭터 대화 DNA와 사고 습관 참고",
+      "limitation": "앞선 같은 날짜 조사 결과를 재사용한다. 한국어 장편 품질 입증이 아니며 고정 횟수·설명 금지 등은 원고와 대조한다.",
+      "priority": "selective_adaptation",
+      "publication_date": null,
+      "prior_round_baseline": true,
+      "checked_on": "2026-09-11"
+    },
+    {
+      "id": "K01",
+      "title": "탄마: 웹소설 작법 및 산업 자료실",
+      "channel": "작가 웹문서",
+      "language": "ko",
+      "urls": [
+        "https://tanma.kr/data.html",
+        "https://tanma.kr/data/strategicwriting2.html",
+        "https://tanma.kr/data/plot_story.html",
+        "https://tanma.kr/data/webnovelfun.html"
+      ],
+      "access": "index_and_three_articles",
+      "use": "자기 독자 찾기, 작가 고유의 반복 패턴, 사건과 전달 순서 구분",
+      "limitation": "개인 경험과 견해다. 매출 보장·뇌과학 표현·장르 전체에 대한 일반화는 검증된 사실로 채택하지 않는다. 자료실 전부를 읽은 것은 아니다.",
+      "priority": "read_now",
+      "publication_date": null,
+      "prior_round_baseline": false,
+      "checked_on": "2026-09-11"
+    },
+    {
+      "id": "K02",
+      "title": "정무늬: 웹소설 써서 먹고삽니다 저자 인터뷰",
+      "channel": "작가 웹문서",
+      "language": "ko",
+      "urls": [
+        "https://www.booklife.kr/news/articleView.html?idxno=346"
+      ],
+      "access": "interview_craft_and_process_sections",
+      "use": "독자의 소비 방식, 자기 작품성의 상업적 표현, 관찰·메모와 지속 가능한 집필",
+      "limitation": "2021년 인터뷰다. 당시 수입·시장 전망을 현재 통계로 재사용하지 않는다. 글담 카페·유튜브의 존재와 본문 열람은 구별한다.",
+      "priority": "read_now",
+      "publication_date": "2021-04-21",
+      "prior_round_baseline": false,
+      "checked_on": "2026-09-11"
+    },
+    {
+      "id": "K03",
+      "title": "달새울·화음: 마른 가지에 바람처럼 인터뷰",
+      "channel": "작가 웹문서",
+      "language": "ko",
+      "urls": [
+        "https://www.webtoonguide.com/ko/board/rds01_interview/16956"
+      ],
+      "access": "interview_body",
+      "use": "간단한 출발점, 핵심 전환 장면과 엔딩, 독백·자연물 서술, 매체에 따른 표현 변화",
+      "limitation": "소설과 웹툰 공동 인터뷰다. 글쓴이 달새울과 작화가 화음의 발언, 소설 집필과 웹툰 각색을 구별한다. 작품 본편은 이번에 읽지 않았다.",
+      "priority": "read_now",
+      "publication_date": "2022-07-23",
+      "prior_round_baseline": false,
+      "checked_on": "2026-09-11"
+    },
+    {
+      "id": "K04",
+      "title": "태린: 웹소설 시점은 어떻게 할까?",
+      "channel": "작가 웹문서",
+      "language": "ko",
+      "urls": [
+        "https://brunch.co.kr/@qsza45/51"
+      ],
+      "access": "article_body",
+      "use": "1인칭·3인칭과 장면 목적의 관계, 작가가 체감한 혼합 시점",
+      "limitation": "개인 경험이다. 3인칭을 모두 전지적으로 분류하는 설명이나 시점 문제에 독자가 관심 없다는 일반화는 채택하지 않는다.",
+      "priority": "reference",
+      "publication_date": "2020-08-26",
+      "prior_round_baseline": false,
+      "checked_on": "2026-09-11"
+    },
+    {
+      "id": "P01",
+      "title": "문피아 아카데미",
+      "channel": "플랫폼·공공 교육",
+      "language": "ko",
+      "urls": [
+        "https://academy.munpia.com/"
+      ],
+      "access": "public_curriculum",
+      "use": "기획안 합평, 5화·10화 원고, 캐릭터·후킹·연재 준비의 실제 교육 구성",
+      "limitation": "강의·합평 내용 미열람. 페이지는 2027년 모집을 표시한다. 2026-09-11 현재 즉시 수강 가능한 공개 강좌로 취급하지 않는다.",
+      "priority": "curriculum_reference",
+      "publication_date": null,
+      "prior_round_baseline": false,
+      "checked_on": "2026-09-11"
+    },
+    {
+      "id": "P02",
+      "title": "番茄: 从本质到方法，塑造代入感的六大核心技巧",
+      "channel": "플랫폼·공공 교육",
+      "language": "zh",
+      "urls": [
+        "https://fanqienovel.com/writer/zone/article/7514519759442935832"
+      ],
+      "access": "public_article_body_from_page_data",
+      "use": "煮熟的来福鸽의 익숙한 장면, 선택의 공감, 기본 욕망과 사건이 만드는 기대의 구분",
+      "limitation": "남성향 중심이라는 원문 범위를 보존한다. 독자의 완전한 동의, 감정 비율, 연독 확신을 보편적·실증적 법칙으로 보지 않는다.",
+      "priority": "read_now",
+      "publication_date": "2025-07-17",
+      "prior_round_baseline": false,
+      "checked_on": "2026-09-11"
+    },
+    {
+      "id": "P03",
+      "title": "番茄: 开篇即爆点！三步公式打造高黏性开头（上）",
+      "channel": "플랫폼·공공 교육",
+      "language": "zh",
+      "urls": [
+        "https://fanqienovel.com/writer/zone/article/7478303864752455705"
+      ],
+      "access": "public_article_body_from_page_data",
+      "use": "丛月의 주선·기조 결정, 반응으로 성격 드러내기, 회상과 정보 공개로 다음 기대 만들기",
+      "limitation": "여성향 중심의 개인 경험이며 예문은 강의용이라고 명시한다. 도파민·중독 표현과 연독 보장, 날씨 규칙을 과학·범용 규칙으로 채택하지 않는다.",
+      "priority": "read_now",
+      "publication_date": null,
+      "prior_round_baseline": false,
+      "checked_on": "2026-09-11"
+    },
+    {
+      "id": "P04",
+      "title": "카쿠요무 2020 공개 작품 강평 1·4회",
+      "channel": "플랫폼·공공 교육",
+      "language": "ja",
+      "urls": [
+        "https://kakuyomu.jp/info/entry/wc6_rev_vol1",
+        "https://kakuyomu.jp/info/entry/wc6_rev_vol4"
+      ],
+      "access": "selected_work_commentaries",
+      "use": "작품의 강점, 독자 경험의 문제, 수정 제안이 이어지는 공개 사람 강평",
+      "limitation": "시리즈 안내는 30작품·7회다. 이번에는 1회와 4회의 일부 작품 강평을 확인했다. 대상 소설 정독·수정 후 성과 검증은 하지 않았다.",
+      "priority": "read_now",
+      "publication_date": "2020-10-28",
+      "prior_round_baseline": false,
+      "checked_on": "2026-09-11"
+    },
+    {
+      "id": "P05",
+      "title": "에듀코카: 웹소설 원작 웹툰으로 각색하기",
+      "channel": "플랫폼·공공 교육",
+      "language": "ko",
+      "urls": [
+        "https://edu.kocca.kr/edu/onlineEdu/openLecture/view.do?menuNo=500085&pLectureCls=GC03&pSeq=1032"
+      ],
+      "access": "public_intro_transcript",
+      "use": "박인하의 매체 특성·원작과 각색의 차이를 찾는 입구",
+      "limitation": "2020년 제작 서론 자막 확인. 후속 작가 인터뷰 강의 전체와 재생은 미확인. 소설 작법의 직접 처방보다 매체 차이 참고용.",
+      "priority": "reference",
+      "publication_date": "2020",
+      "prior_round_baseline": false,
+      "checked_on": "2026-09-11"
+    },
+    {
+      "id": "C01",
+      "title": "콜로소: 산경 웹소설 작법",
+      "channel": "유료 강의",
+      "language": "ko",
+      "urls": [
+        "https://coloso.co.kr/products/webnovel_sankyung",
+        "https://coloso.co.kr/event/colosotv-creative-sankyung",
+        "https://www.youtube.com/watch?v=xppikydJ3Sk"
+      ],
+      "access": "public_curriculum_only",
+      "use": "현대판타지, 독자가 얻을 감정, 캐릭터, 자료조사, 플롯·시점·설명 균형",
+      "limitation": "유료 강의 미수강. 무료 영상 링크는 확인했으나 본문·자막은 확보하지 못했다. 같은 저자의 책과 독립된 증거로 중복 계산하지 않는다.",
+      "priority": "candidate_for_access",
+      "publication_date": null,
+      "prior_round_baseline": false,
+      "checked_on": "2026-09-11"
+    },
+    {
+      "id": "C02",
+      "title": "Bler: 태린 4주 완성 웹소설 학습지",
+      "channel": "유료 강의",
+      "language": "ko",
+      "urls": [
+        "https://bler.co.kr/lecture/98/taerin-webnovel"
+      ],
+      "access": "public_curriculum_only",
+      "use": "집필 과제로 넘어가는 강의·학습지 구성, 질의 창구",
+      "limitation": "학습지·강의 원문 미열람. 판매 페이지의 업계 표준·데뷔 보장성 표현은 입증된 성과가 아니다.",
+      "priority": "candidate_for_access",
+      "publication_date": null,
+      "prior_round_baseline": false,
+      "checked_on": "2026-09-11"
+    },
+    {
+      "id": "B01",
+      "title": "산경, 실패하지 않는 웹소설 연재의 기술",
+      "channel": "책",
+      "language": "ko",
+      "urls": [
+        "https://www.yes24.com/product/goods/85463085"
+      ],
+      "access": "publisher_description_and_partial_contents",
+      "use": "무료 마지막 회차, 조연 활용, 플롯·문장·자료조사·독자 대응을 공부할 독서 후보",
+      "limitation": "책 전체 미독. 공개 출판사 소개와 목차만으로 개별 조언이나 효과를 단정하지 않는다.",
+      "priority": "candidate_for_access",
+      "publication_date": "2019",
+      "prior_round_baseline": false,
+      "checked_on": "2026-09-11"
+    },
+    {
+      "id": "B02",
+      "title": "김휘빈, 웹소설 작가 서바이벌 가이드",
+      "channel": "책",
+      "language": "ko",
+      "urls": [
+        "https://www.yes24.com/product/goods/43220506"
+      ],
+      "access": "publisher_description_and_partial_contents",
+      "use": "웹소설 포맷과 작가로서 지속하는 작업의 관계를 다루는 독서 후보",
+      "limitation": "책 전체 미독. 2017년 시장·플랫폼·계약 설명의 현재 유효성을 검증하지 않았다.",
+      "priority": "candidate_for_access",
+      "publication_date": "2017-06-30",
+      "prior_round_baseline": false,
+      "checked_on": "2026-09-11"
+    },
+    {
+      "id": "B03",
+      "title": "북마녀의 웹소설 장면 묘사 실습 강의",
+      "channel": "책",
+      "language": "ko",
+      "urls": [
+        "https://www.yes24.com/product/goods/125313908",
+        "https://linktr.ee/bookwitch"
+      ],
+      "access": "publisher_description_and_contents",
+      "use": "설정·시놉시스에서 실제 장면으로 넘어가는 실습 후보",
+      "limitation": "소개는 200개 실습을 명시한다. 예제 전체 미열람, 200일 성공·상위 1% 같은 표현은 마케팅 문구다.",
+      "priority": "candidate_for_access",
+      "publication_date": "2024-03-13",
+      "prior_round_baseline": false,
+      "checked_on": "2026-09-11"
+    },
+    {
+      "id": "V01",
+      "title": "우동이즘: 글쓰기 고쳐야 할 습관 세 가지",
+      "channel": "영상",
+      "language": "ko",
+      "urls": [
+        "https://udonism.tistory.com/289",
+        "https://www.youtube.com/watch?v=fiNdNGXHdxI"
+      ],
+      "access": "creator_blog_and_partial_captions",
+      "use": "한국어 가독성·번역체를 점검하는 보조 자료",
+      "limitation": "영상 전체 시청·전체 자막 검토 아님. 수동태·대명사·문화 표현의 일괄 금지로 사용하지 않는다.",
+      "priority": "reference",
+      "publication_date": "2020-03-10",
+      "prior_round_baseline": false,
+      "checked_on": "2026-09-11"
+    },
+    {
+      "id": "V02",
+      "title": "오류하: 웹소설 작법서, 3년차 웹소설 작가가 읽어보았습니다",
+      "channel": "영상",
+      "language": "ko",
+      "urls": [
+        "https://www.youtube.com/watch?v=DWJXiEzX-qo"
+      ],
+      "access": "search_metadata_and_description_only",
+      "use": "서로 다른 한국 작법서를 비교할 다음 조사 입구",
+      "limitation": "영상 본문·자막 미확보. 설명란의 책 목록 확인만 완료했다. 작가의 책별 평가를 추정하지 않는다.",
+      "priority": "unread_lead",
+      "publication_date": "2020-03-13",
+      "prior_round_baseline": false,
+      "checked_on": "2026-09-11"
+    },
+    {
+      "id": "V03",
+      "title": "流浪的蛤蟆网文写作: 如何开始写网文",
+      "channel": "영상",
+      "language": "zh",
+      "urls": [
+        "https://www.bilibili.com/video/BV1J341147NY/"
+      ],
+      "access": "search_metadata_only",
+      "use": "중국 현업 작가의 장편 연재 경험을 찾는 다음 조사 입구",
+      "limitation": "직접 열람은 412로 실패. 저장소의 요약과 실제 영상 내용을 동일시하지 않는다.",
+      "priority": "unread_lead",
+      "publication_date": null,
+      "prior_round_baseline": false,
+      "checked_on": "2026-09-11"
+    },
+    {
+      "id": "S01",
+      "title": "북마녀 포스타입 장면 실습 예제 195",
+      "channel": "창작자 연재·구독",
+      "language": "ko",
+      "urls": [
+        "https://www.postype.com/@bookwitch/post/14119024"
+      ],
+      "access": "public_intro_only",
+      "use": "책 이전의 연속 장면 실습과 창작자 채널 후보",
+      "limitation": "전체 예제 본문 미열람. 로그인·유료 여부와 현재 이용 조건을 확정하지 않았다.",
+      "priority": "unread_lead",
+      "publication_date": null,
+      "prior_round_baseline": false,
+      "checked_on": "2026-09-11"
+    },
+    {
+      "id": "A01",
+      "title": "Writing Excuses 10.31: Reader’s Sense of Progress",
+      "channel": "팟캐스트",
+      "language": "en",
+      "urls": [
+        "https://writingexcuses.com/writing-excuses-10-31-how-do-i-control-the-readers-sense-of-progress/"
+      ],
+      "access": "official_transcript_selected_sections",
+      "use": "시간 경과와 진전감, 사건 발생과 약속의 진행을 구분",
+      "limitation": "영어권 출판 작가의 실무 대화다. 한국 연재의 회차 수·결제 행동을 검증한 자료가 아니다.",
+      "priority": "read_now",
+      "publication_date": null,
+      "prior_round_baseline": false,
+      "checked_on": "2026-09-11"
+    },
+    {
+      "id": "A02",
+      "title": "Writing Excuses 17.34: Developing Subtext",
+      "channel": "팟캐스트",
+      "language": "en",
+      "urls": [
+        "https://writingexcuses.com/17-34-developing-subtext/"
+      ],
+      "access": "prior_round_official_transcript",
+      "use": "표면 대사, 인물의 목적, 감정과 전달 의도의 차이",
+      "limitation": "앞선 같은 날짜 조사 재사용. 한국어 대사와 특정 작가에 대한 검증은 별도다.",
+      "priority": "read_now",
+      "publication_date": null,
+      "prior_round_baseline": true,
+      "checked_on": "2026-09-11"
+    },
+    {
+      "id": "E01",
+      "title": "Alexander Wales: Serial Writing, An FAQ",
+      "channel": "작가 웹문서",
+      "language": "en",
+      "urls": [
+        "https://alexanderwales.com/serial-writing-an-faq/"
+      ],
+      "access": "selected_serialization_and_feedback_sections",
+      "use": "연재 비축분과 독자의 정보 시차, 피드백을 받을 때 지킬 작품의 방향",
+      "limitation": "개인 경험이며 게시 당시 플랫폼·수익 조언은 현재 사실로 재사용하지 않는다.",
+      "priority": "read_now",
+      "publication_date": null,
+      "prior_round_baseline": false,
+      "checked_on": "2026-09-11"
+    },
+    {
+      "id": "E02",
+      "title": "Wildbow: Thoughts on Writing Serials",
+      "channel": "작가 웹문서",
+      "language": "en",
+      "urls": [
+        "https://wildbow.wordpress.com/2017/05/22/thoughts-on-writing-serials/"
+      ],
+      "access": "selected_process_and_feedback_sections",
+      "use": "지속 가능한 연재 속도를 미리 시험하기, 작은 독자 표본 때문에 자기 취향을 잃지 않기",
+      "limitation": "2017년 개인 경험. 권하는 비축 회차 수와 빈도를 한국 연재 규칙으로 옮기지 않는다.",
+      "priority": "read_now",
+      "publication_date": "2017-05-22",
+      "prior_round_baseline": false,
+      "checked_on": "2026-09-11"
+    },
+    {
+      "id": "J01",
+      "title": "김준현, 문학 매체로서의 웹의 대두와 소설가/작가",
+      "channel": "학술",
+      "language": "ko",
+      "urls": [
+        "https://jkfr.co.kr/xml/40574/40574.pdf"
+      ],
+      "access": "abstract_and_selected_section_4_pages_24_to_26",
+      "use": "작가·편집자·독자의 상호작용이 창작 과정에 참여하는 유형을 구별",
+      "limitation": "현대소설연구 93, 2024.3, DOI 10.20483/JKFR.2024.03.93.5. 이론·매체사 논의이며 특정 작법의 매출·품질 개선 실험이 아니다.",
+      "priority": "reference",
+      "publication_date": "2024-03",
+      "prior_round_baseline": false,
+      "checked_on": "2026-09-11"
+    },
+    {
+      "id": "Q01",
+      "title": "起点社区: 黄金三章에 대한 여러 의견",
+      "channel": "커뮤니티",
+      "language": "zh",
+      "urls": [
+        "https://www.qidianclub.com/threads/276/",
+        "https://write.qq.com/portal/content?caid=12871234803277101&feedType=1&lcid="
+      ],
+      "access": "public_repost_body_original_inaccessible",
+      "use": "초반 약속과 작품 기조, 3회라는 숫자의 맥락을 복원",
+      "limitation": "qidianclub은 이 조사에서 공식 플랫폼으로 인증하지 않았다. 원문 출처를 명시한 재게시물이며 write.qq.com 원문은 403. 통계처럼 쓰인 수치도 검증하지 않았다.",
+      "priority": "reference",
+      "publication_date": "2022-09-17",
+      "prior_round_baseline": false,
+      "checked_on": "2026-09-11"
+    }
+  ]
+}

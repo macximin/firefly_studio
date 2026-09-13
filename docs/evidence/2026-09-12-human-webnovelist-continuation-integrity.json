@@ -1,0 +1,143 @@
+{
+  "schemaVersion": "firefly-continuation-integrity/v1",
+  "recordedAt": "2026-09-12T12:56:22.336264+00:00",
+  "preservedArtifacts": [
+    {
+      "path": "docs/2026-09-11-human-webnovelist-assets-research.md",
+      "sha256": "380fb9236628510336e7825e5cb0eef3c36cdb97195ab25ff5551abdf5de20d2",
+      "matchesBaseline": true
+    },
+    {
+      "path": "docs/2026-09-11-human-writer-quality-study.md",
+      "sha256": "f300aa283b39c56ce906bd2b8fea69ab6d56e97d6a1e0c506b92f78a0fb4a678",
+      "matchesBaseline": true
+    },
+    {
+      "path": "docs/2026-09-11-humanlike-thinking-repo-research.md",
+      "sha256": "9d520f366a41efd8c8396c26189cd5f532d07c77f4110fe69e7807b0367bb2f0",
+      "matchesBaseline": true
+    },
+    {
+      "path": "docs/2026-09-11-jeongryongpil-dc-craft-research.md",
+      "sha256": "f46a297553ff4b206bfc1dfc1d5506332a1ed1ece735c8d1efa7a7ad0997cb17",
+      "matchesBaseline": true
+    },
+    {
+      "path": "docs/2026-09-11-korean-webnovelist-mind-supplement.md",
+      "sha256": "d7b6ad23f49c8ab3e4135e4c7d0380ae82188a1b0a50ff95687517eab393ff9a",
+      "matchesBaseline": true
+    },
+    {
+      "path": "docs/2026-09-11-ready-made-writing-systems-research.md",
+      "sha256": "2e45ffa348c992dada729a98c19fd7fd5641aab8045506f6e9a8f2214f32bb95",
+      "matchesBaseline": true
+    },
+    {
+      "path": "docs/2026-09-11-webnovel-craft-channels-research.md",
+      "sha256": "2107f57e4fb3be732a1f391a8ed006d945fa57aeece00b8e696ffcf5f420dccf",
+      "matchesBaseline": true
+    },
+    {
+      "path": "docs/evidence/2026-09-11-human-webnovelist-assets.json",
+      "sha256": "8179689db4d2864e4a971b5b0aa01f6bcb5a0fe633b8dc7a9515bd3c4255a1f5",
+      "matchesBaseline": true
+    },
+    {
+      "path": "docs/evidence/2026-09-11-jeongryongpil-dc-craft.json",
+      "sha256": "abaeb5a1a125564484bc3523585baee653c7620023ed0b325f1316855279fbf3",
+      "matchesBaseline": true
+    },
+    {
+      "path": "docs/evidence/2026-09-11-korean-webnovelist-mind.json",
+      "sha256": "45e96cd3d3237b04b495482cc2deeaf72415309c8aa0082e5d62e4692697cfe6",
+      "matchesBaseline": true
+    },
+    {
+      "path": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sha256": "000f22c77134cf1914be9dded49932c1929be193dbf2b538aacdd4b8cc5d0d34",
+      "matchesBaseline": true
+    },
+    {
+      "path": "docs/korean-webnovelist-decision-cards.md",
+      "sha256": "145cf45c8955905e89e290f2b7674c2b0bc6866c7a294a439ffeac224fd22b26",
+      "matchesBaseline": true
+    },
+    {
+      "path": "docs/2026-09-12-human-webnovelist-implementation-plan.md",
+      "sha256": "a33d43eaf591c73600377c5405229e95c07d6d75db33789af2d70b8393c41aef",
+      "matchesBaseline": true
+    },
+    {
+      "path": "docs/evidence/2026-09-12-human-webnovelist-plan-baseline.json",
+      "sha256": "686195f45acdaf4eed2bc1a073205adbe04f5b256d19235005059b8f417924b7",
+      "matchesBaseline": true
+    },
+    {
+      "path": "edge_repos/firefly_reference_lab/comparisons/2026-09-11-author-thinking-and-prose.md",
+      "sha256": "81ff427061a1e6ae049e4686df0586fce9961c9a0d53cd88871e981fcfaabf47",
+      "matchesBaseline": true
+    },
+    {
+      "path": "edge_repos/firefly_reference_lab/comparisons/2026-09-11-author-craft-mid-late.md",
+      "sha256": "1e800514f9f98a75027777a4dca34c664d2cdfbfccedecf9919b99f2c4645233",
+      "matchesBaseline": true
+    }
+  ],
+  "repositories": [
+    {
+      "path": ".",
+      "head": "befbaa11f39449e5f8b2ad3f8aac8467006d3763",
+      "branch": "main",
+      "headUnchanged": true,
+      "stagedPaths": [],
+      "changedPaths": 59
+    },
+    {
+      "path": "edge_repos/inkos",
+      "head": "1d40db50c55c76725939d788b73b999f1a039e90",
+      "branch": "master",
+      "headUnchanged": true,
+      "stagedPaths": [],
+      "changedPaths": 70
+    },
+    {
+      "path": "edge_repos/firefly_reference_lab",
+      "head": "8ccf7b84f5a7da33ee5ceb0668fb70745df93a0c",
+      "branch": "main",
+      "headUnchanged": true,
+      "stagedPaths": [],
+      "changedPaths": 13
+    },
+    {
+      "path": "edge_repos/firefly_market_radar",
+      "head": "2b4a88adf2ecd44c66a017c9073fc420ff131803",
+      "branch": "main",
+      "headUnchanged": true,
+      "stagedPaths": [],
+      "changedPaths": 0
+    },
+    {
+      "path": "edge_repos/storyyard",
+      "head": "d530ed2e2769a899c18a3f72af320ab0dc6efa0e",
+      "branch": "main",
+      "headUnchanged": true,
+      "stagedPaths": [],
+      "changedPaths": 0
+    },
+    {
+      "path": "edge_repos/v3_ff_foundry",
+      "head": "1e39091f7e183a0f8b6beddb0029d0945cd344b6",
+      "branch": "main",
+      "headUnchanged": true,
+      "stagedPaths": [],
+      "changedPaths": 0
+    }
+  ],
+  "commitsCreated": 0,
+  "pushesPerformed": 0,
+  "existingIndexesPreserved": true,
+  "originalResearchAdoptionFlagsRewritten": false,
+  "realBooksPromoted": 0,
+  "newProductionModelCalls": 0,
+  "newHumanFeedbackRequested": 0
+}

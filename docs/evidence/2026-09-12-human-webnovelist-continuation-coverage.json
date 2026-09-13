@@ -1,0 +1,240 @@
+{
+  "schemaVersion": "human-webnovelist-implementation-coverage/v1",
+  "recordedAt": "2026-09-12T12:56:22.121034+00:00",
+  "design": "docs/2026-09-12-human-webnovelist-full-design.md",
+  "historicalResearchMap": {
+    "path": "docs/evidence/2026-09-12-human-webnovelist-research-implementation-map.json",
+    "sha256": "33ad7159fb4d35c65a817c6aa6c016535bc052d1c819017a6038066e174601e7",
+    "rows": 107,
+    "originalAdoptionFlagsRewritten": false
+  },
+  "workItems": [
+    {
+      "id": "W01",
+      "status": "implemented",
+      "title": "작법 자료 계약과 출처·범위·반례",
+      "implementationPath": "edge_repos/inkos/packages/core/src/models/author-craft.ts",
+      "scope": "팩 구조·출처 연결·크기·해시 검증. 작품 품질 승인은 포함하지 않음."
+    },
+    {
+      "id": "W02",
+      "status": "implemented-bounded",
+      "title": "이미 읽은 원고의 기능별 사례",
+      "implementationPath": "edge_repos/firefly_reference_lab/craft_packs/korean-author-craft/README.md",
+      "scope": "15개 파생 사례와 6개 중후반 원문 구간. 전집 독해나 22회차 전체의 새 색인 작업 아님."
+    },
+    {
+      "id": "W03",
+      "status": "implemented",
+      "title": "당시 검토 본문과 의견 재결합",
+      "implementationPath": "scripts/reviewed-feedback-input.mjs",
+      "scope": "기존 14의견에서 적용 범위 12개를 유지. 기본 예산에서 본문 1개 연결·11개 예산 제외를 명시."
+    },
+    {
+      "id": "W04",
+      "status": "executed-pinned-functions",
+      "title": "외부 집필 앱의 실행 비교",
+      "implementationPath": "scripts/writing-system-reuse-fixture.py",
+      "scope": "NovelWriter·WriteHERE·AuthorAgent·ProseEvolver의 고정 원본 함수 22개 동작과 후보 어댑터 7개 검사. 격리된 모의 모델 실행이며 앱 전체 도입·실제 모델 비교는 아님."
+    },
+    {
+      "id": "W05",
+      "status": "implemented",
+      "title": "기존 호출별 작법 입력과 기록",
+      "implementationPath": "edge_repos/inkos/packages/core/src/reference/author-craft.ts",
+      "scope": "Planner·Writer·Reviser 입력·예산·영수증·production admission 결합. 새 LLM 호출 없음."
+    },
+    {
+      "id": "W06",
+      "status": "implemented-bounded",
+      "title": "작품별 창작 의도",
+      "implementationPath": "edge_repos/inkos/packages/core/src/planning/creative-brief.ts",
+      "scope": "명시 방향·정확한 선호/검토 본문·출처·범위·예산을 실제 Planner/Writer/Reviser에 연결하고 전달 기록 보존. 범위는 추가 투영에만 적용되며 기존 원문 지시 전체를 차단하지 않음."
+    },
+    {
+      "id": "W07",
+      "status": "implemented-bounded",
+      "title": "문제에 맞는 장면 참고 선택",
+      "implementationPath": "edge_repos/inkos/packages/core/src/planning/scene-decision.ts",
+      "scope": "기존 Planner에서 1~3개 대안과 선택 이유 기록, Writer/Composer/공용 메모에는 선택안만 전달. 선택의 문학적 우수성은 미평가."
+    },
+    {
+      "id": "W08",
+      "status": "implemented-bounded",
+      "title": "독자 공개 순서와 POV",
+      "implementationPath": "edge_repos/inkos/packages/core/src/state/narrative-evidence.ts",
+      "scope": "정확한 본문 인용의 독자 공개와 인물 인지/무지/믿음을 분리, 이전 회차/POV/본문 변경 검증, 같은 원고 저장 transaction과 복구에 연결. 의미 분류의 정확성은 별도 품질 문제."
+    },
+    {
+      "id": "W09",
+      "status": "implemented-bounded",
+      "title": "인물 관점과 과거 경험",
+      "implementationPath": "edge_repos/inkos/packages/core/src/state/entity-observations.ts",
+      "scope": "인용 기반 믿음·욕망·의도·경험·공적 발언과 인물 인지의 경과를 실제 다음 입력에 연결. 이름·시간·출처·시점 경계 검증, 인물 사고의 설득력은 자동 판정하지 않음."
+    },
+    {
+      "id": "W10",
+      "status": "implemented-input-behavior",
+      "title": "한국어 목소리·대사·지면 지침",
+      "implementationPath": "edge_repos/inkos/packages/core/src/utils/writing-methodology.ts",
+      "scope": "일률적 내면 삭제·영리한 반격·문장 호흡 강제를 조건화. 한글 토큰 추정과 표현 오탐 수정. 실제 독자 평가는 없음."
+    },
+    {
+      "id": "W11",
+      "status": "implemented-bounded",
+      "title": "결함별 수정 입력과 보존",
+      "implementationPath": "edge_repos/inkos/packages/core/src/planning/revision-experience.ts",
+      "scope": "실제 Reviser before/after·최소 포괄 diff·문제/요청·실패·보존 기록. 기존 표면 정리도 원응답을 보존한 파생 기록으로 연결. 전문 원고 비교/사람 품질 승인은 아님."
+    },
+    {
+      "id": "W12",
+      "status": "not-required-in-this-run",
+      "title": "사람 작법 비교 패킷",
+      "implementationPath": null,
+      "scope": "사용자가 새 HIL 대기와 느린 장면 피드백 루프를 원하지 않아 이번 구현의 필수 단계에서 제외."
+    },
+    {
+      "id": "W13",
+      "status": "implemented-bounded",
+      "title": "이전 편집 사례 재사용",
+      "implementationPath": "edge_repos/inkos/packages/core/src/pipeline/chapter-review-cycle.ts",
+      "scope": "실제 ReviewCycle의 자동 선택을 기록하고 같은 작품/회차 경계/수정 원인의 사례만 다음 Reviser에 참고. 동률·파싱 실패·상충·다른 원인은 제외. 보수적인 단어/원인 검색으로 일반 의미 검색은 아님."
+    },
+    {
+      "id": "W14",
+      "status": "implemented-bounded",
+      "title": "보상·조연·기대의 지속",
+      "implementationPath": "edge_repos/inkos/packages/core/src/state/narrative-evidence.ts",
+      "scope": "같은 명시 threadId·인물의 약속→획득→생활 체감→다음 욕망을 인용 순서로 조회. 없는 단계를 만들거나 금액 증가를 만족으로 판정하지 않음. 연속 아크 전체의 독자 체감은 미평가."
+    },
+    {
+      "id": "W15",
+      "status": "implemented-bounded",
+      "title": "초고 발견에서 미래 B-Rail 수정",
+      "implementationPath": "edge_repos/inkos/packages/core/src/planning/draft-discovery-runtime.ts",
+      "scope": "기존 Settler의 초고 발견을 실제 저장 본문/계획/작성 inventory와 결속하고 다음 Planner/Rail 조회 및 기존 reflow 입력에 연결. 저장 transaction 실패 시 후보를 남기지 않음. A·진행/완료 B·과거 원고 불변, 적용은 기존 명시 단계."
+    },
+    {
+      "id": "W16",
+      "status": "implemented-opt-in",
+      "title": "일일 기획 결과를 InkOS Book으로 전달",
+      "implementationPath": "edge_repos/inkos/packages/core/src/planning/source-first-handoff.ts",
+      "scope": "pitch import-plan과 promote --handoff로 원문/기획/선택/승인/A·B·Arc·foundation 명시 매핑을 검증해 새 Book 생성·기존 readback까지 연결. 기존 실제 기획을 승인하거나 Book으로 승격하지 않음."
+    },
+    {
+      "id": "W17",
+      "status": "not-performed",
+      "title": "다른 작품·연속 회차 품질 비교",
+      "implementationPath": null,
+      "scope": "개발용 검색 문제 32개는 작가 수준·재미·연독·상업성·일반화의 검증이 아님."
+    },
+    {
+      "id": "W18",
+      "status": "not-required-current-scope",
+      "title": "열린 결말 Rail 모드",
+      "implementationPath": null,
+      "scope": "기존 A/B·가까운 Arc·먼 용량 예약으로 현재 작업 표현 가능. 유한 목표 회차 자체가 없는 작품의 새 계약 필요성은 확인되지 않아 별도 Rail mode를 만들지 않음."
+    }
+  ],
+  "externalPackagesInstalled": [],
+  "newProductionModelCalls": 0,
+  "newHumanFeedbackRequested": 0,
+  "humanBlindComparisonPerformed": false,
+  "meaning": "Current implementation scope after the owner removed the timer. Execution paths and deterministic regression evidence are distinct from literary quality, human preference, and production activation.",
+  "previousCoverage": {
+    "path": "docs/evidence/2026-09-12-human-webnovelist-implementation-coverage.json",
+    "sha256": "3f0c9e6d92ed563af3be7de86ed44431cda8ff9e3e8159903a345e7222d27bfe",
+    "preserved": true
+  },
+  "authorization": {
+    "timeLimitRemoved": true,
+    "newHumanReviewRequired": false,
+    "newSceneGenerationLoopRequired": false
+  },
+  "validation": {
+    "receipt": ".firefly/validation/author-craft/20260912-continuation-final/receipt.json",
+    "receiptSha256": "98a86f168bc4e5f1e41f616d2ff096b29b7cd565c8c7c5bc967a49f9654e114f",
+    "startedAt": "2026-09-12T12:54:13.113691+00:00",
+    "finishedAt": "2026-09-12T12:56:18.675371+00:00",
+    "sourceFilesUnchangedDuringVerification": true,
+    "steps": [
+      {
+        "name": "build",
+        "exitCode": 0
+      },
+      {
+        "name": "core-tests",
+        "exitCode": 0,
+        "tests": {
+          "files": 256,
+          "total": 2929,
+          "passed": 2929,
+          "failed": 0,
+          "success": true
+        }
+      },
+      {
+        "name": "cli-tests",
+        "exitCode": 0,
+        "tests": {
+          "files": 57,
+          "total": 355,
+          "passed": 355,
+          "failed": 0,
+          "success": true
+        }
+      },
+      {
+        "name": "hq-author-craft-input",
+        "exitCode": 0
+      },
+      {
+        "name": "hq-planning-input",
+        "exitCode": 0
+      },
+      {
+        "name": "hq-reviewed-feedback-input",
+        "exitCode": 0
+      },
+      {
+        "name": "hq-daily-planning",
+        "exitCode": 0
+      },
+      {
+        "name": "hq-inspect-author-input",
+        "exitCode": 0
+      },
+      {
+        "name": "hq-reviewed-feedback-js",
+        "exitCode": 0
+      },
+      {
+        "name": "hq-writing-system-candidates",
+        "exitCode": 0
+      },
+      {
+        "name": "writing-system-reuse",
+        "exitCode": 0
+      },
+      {
+        "name": "reference-scenes",
+        "exitCode": 0
+      },
+      {
+        "name": "assets",
+        "exitCode": 0
+      },
+      {
+        "name": "retrieval-probes",
+        "exitCode": 0
+      }
+    ]
+  },
+  "preservedFailedValidation": {
+    "receipt": ".firefly/validation/author-craft/20260912-continuation-complete/receipt.json",
+    "sha256": "202798bf7166393b1a6f8893b9b07ce003e8fd329ae3d7ab9734d3b33f47ff72",
+    "status": "failed",
+    "sourceFilesUnchangedDuringVerification": true,
+    "failure": "agent-max-tokens-policy matched optional context input maxTokens options. Renamed the new input-budget API to maxInputTokens; retained the existing generation-output policy and its test."
+  }
+}

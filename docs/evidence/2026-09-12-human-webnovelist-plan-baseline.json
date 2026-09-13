@@ -1,0 +1,386 @@
+{
+  "schemaVersion": "human-webnovelist-implementation-plan-baseline/v1",
+  "recordedAt": "2026-09-12T14:19:05.334614+09:00",
+  "scope": "Local implementation planning from existing research and source inspection; no runtime implementation or generation",
+  "registry": "config/edge-repos.json",
+  "repositories": [
+    {
+      "path": ".",
+      "branch": "main",
+      "head": "befbaa11f39449e5f8b2ad3f8aac8467006d3763",
+      "statusShort": [
+        "?? docs/2026-09-11-human-webnovelist-assets-research.md",
+        "?? docs/2026-09-11-human-writer-quality-study.md",
+        "?? docs/2026-09-11-humanlike-thinking-repo-research.md",
+        "?? docs/2026-09-11-jeongryongpil-dc-craft-research.md",
+        "?? docs/2026-09-11-korean-webnovelist-mind-supplement.md",
+        "?? docs/2026-09-11-ready-made-writing-systems-research.md",
+        "?? docs/2026-09-11-webnovel-craft-channels-research.md",
+        "?? docs/2026-09-12-human-webnovelist-implementation-plan.md",
+        "?? docs/evidence/2026-09-11-human-webnovelist-assets.json",
+        "?? docs/evidence/2026-09-11-jeongryongpil-dc-craft.json",
+        "?? docs/evidence/2026-09-11-korean-webnovelist-mind.json",
+        "?? docs/evidence/2026-09-11-webnovel-craft-channels.json",
+        "?? docs/evidence/2026-09-12-human-webnovelist-plan-baseline.json",
+        "?? docs/korean-webnovelist-decision-cards.md",
+        "?? docs/webnovel-human-writer-research-index.md"
+      ]
+    },
+    {
+      "path": "edge_repos/inkos",
+      "branch": "master",
+      "head": "1d40db50c55c76725939d788b73b999f1a039e90",
+      "statusShort": []
+    },
+    {
+      "path": "edge_repos/firefly_reference_lab",
+      "branch": "main",
+      "head": "8ccf7b84f5a7da33ee5ceb0668fb70745df93a0c",
+      "statusShort": [
+        "?? comparisons/2026-09-11-author-craft-mid-late.md",
+        "?? comparisons/2026-09-11-author-thinking-and-prose.md",
+        "?? evidence/author-craft-mid-late-20260911/",
+        "?? evidence/author-craft-study-20260911/"
+      ]
+    },
+    {
+      "path": "edge_repos/firefly_market_radar",
+      "branch": "main",
+      "head": "2b4a88adf2ecd44c66a017c9073fc420ff131803",
+      "statusShort": []
+    },
+    {
+      "path": "edge_repos/storyyard",
+      "branch": "main",
+      "head": "d530ed2e2769a899c18a3f72af320ab0dc6efa0e",
+      "statusShort": []
+    },
+    {
+      "path": "edge_repos/v3_ff_foundry",
+      "branch": "main",
+      "head": "1e39091f7e183a0f8b6beddb0029d0945cd344b6",
+      "statusShort": []
+    }
+  ],
+  "inspectedFiles": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "5d6fadc43bd5de450946a6b90f7d65e1c67a1fab7e74db26b762c0f30a50a72b"
+    },
+    {
+      "path": "config/edge-repos.json",
+      "sha256": "172c976427471bc1861e2c608254d4b4687a537834d8442a21bd50d748ca5301"
+    },
+    {
+      "path": "docs/pitch-policy-status.md",
+      "sha256": "3da17368e8042f1a866a5f5dbe24bd15f24c754a639b84f3109b16b8dbdf12cc"
+    },
+    {
+      "path": "scripts/planning-input.py",
+      "sha256": "2b64a961a57249044cf455f30bd039b6ab3ff5f5a75c888c5aabae1cc918825d"
+    },
+    {
+      "path": "scripts/daily-planning.py",
+      "sha256": "a66917998689d23e22abc3801f06397947fa10f1dfaf94d87b0d38d33794b636"
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/models/input-governance.ts",
+      "sha256": "517f86fe6d60d30ef684a96fcfbedaba1ae43ff8e106fd06b5c0b1b563649cd6"
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/agents/writer-prompts.ts",
+      "sha256": "b209fba10967cba51c43ca9530e41e5d44c7fde520c22602e41b38b802ad9f40"
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/agents/writer.ts",
+      "sha256": "0d86dbfa8454513f7bb90e0a804d84d74555272feb7c64a692e0beab7b8116dd"
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/agents/planner.ts",
+      "sha256": "43bb1be6f06bc4617791c5de32d430de4f55f0b08387c306557b535930edafd9"
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/agents/reviser.ts",
+      "sha256": "7da1c0734a2e2bc78ea8b455728ab2bc7f8fab826cafd40ba13dc86b67d7631a"
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/production/production-skill.ts",
+      "sha256": "bf190ef407209fe942b57525f2673a4a7313a28b37401d7a8487c69cf8d2950e"
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/production/production-input.ts",
+      "sha256": "3924b5d07a28ed3cda704385dee38d6f4a14e8b1b4373914ebf143260f15ef07"
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/production/production-kernel.ts",
+      "sha256": "5c5c524b2c987d69fad0227fd5f36420fd51d6e9eb2f1835481cf8095d1bcbdc"
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/production/direction-context.ts",
+      "sha256": "b6729df928e6b9fa6b2585af37af7b4db98fdaa0618ecdd3e8b7ab44b5a567af"
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/pipeline/chapter-review-cycle.ts",
+      "sha256": "5ec8637e74393e6b5124e0a8be2b4ac0398b2a97f0ea3fd8da48cd50cc23bc19"
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/arc/rail-context.ts",
+      "sha256": "e2c9f7d3fb686ec0dc3d70d42124665ffc05d5b49b9f5336fbe1ffbc709380aa"
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/arc/rail-schema.ts",
+      "sha256": "b74289eb0ef2f12366f4592b54894dd9a970e614f77c9f5290e3c3ec2ca35d67"
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/arc/reflow-schema.ts",
+      "sha256": "434bb2eb7a9e5eca322d8caa20511f1d490da37ef1ed70d7a11472b7dd111c2d"
+    },
+    {
+      "path": "edge_repos/inkos/packages/core/src/storyyard/blind-pair-materialization.ts",
+      "sha256": "12ab4e421f68d4c53fb72b7bce93732945a258707b497e0f0a89b75ffad9279e"
+    },
+    {
+      "path": "edge_repos/inkos/packages/cli/src/commands/review.ts",
+      "sha256": "7007274dbd33adeb14f28f5e2dd9e158f7346837334595b0d523c17a1bae7fb2"
+    },
+    {
+      "path": "edge_repos/storyyard/app/firefly-review-contract.ts",
+      "sha256": "bf6b85152554b10f3ca9cc6451cde77d8f16813e1b2f465ca7971a73e97239aa"
+    },
+    {
+      "path": "edge_repos/storyyard/app/review/review-board.tsx",
+      "sha256": "aa7a6eec4c08ee268de468643f3ca4bf0c9e6f8dd0ec4b66906787f360346f59"
+    },
+    {
+      "path": "edge_repos/v3_ff_foundry/AGENTS.md",
+      "sha256": "6ce41d46199def1591e63328a295e50de74e1ad3d1b99f59e64364d3d73aa83b"
+    },
+    {
+      "path": "edge_repos/v3_ff_foundry/00_charter/ff_foundry_charter.md",
+      "sha256": "2991a8eac90a1593b12828402ed09d88d0bec43f291553e78d8c4652f23526b2"
+    }
+  ],
+  "preservedResearch": [
+    {
+      "path": "docs/2026-09-11-human-webnovelist-assets-research.md",
+      "sha256Before": "380fb9236628510336e7825e5cb0eef3c36cdb97195ab25ff5551abdf5de20d2",
+      "sha256After": "380fb9236628510336e7825e5cb0eef3c36cdb97195ab25ff5551abdf5de20d2",
+      "unchanged": true
+    },
+    {
+      "path": "docs/2026-09-11-human-writer-quality-study.md",
+      "sha256Before": "f300aa283b39c56ce906bd2b8fea69ab6d56e97d6a1e0c506b92f78a0fb4a678",
+      "sha256After": "f300aa283b39c56ce906bd2b8fea69ab6d56e97d6a1e0c506b92f78a0fb4a678",
+      "unchanged": true
+    },
+    {
+      "path": "docs/2026-09-11-humanlike-thinking-repo-research.md",
+      "sha256Before": "9d520f366a41efd8c8396c26189cd5f532d07c77f4110fe69e7807b0367bb2f0",
+      "sha256After": "9d520f366a41efd8c8396c26189cd5f532d07c77f4110fe69e7807b0367bb2f0",
+      "unchanged": true
+    },
+    {
+      "path": "docs/2026-09-11-jeongryongpil-dc-craft-research.md",
+      "sha256Before": "f46a297553ff4b206bfc1dfc1d5506332a1ed1ece735c8d1efa7a7ad0997cb17",
+      "sha256After": "f46a297553ff4b206bfc1dfc1d5506332a1ed1ece735c8d1efa7a7ad0997cb17",
+      "unchanged": true
+    },
+    {
+      "path": "docs/2026-09-11-korean-webnovelist-mind-supplement.md",
+      "sha256Before": "d7b6ad23f49c8ab3e4135e4c7d0380ae82188a1b0a50ff95687517eab393ff9a",
+      "sha256After": "d7b6ad23f49c8ab3e4135e4c7d0380ae82188a1b0a50ff95687517eab393ff9a",
+      "unchanged": true
+    },
+    {
+      "path": "docs/2026-09-11-ready-made-writing-systems-research.md",
+      "sha256Before": "2e45ffa348c992dada729a98c19fd7fd5641aab8045506f6e9a8f2214f32bb95",
+      "sha256After": "2e45ffa348c992dada729a98c19fd7fd5641aab8045506f6e9a8f2214f32bb95",
+      "unchanged": true
+    },
+    {
+      "path": "docs/2026-09-11-webnovel-craft-channels-research.md",
+      "sha256Before": "2107f57e4fb3be732a1f391a8ed006d945fa57aeece00b8e696ffcf5f420dccf",
+      "sha256After": "2107f57e4fb3be732a1f391a8ed006d945fa57aeece00b8e696ffcf5f420dccf",
+      "unchanged": true
+    },
+    {
+      "path": "docs/korean-webnovelist-decision-cards.md",
+      "sha256Before": "145cf45c8955905e89e290f2b7674c2b0bc6866c7a294a439ffeac224fd22b26",
+      "sha256After": "145cf45c8955905e89e290f2b7674c2b0bc6866c7a294a439ffeac224fd22b26",
+      "unchanged": true
+    },
+    {
+      "path": "edge_repos/firefly_reference_lab/comparisons/2026-09-11-author-thinking-and-prose.md",
+      "sha256Before": "81ff427061a1e6ae049e4686df0586fce9961c9a0d53cd88871e981fcfaabf47",
+      "sha256After": "81ff427061a1e6ae049e4686df0586fce9961c9a0d53cd88871e981fcfaabf47",
+      "unchanged": true
+    },
+    {
+      "path": "edge_repos/firefly_reference_lab/comparisons/2026-09-11-author-craft-mid-late.md",
+      "sha256Before": "1e800514f9f98a75027777a4dca34c664d2cdfbfccedecf9919b99f2c4645233",
+      "sha256After": "1e800514f9f98a75027777a4dca34c664d2cdfbfccedecf9919b99f2c4645233",
+      "unchanged": true
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "docs/2026-09-12-human-webnovelist-implementation-plan.md",
+      "sha256": "a33d43eaf591c73600377c5405229e95c07d6d75db33789af2d70b8393c41aef"
+    },
+    {
+      "path": "docs/webnovel-human-writer-research-index.md",
+      "sha256": "7bf48e559969f3f19dc29d433e76018de613840666aae199b7592ed50fa449d6"
+    }
+  ],
+  "verification": {
+    "relativeLinks": [
+      {
+        "document": "docs/2026-09-12-human-webnovelist-implementation-plan.md",
+        "target": "2026-09-11-korean-webnovelist-mind-supplement.md",
+        "exists": true
+      },
+      {
+        "document": "docs/2026-09-12-human-webnovelist-implementation-plan.md",
+        "target": "korean-webnovelist-decision-cards.md",
+        "exists": true
+      },
+      {
+        "document": "docs/2026-09-12-human-webnovelist-implementation-plan.md",
+        "target": "../edge_repos/firefly_reference_lab/comparisons/2026-09-11-author-thinking-and-prose.md",
+        "exists": true
+      },
+      {
+        "document": "docs/2026-09-12-human-webnovelist-implementation-plan.md",
+        "target": "../edge_repos/firefly_reference_lab/comparisons/2026-09-11-author-craft-mid-late.md",
+        "exists": true
+      },
+      {
+        "document": "docs/2026-09-12-human-webnovelist-implementation-plan.md",
+        "target": "evidence/2026-09-12-human-webnovelist-plan-baseline.json",
+        "exists": true
+      },
+      {
+        "document": "docs/2026-09-12-human-webnovelist-implementation-plan.md",
+        "target": "pitch-policy-status.md",
+        "exists": true
+      },
+      {
+        "document": "docs/2026-09-12-human-webnovelist-implementation-plan.md",
+        "target": "2026-09-11-human-webnovelist-assets-research.md",
+        "exists": true
+      },
+      {
+        "document": "docs/webnovel-human-writer-research-index.md",
+        "target": "2026-09-12-human-webnovelist-implementation-plan.md",
+        "exists": true
+      },
+      {
+        "document": "docs/webnovel-human-writer-research-index.md",
+        "target": "2026-09-12-human-webnovelist-implementation-plan.md",
+        "exists": true
+      },
+      {
+        "document": "docs/webnovel-human-writer-research-index.md",
+        "target": "evidence/2026-09-12-human-webnovelist-plan-baseline.json",
+        "exists": true
+      },
+      {
+        "document": "docs/webnovel-human-writer-research-index.md",
+        "target": "2026-09-11-humanlike-thinking-repo-research.md",
+        "exists": true
+      },
+      {
+        "document": "docs/webnovel-human-writer-research-index.md",
+        "target": "2026-09-11-human-writer-quality-study.md",
+        "exists": true
+      },
+      {
+        "document": "docs/webnovel-human-writer-research-index.md",
+        "target": "../edge_repos/firefly_reference_lab/comparisons/2026-09-11-author-thinking-and-prose.md",
+        "exists": true
+      },
+      {
+        "document": "docs/webnovel-human-writer-research-index.md",
+        "target": "2026-09-11-ready-made-writing-systems-research.md",
+        "exists": true
+      },
+      {
+        "document": "docs/webnovel-human-writer-research-index.md",
+        "target": "2026-09-11-human-webnovelist-assets-research.md",
+        "exists": true
+      },
+      {
+        "document": "docs/webnovel-human-writer-research-index.md",
+        "target": "2026-09-11-webnovel-craft-channels-research.md",
+        "exists": true
+      },
+      {
+        "document": "docs/webnovel-human-writer-research-index.md",
+        "target": "evidence/2026-09-11-webnovel-craft-channels.json",
+        "exists": true
+      },
+      {
+        "document": "docs/webnovel-human-writer-research-index.md",
+        "target": "2026-09-11-jeongryongpil-dc-craft-research.md",
+        "exists": true
+      },
+      {
+        "document": "docs/webnovel-human-writer-research-index.md",
+        "target": "evidence/2026-09-11-jeongryongpil-dc-craft.json",
+        "exists": true
+      },
+      {
+        "document": "docs/webnovel-human-writer-research-index.md",
+        "target": "2026-09-11-korean-webnovelist-mind-supplement.md",
+        "exists": true
+      },
+      {
+        "document": "docs/webnovel-human-writer-research-index.md",
+        "target": "korean-webnovelist-decision-cards.md",
+        "exists": true
+      },
+      {
+        "document": "docs/webnovel-human-writer-research-index.md",
+        "target": "../edge_repos/firefly_reference_lab/comparisons/2026-09-11-author-craft-mid-late.md",
+        "exists": true
+      },
+      {
+        "document": "docs/webnovel-human-writer-research-index.md",
+        "target": "evidence/2026-09-11-korean-webnovelist-mind.json",
+        "exists": true
+      }
+    ],
+    "referencedExistingTests": [
+      "edge_repos/inkos/packages/core/src/__tests__/production-skill-phase4.test.ts",
+      "edge_repos/inkos/packages/core/src/__tests__/production-direction-context.test.ts",
+      "edge_repos/inkos/packages/core/src/__tests__/chapter-memo-parser.test.ts",
+      "edge_repos/inkos/packages/core/src/__tests__/planner-prompts.test.ts",
+      "edge_repos/inkos/packages/core/src/__tests__/writer-prompts.test.ts",
+      "edge_repos/inkos/packages/core/src/__tests__/writer.test.ts",
+      "edge_repos/inkos/packages/core/src/__tests__/chapter-review-cycle.test.ts",
+      "edge_repos/inkos/packages/core/src/__tests__/reviser.test.ts",
+      "edge_repos/inkos/packages/core/src/__tests__/canary-isolation.test.ts",
+      "edge_repos/inkos/packages/core/src/__tests__/blind-pair-materialization.test.ts",
+      "edge_repos/inkos/packages/core/src/__tests__/storyyard-review-packet-v2.test.ts",
+      "edge_repos/inkos/packages/cli/src/__tests__/review-blind-pair-command.test.ts",
+      "edge_repos/inkos/packages/core/src/__tests__/story-rail-reflow.test.ts",
+      "edge_repos/inkos/packages/core/src/__tests__/arc-rail-store.test.ts"
+    ],
+    "runtimeTestsRun": false,
+    "newWebResearchPerformed": false,
+    "productionCodeChanged": false,
+    "runtimePromptsChanged": false,
+    "generationPerformed": false,
+    "humanBlindComparisonPerformed": false,
+    "commitPerformed": false,
+    "pushPerformed": false,
+    "remoteFreshnessChecked": false
+  },
+  "limitations": [
+    "Code was inspected, not executed.",
+    "Existing research is an adoption candidate, not measured quality improvement.",
+    "New contract and implementation paths in the plan are proposed.",
+    "The existing neutral/Soul comparison cannot accept author-craft variants unchanged.",
+    "Ending-open planning is outside the current Rail contract."
+  ]
+}

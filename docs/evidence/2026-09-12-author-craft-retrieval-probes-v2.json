@@ -1,0 +1,751 @@
+{
+  "schemaVersion": "firefly-author-craft-retrieval-probe/v1",
+  "checkedAt": "2026-09-12T07:11:51.348Z",
+  "packSha256": "37bb95270b442ed37389c09b07d5d310e367be106140b6fe67b67092e1c18983",
+  "probesSha256": "70cf26a612f80877dd58e7dfdd56331b7bf16e4d4235266e89890486c8efe11f",
+  "selectorSha256": "c90d0ec5e0c8f50995aed42e202abf15800d9509af844e0df38dd67acdb6c10c",
+  "total": 32,
+  "matched": 32,
+  "groups": [
+    {
+      "group": "direct",
+      "total": 15,
+      "matched": 15
+    },
+    {
+      "group": "paraphrase",
+      "total": 6,
+      "matched": 6
+    },
+    {
+      "group": "abstention",
+      "total": 3,
+      "matched": 3
+    },
+    {
+      "group": "paraphrase-variant",
+      "total": 6,
+      "matched": 6
+    },
+    {
+      "group": "ambiguous-context",
+      "total": 2,
+      "matched": 2
+    }
+  ],
+  "results": [
+    {
+      "id": "wanted-direct",
+      "group": "direct",
+      "stage": "planning",
+      "query": "재벌이라는 소재만 있고 독자가 기다릴 만한 재미가 구체적으로 보이지 않는다.",
+      "expectedAnyCaseIds": [
+        "wanted-moment"
+      ],
+      "matched": true,
+      "selectedCaseIds": [
+        "wanted-moment"
+      ],
+      "selectionReasons": [
+        {
+          "caseId": "wanted-moment",
+          "score": 20,
+          "reason": "query-match"
+        }
+      ],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "34d1b464cc1940292a3a1aeb5e7dd5188cd59b0e55d566e48d7912f1498b83db"
+    },
+    {
+      "id": "belief-direct",
+      "group": "direct",
+      "stage": "writing",
+      "query": "주인공이 상대 속셈을 추측했는데 다음 문장에서 그 오해를 사실처럼 취급한다.",
+      "expectedAnyCaseIds": [
+        "belief-and-update"
+      ],
+      "matched": true,
+      "selectedCaseIds": [
+        "belief-and-update"
+      ],
+      "selectionReasons": [
+        {
+          "caseId": "belief-and-update",
+          "score": 26,
+          "reason": "query-match"
+        }
+      ],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "436ea1be0662af22c05e61e2bc33612d55e2ed0516680a6cc2907b317bd66288"
+    },
+    {
+      "id": "counterparty-direct",
+      "group": "direct",
+      "stage": "writing",
+      "query": "협상 상대가 제안을 듣자마자 자기 손해를 감수하고 넘어간다. 자기 조건이 있어야 한다.",
+      "expectedAnyCaseIds": [
+        "independent-counterparty"
+      ],
+      "matched": true,
+      "selectedCaseIds": [
+        "independent-counterparty"
+      ],
+      "selectionReasons": [
+        {
+          "caseId": "independent-counterparty",
+          "score": 28,
+          "reason": "query-match"
+        }
+      ],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "b48964514f636185078c47f295bb52516679107c04077a1388a4dcec655f62cd"
+    },
+    {
+      "id": "voice-direct",
+      "group": "direct",
+      "stage": "writing",
+      "query": "가족 앞에서 하는 겉말과 혼자 하는 속말이 똑같다. 체면 때문에 꺼내지 못하는 내용이 있다.",
+      "expectedAnyCaseIds": [
+        "public-private-voice"
+      ],
+      "matched": true,
+      "selectedCaseIds": [
+        "public-private-voice",
+        "supporting-character-life"
+      ],
+      "selectionReasons": [
+        {
+          "caseId": "public-private-voice",
+          "score": 36,
+          "reason": "query-match"
+        },
+        {
+          "caseId": "supporting-character-life",
+          "score": 10,
+          "reason": "query-match"
+        }
+      ],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "5dad951e5a4420447bffe38c2e6d8db7c691f5ae8422257be022daaeeb8fb403"
+    },
+    {
+      "id": "reveal-direct",
+      "group": "direct",
+      "stage": "writing",
+      "query": "독자만 아는 비밀을 시점 인물도 갑자기 안다. 정보 공개 순서를 다시 잡는다.",
+      "expectedAnyCaseIds": [
+        "reader-reveal"
+      ],
+      "matched": true,
+      "selectedCaseIds": [
+        "reader-reveal",
+        "public-private-voice",
+        "wanted-moment"
+      ],
+      "selectionReasons": [
+        {
+          "caseId": "reader-reveal",
+          "score": 30,
+          "reason": "query-match"
+        },
+        {
+          "caseId": "public-private-voice",
+          "score": 10,
+          "reason": "query-match"
+        },
+        {
+          "caseId": "wanted-moment",
+          "score": 2,
+          "reason": "query-match"
+        }
+      ],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "57ec23cb2464412ea7050d4c5d8ca2becd7225f98e1be7a3b14dd9e1a54e9b7c"
+    },
+    {
+      "id": "inner-direct",
+      "group": "direct",
+      "stage": "revision",
+      "query": "망설임과 두려움을 모두 삭제하니 위험을 감수하는 결단의 이유가 사라졌다.",
+      "expectedAnyCaseIds": [
+        "earned-inner-decision"
+      ],
+      "matched": true,
+      "selectedCaseIds": [
+        "earned-inner-decision"
+      ],
+      "selectionReasons": [
+        {
+          "caseId": "earned-inner-decision",
+          "score": 34,
+          "reason": "query-match"
+        }
+      ],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "bb54e865f29e831511f288f412185eb6f3e5841143b9b64a9fb3eff6e63d618f"
+    },
+    {
+      "id": "reward-direct",
+      "group": "direct",
+      "stage": "writing",
+      "query": "수익과 보상 숫자만 커진다. 성공 후 생활과 주변의 대우가 어떻게 달라졌는지 보고 싶다.",
+      "expectedAnyCaseIds": [
+        "lived-reward"
+      ],
+      "matched": true,
+      "selectedCaseIds": [
+        "lived-reward"
+      ],
+      "selectionReasons": [
+        {
+          "caseId": "lived-reward",
+          "score": 44,
+          "reason": "query-match"
+        }
+      ],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "69c9596485e13341f78eb4585d4b31aaae1df09b6822939b18112a9a76005f70"
+    },
+    {
+      "id": "desire-direct",
+      "group": "direct",
+      "stage": "planning",
+      "query": "후반의 강한 주인공이 이미 이긴 싸움만 반복한다. 기존 재산을 빼앗지 않고 다음 욕망을 찾는다.",
+      "expectedAnyCaseIds": [
+        "next-desire"
+      ],
+      "matched": true,
+      "selectedCaseIds": [
+        "next-desire",
+        "supporting-character-life"
+      ],
+      "selectionReasons": [
+        {
+          "caseId": "next-desire",
+          "score": 48,
+          "reason": "query-match"
+        },
+        {
+          "caseId": "supporting-character-life",
+          "score": 2,
+          "reason": "query-match"
+        }
+      ],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "541ca12451447845c6bd05ecac1bb3ecff46e453d6f39a9576efbfa425ddbd1d"
+    },
+    {
+      "id": "support-direct",
+      "group": "direct",
+      "stage": "writing",
+      "query": "재등장한 동료가 지난번 감탄만 반복한다. 조연 자신의 사정과 익숙한 관계를 살린다.",
+      "expectedAnyCaseIds": [
+        "supporting-character-life"
+      ],
+      "matched": true,
+      "selectedCaseIds": [
+        "supporting-character-life",
+        "independent-counterparty"
+      ],
+      "selectionReasons": [
+        {
+          "caseId": "supporting-character-life",
+          "score": 36,
+          "reason": "query-match"
+        },
+        {
+          "caseId": "independent-counterparty",
+          "score": 10,
+          "reason": "query-match"
+        }
+      ],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "7e0ae2a24970d1e22cbdd16f9624d0d9b28832e696b9014d4aee1d0460a3c081"
+    },
+    {
+      "id": "dialogue-direct",
+      "group": "direct",
+      "stage": "revision",
+      "query": "윤문하며 말했드를 지우다가 화자가 헷갈린다. 대사 주인을 알리는 서술을 살린다.",
+      "expectedAnyCaseIds": [
+        "dialogue-clarity"
+      ],
+      "matched": true,
+      "selectedCaseIds": [
+        "dialogue-clarity"
+      ],
+      "selectionReasons": [
+        {
+          "caseId": "dialogue-clarity",
+          "score": 26,
+          "reason": "query-match"
+        }
+      ],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "fff775282efe5b48cbbe314690619c0561a1a95ac74b23167cd66d4a7abb5321"
+    },
+    {
+      "id": "space-direct",
+      "group": "direct",
+      "stage": "revision",
+      "query": "계약 절차 설명에 지면을 쓰고 정작 상대의 반응은 압축했다. 분량을 재배치한다.",
+      "expectedAnyCaseIds": [
+        "scene-space"
+      ],
+      "matched": true,
+      "selectedCaseIds": [
+        "scene-space"
+      ],
+      "selectionReasons": [
+        {
+          "caseId": "scene-space",
+          "score": 24,
+          "reason": "query-match"
+        }
+      ],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "5a77960a7d19bc77369b613090ccf779312d941f9b23925601c74258d2c1f636"
+    },
+    {
+      "id": "experience-direct",
+      "group": "direct",
+      "stage": "writing",
+      "query": "직업 고증과 물건 설명만 늘어난다. 경험 많은 사람이 무엇을 먼저 하는지 행동으로 연결한다.",
+      "expectedAnyCaseIds": [
+        "experience-to-action"
+      ],
+      "matched": true,
+      "selectedCaseIds": [
+        "experience-to-action",
+        "scene-space"
+      ],
+      "selectionReasons": [
+        {
+          "caseId": "experience-to-action",
+          "score": 38,
+          "reason": "query-match"
+        },
+        {
+          "caseId": "scene-space",
+          "score": 10,
+          "reason": "query-match"
+        }
+      ],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "2751320b62554cfa8111fbb325cb92d75aeba89bfde8fa0ab72f3b37035efe58"
+    },
+    {
+      "id": "discovery-direct",
+      "group": "direct",
+      "stage": "revision",
+      "query": "초고에서 생긴 동료의 욕망이 미래 전개를 바꿀 만하다. 현재 원고 수정과 계획 변경을 구별한다.",
+      "expectedAnyCaseIds": [
+        "draft-discovery"
+      ],
+      "matched": true,
+      "selectedCaseIds": [
+        "draft-discovery",
+        "revision-cause",
+        "supporting-character-life"
+      ],
+      "selectionReasons": [
+        {
+          "caseId": "draft-discovery",
+          "score": 30,
+          "reason": "query-match"
+        },
+        {
+          "caseId": "revision-cause",
+          "score": 8,
+          "reason": "query-match"
+        },
+        {
+          "caseId": "supporting-character-life",
+          "score": 8,
+          "reason": "query-match"
+        }
+      ],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "63bde3a15960b0719103c5886515ae6edd3d50cb5364e5a763d2cbe479223afe"
+    },
+    {
+      "id": "revision-direct",
+      "group": "direct",
+      "stage": "revision",
+      "query": "어색하다는 진단만으로 전부 퇴고하지 말고, 수정할 위치와 보존할 목소리를 정한다.",
+      "expectedAnyCaseIds": [
+        "revision-cause"
+      ],
+      "matched": true,
+      "selectedCaseIds": [
+        "revision-cause"
+      ],
+      "selectionReasons": [
+        {
+          "caseId": "revision-cause",
+          "score": 40,
+          "reason": "query-match"
+        }
+      ],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "654293899e2ee02fc4112a34ea2f3a2ad39b9149fdfe765c05d7f0d26846e2bb"
+    },
+    {
+      "id": "feedback-direct",
+      "group": "direct",
+      "stage": "planning",
+      "query": "기각 피드백이 어느 후보의 어느 본문을 읽고 나온 독자 의견인지 먼저 연결한다.",
+      "expectedAnyCaseIds": [
+        "feedback-scope"
+      ],
+      "matched": true,
+      "selectedCaseIds": [
+        "feedback-scope",
+        "wanted-moment"
+      ],
+      "selectionReasons": [
+        {
+          "caseId": "feedback-scope",
+          "score": 28,
+          "reason": "query-match"
+        },
+        {
+          "caseId": "wanted-moment",
+          "score": 4,
+          "reason": "query-match"
+        }
+      ],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "c26c584c61ddc727ee459d5691a2b698c6b9bc110009773a3b2e3aae2f245c4f"
+    },
+    {
+      "id": "counterparty-paraphrase",
+      "group": "paraphrase",
+      "stage": "writing",
+      "query": "상대가 왜 이렇게 쉽게 양보하지? 자기 것을 지키려고 버티는 이유가 빠졌다.",
+      "expectedAnyCaseIds": [
+        "independent-counterparty"
+      ],
+      "matched": true,
+      "selectedCaseIds": [
+        "independent-counterparty"
+      ],
+      "selectionReasons": [
+        {
+          "caseId": "independent-counterparty",
+          "score": 20,
+          "reason": "query-match"
+        }
+      ],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "b48964514f636185078c47f295bb52516679107c04077a1388a4dcec655f62cd"
+    },
+    {
+      "id": "reward-paraphrase",
+      "group": "paraphrase",
+      "stage": "writing",
+      "query": "큰일을 해냈는데 숫자 보고서만 읽어 준다. 이제 무엇을 누릴 수 있는지 한 번 보고 싶다.",
+      "expectedAnyCaseIds": [
+        "lived-reward"
+      ],
+      "matched": true,
+      "selectedCaseIds": [
+        "lived-reward"
+      ],
+      "selectionReasons": [
+        {
+          "caseId": "lived-reward",
+          "score": 18,
+          "reason": "query-match"
+        }
+      ],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "69c9596485e13341f78eb4585d4b31aaae1df09b6822939b18112a9a76005f70"
+    },
+    {
+      "id": "inner-paraphrase",
+      "group": "paraphrase",
+      "stage": "revision",
+      "query": "왜 저런 손해를 떠안는지 납득이 안 된다. 속으로 무엇을 저울질했는지가 빠졌다.",
+      "expectedAnyCaseIds": [
+        "earned-inner-decision"
+      ],
+      "matched": true,
+      "selectedCaseIds": [
+        "earned-inner-decision"
+      ],
+      "selectionReasons": [
+        {
+          "caseId": "earned-inner-decision",
+          "score": 24,
+          "reason": "query-match"
+        }
+      ],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "bb54e865f29e831511f288f412185eb6f3e5841143b9b64a9fb3eff6e63d618f"
+    },
+    {
+      "id": "desire-paraphrase",
+      "group": "paraphrase",
+      "stage": "planning",
+      "query": "이제 남들보다 다 잘하는데 다음 화에 하고 싶은 일이 없다. 얻은 것을 없애는 방식은 싫다.",
+      "expectedAnyCaseIds": [
+        "next-desire"
+      ],
+      "matched": true,
+      "selectedCaseIds": [
+        "next-desire"
+      ],
+      "selectionReasons": [
+        {
+          "caseId": "next-desire",
+          "score": 22,
+          "reason": "query-match"
+        }
+      ],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "215d7adc9acc489e6dd0a54831d655ee82b56d384478a0883ae519d332d2b027"
+    },
+    {
+      "id": "dialogue-paraphrase",
+      "group": "paraphrase",
+      "stage": "revision",
+      "query": "누가 누구한테 하는 말인지 모르겠다. 이름을 지운 뒤 세 사람이 한 사람처럼 들린다.",
+      "expectedAnyCaseIds": [
+        "dialogue-clarity"
+      ],
+      "matched": true,
+      "selectedCaseIds": [
+        "dialogue-clarity"
+      ],
+      "selectionReasons": [
+        {
+          "caseId": "dialogue-clarity",
+          "score": 20,
+          "reason": "query-match"
+        }
+      ],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "fff775282efe5b48cbbe314690619c0561a1a95ac74b23167cd66d4a7abb5321"
+    },
+    {
+      "id": "reveal-paraphrase",
+      "group": "paraphrase",
+      "stage": "writing",
+      "query": "범인을 알려 주기도 전에 등장인물이 먼저 찾아간다. 그 사람은 그걸 어디서 들었지?",
+      "expectedAnyCaseIds": [
+        "reader-reveal"
+      ],
+      "matched": true,
+      "selectedCaseIds": [
+        "reader-reveal"
+      ],
+      "selectionReasons": [
+        {
+          "caseId": "reader-reveal",
+          "score": 22,
+          "reason": "query-match"
+        }
+      ],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "8337ed6ea88086347142a321aa2b839fa60894a01f05923a73ea37115c0734da"
+    },
+    {
+      "id": "unrelated-parking",
+      "group": "abstention",
+      "stage": "writing",
+      "query": "## 회차 목표\n## 이번 장면\n주차장에 도착한다.",
+      "expectedAnyCaseIds": [],
+      "matched": true,
+      "selectedCaseIds": [],
+      "selectionReasons": [],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "incidental-name",
+      "group": "abstention",
+      "stage": "writing",
+      "query": "돈키호테의 풍차 공격",
+      "expectedAnyCaseIds": [],
+      "matched": true,
+      "selectedCaseIds": [],
+      "selectionReasons": [],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "explicit-exclusions",
+      "group": "abstention",
+      "stage": "writing",
+      "query": "금지: 협상, 수익, 반전\n주차장에 도착한다.",
+      "expectedAnyCaseIds": [],
+      "matched": true,
+      "selectedCaseIds": [],
+      "selectionReasons": [],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "counterparty-variant",
+      "group": "paraphrase-variant",
+      "stage": "writing",
+      "query": "약한 쪽이 버티는 데에도 이유가 있어야지. 순순히 넘겨주는 흐름이 이상하다.",
+      "expectedAnyCaseIds": [
+        "independent-counterparty"
+      ],
+      "matched": true,
+      "selectedCaseIds": [
+        "independent-counterparty"
+      ],
+      "selectionReasons": [
+        {
+          "caseId": "independent-counterparty",
+          "score": 8,
+          "reason": "query-match"
+        }
+      ],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "b48964514f636185078c47f295bb52516679107c04077a1388a4dcec655f62cd"
+    },
+    {
+      "id": "reward-variant",
+      "group": "paraphrase-variant",
+      "stage": "writing",
+      "query": "힘들게 얻은 뒤 정작 마음대로 쓸 수 있는 시간이 없다. 숨 좀 돌리며 누릴 여유를 주고 싶다.",
+      "expectedAnyCaseIds": [
+        "lived-reward"
+      ],
+      "matched": true,
+      "selectedCaseIds": [
+        "lived-reward"
+      ],
+      "selectionReasons": [
+        {
+          "caseId": "lived-reward",
+          "score": 20,
+          "reason": "query-match"
+        }
+      ],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "69c9596485e13341f78eb4585d4b31aaae1df09b6822939b18112a9a76005f70"
+    },
+    {
+      "id": "inner-variant",
+      "group": "paraphrase-variant",
+      "stage": "revision",
+      "query": "자기 몫도 아닌 부담을 떠안기로 하는데 납득할 근거가 없다.",
+      "expectedAnyCaseIds": [
+        "earned-inner-decision"
+      ],
+      "matched": true,
+      "selectedCaseIds": [
+        "earned-inner-decision"
+      ],
+      "selectionReasons": [
+        {
+          "caseId": "earned-inner-decision",
+          "score": 16,
+          "reason": "query-match"
+        }
+      ],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "bb54e865f29e831511f288f412185eb6f3e5841143b9b64a9fb3eff6e63d618f"
+    },
+    {
+      "id": "desire-variant",
+      "group": "paraphrase-variant",
+      "stage": "planning",
+      "query": "이긴 뒤 할 일이 없다. 더 하고 싶은 일이 뭔지부터 정하자.",
+      "expectedAnyCaseIds": [
+        "next-desire"
+      ],
+      "matched": true,
+      "selectedCaseIds": [
+        "next-desire"
+      ],
+      "selectionReasons": [
+        {
+          "caseId": "next-desire",
+          "score": 22,
+          "reason": "query-match"
+        }
+      ],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "215d7adc9acc489e6dd0a54831d655ee82b56d384478a0883ae519d332d2b027"
+    },
+    {
+      "id": "dialogue-variant",
+      "group": "paraphrase-variant",
+      "stage": "revision",
+      "query": "한 줄씩 번갈아 적었지만 누구의 말인지 불분명하다.",
+      "expectedAnyCaseIds": [
+        "dialogue-clarity"
+      ],
+      "matched": true,
+      "selectedCaseIds": [
+        "dialogue-clarity"
+      ],
+      "selectionReasons": [
+        {
+          "caseId": "dialogue-clarity",
+          "score": 10,
+          "reason": "query-match"
+        }
+      ],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "fff775282efe5b48cbbe314690619c0561a1a95ac74b23167cd66d4a7abb5321"
+    },
+    {
+      "id": "reveal-variant",
+      "group": "paraphrase-variant",
+      "stage": "writing",
+      "query": "아직 알려 주지 않았는데 어떻게 알았다는 거지? 앞선 근거와 순서가 맞지 않는다.",
+      "expectedAnyCaseIds": [
+        "reader-reveal"
+      ],
+      "matched": true,
+      "selectedCaseIds": [
+        "reader-reveal"
+      ],
+      "selectionReasons": [
+        {
+          "caseId": "reader-reveal",
+          "score": 12,
+          "reason": "query-match"
+        }
+      ],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "8337ed6ea88086347142a321aa2b839fa60894a01f05923a73ea37115c0734da"
+    },
+    {
+      "id": "incidental-yield-driving",
+      "group": "ambiguous-context",
+      "stage": "writing",
+      "query": "자동차가 횡단보도 앞에서 양보 운전을 한다.",
+      "expectedAnyCaseIds": [],
+      "matched": true,
+      "selectedCaseIds": [],
+      "selectionReasons": [],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "incidental-puzzle",
+      "group": "ambiguous-context",
+      "stage": "writing",
+      "query": "십자말풀이 문제를 어떻게 알맞게 채우는지 설명한다.",
+      "expectedAnyCaseIds": [],
+      "matched": true,
+      "selectedCaseIds": [],
+      "selectionReasons": [],
+      "explicitFallbackCaseIds": [],
+      "renderedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "humanBlindComparisonPerformed": false,
+  "literaryQualityClaimed": false,
+  "modelCalls": 0,
+  "humanReviewRequired": false,
+  "interpretation": "Authored problem-to-reference retrieval checks. Paraphrase gaps are reported, not hidden or interpreted as a literary quality score."
+}

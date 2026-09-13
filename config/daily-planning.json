@@ -4,6 +4,24 @@
   "hour": 2,
   "routes": ["astra", "grok-cli", "gemini-cli", "chatgpt-web", "grok-web", "gemini-web"],
   "genre": "현대판타지",
+  "authorCraft": {
+    "packPath": "edge_repos/firefly_reference_lab/craft_packs/korean-author-craft/v2/pack.json",
+    "packSha256": "37bb95270b442ed37389c09b07d5d310e367be106140b6fe67b67092e1c18983",
+    "language": "ko",
+    "caseIds": [
+      "wanted-moment",
+      "independent-counterparty",
+      "lived-reward"
+    ],
+    "maxCases": 3,
+    "maxCharacters": 6000,
+    "sceneExamples": {
+      "indexPath": "craft_packs/korean-author-craft/v1/scenes.json",
+      "indexSha256": "9876cebd12d56cc2e97a1582adc2401838595f6d8f9b39060cc674ba07be94a4",
+      "maxScenes": 1,
+      "maxCharacters": 7500
+    }
+  },
   "notionDatabaseId": "1a561b271642497eb052ce442ad36b3c",
   "notionEnvFile": "/Users/a2501/Desktop/hq_control/.env",
   "secretsFile": "~/.config/firefly-planning/secrets.json",

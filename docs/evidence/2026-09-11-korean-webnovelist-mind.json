@@ -1,0 +1,246 @@
+{
+  "schemaVersion": "korean-webnovelist-mind-research/v1",
+  "studyDate": "2026-09-11",
+  "recordedAt": "2026-09-11T01:45:57.102788+00:00",
+  "objective": "기존 한국 웹소설 작가 마인드 조사의 충분성 점검과 기획·선택·수정·독자 대응의 빈칸 보강",
+  "status": "research-only",
+  "report": "../2026-09-11-korean-webnovelist-mind-supplement.md",
+  "decisionCards": "../korean-webnovelist-decision-cards.md",
+  "internalComparison": "../../edge_repos/firefly_reference_lab/comparisons/2026-09-11-author-craft-mid-late.md",
+  "internalReadReceipt": "../../edge_repos/firefly_reference_lab/evidence/author-craft-mid-late-20260911/read-receipt.json",
+  "sourceCounts": {
+    "totalNewBodyReadInterviews": 7,
+    "mediaPrimaryCreatorInterviews": 5,
+    "institutionalCreatorInterviews": 1,
+    "vendorUserInterviews": 1
+  },
+  "sources": [
+    {
+      "id": "KW01",
+      "title": "윤이수 작가 인터뷰 ②",
+      "creator": "윤이수",
+      "interviewer": "김소연",
+      "publisher": "비즈엔터",
+      "url": "https://enter.etoday.co.kr/news/view/75170",
+      "publishedDate": "2016-09-06",
+      "sourceKind": "primary-interview",
+      "readScope": "공개 인터뷰 본문 전체; 연재 작업·인물 취향·화법 질문 포함",
+      "finding": "주요 인물의 마지막 장면을 미리 정하는 기획 방식",
+      "limits": [
+        "작업 당시의 자기보고이며 초고·변경 이력은 없음",
+        "2016년 발언을 현재 시장의 보편 규칙으로 해석하지 않음"
+      ],
+      "discoveredVia": "https://theqoo.net/square/322218100",
+      "duplicateTreatment": "재게시 글은 별도 독립 출처로 세지 않음",
+      "accessedDate": "2026-09-11",
+      "accessStatus": "public-body-read",
+      "authorProcessEvidence": "reported-process-not-observed-session",
+      "productionAdopted": false,
+      "qualityValidated": false,
+      "fullTextRedistributed": false
+    },
+    {
+      "id": "KW02",
+      "title": "AI로 웹소설 어디까지 쓸 수 있을까? 나비계곡 작가의 창작 비하인드",
+      "creator": "나비계곡",
+      "interviewer": "정다은",
+      "publisher": "코스모폴리탄",
+      "url": "https://www.cosmopolitan.co.kr/article/1907440",
+      "publishedDate": "2026-08-05",
+      "sourceKind": "primary-interview",
+      "readScope": "공개 텍스트 인터뷰 전체; 연결된 영상 미시청",
+      "finding": "세부 플롯 변경의 여지, 결단의 내면, 읽는 위치에 따른 피드백 선택",
+      "limits": [
+        "작가의 자기보고",
+        "실제 댓글·수정 이력·성과 대조 없음",
+        "AI 사용 경험은 도구 품질이나 정보 정확성 검증이 아님"
+      ],
+      "accessedDate": "2026-09-11",
+      "accessStatus": "public-body-read",
+      "authorProcessEvidence": "reported-process-not-observed-session",
+      "productionAdopted": false,
+      "qualityValidated": false,
+      "fullTextRedistributed": false
+    },
+    {
+      "id": "KW03",
+      "title": "상승세 무서운 재벌집 막내아들…원작자 말한 재벌물 열광 이유",
+      "creator": "산경",
+      "interviewer": "민경원",
+      "publisher": "중앙일보 / Daum 송고본",
+      "url": "https://v.daum.net/v/20221130141450741?s=print_news",
+      "publishedDate": "2022-11-30",
+      "sourceKind": "primary-interview-syndicated",
+      "readScope": "공개 인터뷰 본문 전체",
+      "finding": "줄기와 엔딩을 잡고 회사에서 겪은 사람·협상 경험을 활용",
+      "limits": [
+        "드라마 방영 시기의 회고 인터뷰",
+        "독자 일반에 대한 작가의 견해는 검증된 인간 행동 법칙이 아님"
+      ],
+      "accessedDate": "2026-09-11",
+      "accessStatus": "public-body-read",
+      "authorProcessEvidence": "reported-process-not-observed-session",
+      "productionAdopted": false,
+      "qualityValidated": false,
+      "fullTextRedistributed": false
+    },
+    {
+      "id": "KW04",
+      "title": "매출 100억 웹소설 작가의 성공 비결: 흔한 소재도 내 스타일로, 읽기 쉽게",
+      "creator": "비가",
+      "interviewer": "정영현",
+      "publisher": "서울경제 / Nate 송고본",
+      "url": "https://news.nate.com/view/20211020n04151",
+      "publishedDate": "2021-10-20",
+      "sourceKind": "primary-interview-syndicated",
+      "readScope": "네이트 송고 기사 본문 전체; 원매체 연결은 열람 실패",
+      "finding": "동료와의 의견 교환에서 출발한 첫 회, 자기 스타일과 쉬운 용어",
+      "limits": [
+        "성공 작품의 회고라 생존자 편향 가능",
+        "기사 제목의 매출은 당시 보도이며 현재 수치로 사용하지 않음"
+      ],
+      "accessedDate": "2026-09-11",
+      "accessStatus": "public-body-read",
+      "authorProcessEvidence": "reported-process-not-observed-session",
+      "productionAdopted": false,
+      "qualityValidated": false,
+      "fullTextRedistributed": false
+    },
+    {
+      "id": "KW05",
+      "title": "[웹작소] 중증외상센터 그린 의사작가, 이번엔 내과서 AI 닥터",
+      "creator": "한산이가 / 이낙준",
+      "interviewer": "이정현",
+      "publisher": "머니투데이 / Daum 송고본",
+      "url": "https://v.daum.net/v/zVGQherN5H",
+      "publishedDate": "2026-03-15",
+      "sourceKind": "primary-interview-syndicated",
+      "readScope": "공개 기사 본문 전체; 원작 작가의 발상·관계 장면 설명",
+      "finding": "독자가 궁금해할 병원 안의 일과 미리 보고 싶은 관계 장면에서 출발",
+      "limits": [
+        "웹툰 소개 기사에 실린 원작 웹소설 작가 인터뷰",
+        "언급한 장면의 실제 원고와 댓글은 이번에 열람하지 않음"
+      ],
+      "accessedDate": "2026-09-11",
+      "accessStatus": "public-body-read",
+      "authorProcessEvidence": "reported-process-not-observed-session",
+      "productionAdopted": false,
+      "qualityValidated": false,
+      "fullTextRedistributed": false
+    },
+    {
+      "id": "KW06",
+      "title": "피드백이 만든 변화…웹문예학과 강의실에서 네이버까지",
+      "creator": "목련의 서 / 김성민",
+      "interviewer": "김다현",
+      "publisher": "동국대학교 WISE캠퍼스",
+      "url": "https://wise.dongguk.ac.kr/article/wisestudent/detail/518566",
+      "publishedDate": "2026-02-27",
+      "sourceKind": "primary-interview-institutional",
+      "readScope": "공개 인터뷰 본문 전체",
+      "finding": "창작 수업의 비평·토론과 국궁 경험을 활용한 신인 사례",
+      "limits": [
+        "대학 홍보 인터뷰",
+        "교육과 경험의 독립적인 효과 검증은 없음"
+      ],
+      "accessedDate": "2026-09-11",
+      "accessStatus": "public-body-read",
+      "authorProcessEvidence": "reported-process-not-observed-session",
+      "productionAdopted": false,
+      "qualityValidated": false,
+      "fullTextRedistributed": false
+    },
+    {
+      "id": "KW07",
+      "title": "퇴근 후 한 편! 직장인의 웹소설 작가 도전기",
+      "creator": "WasabiDog",
+      "interviewer": null,
+      "publisher": "타입탁",
+      "url": "https://www.typetak.com/ko/blog/webnovelist_interview_1",
+      "publishedDate": null,
+      "sourceKind": "primary-user-interview-vendor-published",
+      "readScope": "공개 인터뷰 전체; 악역의 성격 변경 이유와 대사 전후·후보 예시 포함",
+      "finding": "인물 성격과 발화 상황을 먼저 바꾸고 어조를 조정한 한정 사례",
+      "limits": [
+        "작성자는 웹소설 도전자라고 소개됨; 전문 작가 대표 사례로 확대하지 않음",
+        "서비스 제공자가 게재한 제품 활용 사례",
+        "원고 전체·편집 로그·독자 평가 없음",
+        "본문에 게시일이 표시되지 않아 날짜 미상 유지"
+      ],
+      "accessedDate": "2026-09-11",
+      "accessStatus": "public-body-read",
+      "authorProcessEvidence": "reported-process-not-observed-session",
+      "productionAdopted": false,
+      "qualityValidated": false,
+      "fullTextRedistributed": false
+    }
+  ],
+  "sufficiency": {
+    "candidateToolsAndCraftDirections": "sufficient-to-design-bounded-experiments",
+    "singleKoreanWriterFormula": "not-supported; conflicting practices retained",
+    "midLateManuscriptMechanisms": "bounded-observations-added",
+    "wholeArcPayoff": "not-validated",
+    "KoreanRevisionProcess": "one-small-vendor-case; representative-process-evidence-missing",
+    "crossGenreGenerality": "not-established",
+    "humanQualityImprovement": "not-tested"
+  },
+  "openQuestions": [
+    {
+      "priority": 1,
+      "question": "한국 작가의 장면 전체 초고·수정본·버린 안·선택 이유는 어떻게 연결되는가?",
+      "currentEvidence": "대사 사례 1건; 장면 전체 이력 없음"
+    },
+    {
+      "priority": 2,
+      "question": "내부 작품의 연속 중·후반 아크에서 약속·지연·회수가 실제로 이어지는가?",
+      "currentEvidence": "이번 표본은 연속 아크 독서가 아님"
+    },
+    {
+      "priority": 3,
+      "question": "판단 카드를 적용한 글을 사람이 더 재미있게 읽고 다음 화를 선택하는가?",
+      "currentEvidence": "미실험"
+    },
+    {
+      "priority": 4,
+      "question": "장르가 바뀌면 어떤 판단을 유지하거나 버려야 하는가?",
+      "currentEvidence": "현판·재벌물 비중이 커 일반화 불가"
+    }
+  ],
+  "searchMethod": {
+    "approach": "기존 6개 보고서의 빈칸을 먼저 확인하고 한국 창작자의 직접 인터뷰, 수정 이유가 붙은 사례를 우선 검색",
+    "selectedQueriesNotExhaustive": [
+      "윤이수 이야기를 미리 다",
+      "웹소설 작가 인터뷰 퇴고 고쳤",
+      "한산이가 작가 인터뷰 경험 취재 인물",
+      "웹소설 퇴고 인터뷰 작가",
+      "스토리피아 랩 인터뷰"
+    ],
+    "discoveryOnlyOrNotUsedAsEvidence": [
+      {
+        "url": "https://lady.khan.co.kr/culture/article/202410301437001",
+        "status": "검색 결과와 부분 접근; 본문 재접근 오류",
+        "reason": "이번 보고서의 작가 판단·수정 사례 근거에 사용하지 않음"
+      },
+      {
+        "url": "https://lady.khan.co.kr/culture/article/202410301718011",
+        "status": "검색 결과만 확인",
+        "reason": "시나리오 변환 서비스 활용 홍보를 한국 웹소설 품질 증거로 세지 않음"
+      },
+      {
+        "url": "https://www.munhaknews.com/news/articleView.html?idxno=40937",
+        "status": "발견 후 본문 재접근 오류",
+        "reason": "산경의 별도 직접 인터뷰 KW03을 사용"
+      }
+    ]
+  },
+  "boundaries": {
+    "newOriginalFictionGenerated": false,
+    "productionPromptsChanged": false,
+    "trainingOrRLHFPerformed": false,
+    "humanBlindComparisonPerformed": false,
+    "externalMessagesSent": false,
+    "automationResumed": false,
+    "gitCommitOrPushPerformed": false,
+    "rawManuscriptsIncluded": false
+  }
+}

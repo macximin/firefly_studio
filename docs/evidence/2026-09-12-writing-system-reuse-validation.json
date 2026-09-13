@@ -1,0 +1,149 @@
+{
+  "schemaVersion": "writing-system-reuse-validation/v1",
+  "checkedAt": "2026-09-12T12:19:17.952109+00:00",
+  "scope": "Pinned selected functions with scripted model boundaries; not full-app installation or prose-quality evaluation",
+  "liveModelCalls": 0,
+  "humanReviewRequested": false,
+  "canonWrites": false,
+  "existingResearchCacheModified": false,
+  "sources": [
+    {
+      "path": "tuxiangxianzhe__NovelWriter_public/source/web_server.py",
+      "sha256": "d8f2c1f647ba273f6b95253aa2baac43e24a23cc4a845e96daf93499b4f655e7",
+      "commit": "9e7fe179c29341f3d84785df118894c29abb1308",
+      "gitBlobSha1": "6e598879bec25b1a5649fe658bee1ab7aa9e8d95"
+    },
+    {
+      "path": "tuxiangxianzhe__NovelWriter_public/source/prompt_definitions.py",
+      "sha256": "65e924fa5d85b825061bbc9d75554f8d8af3c1c8b47dcd443ac0aa5bf733ddd8",
+      "commit": "9e7fe179c29341f3d84785df118894c29abb1308",
+      "gitBlobSha1": "f4417d9c51ee9de932faf4e4e9639b59f5af7810"
+    },
+    {
+      "path": "tuxiangxianzhe__NovelWriter_public/source/novel_generator/chapter.py",
+      "sha256": "53655e0538ff0adafb2736f14e16056d377ae7f8a6972415fee12bab3d854764",
+      "commit": "9e7fe179c29341f3d84785df118894c29abb1308",
+      "gitBlobSha1": "1ba7b0cc1cb8e114bfbcd6c3e591f14307006b3d"
+    },
+    {
+      "path": "principia-ai__WriteHERE/source/recursive/agent/agents/regular.py",
+      "sha256": "6f0ba0eff7f8b1a0bbaceb73d9d09cd88ee6401dfeec893a7a523c6dcbdef466",
+      "commit": "817b489008e4b5dd50d5008803992dcf81c4fa50",
+      "gitBlobSha1": "b6759d7f908a5638542d6065c67c7d6bb0dd90b9"
+    },
+    {
+      "path": "principia-ai__WriteHERE/source/recursive/agent/prompts/story_writing_wo_search_nl_version_english/write_combine_atom_and_update.py",
+      "sha256": "f6c501f8f898b35b78dc5a62f736f00a0d953d06b50a8689e067f4c2aa24a35a",
+      "commit": "817b489008e4b5dd50d5008803992dcf81c4fa50",
+      "gitBlobSha1": "29b62a7c00ba9727247134e9c5e62688b3c4f406"
+    },
+    {
+      "path": "Ckokoski__AuthorAgent/source/gateway/src/services/character-agent.ts",
+      "sha256": "21191610b879a93c7d4b5e2b8f0af4c202a7cc2f841f332e8850c7ef2788f0e9",
+      "gitBlobSha1": "87e914cb4909d6477be305253c8239d8b211e2b4",
+      "commit": "47e9570fb96b9d151a3b1f9c22e3a365eab9bd9c"
+    },
+    {
+      "path": "Ckokoski__AuthorAgent/source/gateway/src/services/prose-evolver.ts",
+      "sha256": "465b2e07af79bca03bc62adee65408702cf4e34b3fcf871a711542b157c994ab",
+      "gitBlobSha1": "32cd351f01b4555f6217e6c10b882286ea3a734c",
+      "commit": "47e9570fb96b9d151a3b1f9c22e3a365eab9bd9c"
+    },
+    {
+      "path": "Ckokoski__AuthorAgent/gateway/src/services/dialogue-parser.ts",
+      "sha256": "d5aa961c4a848acb79705f6d96065412ca9489f52de6c503208c3d909adb517a",
+      "gitBlobSha1": "d4a31e320765249f28362e43237e0dd2988ca31a",
+      "commit": "47e9570fb96b9d151a3b1f9c22e3a365eab9bd9c"
+    },
+    {
+      "path": "Ckokoski__AuthorAgent/LICENSE",
+      "sha256": "cc6ac8d2785fb2d68a210da1d6752ea872bc5a88a39864cb22443abbbfa4dfb8",
+      "gitBlobSha1": "b039e842b5095c3801a1cd3624b59728a4119fdc",
+      "commit": "47e9570fb96b9d151a3b1f9c22e3a365eab9bd9c"
+    }
+  ],
+  "results": [
+    {
+      "system": "NovelWriter",
+      "checksPassed": 6,
+      "mockModelCalls": 2,
+      "liveModelCalls": 0,
+      "executed": [
+        "analyze_narrative_dna",
+        "get_narrative_instructions",
+        "build_chapter_prompt(first chapter)"
+      ],
+      "observed": {
+        "sampleLimitCharacters": 5000,
+        "stageInstructionsRoundTrip": true,
+        "chapterPromptReceivesInstruction": true,
+        "markerlessResponseSilentlyProducesEmptyInstructions": true
+      },
+      "notExecuted": [
+        "full application startup",
+        "real narrative analysis",
+        "embedding retrieval",
+        "chapter generation",
+        "later chapter path"
+      ]
+    },
+    {
+      "system": "WriteHERE",
+      "checksPassed": 4,
+      "mockModelCalls": 11,
+      "liveModelCalls": 0,
+      "executed": [
+        "StoryWritingNLWriteAtomWithUpdateEN prompt construction",
+        "get_llm_output",
+        "UpdateAtomPlanningAgent.forward atomic update and invalid-output branch"
+      ],
+      "observed": {
+        "writtenTextIncluded": true,
+        "scriptedGoalAppliedToNode": true,
+        "invalidAtomicOutputAttemptsBeforePlanning": 10,
+        "updatedGoalAppliedWithoutCanonComparison": true
+      },
+      "notExecuted": [
+        "recursive graph scheduling",
+        "real goal judgement",
+        "writing",
+        "search",
+        "full application startup"
+      ]
+    },
+    {
+      "system": "AuthorAgent",
+      "checksPassed": 10,
+      "mockModelCalls": 7,
+      "mockJudgeCalls": 3,
+      "liveModelCalls": 0,
+      "executed": [
+        "complete character-agent.ts and dialogue-parser.ts modules",
+        "buildCharacterBrief",
+        "critiqueDialogue",
+        "ProseEvolverService.evolve",
+        "estimateCalls"
+      ],
+      "observed": {
+        "koreanDialogueCharactersReviewed": 0,
+        "englishDialogueLinesReviewed": 3,
+        "coAppearanceSummaryTreatedAsKnowledge": true,
+        "futureSummaryIncludedWithoutTargetCutoff": true,
+        "inventedQuotedLineAccepted": true,
+        "malformedModelOutputIndistinguishableFromZeroFlags": true,
+        "originalPreserved": true,
+        "lowerScoredCandidateRejected": true,
+        "twoRoundReportedCalls": 7,
+        "maximumEstimatedCalls": 16
+      },
+      "notExecuted": [
+        "full application startup",
+        "real character critique",
+        "real revision",
+        "real WritingJudge",
+        "Korean prose quality assessment"
+      ]
+    }
+  ],
+  "checksPassed": 20
+}

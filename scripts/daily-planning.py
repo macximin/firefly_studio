@@ -30,6 +30,8 @@ def load_module(name, filename):
     module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);return module
 lifecycle=load_module('planning_lifecycle','planning-lifecycle.py')
 planning_input=load_module('planning_input','planning-input.py')
+author_craft_input=load_module('author_craft_input','author-craft-input.py')
+reviewed_feedback_input=load_module('reviewed_feedback_input','reviewed-feedback-input.py')
 save=worker.save
 sha=lambda x:hashlib.sha256(x.encode()).hexdigest()
 
@@ -176,12 +178,16 @@ def prepare(batch,date):
     hil=site('/api/firefly/planning-canaries?view=hil')
     if hil.get('coverage')!='review-and-canary' or hil.get('truncated'):
         raise RuntimeError('HIL coverage not verified; do not submit an incomplete context')
-    history=hil['decisions'];scope=planning_input.scope_hil(history)
+    history=hil['decisions'];scope=reviewed_feedback_input.load_reviewed_feedback(planning_input.scope_hil(history))
     selected=planning_input.select_sources(CONFIG['sourcePool'],date)
     materials=planning_input.load_source_materials(HQ/'edge_repos/firefly_reference_lab',selected)
-    text=planning_input.build_input(template,CONFIG['genre'],materials,scope)
+    craft=author_craft_input.select_craft(CONFIG.get('authorCraft'),CONFIG['genre']+' 기획: '+', '.join(source['title'] for source in selected),work_ids=[source['id'] for source in selected])
+    text=planning_input.build_input(template,CONFIG['genre'],materials,scope,craft)
     (batch/'input.md').write_text(text)
-    save(batch/'input-receipt.json',{'schemaVersion':'firefly-canary-input/v1','batchId':batch.name,'date':date,'createdAt':worker.now(),'genre':CONFIG['genre'],'promptSha256':sha(text),'sources':materials['sources'],'templateFullSha256':sha(template),'hilReadAt':worker.now(),'hilDecisionIds':[d['id'] for d in history],'hilCount':len(history),'hilSha256':sha(json.dumps(history,ensure_ascii=False)),'hilScope':scope['receipt']})
+    receipt={'schemaVersion':'firefly-canary-input/v1','batchId':batch.name,'date':date,'createdAt':worker.now(),'genre':CONFIG['genre'],'promptSha256':sha(text),'sources':materials['sources'],'templateFullSha256':sha(template),'hilReadAt':worker.now(),'hilDecisionIds':[d['id'] for d in history],'hilCount':len(history),'hilSha256':sha(json.dumps(history,ensure_ascii=False)),'hilScope':scope['receipt']}
+    if craft:receipt['authorCraft']={'selection':craft['receipt'],'adapter':craft['adapter']}
+    if craft and craft.get('sceneExamples'):receipt['authorSceneExamples']={key:value for key,value in craft['sceneExamples'].items() if key!='rendered'}
+    save(batch/'input-receipt.json',receipt)
 
 def alive(pid):
     if not isinstance(pid,int) or isinstance(pid,bool) or pid<=0:return False

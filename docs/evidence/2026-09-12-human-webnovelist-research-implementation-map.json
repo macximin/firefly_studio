@@ -1,0 +1,1880 @@
+{
+  "schemaVersion": "human-webnovelist-research-implementation-map/v1",
+  "date": "2026-09-12",
+  "design": "docs/2026-09-12-human-webnovelist-full-design.md",
+  "currentExecutionPlan": "docs/2026-09-12-human-webnovelist-two-hour-run.md",
+  "mode": "automatic-implementation-and-tests; human-review-not-required",
+  "modules": {
+    "M01": "작품 취향과 독자 약속",
+    "M02": "장면 근거와 생활 자료",
+    "M03": "사건과 장면 선택",
+    "M04": "인물 관점과 기억",
+    "M05": "독자 정보 공개",
+    "M06": "보상과 조연의 지속",
+    "M07": "한국어 목소리와 지면",
+    "M08": "발견과 재설계",
+    "M09": "결함별 퇴고",
+    "M10": "편집 사례와 피드백 기억"
+  },
+  "counts": {
+    "catalogRows": 73,
+    "thinkingRows": 12,
+    "readyMadeRows": 10,
+    "internalAnalysisRows": 2,
+    "decisionCardRows": 10,
+    "totalMappingRows": 107
+  },
+  "countCaveat": "중복 자료·색인·부분 열람·미열람 소개가 포함된다. 독립 원출처 수나 정독 수가 아니다.",
+  "rows": [
+    {
+      "id": "human-webnovelist-assets:wgwtest/novel-writing",
+      "sourceCatalog": "docs/evidence/2026-09-11-human-webnovelist-assets.json",
+      "sourceId": "wgwtest/novel-writing",
+      "title": "wgwtest/novel-writing",
+      "modules": [
+        "M04",
+        "M07",
+        "M09"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "인물의 지식·오해·선택·발화 연결과 문체 보존",
+      "readingScope": "selected_passages_read; package_not_executed",
+      "limits": "장면 인과 검토에 유용하나 재미·한국어 품질은 미검증",
+      "links": [
+        "https://github.com/wgwtest/novel-writing"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "human-webnovelist-assets:haowjy/creative-writing-skills",
+      "sourceCatalog": "docs/evidence/2026-09-11-human-webnovelist-assets.json",
+      "sourceId": "haowjy/creative-writing-skills",
+      "title": "haowjy/creative-writing-skills",
+      "modules": [
+        "M02",
+        "M07",
+        "M09"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "독자 경험과 장면 기능별 문체 참고 파일",
+      "readingScope": "selected_passages_read; package_not_executed",
+      "limits": "합성 독자는 사람 평가 아님. 일반 설명문용 규칙을 소설에 일괄 적용하지 않기",
+      "links": [
+        "https://github.com/haowjy/creative-writing-skills"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "human-webnovelist-assets:miserylee/webnovel-handbook",
+      "sourceCatalog": "docs/evidence/2026-09-11-human-webnovelist-assets.json",
+      "sourceId": "miserylee/webnovel-handbook",
+      "title": "miserylee/webnovel-handbook",
+      "modules": [
+        "M02",
+        "M03",
+        "M06",
+        "M07"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "독백·설명·일상·기억·독자 반응의 상황별 작법 자료",
+      "readingScope": "selected_passages_read; package_not_executed",
+      "limits": "작성자의 작법 편집물. 고정 회차·비율·플랫폼 규칙 및 효과 미검증",
+      "links": [
+        "https://github.com/miserylee/webnovel-handbook"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "human-webnovelist-assets:MJbae/awesome-novel-studio",
+      "sourceCatalog": "docs/evidence/2026-09-11-human-webnovelist-assets.json",
+      "sourceId": "MJbae/awesome-novel-studio",
+      "title": "MJbae/awesome-novel-studio",
+      "modules": [
+        "M04",
+        "M07",
+        "M09"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "한국어 인물별 정보 처리·상황별 대화·관계 반응",
+      "readingScope": "selected_passages_read; package_not_executed",
+      "limits": "설명 금지와 고정 장면 수는 기존 원고 관찰과 충돌. 출판 실적 자기 보고 미검증",
+      "links": [
+        "https://github.com/MJbae/awesome-novel-studio"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "human-webnovelist-assets:qingyabailu-git/webfiction-write",
+      "sourceCatalog": "docs/evidence/2026-09-11-human-webnovelist-assets.json",
+      "sourceId": "qingyabailu-git/webfiction-write",
+      "title": "qingyabailu-git/webfiction-write",
+      "modules": [
+        "M02",
+        "M10"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "인정된 작법 패턴과 출처가 있는 문체 프로필 기록",
+      "readingScope": "selected_passages_read; package_not_executed",
+      "limits": "외부 두 프로젝트 참고 계열. 원문 앵커의 공개 복사 금지. 모델 가중치 학습 아님",
+      "links": [
+        "https://github.com/qingyabailu-git/webfiction-write"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "human-webnovelist-assets:lingfengQAQ/webnovel-writer",
+      "sourceCatalog": "docs/evidence/2026-09-11-human-webnovelist-assets.json",
+      "sourceId": "lingfengQAQ/webnovel-writer",
+      "title": "lingfengQAQ/webnovel-writer",
+      "modules": [
+        "M02",
+        "M10"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "사용자가 인정한 작법 패턴의 지속 기록",
+      "readingScope": "selected_passages_read; package_not_executed",
+      "limits": "qingyabailu가 참고한 계열. 독립적인 효과 증거로 중복 계산하지 않기",
+      "links": [
+        "https://github.com/lingfengQAQ/webnovel-writer"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "human-webnovelist-assets:tance-mang/chinese-webnovel-skills",
+      "sourceCatalog": "docs/evidence/2026-09-11-human-webnovelist-assets.json",
+      "sourceId": "tance-mang/chinese-webnovel-skills",
+      "title": "tance-mang/chinese-webnovel-skills",
+      "modules": [
+        "M07"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "사람다움과 감정 표현에 관한 중국어 참고 자료",
+      "readingScope": "selected_passages_read; package_not_executed",
+      "limits": "비합리성 일반화·AI 느낌 점수·고정 비율을 인간성 또는 작품 품질 기준으로 사용하지 않기",
+      "links": [
+        "https://github.com/tance-mang/chinese-webnovel-skills"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "human-webnovelist-assets:mane23-ai/claude-novel-skill",
+      "sourceCatalog": "docs/evidence/2026-09-11-human-webnovelist-assets.json",
+      "sourceId": "mane23-ai/claude-novel-skill",
+      "title": "mane23-ai/claude-novel-skill",
+      "modules": [
+        "M05"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "한국어 독자·인물 지식 상태 참고표",
+      "readingScope": "selected_passages_read; package_not_executed",
+      "limits": "고정 감정 변화·해소 주기 미검증. README clone 주소가 열람한 계정과 다름",
+      "links": [
+        "https://github.com/mane23-ai/claude-novel-skill"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "human-webnovelist-assets:writing-excuses",
+      "sourceCatalog": "docs/evidence/2026-09-11-human-webnovelist-assets.json",
+      "sourceId": "writing-excuses",
+      "title": "writing-excuses",
+      "modules": [
+        "M03",
+        "M05",
+        "M06",
+        "M07"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "작가의 독자 기대·휴지·대사 이면 설명과 연습",
+      "readingScope": "official_transcripts_selected_passages_read",
+      "limits": "영어권 출판 작법 경험. 한국 연재 보편 규칙 아님",
+      "links": [
+        "https://writingexcuses.com/12-40-structuring-a-novel/"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "human-webnovelist-assets:wordcraft-workshop",
+      "sourceCatalog": "docs/evidence/2026-09-11-human-webnovelist-assets.json",
+      "sourceId": "wordcraft-workshop",
+      "title": "wordcraft-workshop",
+      "modules": [
+        "M01",
+        "M09",
+        "M10"
+      ],
+      "useMode": "design-reference-only",
+      "sourceFinding": "전문 작가가 AI를 선택적으로 사용하는 과정과 요구",
+      "readingScope": "official_project_account_read",
+      "limits": "13명·8주·영어·LaMDA 시기 연구. 현재 모델 성능이나 한국 웹소설 성능 증거 아님",
+      "links": [
+        "https://wordcraft-writers-workshop.appspot.com/learn"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "human-webnovelist-assets:coauthor",
+      "sourceCatalog": "docs/evidence/2026-09-11-human-webnovelist-assets.json",
+      "sourceId": "coauthor",
+      "title": "coauthor",
+      "modules": [
+        "M09",
+        "M10"
+      ],
+      "useMode": "design-reference-only",
+      "sourceFinding": "제안 선택·편집·삭제 순서 연구",
+      "readingScope": "one_session_jsonl_schema_and_event_counts_inspected",
+      "limits": "크라우드 작업자. 전체 1445세션 중 창작 830. 관찰 이벤트는 내면 이유가 아님",
+      "links": [
+        "https://coauthor.stanford.edu/"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "human-webnovelist-assets:literarytaste",
+      "sourceCatalog": "docs/evidence/2026-09-11-human-webnovelist-assets.json",
+      "sourceId": "literarytaste",
+      "title": "literarytaste",
+      "modules": [
+        "M01",
+        "M10"
+      ],
+      "useMode": "design-reference-only",
+      "sourceFinding": "선언 취향과 실제 선택을 분리하는 검토 기록 설계",
+      "readingScope": "two_csv_schemas_and_counts_inspected",
+      "limits": "인간·LLM 관련 텍스트 혼합. 자체 RLHF용 도입 제안 아님",
+      "links": [
+        "https://github.com/mj-storytelling/LiteraryTaste/tree/5b4d67683c3c83be9346b105e163620881f77b19"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "human-webnovelist-assets:story-themepark",
+      "sourceCatalog": "docs/evidence/2026-09-11-human-webnovelist-assets.json",
+      "sourceId": "story-themepark",
+      "title": "story-themepark",
+      "modules": [
+        "M02",
+        "M04"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "소유물·체면·관계가 드러나는 생활 선택 소재",
+      "readingScope": "catalog_and_one_entry_with_source_translation_read",
+      "limits": "재구성 해설·원문 번역 구분. 현대 장르에 그대로 적용하지 않기",
+      "links": [
+        "https://story.ugyo.net/front/sub01/sub0101.do"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "human-webnovelist-assets:one-stop-for-writers",
+      "sourceCatalog": "docs/evidence/2026-09-11-human-webnovelist-assets.json",
+      "sourceId": "one-stop-for-writers",
+      "title": "one-stop-for-writers",
+      "modules": [
+        "M02",
+        "M04"
+      ],
+      "useMode": "design-reference-only",
+      "sourceFinding": "감정·직업·관계·장면 참고와 인물 설계",
+      "readingScope": "official_public_product_description_only",
+      "limits": "다운로드 가능한 오픈 에셋으로 분류하지 않음. 감정별 몸짓 고정 처방 주의",
+      "links": [
+        "https://onestopforwriters.com/getting-started"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:R01",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "R01",
+      "title": "worldwonderer/oh-story-claudecode",
+      "modules": [
+        "M06",
+        "M07",
+        "M09"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "장르의 독자 약속, 보상 귀속, 기능 없는 몸짓 교정, 작품별 문체 우선순위",
+      "readingScope": "pinned_selected_passages",
+      "limits": "같은 모델 계열이 평가한 단일 장면 실험이다. 기본 심리·시점 규칙과 수치 처방은 별도 검토가 필요하다.",
+      "links": [
+        "https://github.com/worldwonderer/oh-story-claudecode"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:R02",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "R02",
+      "title": "HZ-KMNO/web-novel-writing-guidance-skill",
+      "modules": [
+        "M02",
+        "M03"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "독자 경험에서 출발하는 작품 분석, 기술 카드와 연습으로 변환",
+      "readingScope": "pinned_selected_passages",
+      "limits": "로컬 사례집의 60 EPUB 구조 추출은 60권 정독 증거가 아니다. Bilibili/커뮤니티 재정리의 원발언은 미검증이다.",
+      "links": [
+        "https://github.com/HZ-KMNO/web-novel-writing-guidance-skill"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:R03",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "R03",
+      "title": "LAY-lgtm/novel-writing-framework",
+      "modules": [
+        "M04",
+        "M06",
+        "M07"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "인물별 말투 카드, 대화의 신분·정보 필터, 중반 반복 점검",
+      "readingScope": "pinned_selected_passages",
+      "limits": "사람처럼 보이기 위한 문장 파괴, 매회 특정 표현·동작, 미회수 허용 등 강제 규칙이 섞여 있다. 전체 도입 비추천.",
+      "links": [
+        "https://github.com/LAY-lgtm/novel-writing-framework"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:R04",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "R04",
+      "title": "wordflowlab/novel-writer",
+      "modules": [
+        "M03",
+        "M08"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "장편·권·회차마다 계획을 갱신하는 계층적 창작 관리",
+      "readingScope": "pinned_selected_passages",
+      "limits": "MRU 명칭 아래 Scene/Sequel 규모 규칙을 묶는다. 모든 장면의 좌절과 전 단계 노출을 강제하는 부분은 보편 규칙으로 쓰지 않는다.",
+      "links": [
+        "https://github.com/wordflowlab/novel-writer"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:R05",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "R05",
+      "title": "wgwtest/novel-writing",
+      "modules": [
+        "M04",
+        "M07",
+        "M09"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "인지 층위, 인물의 선택과 장면 인과, 원래 문체 보존",
+      "readingScope": "prior_round_selected_files",
+      "limits": "앞선 같은 날짜 조사 결과를 재사용한다. 한국어 장편 품질 입증이 아니며 고정 횟수·설명 금지 등은 원고와 대조한다.",
+      "links": [
+        "https://github.com/wgwtest/novel-writing"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:R06",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "R06",
+      "title": "haowjy/creative-writing-skills",
+      "modules": [
+        "M02",
+        "M07",
+        "M09"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "독자 보상, 실패 양상, 작품에서 추출하는 스타일 관찰",
+      "readingScope": "prior_round_selected_files",
+      "limits": "앞선 같은 날짜 조사 결과를 재사용한다. 한국어 장편 품질 입증이 아니며 고정 횟수·설명 금지 등은 원고와 대조한다.",
+      "links": [
+        "https://github.com/haowjy/creative-writing-skills"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:R07",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "R07",
+      "title": "miserylee/webnovel-handbook",
+      "modules": [
+        "M02",
+        "M03",
+        "M06",
+        "M07"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "내면 독백, 설명과 장면 선택, 일상·저강도 장면, 독자 피드백 진단",
+      "readingScope": "prior_round_selected_files",
+      "limits": "앞선 같은 날짜 조사 결과를 재사용한다. 한국어 장편 품질 입증이 아니며 고정 횟수·설명 금지 등은 원고와 대조한다.",
+      "links": [
+        "https://github.com/miserylee/webnovel-handbook"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:R08",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "R08",
+      "title": "MJbae/awesome-novel-studio",
+      "modules": [
+        "M04",
+        "M07",
+        "M09"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "한국어 캐릭터 대화 DNA와 사고 습관 참고",
+      "readingScope": "prior_round_selected_files",
+      "limits": "앞선 같은 날짜 조사 결과를 재사용한다. 한국어 장편 품질 입증이 아니며 고정 횟수·설명 금지 등은 원고와 대조한다.",
+      "links": [
+        "https://github.com/MJbae/awesome-novel-studio"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:K01",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "K01",
+      "title": "탄마: 웹소설 작법 및 산업 자료실",
+      "modules": [
+        "M01",
+        "M05"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "자기 독자 찾기, 작가 고유의 반복 패턴, 사건과 전달 순서 구분",
+      "readingScope": "index_and_three_articles",
+      "limits": "개인 경험과 견해다. 매출 보장·뇌과학 표현·장르 전체에 대한 일반화는 검증된 사실로 채택하지 않는다. 자료실 전부를 읽은 것은 아니다.",
+      "links": [
+        "https://tanma.kr/data.html",
+        "https://tanma.kr/data/strategicwriting2.html",
+        "https://tanma.kr/data/plot_story.html",
+        "https://tanma.kr/data/webnovelfun.html"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:K02",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "K02",
+      "title": "정무늬: 웹소설 써서 먹고삽니다 저자 인터뷰",
+      "modules": [
+        "M01",
+        "M02"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "독자의 소비 방식, 자기 작품성의 상업적 표현, 관찰·메모와 지속 가능한 집필",
+      "readingScope": "interview_craft_and_process_sections",
+      "limits": "2021년 인터뷰다. 당시 수입·시장 전망을 현재 통계로 재사용하지 않는다. 글담 카페·유튜브의 존재와 본문 열람은 구별한다.",
+      "links": [
+        "https://www.booklife.kr/news/articleView.html?idxno=346"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:K03",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "K03",
+      "title": "달새울·화음: 마른 가지에 바람처럼 인터뷰",
+      "modules": [
+        "M07",
+        "M08"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "간단한 출발점, 핵심 전환 장면과 엔딩, 독백·자연물 서술, 매체에 따른 표현 변화",
+      "readingScope": "interview_body",
+      "limits": "소설과 웹툰 공동 인터뷰다. 글쓴이 달새울과 작화가 화음의 발언, 소설 집필과 웹툰 각색을 구별한다. 작품 본편은 이번에 읽지 않았다.",
+      "links": [
+        "https://www.webtoonguide.com/ko/board/rds01_interview/16956"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:K04",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "K04",
+      "title": "태린: 웹소설 시점은 어떻게 할까?",
+      "modules": [
+        "M05",
+        "M07"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "1인칭·3인칭과 장면 목적의 관계, 작가가 체감한 혼합 시점",
+      "readingScope": "article_body",
+      "limits": "개인 경험이다. 3인칭을 모두 전지적으로 분류하는 설명이나 시점 문제에 독자가 관심 없다는 일반화는 채택하지 않는다.",
+      "links": [
+        "https://brunch.co.kr/@qsza45/51"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:P01",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "P01",
+      "title": "문피아 아카데미",
+      "modules": [
+        "M03"
+      ],
+      "useMode": "design-reference-only",
+      "sourceFinding": "기획안 합평, 5화·10화 원고, 캐릭터·후킹·연재 준비의 실제 교육 구성",
+      "readingScope": "public_curriculum",
+      "limits": "강의·합평 내용 미열람. 페이지는 2027년 모집을 표시한다. 2026-09-11 현재 즉시 수강 가능한 공개 강좌로 취급하지 않는다.",
+      "links": [
+        "https://academy.munpia.com/"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:P02",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "P02",
+      "title": "番茄: 从本质到方法，塑造代入感的六大核心技巧",
+      "modules": [
+        "M01",
+        "M03",
+        "M05"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "煮熟的来福鸽의 익숙한 장면, 선택의 공감, 기본 욕망과 사건이 만드는 기대의 구분",
+      "readingScope": "public_article_body_from_page_data",
+      "limits": "남성향 중심이라는 원문 범위를 보존한다. 독자의 완전한 동의, 감정 비율, 연독 확신을 보편적·실증적 법칙으로 보지 않는다.",
+      "links": [
+        "https://fanqienovel.com/writer/zone/article/7514519759442935832"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:P03",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "P03",
+      "title": "番茄: 开篇即爆点！三步公式打造高黏性开头（上）",
+      "modules": [
+        "M03",
+        "M05",
+        "M07"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "丛月의 주선·기조 결정, 반응으로 성격 드러내기, 회상과 정보 공개로 다음 기대 만들기",
+      "readingScope": "public_article_body_from_page_data",
+      "limits": "여성향 중심의 개인 경험이며 예문은 강의용이라고 명시한다. 도파민·중독 표현과 연독 보장, 날씨 규칙을 과학·범용 규칙으로 채택하지 않는다.",
+      "links": [
+        "https://fanqienovel.com/writer/zone/article/7478303864752455705"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:P04",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "P04",
+      "title": "카쿠요무 2020 공개 작품 강평 1·4회",
+      "modules": [
+        "M09",
+        "M10"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "작품의 강점, 독자 경험의 문제, 수정 제안이 이어지는 공개 사람 강평",
+      "readingScope": "selected_work_commentaries",
+      "limits": "시리즈 안내는 30작품·7회다. 이번에는 1회와 4회의 일부 작품 강평을 확인했다. 대상 소설 정독·수정 후 성과 검증은 하지 않았다.",
+      "links": [
+        "https://kakuyomu.jp/info/entry/wc6_rev_vol1",
+        "https://kakuyomu.jp/info/entry/wc6_rev_vol4"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:P05",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "P05",
+      "title": "에듀코카: 웹소설 원작 웹툰으로 각색하기",
+      "modules": [
+        "M07"
+      ],
+      "useMode": "design-reference-only",
+      "sourceFinding": "박인하의 매체 특성·원작과 각색의 차이를 찾는 입구",
+      "readingScope": "public_intro_transcript",
+      "limits": "2020년 제작 서론 자막 확인. 후속 작가 인터뷰 강의 전체와 재생은 미확인. 소설 작법의 직접 처방보다 매체 차이 참고용.",
+      "links": [
+        "https://edu.kocca.kr/edu/onlineEdu/openLecture/view.do?menuNo=500085&pLectureCls=GC03&pSeq=1032"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:C01",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "C01",
+      "title": "콜로소: 산경 웹소설 작법",
+      "modules": [
+        "M03"
+      ],
+      "useMode": "design-reference-only",
+      "sourceFinding": "현대판타지, 독자가 얻을 감정, 캐릭터, 자료조사, 플롯·시점·설명 균형",
+      "readingScope": "public_curriculum_only",
+      "limits": "유료 강의 미수강. 무료 영상 링크는 확인했으나 본문·자막은 확보하지 못했다. 같은 저자의 책과 독립된 증거로 중복 계산하지 않는다.",
+      "links": [
+        "https://coloso.co.kr/products/webnovel_sankyung",
+        "https://coloso.co.kr/event/colosotv-creative-sankyung",
+        "https://www.youtube.com/watch?v=xppikydJ3Sk"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:C02",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "C02",
+      "title": "Bler: 태린 4주 완성 웹소설 학습지",
+      "modules": [
+        "M03",
+        "M07"
+      ],
+      "useMode": "design-reference-only",
+      "sourceFinding": "집필 과제로 넘어가는 강의·학습지 구성, 질의 창구",
+      "readingScope": "public_curriculum_only",
+      "limits": "학습지·강의 원문 미열람. 판매 페이지의 업계 표준·데뷔 보장성 표현은 입증된 성과가 아니다.",
+      "links": [
+        "https://bler.co.kr/lecture/98/taerin-webnovel"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:B01",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "B01",
+      "title": "산경, 실패하지 않는 웹소설 연재의 기술",
+      "modules": [
+        "M03",
+        "M08"
+      ],
+      "useMode": "design-reference-only",
+      "sourceFinding": "무료 마지막 회차, 조연 활용, 플롯·문장·자료조사·독자 대응을 공부할 독서 후보",
+      "readingScope": "publisher_description_and_partial_contents",
+      "limits": "책 전체 미독. 공개 출판사 소개와 목차만으로 개별 조언이나 효과를 단정하지 않는다.",
+      "links": [
+        "https://www.yes24.com/product/goods/85463085"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:B02",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "B02",
+      "title": "김휘빈, 웹소설 작가 서바이벌 가이드",
+      "modules": [
+        "M03",
+        "M10"
+      ],
+      "useMode": "design-reference-only",
+      "sourceFinding": "웹소설 포맷과 작가로서 지속하는 작업의 관계를 다루는 독서 후보",
+      "readingScope": "publisher_description_and_partial_contents",
+      "limits": "책 전체 미독. 2017년 시장·플랫폼·계약 설명의 현재 유효성을 검증하지 않았다.",
+      "links": [
+        "https://www.yes24.com/product/goods/43220506"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:B03",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "B03",
+      "title": "북마녀의 웹소설 장면 묘사 실습 강의",
+      "modules": [
+        "M07"
+      ],
+      "useMode": "design-reference-only",
+      "sourceFinding": "설정·시놉시스에서 실제 장면으로 넘어가는 실습 후보",
+      "readingScope": "publisher_description_and_contents",
+      "limits": "소개는 200개 실습을 명시한다. 예제 전체 미열람, 200일 성공·상위 1% 같은 표현은 마케팅 문구다.",
+      "links": [
+        "https://www.yes24.com/product/goods/125313908",
+        "https://linktr.ee/bookwitch"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:V01",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "V01",
+      "title": "우동이즘: 글쓰기 고쳐야 할 습관 세 가지",
+      "modules": [
+        "M07",
+        "M09"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "한국어 가독성·번역체를 점검하는 보조 자료",
+      "readingScope": "creator_blog_and_partial_captions",
+      "limits": "영상 전체 시청·전체 자막 검토 아님. 수동태·대명사·문화 표현의 일괄 금지로 사용하지 않는다.",
+      "links": [
+        "https://udonism.tistory.com/289",
+        "https://www.youtube.com/watch?v=fiNdNGXHdxI"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:V02",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "V02",
+      "title": "오류하: 웹소설 작법서, 3년차 웹소설 작가가 읽어보았습니다",
+      "modules": [
+        "M09"
+      ],
+      "useMode": "design-reference-only",
+      "sourceFinding": "서로 다른 한국 작법서를 비교할 다음 조사 입구",
+      "readingScope": "search_metadata_and_description_only",
+      "limits": "영상 본문·자막 미확보. 설명란의 책 목록 확인만 완료했다. 작가의 책별 평가를 추정하지 않는다.",
+      "links": [
+        "https://www.youtube.com/watch?v=DWJXiEzX-qo"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:V03",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "V03",
+      "title": "流浪的蛤蟆网文写作: 如何开始写网文",
+      "modules": [
+        "M03"
+      ],
+      "useMode": "design-reference-only",
+      "sourceFinding": "중국 현업 작가의 장편 연재 경험을 찾는 다음 조사 입구",
+      "readingScope": "search_metadata_only",
+      "limits": "직접 열람은 412로 실패. 저장소의 요약과 실제 영상 내용을 동일시하지 않는다.",
+      "links": [
+        "https://www.bilibili.com/video/BV1J341147NY/"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:S01",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "S01",
+      "title": "북마녀 포스타입 장면 실습 예제 195",
+      "modules": [
+        "M07"
+      ],
+      "useMode": "design-reference-only",
+      "sourceFinding": "책 이전의 연속 장면 실습과 창작자 채널 후보",
+      "readingScope": "public_intro_only",
+      "limits": "전체 예제 본문 미열람. 로그인·유료 여부와 현재 이용 조건을 확정하지 않았다.",
+      "links": [
+        "https://www.postype.com/@bookwitch/post/14119024"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:A01",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "A01",
+      "title": "Writing Excuses 10.31: Reader’s Sense of Progress",
+      "modules": [
+        "M06",
+        "M07"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "시간 경과와 진전감, 사건 발생과 약속의 진행을 구분",
+      "readingScope": "official_transcript_selected_sections",
+      "limits": "영어권 출판 작가의 실무 대화다. 한국 연재의 회차 수·결제 행동을 검증한 자료가 아니다.",
+      "links": [
+        "https://writingexcuses.com/writing-excuses-10-31-how-do-i-control-the-readers-sense-of-progress/"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:A02",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "A02",
+      "title": "Writing Excuses 17.34: Developing Subtext",
+      "modules": [
+        "M04",
+        "M05",
+        "M07"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "표면 대사, 인물의 목적, 감정과 전달 의도의 차이",
+      "readingScope": "prior_round_official_transcript",
+      "limits": "앞선 같은 날짜 조사 재사용. 한국어 대사와 특정 작가에 대한 검증은 별도다.",
+      "links": [
+        "https://writingexcuses.com/17-34-developing-subtext/"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:E01",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "E01",
+      "title": "Alexander Wales: Serial Writing, An FAQ",
+      "modules": [
+        "M08",
+        "M10"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "연재 비축분과 독자의 정보 시차, 피드백을 받을 때 지킬 작품의 방향",
+      "readingScope": "selected_serialization_and_feedback_sections",
+      "limits": "개인 경험이며 게시 당시 플랫폼·수익 조언은 현재 사실로 재사용하지 않는다.",
+      "links": [
+        "https://alexanderwales.com/serial-writing-an-faq/"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:E02",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "E02",
+      "title": "Wildbow: Thoughts on Writing Serials",
+      "modules": [
+        "M01",
+        "M10"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "지속 가능한 연재 속도를 미리 시험하기, 작은 독자 표본 때문에 자기 취향을 잃지 않기",
+      "readingScope": "selected_process_and_feedback_sections",
+      "limits": "2017년 개인 경험. 권하는 비축 회차 수와 빈도를 한국 연재 규칙으로 옮기지 않는다.",
+      "links": [
+        "https://wildbow.wordpress.com/2017/05/22/thoughts-on-writing-serials/"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:J01",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "J01",
+      "title": "김준현, 문학 매체로서의 웹의 대두와 소설가/작가",
+      "modules": [
+        "M08",
+        "M10"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "작가·편집자·독자의 상호작용이 창작 과정에 참여하는 유형을 구별",
+      "readingScope": "abstract_and_selected_section_4_pages_24_to_26",
+      "limits": "현대소설연구 93, 2024.3, DOI 10.20483/JKFR.2024.03.93.5. 이론·매체사 논의이며 특정 작법의 매출·품질 개선 실험이 아니다.",
+      "links": [
+        "https://jkfr.co.kr/xml/40574/40574.pdf"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "webnovel-craft-channels:Q01",
+      "sourceCatalog": "docs/evidence/2026-09-11-webnovel-craft-channels.json",
+      "sourceId": "Q01",
+      "title": "起点社区: 黄金三章에 대한 여러 의견",
+      "modules": [
+        "M03",
+        "M06"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "초반 약속과 작품 기조, 3회라는 숫자의 맥락을 복원",
+      "readingScope": "public_repost_body_original_inaccessible",
+      "limits": "qidianclub은 이 조사에서 공식 플랫폼으로 인증하지 않았다. 원문 출처를 명시한 재게시물이며 write.qq.com 원문은 403. 통계처럼 쓰인 수치도 검증하지 않았다.",
+      "links": [
+        "https://www.qidianclub.com/threads/276/",
+        "https://write.qq.com/portal/content?caid=12871234803277101&feedType=1&lcid="
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "jeongryongpil-dc-craft:tgijjdd-192785",
+      "sourceCatalog": "docs/evidence/2026-09-11-jeongryongpil-dc-craft.json",
+      "sourceId": "tgijjdd-192785",
+      "title": "망생이들을 위한 웹소설 연재 팁 (1). 시놉시스",
+      "modules": [
+        "M03",
+        "M08"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "방향·주요 인물·관계를 다시 확인할 최소 메모는 무엇인가?",
+      "readingScope": "text_body_read_images_and_comments_not_reviewed",
+      "limits": "개인별 회차 계산을 일반 규칙으로 옮기지 않는다. 삽입 이미지는 미분석.",
+      "links": [
+        "https://gall.dcinside.com/mgallery/board/view/?id=tgijjdd&no=192785"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "jeongryongpil-dc-craft:tgijjdd-192796",
+      "sourceCatalog": "docs/evidence/2026-09-11-jeongryongpil-dc-craft.json",
+      "sourceId": "tgijjdd-192796",
+      "title": "망생이들을 위한 웹소설 연재 팁 (3) - 대화",
+      "modules": [
+        "M07",
+        "M09"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "중복 발화 설명을 덜어도 화자·의도·관계가 보이는가?",
+      "readingScope": "text_body_read_images_and_comments_not_reviewed",
+      "limits": "말했다의 일괄 금지로 사용하지 않는다.",
+      "links": [
+        "https://gall.dcinside.com/mgallery/board/view/?id=tgijjdd&no=192796"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "jeongryongpil-dc-craft:tgijjdd-681549",
+      "sourceCatalog": "docs/evidence/2026-09-11-jeongryongpil-dc-craft.json",
+      "sourceId": "tgijjdd-681549",
+      "title": "누누이 말하지만 웹소는 기대감이다",
+      "modules": [
+        "M06"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "이번에 충족한 약속과 계속 남는 작품 목표는 무엇인가?",
+      "readingScope": "text_body_read_images_and_comments_not_reviewed",
+      "limits": "80/20 비율과 회차 숫자의 실증 근거는 확인되지 않았다.",
+      "links": [
+        "https://gall.dcinside.com/mgallery/board/view/?id=tgijjdd&no=681549"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "jeongryongpil-dc-craft:tgijjdd-719048",
+      "sourceCatalog": "docs/evidence/2026-09-11-jeongryongpil-dc-craft.json",
+      "sourceId": "tgijjdd-719048",
+      "title": "[정보] 정보격차가 왜 필요할까? (1)",
+      "modules": [
+        "M05"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "정보를 활용한 활약과 상대가 알게 되는 순간 중 어떤 재미를 주는가?",
+      "readingScope": "text_body_read_images_and_comments_not_reviewed",
+      "limits": "주관적 고찰. 정보격차가 모든 재미의 필수조건인 것은 아니다.",
+      "links": [
+        "https://gall.dcinside.com/mgallery/board/view/?id=tgijjdd&no=719048"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "jeongryongpil-dc-craft:tgijjdd-719506",
+      "sourceCatalog": "docs/evidence/2026-09-11-jeongryongpil-dc-craft.json",
+      "sourceId": "tgijjdd-719506",
+      "title": "[정보] 정보격차가 왜 필요할까? (2)",
+      "modules": [
+        "M05"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "독자만 아는 준비가 주인공의 다음 반응을 기다리게 하는가?",
+      "readingScope": "text_body_read_images_and_comments_not_reviewed",
+      "limits": "주인공이 항상 가장 많이 알아야 한다는 규칙으로 축소하지 않는다.",
+      "links": [
+        "https://gall.dcinside.com/mgallery/board/view/?id=tgijjdd&no=719506"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "jeongryongpil-dc-craft:tgijjdd-719995",
+      "sourceCatalog": "docs/evidence/2026-09-11-jeongryongpil-dc-craft.json",
+      "sourceId": "tgijjdd-719995",
+      "title": "[정보] 정보격차가 왜 필요할까? (3)",
+      "modules": [
+        "M04",
+        "M05"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "같은 사건을 알아도 세부 정보·능력·오해 때문에 행동과 결과가 달라지는가?",
+      "readingScope": "text_body_read_images_and_comments_not_reviewed",
+      "limits": "원글도 앞선 여덟 분류의 한계와 반례 검토를 명시한다.",
+      "links": [
+        "https://gall.dcinside.com/mgallery/board/view/?id=tgijjdd&no=719995"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "jeongryongpil-dc-craft:tgijjdd-792611",
+      "sourceCatalog": "docs/evidence/2026-09-11-jeongryongpil-dc-craft.json",
+      "sourceId": "tgijjdd-792611",
+      "title": "[정보] 조연의 매력을 오래 유지하려면 초반부터 무엇을 신경 써야 할까?",
+      "modules": [
+        "M04",
+        "M06"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "큰 관계 사건 이후에도 이 인물에게 역할과 재미가 남는가?",
+      "readingScope": "text_body_read_images_and_comments_not_reviewed",
+      "limits": "노벨피아 관계 중심 사례. 후피집 연재 한계와 흥행 단정은 미검증.",
+      "links": [
+        "https://gall.dcinside.com/mgallery/board/view/?id=tgijjdd&no=792611"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "jeongryongpil-dc-craft:tgijjdd-792826",
+      "sourceCatalog": "docs/evidence/2026-09-11-jeongryongpil-dc-craft.json",
+      "sourceId": "tgijjdd-792826",
+      "title": "[정보] 감정선의 등락은 왜 필요할까?",
+      "modules": [
+        "M04",
+        "M06"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "강한 애증 변화 없이도 계속 보고 싶은 상호작용이 있는가?",
+      "readingScope": "text_body_read_images_and_comments_not_reviewed",
+      "limits": "감정 점수와 왕복 횟수는 개인적 모형이다.",
+      "links": [
+        "https://gall.dcinside.com/mgallery/board/view/?id=tgijjdd&no=792826"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "jeongryongpil-dc-craft:tgijjdd-670674",
+      "sourceCatalog": "docs/evidence/2026-09-11-jeongryongpil-dc-craft.json",
+      "sourceId": "tgijjdd-670674",
+      "title": "[TIP] 탑 매니지먼트 분석글",
+      "modules": [
+        "M05",
+        "M07"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "독백·업계 대화·정보 공개·행동 중 실제 매력을 만든 대목은 어디인가?",
+      "readingScope": "text_body_read_images_and_comments_not_reviewed",
+      "limits": "원작 직접 대조 없음. 예문·타 작가 일화·경력·게시물 수정 이력 미검증.",
+      "links": [
+        "https://gall.dcinside.com/mgallery/board/view/?id=tgijjdd&no=670674"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "jeongryongpil-dc-craft:tgijjdd-872742",
+      "sourceCatalog": "docs/evidence/2026-09-11-jeongryongpil-dc-craft.json",
+      "sourceId": "tgijjdd-872742",
+      "title": "[어둠의 작가 팁] ㅡ 망한 글 편.",
+      "modules": [
+        "M03",
+        "M08"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "자유로운 초안에서 살릴 사건을 발견한 뒤 인과를 다시 검토할 수 있는가?",
+      "readingScope": "text_body_read_images_and_comments_not_reviewed",
+      "limits": "생산 속도를 품질로 계산하지 않는다. 심리·적성에 관한 단정은 채택하지 않는다.",
+      "links": [
+        "https://gall.dcinside.com/mgallery/board/view/?id=tgijjdd&no=872742"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "jeongryongpil-dc-craft:tgijjdd-238877",
+      "sourceCatalog": "docs/evidence/2026-09-11-jeongryongpil-dc-craft.json",
+      "sourceId": "tgijjdd-238877",
+      "title": "웹소설 연재 갤러리 개념글 팁 정리글(+추가글)",
+      "modules": [
+        "M02"
+      ],
+      "useMode": "discovery-context-only",
+      "sourceFinding": "필요한 문제의 개별 원글로 이동할 수 있는가?",
+      "readingScope": "selected_index_entries_or_relevant_passages",
+      "limits": "목록 확보는 연결된 모든 본문 열람이 아니다.",
+      "links": [
+        "https://gall.dcinside.com/mgallery/board/view/?id=tgijjdd&no=238877"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "jeongryongpil-dc-craft:tgijjdd-898620",
+      "sourceCatalog": "docs/evidence/2026-09-11-jeongryongpil-dc-craft.json",
+      "sourceId": "tgijjdd-898620",
+      "title": "웹소설 연재 갤러리 개념글 팁 정리글7",
+      "modules": [
+        "M02"
+      ],
+      "useMode": "discovery-context-only",
+      "sourceFinding": "필요한 문제의 개별 원글로 이동할 수 있는가?",
+      "readingScope": "selected_index_entries_or_relevant_passages",
+      "limits": "목록 확보는 연결된 모든 본문 열람이 아니다.",
+      "links": [
+        "https://gall.dcinside.com/mgallery/board/view/?id=tgijjdd&no=898620"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "jeongryongpil-dc-craft:tgijjdd-434755",
+      "sourceCatalog": "docs/evidence/2026-09-11-jeongryongpil-dc-craft.json",
+      "sourceId": "tgijjdd-434755",
+      "title": "유입 뉴비들을 위한 갤통합공지(V1.06)",
+      "modules": [
+        "M01"
+      ],
+      "useMode": "discovery-context-only",
+      "sourceFinding": "필요한 문제의 개별 원글로 이동할 수 있는가?",
+      "readingScope": "selected_index_entries_or_relevant_passages",
+      "limits": "목록 확보는 연결된 모든 본문 열람이 아니다.",
+      "links": [
+        "https://gall.dcinside.com/mgallery/board/view/?id=tgijjdd&no=434755"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "jeongryongpil-dc-craft:J01",
+      "sourceCatalog": "docs/evidence/2026-09-11-jeongryongpil-dc-craft.json",
+      "sourceId": "J01",
+      "title": "정룡필의 웹소설웹툰 연구소",
+      "modules": [
+        "M02"
+      ],
+      "useMode": "discovery-context-only",
+      "sourceFinding": "자작 경험담과 재게시를 구분할 수 있는가?",
+      "readingScope": "public_profile_read",
+      "limits": "요청에서 기억한 인물과의 일치는 유력한 추정. 전체 카테고리 미검토.",
+      "links": [
+        "https://m.blog.naver.com/sntu2010"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "jeongryongpil-dc-craft:J02",
+      "sourceCatalog": "docs/evidence/2026-09-11-jeongryongpil-dc-craft.json",
+      "sourceId": "J02",
+      "title": "소설을 어떻게 기획하는지 궁금합니다",
+      "modules": [
+        "M03",
+        "M07",
+        "M08",
+        "M10"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "이번 구간의 독자 경험을 선택하고 힘줄 부분과 압축할 부분을 나눴는가?",
+      "readingScope": "text_body_read_images_not_reviewed",
+      "limits": "개인의 헌터물 성장 단계·회차 수·서술 순서는 범용 규칙이 아니다.",
+      "links": [
+        "https://blog.naver.com/sntu2010/221783019550"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "jeongryongpil-dc-craft:J03",
+      "sourceCatalog": "docs/evidence/2026-09-11-jeongryongpil-dc-craft.json",
+      "sourceId": "J03",
+      "title": "[펌]문피아 연재 관련 개뻘팁(노쓰우드 작가님)",
+      "modules": [
+        "M03",
+        "M07",
+        "M08",
+        "M10"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "실제로 쓴 회차를 요약했을 때 독자가 본 사건·재미·기대가 드러나는가?",
+      "readingScope": "repost_text_body_read",
+      "limits": "정룡필의 독립된 주장으로 귀속하지 않는다. 과거 플랫폼·계약 수치 현재성 미검증.",
+      "links": [
+        "https://blog.naver.com/sntu2010/222087477772"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "jeongryongpil-dc-craft:H01",
+      "sourceCatalog": "docs/evidence/2026-09-11-jeongryongpil-dc-craft.json",
+      "sourceId": "H01",
+      "title": "장르소설 연재 갤러리",
+      "modules": [
+        "M02"
+      ],
+      "useMode": "discovery-context-only",
+      "sourceFinding": "취미 창작자가 실제로 막히는 질문을 찾을 수 있는가?",
+      "readingScope": "first_listing_and_description_read",
+      "limits": "웹소설 연재 및 장르소설 갤러리와 별개. 전 게시판 조사 아님.",
+      "links": [
+        "https://gall.dcinside.com/mgallery/board/lists/?id=hobbyserial"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "jeongryongpil-dc-craft:H02",
+      "sourceCatalog": "docs/evidence/2026-09-11-jeongryongpil-dc-craft.json",
+      "sourceId": "H02",
+      "title": "글먹 이야기는 하지 맙시다",
+      "modules": [
+        "M01"
+      ],
+      "useMode": "discovery-context-only",
+      "sourceFinding": "이 게시판의 설립 목적이 현재 연구와 맞는가?",
+      "readingScope": "title_and_short_body_read",
+      "limits": "작법 해설이 아닌 짧은 설립 취지 공지.",
+      "links": [
+        "https://gall.dcinside.com/mgallery/board/view/?id=hobbyserial&no=2"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "jeongryongpil-dc-craft:H03",
+      "sourceCatalog": "docs/evidence/2026-09-11-jeongryongpil-dc-craft.json",
+      "sourceId": "H03",
+      "title": "글 써보니까 멋진 악역 만들기 힘든게 이해되네...",
+      "modules": [
+        "M03",
+        "M04"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "유능한 상대를 유지하면서 주인공의 승리를 어떻게 설득할 것인가?",
+      "readingScope": "text_body_read_comments_not_reviewed",
+      "limits": "해결된 작법이나 검증된 품질 개선 사례가 아니다.",
+      "links": [
+        "https://gall.dcinside.com/mgallery/board/view/?id=hobbyserial&no=207"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "jeongryongpil-dc-craft:L01",
+      "sourceCatalog": "docs/evidence/2026-09-11-jeongryongpil-dc-craft.json",
+      "sourceId": "L01",
+      "title": "웹소설 커뮤니티 추천, 웹소설 연재 갤러리",
+      "modules": [
+        "M02"
+      ],
+      "useMode": "discovery-context-only",
+      "sourceFinding": "정룡필 및 디씨 원자료로 이동할 수 있는가?",
+      "readingScope": "article_text_read",
+      "limits": "블로그와 디씨 자료를 연결하는 출처. 작법 효과의 독립 검증이 아니다.",
+      "links": [
+        "https://jakkayangban.tistory.com/22"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "korean-webnovelist-mind:KW01",
+      "sourceCatalog": "docs/evidence/2026-09-11-korean-webnovelist-mind.json",
+      "sourceId": "KW01",
+      "title": "윤이수 작가 인터뷰 ②",
+      "modules": [
+        "M01",
+        "M08"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "주요 인물의 마지막 장면을 미리 정하는 기획 방식",
+      "readingScope": "공개 인터뷰 본문 전체; 연재 작업·인물 취향·화법 질문 포함",
+      "limits": [
+        "작업 당시의 자기보고이며 초고·변경 이력은 없음",
+        "2016년 발언을 현재 시장의 보편 규칙으로 해석하지 않음"
+      ],
+      "links": [
+        "https://enter.etoday.co.kr/news/view/75170"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "korean-webnovelist-mind:KW02",
+      "sourceCatalog": "docs/evidence/2026-09-11-korean-webnovelist-mind.json",
+      "sourceId": "KW02",
+      "title": "AI로 웹소설 어디까지 쓸 수 있을까? 나비계곡 작가의 창작 비하인드",
+      "modules": [
+        "M07",
+        "M08",
+        "M10"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "세부 플롯 변경의 여지, 결단의 내면, 읽는 위치에 따른 피드백 선택",
+      "readingScope": "공개 텍스트 인터뷰 전체; 연결된 영상 미시청",
+      "limits": [
+        "작가의 자기보고",
+        "실제 댓글·수정 이력·성과 대조 없음",
+        "AI 사용 경험은 도구 품질이나 정보 정확성 검증이 아님"
+      ],
+      "links": [
+        "https://www.cosmopolitan.co.kr/article/1907440"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "korean-webnovelist-mind:KW03",
+      "sourceCatalog": "docs/evidence/2026-09-11-korean-webnovelist-mind.json",
+      "sourceId": "KW03",
+      "title": "상승세 무서운 재벌집 막내아들…원작자 말한 재벌물 열광 이유",
+      "modules": [
+        "M02",
+        "M03",
+        "M08"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "줄기와 엔딩을 잡고 회사에서 겪은 사람·협상 경험을 활용",
+      "readingScope": "공개 인터뷰 본문 전체",
+      "limits": [
+        "드라마 방영 시기의 회고 인터뷰",
+        "독자 일반에 대한 작가의 견해는 검증된 인간 행동 법칙이 아님"
+      ],
+      "links": [
+        "https://v.daum.net/v/20221130141450741?s=print_news"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "korean-webnovelist-mind:KW04",
+      "sourceCatalog": "docs/evidence/2026-09-11-korean-webnovelist-mind.json",
+      "sourceId": "KW04",
+      "title": "매출 100억 웹소설 작가의 성공 비결: 흔한 소재도 내 스타일로, 읽기 쉽게",
+      "modules": [
+        "M01",
+        "M07"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "동료와의 의견 교환에서 출발한 첫 회, 자기 스타일과 쉬운 용어",
+      "readingScope": "네이트 송고 기사 본문 전체; 원매체 연결은 열람 실패",
+      "limits": [
+        "성공 작품의 회고라 생존자 편향 가능",
+        "기사 제목의 매출은 당시 보도이며 현재 수치로 사용하지 않음"
+      ],
+      "links": [
+        "https://news.nate.com/view/20211020n04151"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "korean-webnovelist-mind:KW05",
+      "sourceCatalog": "docs/evidence/2026-09-11-korean-webnovelist-mind.json",
+      "sourceId": "KW05",
+      "title": "[웹작소] 중증외상센터 그린 의사작가, 이번엔 내과서 AI 닥터",
+      "modules": [
+        "M01",
+        "M02",
+        "M04",
+        "M06"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "독자가 궁금해할 병원 안의 일과 미리 보고 싶은 관계 장면에서 출발",
+      "readingScope": "공개 기사 본문 전체; 원작 작가의 발상·관계 장면 설명",
+      "limits": [
+        "웹툰 소개 기사에 실린 원작 웹소설 작가 인터뷰",
+        "언급한 장면의 실제 원고와 댓글은 이번에 열람하지 않음"
+      ],
+      "links": [
+        "https://v.daum.net/v/zVGQherN5H"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "korean-webnovelist-mind:KW06",
+      "sourceCatalog": "docs/evidence/2026-09-11-korean-webnovelist-mind.json",
+      "sourceId": "KW06",
+      "title": "피드백이 만든 변화…웹문예학과 강의실에서 네이버까지",
+      "modules": [
+        "M02",
+        "M09"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "창작 수업의 비평·토론과 국궁 경험을 활용한 신인 사례",
+      "readingScope": "공개 인터뷰 본문 전체",
+      "limits": [
+        "대학 홍보 인터뷰",
+        "교육과 경험의 독립적인 효과 검증은 없음"
+      ],
+      "links": [
+        "https://wise.dongguk.ac.kr/article/wisestudent/detail/518566"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "korean-webnovelist-mind:KW07",
+      "sourceCatalog": "docs/evidence/2026-09-11-korean-webnovelist-mind.json",
+      "sourceId": "KW07",
+      "title": "퇴근 후 한 편! 직장인의 웹소설 작가 도전기",
+      "modules": [
+        "M04",
+        "M07",
+        "M09"
+      ],
+      "useMode": "conditional-implementation-candidate",
+      "sourceFinding": "인물 성격과 발화 상황을 먼저 바꾸고 어조를 조정한 한정 사례",
+      "readingScope": "공개 인터뷰 전체; 악역의 성격 변경 이유와 대사 전후·후보 예시 포함",
+      "limits": [
+        "작성자는 웹소설 도전자라고 소개됨; 전문 작가 대표 사례로 확대하지 않음",
+        "서비스 제공자가 게재한 제품 활용 사례",
+        "원고 전체·편집 로그·독자 평가 없음",
+        "본문에 게시일이 표시되지 않아 날짜 미상 유지"
+      ],
+      "links": [
+        "https://www.typetak.com/ko/blog/webnovelist_interview_1"
+      ],
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "thinking:T01",
+      "sourceReport": "docs/2026-09-11-humanlike-thinking-repo-research.md",
+      "title": "Reflexion",
+      "modules": [
+        "M10"
+      ],
+      "useMode": "mechanism-reference",
+      "use": "짧은 반성과 전략을 실제 평가 대상 본문·결과에 묶어 재사용",
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "thinking:T02",
+      "sourceReport": "docs/2026-09-11-humanlike-thinking-repo-research.md",
+      "title": "Concordia",
+      "modules": [
+        "M04"
+      ],
+      "useMode": "mechanism-reference",
+      "use": "인물별 목표·상황 해석의 제한된 투영",
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "thinking:T03",
+      "sourceReport": "docs/2026-09-11-humanlike-thinking-repo-research.md",
+      "title": "Generative Agents",
+      "modules": [
+        "M04",
+        "M10"
+      ],
+      "useMode": "mechanism-reference",
+      "use": "관련 경험과 성찰의 근거 연결",
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "thinking:T04",
+      "sourceReport": "docs/2026-09-11-humanlike-thinking-repo-research.md",
+      "title": "StanfordHCI/genagents",
+      "modules": [
+        "M04",
+        "M10"
+      ],
+      "useMode": "mechanism-reference",
+      "use": "경험 기반 인물 참고; 합성 반응을 사람 반응으로 표시하지 않음",
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "thinking:T05",
+      "sourceReport": "docs/2026-09-11-humanlike-thinking-repo-research.md",
+      "title": "Self-Refine",
+      "modules": [
+        "M09"
+      ],
+      "useMode": "mechanism-reference",
+      "use": "구체 결함·수정 전후와 제한된 반복",
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "thinking:T06",
+      "sourceReport": "docs/2026-09-11-humanlike-thinking-repo-research.md",
+      "title": "Letta Code",
+      "modules": [
+        "M10"
+      ],
+      "useMode": "mechanism-reference",
+      "use": "기억 실행 환경 교체는 후순위",
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "thinking:T07",
+      "sourceReport": "docs/2026-09-11-humanlike-thinking-repo-research.md",
+      "title": "Tree of Thoughts",
+      "modules": [
+        "M03"
+      ],
+      "useMode": "mechanism-reference",
+      "use": "중요한 갈림길에 한정한 대안 비교",
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "thinking:T08",
+      "sourceReport": "docs/2026-09-11-humanlike-thinking-repo-research.md",
+      "title": "GEPA",
+      "modules": [
+        "M09",
+        "M10"
+      ],
+      "useMode": "mechanism-reference",
+      "use": "평가 사례가 충분해진 뒤 후보 최적화 검토",
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "thinking:T09",
+      "sourceReport": "docs/2026-09-11-humanlike-thinking-repo-research.md",
+      "title": "DAYDREAMER",
+      "modules": [
+        "M04"
+      ],
+      "useMode": "mechanism-reference",
+      "use": "감정이 주의·선택에 미치는 영향의 개념 참고",
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "thinking:T10",
+      "sourceReport": "docs/2026-09-11-humanlike-thinking-repo-research.md",
+      "title": "Thinking-Claude",
+      "modules": [
+        "M03"
+      ],
+      "useMode": "mechanism-reference",
+      "use": "긴 사고 표시는 품질 증거가 아니므로 도입 보류",
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "thinking:T11",
+      "sourceReport": "docs/2026-09-11-humanlike-thinking-repo-research.md",
+      "title": "Sequential Thinking MCP",
+      "modules": [
+        "M03"
+      ],
+      "useMode": "mechanism-reference",
+      "use": "단계 기록 도구; 추론 능력 제공으로 취급하지 않음",
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "thinking:T12",
+      "sourceReport": "docs/2026-09-11-humanlike-thinking-repo-research.md",
+      "title": "Letta previous entry",
+      "modules": [
+        "M10"
+      ],
+      "useMode": "mechanism-reference",
+      "use": "이전 진입점은 현재 Letta Code와 독립 효과로 중복 계산하지 않음",
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "ready-made:S01",
+      "sourceReport": "docs/2026-09-11-ready-made-writing-systems-research.md",
+      "title": "NovelWriter",
+      "modules": [
+        "M02",
+        "M07"
+      ],
+      "useMode": "reuse-evaluation",
+      "use": "고정 커밋 독립 fixture로 분석→본문 전달을 시험하고 재사용 판정",
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "ready-made:S02",
+      "sourceReport": "docs/2026-09-11-ready-made-writing-systems-research.md",
+      "title": "WriteHERE",
+      "modules": [
+        "M03",
+        "M08"
+      ],
+      "useMode": "reuse-evaluation",
+      "use": "본문에 따라 목표가 바뀌는 경로의 독립 시험",
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "ready-made:S03",
+      "sourceReport": "docs/2026-09-11-ready-made-writing-systems-research.md",
+      "title": "AuthorAgent",
+      "modules": [
+        "M04",
+        "M09"
+      ],
+      "useMode": "reuse-evaluation",
+      "use": "대사 지식·동기 검토와 수정 후보의 독립 시험",
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "ready-made:S04",
+      "sourceReport": "docs/2026-09-11-ready-made-writing-systems-research.md",
+      "title": "StoryDaemon",
+      "modules": [
+        "M03",
+        "M08"
+      ],
+      "useMode": "scoped-or-deferred-reference",
+      "use": "장면 단위 진행 대안; 앞 후보와 중복 시 보류",
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "ready-made:S05",
+      "sourceReport": "docs/2026-09-11-ready-made-writing-systems-research.md",
+      "title": "Cognitiv",
+      "modules": [
+        "M04"
+      ],
+      "useMode": "scoped-or-deferred-reference",
+      "use": "제한된 인물 상태 투영; 한국어 처리 미검증",
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "ready-made:S06",
+      "sourceReport": "docs/2026-09-11-ready-made-writing-systems-research.md",
+      "title": "autonovel",
+      "modules": [
+        "M08",
+        "M09"
+      ],
+      "useMode": "scoped-or-deferred-reference",
+      "use": "자동 Git 변경 때문에 기존 루트 실행 보류",
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "ready-made:S07",
+      "sourceReport": "docs/2026-09-11-ready-made-writing-systems-research.md",
+      "title": "CogWriter",
+      "modules": [
+        "M03"
+      ],
+      "useMode": "scoped-or-deferred-reference",
+      "use": "주요 task가 다른 제약 글쓰기 과제라 소설 앱 도입 보류",
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "ready-made:S08",
+      "sourceReport": "docs/2026-09-11-ready-made-writing-systems-research.md",
+      "title": "StoryCraftr",
+      "modules": [
+        "M03",
+        "M07"
+      ],
+      "useMode": "scoped-or-deferred-reference",
+      "use": "README 수준 보조 후보",
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "ready-made:S09",
+      "sourceReport": "docs/2026-09-11-ready-made-writing-systems-research.md",
+      "title": "AI_NovelGenerator",
+      "modules": [
+        "M02",
+        "M07"
+      ],
+      "useMode": "scoped-or-deferred-reference",
+      "use": "NovelWriter의 기반 계열로 중복 효능 계산하지 않음",
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "ready-made:S10",
+      "sourceReport": "docs/2026-09-11-ready-made-writing-systems-research.md",
+      "title": "Dramatron",
+      "modules": [
+        "M03"
+      ],
+      "useMode": "scoped-or-deferred-reference",
+      "use": "모델 연결 직접 구현이 필요한 보조 후보",
+      "effectValidated": false,
+      "runtimeAdopted": false
+    },
+    {
+      "id": "internal:L01",
+      "sourceReport": "edge_repos/firefly_reference_lab/comparisons/2026-09-11-author-thinking-and-prose.md",
+      "title": "author-thinking-and-prose",
+      "modules": [
+        "M02",
+        "M04",
+        "M05",
+        "M06",
+        "M07",
+        "M09"
+      ],
+      "useMode": "observed-scene-case",
+      "limits": "읽은 표본의 관찰; 작가 전집·성공 원인·새 원고 품질 검증 아님",
+      "runtimeAdopted": false
+    },
+    {
+      "id": "internal:L02",
+      "sourceReport": "edge_repos/firefly_reference_lab/comparisons/2026-09-11-author-craft-mid-late.md",
+      "title": "author-craft-mid-late",
+      "modules": [
+        "M02",
+        "M04",
+        "M05",
+        "M06",
+        "M07",
+        "M09"
+      ],
+      "useMode": "observed-scene-case",
+      "limits": "읽은 표본의 관찰; 작가 전집·성공 원인·새 원고 품질 검증 아님",
+      "runtimeAdopted": false
+    },
+    {
+      "id": "card:D01",
+      "sourceReport": "docs/korean-webnovelist-decision-cards.md",
+      "title": "D01",
+      "modules": [
+        "M01",
+        "M03"
+      ],
+      "useMode": "conditional-question",
+      "limits": "해당 문제에만 선택; 전 카드 의무 입력이나 점수 합격 기준 아님",
+      "runtimeAdopted": false
+    },
+    {
+      "id": "card:D02",
+      "sourceReport": "docs/korean-webnovelist-decision-cards.md",
+      "title": "D02",
+      "modules": [
+        "M08"
+      ],
+      "useMode": "conditional-question",
+      "limits": "해당 문제에만 선택; 전 카드 의무 입력이나 점수 합격 기준 아님",
+      "runtimeAdopted": false
+    },
+    {
+      "id": "card:D03",
+      "sourceReport": "docs/korean-webnovelist-decision-cards.md",
+      "title": "D03",
+      "modules": [
+        "M04",
+        "M05"
+      ],
+      "useMode": "conditional-question",
+      "limits": "해당 문제에만 선택; 전 카드 의무 입력이나 점수 합격 기준 아님",
+      "runtimeAdopted": false
+    },
+    {
+      "id": "card:D04",
+      "sourceReport": "docs/korean-webnovelist-decision-cards.md",
+      "title": "D04",
+      "modules": [
+        "M04",
+        "M06"
+      ],
+      "useMode": "conditional-question",
+      "limits": "해당 문제에만 선택; 전 카드 의무 입력이나 점수 합격 기준 아님",
+      "runtimeAdopted": false
+    },
+    {
+      "id": "card:D05",
+      "sourceReport": "docs/korean-webnovelist-decision-cards.md",
+      "title": "D05",
+      "modules": [
+        "M05",
+        "M06"
+      ],
+      "useMode": "conditional-question",
+      "limits": "해당 문제에만 선택; 전 카드 의무 입력이나 점수 합격 기준 아님",
+      "runtimeAdopted": false
+    },
+    {
+      "id": "card:D06",
+      "sourceReport": "docs/korean-webnovelist-decision-cards.md",
+      "title": "D06",
+      "modules": [
+        "M06"
+      ],
+      "useMode": "conditional-question",
+      "limits": "해당 문제에만 선택; 전 카드 의무 입력이나 점수 합격 기준 아님",
+      "runtimeAdopted": false
+    },
+    {
+      "id": "card:D07",
+      "sourceReport": "docs/korean-webnovelist-decision-cards.md",
+      "title": "D07",
+      "modules": [
+        "M07",
+        "M09"
+      ],
+      "useMode": "conditional-question",
+      "limits": "해당 문제에만 선택; 전 카드 의무 입력이나 점수 합격 기준 아님",
+      "runtimeAdopted": false
+    },
+    {
+      "id": "card:D08",
+      "sourceReport": "docs/korean-webnovelist-decision-cards.md",
+      "title": "D08",
+      "modules": [
+        "M02",
+        "M04"
+      ],
+      "useMode": "conditional-question",
+      "limits": "해당 문제에만 선택; 전 카드 의무 입력이나 점수 합격 기준 아님",
+      "runtimeAdopted": false
+    },
+    {
+      "id": "card:D09",
+      "sourceReport": "docs/korean-webnovelist-decision-cards.md",
+      "title": "D09",
+      "modules": [
+        "M09"
+      ],
+      "useMode": "conditional-question",
+      "limits": "해당 문제에만 선택; 전 카드 의무 입력이나 점수 합격 기준 아님",
+      "runtimeAdopted": false
+    },
+    {
+      "id": "card:D10",
+      "sourceReport": "docs/korean-webnovelist-decision-cards.md",
+      "title": "D10",
+      "modules": [
+        "M10"
+      ],
+      "useMode": "conditional-question",
+      "limits": "해당 문제에만 선택; 전 카드 의무 입력이나 점수 합격 기준 아님",
+      "runtimeAdopted": false
+    }
+  ]
+}

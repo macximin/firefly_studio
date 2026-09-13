@@ -25,6 +25,40 @@ class Clock(dt.datetime):
     def now(cls,tz=None):return cls.current.astimezone(tz) if tz else cls.current.replace(tzinfo=None)
 
 class DailyTests(unittest.TestCase):
+    def test_prepare_binds_craft_to_new_input_and_reuses_existing_input_without_new_services(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            hq=Path(temporary);batch=hq/'batch';batch.mkdir()
+            template=hq/'docs/templates/webnovel-project-plan-v1.md';template.parent.mkdir(parents=True)
+            template.write_text('## 1. 작품\n## 9. 집필 계획')
+            pool=[]
+            lab=hq/'edge_repos/firefly_reference_lab'
+            for index in range(3):
+                identity=f'fixture-{index}'
+                analysis=lab/'analyses'/identity;analysis.mkdir(parents=True)
+                (analysis/'project_pitch.md').write_text('스스로 작성한 시험용 분석')
+                source=lab/'private_sources/korean_webnovel_corpus'/f'{identity}.txt'
+                source.parent.mkdir(parents=True,exist_ok=True);source.write_text('스스로 작성한 시험용 원문')
+                pool.append({'id':identity,'title':identity,'source':source.name})
+            config={**daily.CONFIG,'sourcePool':pool}
+            with patch.object(daily,'HQ',hq),patch.object(daily,'CONFIG',config),patch.object(daily,'site',return_value={'coverage':'review-and-canary','truncated':False,'decisions':[]}) as service:
+                daily.prepare(batch,'2026-09-12')
+                service.assert_called_once()
+            text=(batch/'input.md').read_text();receipt=daily.read(batch/'input-receipt.json')
+            self.assertIn('선택한 작법 참고',text)
+            self.assertIn('스스로 작성한 시험용 원문',text)
+            self.assertEqual(receipt['promptSha256'],daily.sha(text))
+            self.assertEqual(receipt['authorCraft']['selection']['packSha256'],config['authorCraft']['packSha256'])
+            self.assertEqual(len(receipt['authorCraft']['selection']['selectedCaseIds']),3)
+            self.assertEqual(receipt['hilScope']['count'],0)
+            self.assertEqual(receipt['authorCraft']['adapter']['modelCalls'],0)
+            original=(batch/'input-receipt.json').read_bytes()
+            with patch.object(daily,'site',side_effect=AssertionError('Already prepared')),patch.object(daily.author_craft_input,'select_craft',side_effect=AssertionError('Already selected')):
+                daily.prepare(batch,'2026-09-12')
+            self.assertEqual((batch/'input-receipt.json').read_bytes(),original)
+            (batch/'input.md').write_text(text+'changed')
+            with self.assertRaises(daily.lifecycle.LifecycleConflict):daily.prepare(batch,'2026-09-12')
+            self.assertEqual((batch/'input-receipt.json').read_bytes(),original)
+
     def test_terminal_receipts_keep_failure_and_partial_output(self):
         for code,limit,state in [('print("body")',3,'process_completed'),('print("partial",flush=True);raise SystemExit(3)',3,'failed'),('import time;print("partial",flush=True);time.sleep(10)',0.2,'timed_out')]:
             with tempfile.TemporaryDirectory() as t:

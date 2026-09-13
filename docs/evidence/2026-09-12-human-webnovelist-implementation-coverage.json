@@ -1,0 +1,144 @@
+{
+  "schemaVersion": "human-webnovelist-implementation-coverage/v1",
+  "recordedAt": "2026-09-12T07:18:55.225651+00:00",
+  "design": "docs/2026-09-12-human-webnovelist-full-design.md",
+  "historicalResearchMap": {
+    "path": "docs/evidence/2026-09-12-human-webnovelist-research-implementation-map.json",
+    "sha256": "33ad7159fb4d35c65a817c6aa6c016535bc052d1c819017a6038066e174601e7",
+    "rows": 107,
+    "originalAdoptionFlagsRewritten": false
+  },
+  "workItems": [
+    {
+      "id": "W01",
+      "status": "implemented",
+      "title": "작법 자료 계약과 출처·범위·반례",
+      "implementationPath": "edge_repos/inkos/packages/core/src/models/author-craft.ts",
+      "scope": "팩 구조·출처 연결·크기·해시 검증. 작품 품질 승인은 포함하지 않음."
+    },
+    {
+      "id": "W02",
+      "status": "implemented-bounded",
+      "title": "이미 읽은 원고의 기능별 사례",
+      "implementationPath": "edge_repos/firefly_reference_lab/craft_packs/korean-author-craft/README.md",
+      "scope": "15개 파생 사례와 6개 중후반 원문 구간. 전집 독해나 22회차 전체의 새 색인 작업 아님."
+    },
+    {
+      "id": "W03",
+      "status": "implemented",
+      "title": "당시 검토 본문과 의견 재결합",
+      "implementationPath": "scripts/reviewed-feedback-input.mjs",
+      "scope": "기존 14의견에서 적용 범위 12개를 유지. 기본 예산에서 본문 1개 연결·11개 예산 제외를 명시."
+    },
+    {
+      "id": "W04",
+      "status": "not-executed",
+      "title": "외부 집필 앱의 실행 비교",
+      "implementationPath": null,
+      "scope": "외부 패키지를 설치하거나 실제 모델로 비교하지 않음. 기존 InkOS 실행 경로를 사용."
+    },
+    {
+      "id": "W05",
+      "status": "implemented",
+      "title": "기존 호출별 작법 입력과 기록",
+      "implementationPath": "edge_repos/inkos/packages/core/src/reference/author-craft.ts",
+      "scope": "Planner·Writer·Reviser 입력·예산·영수증·production admission 결합. 새 LLM 호출 없음."
+    },
+    {
+      "id": "W06",
+      "status": "partial",
+      "title": "작품별 창작 의도",
+      "implementationPath": "edge_repos/inkos/packages/core/src/agents/planner.ts",
+      "scope": "기존 brief/author intent 유지. 별도 BookCreativeBrief 생성·갱신은 없음."
+    },
+    {
+      "id": "W07",
+      "status": "partial",
+      "title": "문제에 맞는 장면 참고 선택",
+      "implementationPath": "scripts/author-craft-input.mjs",
+      "scope": "단계별 사례 선택·HQ 선정작 원문 구간 연결. 대안별 창작 판단 SceneDecision 실행은 없음."
+    },
+    {
+      "id": "W08",
+      "status": "partial",
+      "title": "독자 공개 순서와 POV",
+      "implementationPath": "edge_repos/inkos/packages/core/src/utils/pov-filter.ts",
+      "scope": "한국어 회차·명시적 POV·정보표·복선표 검증. 서로 다른 공개 순서의 원고 비교는 하지 않음."
+    },
+    {
+      "id": "W09",
+      "status": "partial",
+      "title": "인물 관점과 과거 경험",
+      "implementationPath": "edge_repos/inkos/packages/core/src/state/entity-observations.ts",
+      "scope": "인용 기반 belief/desire/intention/experience/public-claim 분류·회수·시점 필터. 인물 사고의 의미 품질을 입증하지 않음."
+    },
+    {
+      "id": "W10",
+      "status": "implemented-input-behavior",
+      "title": "한국어 목소리·대사·지면 지침",
+      "implementationPath": "edge_repos/inkos/packages/core/src/utils/writing-methodology.ts",
+      "scope": "일률적 내면 삭제·영리한 반격·문장 호흡 강제를 조건화. 한글 토큰 추정과 표현 오탐 수정. 실제 독자 평가는 없음."
+    },
+    {
+      "id": "W11",
+      "status": "partial",
+      "title": "결함별 수정 입력과 보존",
+      "implementationPath": "edge_repos/inkos/packages/core/src/agents/reviser.ts",
+      "scope": "실제 수정 지시·audit issues별 참고 선택. 별도 RevisionCase 데이터셋·원고 비교는 없음."
+    },
+    {
+      "id": "W12",
+      "status": "not-required-in-this-run",
+      "title": "사람 작법 비교 패킷",
+      "implementationPath": null,
+      "scope": "사용자가 새 HIL 대기와 느린 장면 피드백 루프를 원하지 않아 이번 구현의 필수 단계에서 제외."
+    },
+    {
+      "id": "W13",
+      "status": "partial",
+      "title": "이전 편집 사례 재사용",
+      "implementationPath": "scripts/planning-input.py",
+      "scope": "정확한 후보·패킷 범위와 본문 재결합. 작품·문제의 의미적 유사도 검색이나 동률 균형 표집은 없음."
+    },
+    {
+      "id": "W14",
+      "status": "partial",
+      "title": "보상·조연·기대의 지속",
+      "implementationPath": "edge_repos/inkos/packages/core/src/utils/memory-retrieval.ts",
+      "scope": "기존 hooks의 과거 회차 경계와 빈 스냅샷 보존, 관련 작법 사례. 연속 아크의 의미적 지급 추적은 없음."
+    },
+    {
+      "id": "W15",
+      "status": "not-implemented",
+      "title": "초고 발견에서 미래 B-Rail 수정",
+      "implementationPath": null,
+      "scope": "draft-discovery는 참고 사례로만 전달. 실제 미래 Rail 수정 후보 실행 경로는 만들지 않음."
+    },
+    {
+      "id": "W16",
+      "status": "not-implemented",
+      "title": "일일 기획 결과를 InkOS Book으로 전달",
+      "implementationPath": "docs/pitch-policy-status.md",
+      "scope": "작법 입력 어댑터와 구별. source binding/A·B handoff 매핑과 검증은 여전히 필요."
+    },
+    {
+      "id": "W17",
+      "status": "not-performed",
+      "title": "다른 작품·연속 회차 품질 비교",
+      "implementationPath": null,
+      "scope": "개발용 검색 문제 32개는 작가 수준·재미·연독·상업성·일반화의 검증이 아님."
+    },
+    {
+      "id": "W18",
+      "status": "not-implemented",
+      "title": "열린 결말 Rail 모드",
+      "implementationPath": null,
+      "scope": "새 Rail 계약이나 자동화 재활성화 없음."
+    }
+  ],
+  "externalPackagesInstalled": [],
+  "newProductionModelCalls": 0,
+  "newHumanFeedbackRequested": 0,
+  "humanBlindComparisonPerformed": false,
+  "meaning": "Records implementation scope against the original 18-work-item design. A partial or reference-only item is not full capability completion."
+}

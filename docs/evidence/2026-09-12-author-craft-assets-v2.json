@@ -1,0 +1,417 @@
+{
+  "schemaVersion": "firefly-author-craft-asset-validation/v1",
+  "checkedAt": "2026-09-12T07:11:58.591Z",
+  "packId": "korean-author-craft-v2",
+  "packSha256": "37bb95270b442ed37389c09b07d5d310e367be106140b6fe67b67092e1c18983",
+  "sourceCount": 8,
+  "caseCount": 15,
+  "stageRenderCount": 36,
+  "sceneIndexSha256": "9876cebd12d56cc2e97a1582adc2401838595f6d8f9b39060cc674ba07be94a4",
+  "sceneCount": 6,
+  "privateScenesVerified": true,
+  "sources": [
+    {
+      "id": "internal-early",
+      "reference": "edge_repos/firefly_reference_lab/comparisons/2026-09-11-author-thinking-and-prose.md",
+      "sha256": "81ff427061a1e6ae049e4686df0586fce9961c9a0d53cd88871e981fcfaabf47",
+      "readingScope": "5작품의 22개 회차 단위에서 관찰한 장면. 전집의 성향이나 성공 원인을 확정하지 않음"
+    },
+    {
+      "id": "internal-later",
+      "reference": "edge_repos/firefly_reference_lab/comparisons/2026-09-11-author-craft-mid-late.md",
+      "sha256": "1e800514f9f98a75027777a4dca34c664d2cdfbfccedecf9919b99f2c4645233",
+      "readingScope": "중후반 6회차와 연결 확인 1회차 전체·다음 구간 일부. 회수 이후까지 읽은 것으로 확대하지 않음"
+    },
+    {
+      "id": "author-mind",
+      "reference": "docs/2026-09-11-korean-webnovelist-mind-supplement.md",
+      "sha256": "d7b6ad23f49c8ab3e4135e4c7d0380ae82188a1b0a50ff95687517eab393ff9a",
+      "readingScope": "나비계곡·윤이수·산경·비가·한산이가·목련의 서·WasabiDog 인터뷰. 이 보고서의 해석과 당사자의 설명 구별"
+    },
+    {
+      "id": "korean-craft",
+      "reference": "docs/2026-09-11-jeongryongpil-dc-craft-research.md",
+      "sha256": "f46a297553ff4b206bfc1dfc1d5506332a1ed1ece735c8d1efa7a7ad0997cb17",
+      "readingScope": "직접 기획 글·재게시·선정 글 본문. 필명 경력·효과 수치 미검증"
+    },
+    {
+      "id": "craft-assets",
+      "reference": "docs/2026-09-11-human-webnovelist-assets-research.md",
+      "sha256": "380fb9236628510336e7825e5cb0eef3c36cdb97195ab25ff5551abdf5de20d2",
+      "readingScope": "선정 문서와 관찰 가능한 일부 자료. 설치·한국어 품질 미검증"
+    },
+    {
+      "id": "craft-channels",
+      "reference": "docs/2026-09-11-webnovel-craft-channels-research.md",
+      "sha256": "2107f57e4fb3be732a1f391a8ed006d945fa57aeece00b8e696ffcf5f420dccf",
+      "readingScope": "자료별 본문·부분·소개 열람 범위가 다른 비교. 미열람 책·강의를 규칙 근거로 사용하지 않음"
+    },
+    {
+      "id": "thinking",
+      "reference": "docs/2026-09-11-humanlike-thinking-repo-research.md",
+      "sha256": "9d520f366a41efd8c8396c26189cd5f532d07c77f4110fe69e7807b0367bb2f0",
+      "readingScope": "선택 코드·README·연구 범위. 한국 웹소설 품질을 입증한 결과 아님"
+    },
+    {
+      "id": "ready-made",
+      "reference": "docs/2026-09-11-ready-made-writing-systems-research.md",
+      "sha256": "2e45ffa348c992dada729a98c19fd7fd5641aab8045506f6e9a8f2214f32bb95",
+      "readingScope": "NovelWriter·WriteHERE·AuthorAgent 등의 선택 구현. 로컬 집필 재현은 하지 않음"
+    }
+  ],
+  "cases": [
+    {
+      "caseId": "wanted-moment",
+      "stage": "planning",
+      "characters": 703,
+      "renderedSha256": "34d1b464cc1940292a3a1aeb5e7dd5188cd59b0e55d566e48d7912f1498b83db"
+    },
+    {
+      "caseId": "wanted-moment",
+      "stage": "writing",
+      "characters": 702,
+      "renderedSha256": "25c92a8fb08db16c72969e877c7d56dc178ff41d81e4dacb4806cb78769a313f"
+    },
+    {
+      "caseId": "belief-and-update",
+      "stage": "planning",
+      "characters": 695,
+      "renderedSha256": "04bef8bfab06e9118ee3a251b8e4a5290692a3fc71790610d21fdc9146481adc"
+    },
+    {
+      "caseId": "belief-and-update",
+      "stage": "writing",
+      "characters": 694,
+      "renderedSha256": "436ea1be0662af22c05e61e2bc33612d55e2ed0516680a6cc2907b317bd66288"
+    },
+    {
+      "caseId": "belief-and-update",
+      "stage": "revision",
+      "characters": 695,
+      "renderedSha256": "ee40d64549f6ee42862fae7010e68469f1141233741681ac64a42d7fc6861130"
+    },
+    {
+      "caseId": "independent-counterparty",
+      "stage": "planning",
+      "characters": 744,
+      "renderedSha256": "da9c299be57c9479aa927ad393310d004942997b22735d130f18a61b0817da9a"
+    },
+    {
+      "caseId": "independent-counterparty",
+      "stage": "writing",
+      "characters": 743,
+      "renderedSha256": "b48964514f636185078c47f295bb52516679107c04077a1388a4dcec655f62cd"
+    },
+    {
+      "caseId": "independent-counterparty",
+      "stage": "revision",
+      "characters": 744,
+      "renderedSha256": "91593881ba3ab1bbc8215520d7accb77f82bd262cb3ccb2f722f7135033854d0"
+    },
+    {
+      "caseId": "public-private-voice",
+      "stage": "planning",
+      "characters": 710,
+      "renderedSha256": "2af1d808e544d1a70c97ec6891157c0b77cc34e7f7b07764138c739f1831007c"
+    },
+    {
+      "caseId": "public-private-voice",
+      "stage": "writing",
+      "characters": 709,
+      "renderedSha256": "bdd257cf74fc2170b2a2ede3e20ea45d038d8f53387be488be556d804968858e"
+    },
+    {
+      "caseId": "public-private-voice",
+      "stage": "revision",
+      "characters": 710,
+      "renderedSha256": "4d37fa4ab2ad9395f3234f8d1edb5c1f429b2641eb8174f34528a30b8738e112"
+    },
+    {
+      "caseId": "reader-reveal",
+      "stage": "planning",
+      "characters": 701,
+      "renderedSha256": "98477837c59cdfbb774f7cdcf2bc71765011f4723e995e66df61e26d0b8c02ff"
+    },
+    {
+      "caseId": "reader-reveal",
+      "stage": "writing",
+      "characters": 700,
+      "renderedSha256": "8337ed6ea88086347142a321aa2b839fa60894a01f05923a73ea37115c0734da"
+    },
+    {
+      "caseId": "reader-reveal",
+      "stage": "revision",
+      "characters": 701,
+      "renderedSha256": "63810af2785421037f2710538a58a340a3b9516c3e571a49d7736299ccf5c0ee"
+    },
+    {
+      "caseId": "earned-inner-decision",
+      "stage": "writing",
+      "characters": 752,
+      "renderedSha256": "3480b8ae3930e62535112bc8183fe6649a56cf03af75981aeb896f3023c5e6b9"
+    },
+    {
+      "caseId": "earned-inner-decision",
+      "stage": "revision",
+      "characters": 753,
+      "renderedSha256": "bb54e865f29e831511f288f412185eb6f3e5841143b9b64a9fb3eff6e63d618f"
+    },
+    {
+      "caseId": "lived-reward",
+      "stage": "planning",
+      "characters": 711,
+      "renderedSha256": "41266c4ea8aa1078887ef369522a9ffc2e07f271044cf74d2a24256fbb55c373"
+    },
+    {
+      "caseId": "lived-reward",
+      "stage": "writing",
+      "characters": 710,
+      "renderedSha256": "69c9596485e13341f78eb4585d4b31aaae1df09b6822939b18112a9a76005f70"
+    },
+    {
+      "caseId": "lived-reward",
+      "stage": "revision",
+      "characters": 711,
+      "renderedSha256": "d0b975f64547c1c3ede174caf101feb5d0892a07dfbc9637a9ade907ba5553c6"
+    },
+    {
+      "caseId": "next-desire",
+      "stage": "planning",
+      "characters": 619,
+      "renderedSha256": "215d7adc9acc489e6dd0a54831d655ee82b56d384478a0883ae519d332d2b027"
+    },
+    {
+      "caseId": "next-desire",
+      "stage": "writing",
+      "characters": 618,
+      "renderedSha256": "9136d9de2a18c4f79c8f2e0699e66afda337f0e7d54b470dc3d7d5ced7867e01"
+    },
+    {
+      "caseId": "supporting-character-life",
+      "stage": "planning",
+      "characters": 718,
+      "renderedSha256": "6a10e61d5abf2cefd30de52709785601196533636f4807d62612caae508f2ce2"
+    },
+    {
+      "caseId": "supporting-character-life",
+      "stage": "writing",
+      "characters": 717,
+      "renderedSha256": "1cfa4ab69b8538520f158406664cfe717d25197f3f5a178dab5cc30e53d98fc0"
+    },
+    {
+      "caseId": "supporting-character-life",
+      "stage": "revision",
+      "characters": 718,
+      "renderedSha256": "203ee91f61c7cafcaf3c9a399c301c0ad7d3f872d1a558625a3595fc60a4453a"
+    },
+    {
+      "caseId": "dialogue-clarity",
+      "stage": "writing",
+      "characters": 593,
+      "renderedSha256": "93f45b0cd4263be6561ffe5c804030ce692e45e0ad7157014f068ba5f66c6a5f"
+    },
+    {
+      "caseId": "dialogue-clarity",
+      "stage": "revision",
+      "characters": 594,
+      "renderedSha256": "fff775282efe5b48cbbe314690619c0561a1a95ac74b23167cd66d4a7abb5321"
+    },
+    {
+      "caseId": "scene-space",
+      "stage": "planning",
+      "characters": 703,
+      "renderedSha256": "2ac5c207b8ba55945dd36c1dd0368942e19802c40743ab962ce7cb58f795c42f"
+    },
+    {
+      "caseId": "scene-space",
+      "stage": "writing",
+      "characters": 702,
+      "renderedSha256": "5073d2a64800f753f13685d54ce13af647445954c6881f5e26dc61117a0adc77"
+    },
+    {
+      "caseId": "scene-space",
+      "stage": "revision",
+      "characters": 703,
+      "renderedSha256": "5a77960a7d19bc77369b613090ccf779312d941f9b23925601c74258d2c1f636"
+    },
+    {
+      "caseId": "experience-to-action",
+      "stage": "planning",
+      "characters": 718,
+      "renderedSha256": "9b525ad450cd88bc3b85548e132dcff8e468ec0bef0ee92a34912e1ad4beb8fb"
+    },
+    {
+      "caseId": "experience-to-action",
+      "stage": "writing",
+      "characters": 717,
+      "renderedSha256": "11684f77a3adfa65cb12db52de0e3023953f93aebe19687c7e4bc7d5a78e2517"
+    },
+    {
+      "caseId": "draft-discovery",
+      "stage": "planning",
+      "characters": 728,
+      "renderedSha256": "25b67146225d407f1c56bddd2db1a3cb3d61e3bd85ed777120f895d80344089f"
+    },
+    {
+      "caseId": "draft-discovery",
+      "stage": "revision",
+      "characters": 728,
+      "renderedSha256": "83883a1be7328ccfa8d8d049774c2f4d651179e52c9359bf011916d694936bb8"
+    },
+    {
+      "caseId": "revision-cause",
+      "stage": "revision",
+      "characters": 806,
+      "renderedSha256": "654293899e2ee02fc4112a34ea2f3a2ad39b9149fdfe765c05d7f0d26846e2bb"
+    },
+    {
+      "caseId": "feedback-scope",
+      "stage": "planning",
+      "characters": 827,
+      "renderedSha256": "23e15a303ced99cb2ac3d8083a85a620b749a3c32624f0b79626b9f3209c4b6f"
+    },
+    {
+      "caseId": "feedback-scope",
+      "stage": "revision",
+      "characters": 827,
+      "renderedSha256": "275dcf644f6c0f6017ab27b3da514a3d82dd6151479c1cc64a4cf1c21877cbf6"
+    }
+  ],
+  "scenes": [
+    {
+      "sceneId": "mid-m01",
+      "evidenceId": "M01",
+      "workId": "baekbyeong-part2",
+      "matchingCaseIds": [
+        "public-private-voice",
+        "supporting-character-life"
+      ],
+      "sourceId": "gdrive-18-HQdEmyXzwmN6r44EhdvcBdC9e4_vj1",
+      "sourcePath": "private_sources/korean_webnovel_corpus/조건상/백병쟁투(1~306화)_조건상_합본.txt",
+      "sourceSha256": "370692f317746868e607e29b31fa2d9ae1a31f2eca114dbd723fba4d674fd1de",
+      "coordinateKind": "normalized-utf8-lines",
+      "startLine": 10100,
+      "endLine": 10309,
+      "excerptSha256": "a64c4832fadd9bf9bc956264740e0e8c99e73204c8cf7b4d9ec4a8e5a720c13e",
+      "fullSelectedChapterPreviouslyRead": true,
+      "chapterNumberInBody": 50,
+      "selectionOrdinal": 50,
+      "characters": 5931,
+      "renderedSha256": "5c9a8442580439edc288b19925657609a0ffc0e97fcca4d71dff98691d9d689c"
+    },
+    {
+      "sceneId": "mid-m02",
+      "evidenceId": "M02",
+      "workId": "baekbyeong-part2",
+      "matchingCaseIds": [
+        "belief-and-update",
+        "next-desire",
+        "experience-to-action"
+      ],
+      "sourceId": "gdrive-18-HQdEmyXzwmN6r44EhdvcBdC9e4_vj1",
+      "sourcePath": "private_sources/korean_webnovel_corpus/조건상/백병쟁투(1~306화)_조건상_합본.txt",
+      "sourceSha256": "370692f317746868e607e29b31fa2d9ae1a31f2eca114dbd723fba4d674fd1de",
+      "coordinateKind": "normalized-utf8-lines",
+      "startLine": 16439,
+      "endLine": 16616,
+      "excerptSha256": "8e4d20a0eba7b527e3a0b0b9e79cd71457ed8617b37d441b973bd0612e7b6e3a",
+      "fullSelectedChapterPreviouslyRead": true,
+      "chapterNumberInBody": 85,
+      "selectionOrdinal": 85,
+      "characters": 5221,
+      "renderedSha256": "520463b41245f991a0f40afe8699062ee1301212a248dd753330e438f4f941f4"
+    },
+    {
+      "sceneId": "mid-m03",
+      "evidenceId": "M03",
+      "workId": "doksik-chaebol3",
+      "matchingCaseIds": [
+        "independent-counterparty",
+        "reader-reveal"
+      ],
+      "sourceId": "gdrive-1BzfNJPOBwauB9HxQq6_HZIDLllb46vJN",
+      "sourcePath": "private_sources/korean_webnovel_corpus/서오/독식하는 재벌 3세_서오_합본.txt",
+      "sourceSha256": "66f3e7df3123343c14a7134108dc59940511f40372493a549cba8ae709df4b45",
+      "coordinateKind": "normalized-utf8-lines",
+      "startLine": 65820,
+      "endLine": 65985,
+      "excerptSha256": "31494e6cb83ee3289adddb8eea2a3b3f409ac14b46b2deea560cc45fd74e918d",
+      "fullSelectedChapterPreviouslyRead": true,
+      "chapterNumberInBody": 376,
+      "selectionOrdinal": 376,
+      "characters": 5664,
+      "renderedSha256": "224a6454a8871d87f729f0f752cbf7c3b0eca48905ca5ae9fa7403a6bc6d47a6"
+    },
+    {
+      "sceneId": "mid-m04",
+      "evidenceId": "M04",
+      "workId": "doksik-chaebol3",
+      "matchingCaseIds": [
+        "next-desire",
+        "independent-counterparty",
+        "lived-reward"
+      ],
+      "sourceId": "gdrive-1BzfNJPOBwauB9HxQq6_HZIDLllb46vJN",
+      "sourcePath": "private_sources/korean_webnovel_corpus/서오/독식하는 재벌 3세_서오_합본.txt",
+      "sourceSha256": "66f3e7df3123343c14a7134108dc59940511f40372493a549cba8ae709df4b45",
+      "coordinateKind": "normalized-utf8-lines",
+      "startLine": 111362,
+      "endLine": 111532,
+      "excerptSha256": "badd5236f3dddf05ab80badb6db063187232ac2f38d3f1f62d4849625b513268",
+      "fullSelectedChapterPreviouslyRead": true,
+      "chapterNumberInBody": 639,
+      "selectionOrdinal": 639,
+      "characters": 5735,
+      "renderedSha256": "352c1007a9db518af6311839663ffe0df264ff8c615127d953a7ba6787af2c4b"
+    },
+    {
+      "sceneId": "mid-m05",
+      "evidenceId": "M05",
+      "workId": "goldspoon-investment-manual",
+      "matchingCaseIds": [
+        "supporting-character-life",
+        "belief-and-update",
+        "experience-to-action",
+        "earned-inner-decision"
+      ],
+      "sourceId": "gdrive-1SCo2Irbk3wKT-Yzx56tcoUqjI_OjNP3Q",
+      "sourcePath": "private_sources/korean_webnovel_corpus/강동호/금수저 투자백서_강동호_합본.txt",
+      "sourceSha256": "1ac62315ac08181c712154e480d6cd6951fb61b8825ab6bb28af88d4fdb534af",
+      "coordinateKind": "normalized-utf8-lines",
+      "startLine": 78841,
+      "endLine": 79056,
+      "excerptSha256": "5b634ca97e47df2240879ba4490583ffbac1edb32a5c9bec9ef7eb30486ef013",
+      "fullSelectedChapterPreviouslyRead": true,
+      "chapterNumberInBody": 343,
+      "selectionOrdinal": 343,
+      "characters": 6041,
+      "renderedSha256": "1f5334a9d04c0bdbf276f00314c3c5d56fcbff79cc4bca0132714895e5d76dbe"
+    },
+    {
+      "sceneId": "mid-m06",
+      "evidenceId": "M06",
+      "workId": "goldspoon-investment-manual",
+      "matchingCaseIds": [
+        "lived-reward",
+        "reader-reveal",
+        "scene-space"
+      ],
+      "sourceId": "gdrive-1SCo2Irbk3wKT-Yzx56tcoUqjI_OjNP3Q",
+      "sourcePath": "private_sources/korean_webnovel_corpus/강동호/금수저 투자백서_강동호_합본.txt",
+      "sourceSha256": "1ac62315ac08181c712154e480d6cd6951fb61b8825ab6bb28af88d4fdb534af",
+      "coordinateKind": "normalized-utf8-lines",
+      "startLine": 127884,
+      "endLine": 128111,
+      "excerptSha256": "7b28d699d7ccde927f2f5315c2e508fa4fbbcd60e6c06abdb004c417fc8033b1",
+      "fullSelectedChapterPreviouslyRead": true,
+      "chapterNumberInBody": 597,
+      "selectionOrdinal": 584,
+      "characters": 6110,
+      "renderedSha256": "eec4d2c28669fbfd1d669ca974af228e123c253093ca25d90f67d1d64c080ccc"
+    }
+  ],
+  "modelCalls": 0,
+  "humanReviewRequired": false,
+  "humanBlindComparisonPerformed": false,
+  "literaryQualityClaimed": false
+}
