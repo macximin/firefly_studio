@@ -1,0 +1,14 @@
+{
+  "workId": "goldspoon-v1",
+  "id": "fcp-62d1cdd73308f9d9f1344263",
+  "httpStatus": 201,
+  "reviewUrl": "https://storyyard-wjjo.macximin11123.chatgpt.site/review/canary/fcp-62d1cdd73308f9d9f1344263",
+  "chapterCount": 6,
+  "outputSha256": "5eabb924187d3ad6b6f68f557f5746d04ac76e0fec2d1d6fecc14f2e4464d957",
+  "inputSha256": "015968a4c46e1932f165ce195fb7df61575a1f0ba2dc6e6a4e1572f7d8357fea",
+  "exactPacketReadback": true,
+  "decisionCount": 0,
+  "verifiedAt": "2026-09-13T23:54:02.944113+09:00",
+  "scope": "private-review-registration",
+  "canonChanged": false
+}

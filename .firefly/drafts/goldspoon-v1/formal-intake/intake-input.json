@@ -1,0 +1,62 @@
+{
+  "direction": "review-existing-6-and-repair-before-continuation",
+  "request": "두 작품 Storyyard 검토 등록 및 후속 계획 요청",
+  "sourceSystem": "codex-owner-directed-local-draft",
+  "sources": [
+    {
+      "kind": "manuscript",
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/goldspoon-v1/ch01-대기실.md",
+      "sha256": "a659ae656cbb4de89b4b38639f4f26e7a34005f565984302fd20864a247c3550",
+      "title": "1화. 대기실"
+    },
+    {
+      "kind": "manuscript",
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/goldspoon-v1/ch02-차남.md",
+      "sha256": "97cd041e4ad1014b08593ce8f1a8a181ba2c1af73414fd899428cb2999f28b1c",
+      "title": "2화. 차남"
+    },
+    {
+      "kind": "manuscript",
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/goldspoon-v1/ch03-첫판.md",
+      "sha256": "77d1cf3970df9e8f4436721255c49b02750bd4c2b519e6bc0d533e846f11b1a8",
+      "title": "3화. 첫 판"
+    },
+    {
+      "kind": "manuscript",
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/goldspoon-v1/ch04-영토.md",
+      "sha256": "d657b7955288a4cc442b11081a146cd10bd32d2b97bd9c77be84c96cfa6d677c",
+      "title": "4화. 영토"
+    },
+    {
+      "kind": "manuscript",
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/goldspoon-v1/ch05-칼.md",
+      "sha256": "98cc3edd88b88f7e8eabf67551a1c8c301f93dff8c7eea3cba5148778bbc302b",
+      "title": "5화. 칼"
+    },
+    {
+      "kind": "manuscript",
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/goldspoon-v1/ch06-방향.md",
+      "sha256": "e328e125c00f8cfb8b24b2ac8910f55d94f2a53da13db33eefec9898fa2456ae",
+      "title": "6화. 방향"
+    },
+    {
+      "kind": "planning-or-follow-up",
+      "path": "/Users/a2501/Desktop/firefly_studio/.firefly/drafts/goldspoon-v1/formal-intake/project-plan.md",
+      "sha256": "c707187dbf27cca4ddff9e2f4cdb1df4835acde7fafd095b8921d4610ddaa860",
+      "title": "# 금수저 변주 v1 · 정식 레인 검토 기획 초안"
+    },
+    {
+      "kind": "planning-or-follow-up",
+      "path": "/Users/a2501/Desktop/firefly_studio/.firefly/drafts/goldspoon-v1/formal-intake/arc-map.md",
+      "sha256": "1d0e74b2485bc09747f921272e2f0a1bbb05cceb50afcff0776716da9e759869",
+      "title": "# 금수저 v1 · 원고 구간과 후속 설계"
+    },
+    {
+      "kind": "planning-or-follow-up",
+      "path": "/Users/a2501/Desktop/firefly_studio/.firefly/drafts/formal-lane-follow-up-request.md",
+      "sha256": "cac001e49d7a0f0a5fcbc16973a138d2e9b8ca5e9aad5832d476a50ff6ad33a0",
+      "title": "# 독식·금수저 정식 레인 후속 작업 요청"
+    }
+  ],
+  "workId": "goldspoon-v1"
+}

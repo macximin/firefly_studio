@@ -1,0 +1,58 @@
+{
+  "createdAt": "2026-09-13T23:26:22.362437+09:00",
+  "producer": "Codex, owner-directed revision in this conversation",
+  "sourceDrafts": [
+    {
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/doksik-v1/2026-09-13-10화-재정렬.md",
+      "sha256": "3e8b8f0db86358782feb2152ab60d57343508a9719efc8bbae300d0853c8a471"
+    },
+    {
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/doksik-v1/2026-09-13-chaebol-ch01-돌아오다.md",
+      "sha256": "70e780f0647055f96a58f1f5465b2b1ff8bb141556db433d079189c18451a98e"
+    },
+    {
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/doksik-v1/2026-09-13-chaebol-ch02-일성증권.md",
+      "sha256": "09a213b10d45aaa7fb1f0b417ff10732aaf7272da9fc9d8eb179c998f2a88cad"
+    },
+    {
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/doksik-v1/2026-09-13-chaebol-ch03-버블.md",
+      "sha256": "b058d6b1955011ddaf04a1c9359726a8c64455f9c406c843619944e1cdbd7c1e"
+    },
+    {
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/doksik-v1/2026-09-13-chaebol-ch04-버블2.md",
+      "sha256": "a26bf68ddfcae0d2da24e5238187a9cb14d03399a0f8b0a668e869d3fcb8ab4f"
+    },
+    {
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/doksik-v1/2026-09-13-chaebol-ch05-걸프전.md",
+      "sha256": "de1619ca075d8f28bfa0e40144f76b61316109724cda93f4c61315afab72b504"
+    },
+    {
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/doksik-v1/2026-09-13-chaebol-ch06-걸프전2.md",
+      "sha256": "7ea608a622ab571f05fc4e7061e6ff6aa7e1f205017f909cfe1e32272886ab0f"
+    },
+    {
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/doksik-v1/2026-09-13-chaebol-ch07-걸프전3.md",
+      "sha256": "dec6dc5d6f649a065138111b4e7208d2fcda54e15664ae62c071f7b1652240ad"
+    },
+    {
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/doksik-v1/2026-09-13-chaebol-ch08-제프리.md",
+      "sha256": "f86b5365abe11303434184e4e2a9d6c461ba3de39dc5337027144dda2ff494d7"
+    },
+    {
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/doksik-v1/2026-09-13-chaebol-ch09-제프리2.md",
+      "sha256": "8618a4e9e1fd49b2d6f6c6e4400280336eec45b7ee7fa9efc2a5cb4029550ac0"
+    },
+    {
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/doksik-v1/2026-09-13-chaebol-ch10-퀀텀.md",
+      "sha256": "52499474f2a7e55e352e4288e886bd11ee8d0afeec89a4eb607585da70d8f63f"
+    },
+    {
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/doksik-v1/README.md",
+      "sha256": "2378e55a71a8af3fc660ddd97ee6611c202d5a360a62c524b572def59eb03324"
+    }
+  ],
+  "mode": "close-variation-candidate",
+  "scope": "chapters 1-10",
+  "canonical": false,
+  "humanApproval": false
+}

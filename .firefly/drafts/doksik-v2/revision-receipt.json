@@ -1,0 +1,268 @@
+{
+  "checkedAt": "2026-09-13T23:43:51.434215+09:00",
+  "method": "Unicode alphanumeric only; whitespace and punctuation removed. Title excluded. Every draft compared with the entire paired source. Coverage counts draft characters belonging to an exact contiguous 20-character match. This is neither a plagiarism probability nor a measure of structural originality or literary quality.",
+  "source": {
+    "path": "/Users/a2501/Desktop/firefly_studio/edge_repos/firefly_reference_lab/private_sources/korean_webnovel_corpus/서오/독식하는 재벌 3세_서오_합본.txt",
+    "sha256": "66f3e7df3123343c14a7134108dc59940511f40372493a549cba8ae709df4b45"
+  },
+  "v1": {
+    "chapters": [
+      {
+        "file": "2026-09-13-chaebol-ch01-돌아오다.md",
+        "sha256": "70e780f0647055f96a58f1f5465b2b1ff8bb141556db433d079189c18451a98e",
+        "charactersIncludingWhitespaceAndTitle": 4594,
+        "bodyNormalizedCharacters": 3068,
+        "coveredBy20CharacterExactRuns": 1083,
+        "coveragePercent": 35.3,
+        "exactNormalizedLinesAtLeast20Characters": 13
+      },
+      {
+        "file": "2026-09-13-chaebol-ch02-일성증권.md",
+        "sha256": "09a213b10d45aaa7fb1f0b417ff10732aaf7272da9fc9d8eb179c998f2a88cad",
+        "charactersIncludingWhitespaceAndTitle": 4614,
+        "bodyNormalizedCharacters": 3034,
+        "coveredBy20CharacterExactRuns": 975,
+        "coveragePercent": 32.14,
+        "exactNormalizedLinesAtLeast20Characters": 11
+      },
+      {
+        "file": "2026-09-13-chaebol-ch03-버블.md",
+        "sha256": "b058d6b1955011ddaf04a1c9359726a8c64455f9c406c843619944e1cdbd7c1e",
+        "charactersIncludingWhitespaceAndTitle": 4760,
+        "bodyNormalizedCharacters": 3177,
+        "coveredBy20CharacterExactRuns": 852,
+        "coveragePercent": 26.82,
+        "exactNormalizedLinesAtLeast20Characters": 5
+      },
+      {
+        "file": "2026-09-13-chaebol-ch04-버블2.md",
+        "sha256": "a26bf68ddfcae0d2da24e5238187a9cb14d03399a0f8b0a668e869d3fcb8ab4f",
+        "charactersIncludingWhitespaceAndTitle": 4826,
+        "bodyNormalizedCharacters": 3197,
+        "coveredBy20CharacterExactRuns": 788,
+        "coveragePercent": 24.65,
+        "exactNormalizedLinesAtLeast20Characters": 6
+      },
+      {
+        "file": "2026-09-13-chaebol-ch05-걸프전.md",
+        "sha256": "de1619ca075d8f28bfa0e40144f76b61316109724cda93f4c61315afab72b504",
+        "charactersIncludingWhitespaceAndTitle": 4012,
+        "bodyNormalizedCharacters": 2626,
+        "coveredBy20CharacterExactRuns": 222,
+        "coveragePercent": 8.45,
+        "exactNormalizedLinesAtLeast20Characters": 0
+      },
+      {
+        "file": "2026-09-13-chaebol-ch06-걸프전2.md",
+        "sha256": "7ea608a622ab571f05fc4e7061e6ff6aa7e1f205017f909cfe1e32272886ab0f",
+        "charactersIncludingWhitespaceAndTitle": 4659,
+        "bodyNormalizedCharacters": 3055,
+        "coveredBy20CharacterExactRuns": 515,
+        "coveragePercent": 16.86,
+        "exactNormalizedLinesAtLeast20Characters": 2
+      },
+      {
+        "file": "2026-09-13-chaebol-ch07-걸프전3.md",
+        "sha256": "dec6dc5d6f649a065138111b4e7208d2fcda54e15664ae62c071f7b1652240ad",
+        "charactersIncludingWhitespaceAndTitle": 4345,
+        "bodyNormalizedCharacters": 2861,
+        "coveredBy20CharacterExactRuns": 472,
+        "coveragePercent": 16.5,
+        "exactNormalizedLinesAtLeast20Characters": 1
+      },
+      {
+        "file": "2026-09-13-chaebol-ch08-제프리.md",
+        "sha256": "f86b5365abe11303434184e4e2a9d6c461ba3de39dc5337027144dda2ff494d7",
+        "charactersIncludingWhitespaceAndTitle": 4228,
+        "bodyNormalizedCharacters": 2777,
+        "coveredBy20CharacterExactRuns": 401,
+        "coveragePercent": 14.44,
+        "exactNormalizedLinesAtLeast20Characters": 2
+      },
+      {
+        "file": "2026-09-13-chaebol-ch09-제프리2.md",
+        "sha256": "8618a4e9e1fd49b2d6f6c6e4400280336eec45b7ee7fa9efc2a5cb4029550ac0",
+        "charactersIncludingWhitespaceAndTitle": 4018,
+        "bodyNormalizedCharacters": 2633,
+        "coveredBy20CharacterExactRuns": 0,
+        "coveragePercent": 0.0,
+        "exactNormalizedLinesAtLeast20Characters": 0
+      },
+      {
+        "file": "2026-09-13-chaebol-ch10-퀀텀.md",
+        "sha256": "52499474f2a7e55e352e4288e886bd11ee8d0afeec89a4eb607585da70d8f63f",
+        "charactersIncludingWhitespaceAndTitle": 4030,
+        "bodyNormalizedCharacters": 2736,
+        "coveredBy20CharacterExactRuns": 372,
+        "coveragePercent": 13.6,
+        "exactNormalizedLinesAtLeast20Characters": 0
+      }
+    ],
+    "chapterCount": 10,
+    "charactersIncludingWhitespaceAndTitle": 44086,
+    "bodyNormalizedCharacters": 29164,
+    "coveredCharacters": 5680,
+    "coveragePercent": 19.48,
+    "exactNormalizedLinesAtLeast20Characters": 40
+  },
+  "v2": {
+    "chapters": [
+      {
+        "file": "ch01-가족사진.md",
+        "sha256": "7ac8aa37393bb372c54c85c72c310457fe0216a743c5cc51861cbf3e9333fd68",
+        "charactersIncludingWhitespaceAndTitle": 4477,
+        "bodyNormalizedCharacters": 2949,
+        "coveredBy20CharacterExactRuns": 0,
+        "coveragePercent": 0.0,
+        "exactNormalizedLinesAtLeast20Characters": 0
+      },
+      {
+        "file": "ch02-보고서의주인.md",
+        "sha256": "83a68a1e141e9763b7b8075ebae754cdd62154e3c3d67ffa507c14fcb27361f1",
+        "charactersIncludingWhitespaceAndTitle": 4443,
+        "bodyNormalizedCharacters": 2923,
+        "coveredBy20CharacterExactRuns": 0,
+        "coveragePercent": 0.0,
+        "exactNormalizedLinesAtLeast20Characters": 0
+      },
+      {
+        "file": "ch03-내돈으로합니다.md",
+        "sha256": "6444651c6873ec36711137f58da16f1a1029166c04ef4917e9a50c07c032ea3d",
+        "charactersIncludingWhitespaceAndTitle": 3984,
+        "bodyNormalizedCharacters": 2611,
+        "coveredBy20CharacterExactRuns": 0,
+        "coveragePercent": 0.0,
+        "exactNormalizedLinesAtLeast20Characters": 0
+      },
+      {
+        "file": "ch04-이번에는제가삽니다.md",
+        "sha256": "d74c749af157b808ef8ef9f79f01113d6f3b886f7a457b0f626cfe7bf5cc9fcc",
+        "charactersIncludingWhitespaceAndTitle": 3709,
+        "bodyNormalizedCharacters": 2438,
+        "coveredBy20CharacterExactRuns": 0,
+        "coveragePercent": 0.0,
+        "exactNormalizedLinesAtLeast20Characters": 0
+      },
+      {
+        "file": "ch05-타지마세요.md",
+        "sha256": "9b995e5657ccbfd870a09b6e856cd649e6215ac8c5ed0e8f19e0182fccfd0a44",
+        "charactersIncludingWhitespaceAndTitle": 3807,
+        "bodyNormalizedCharacters": 2504,
+        "coveredBy20CharacterExactRuns": 0,
+        "coveragePercent": 0.0,
+        "exactNormalizedLinesAtLeast20Characters": 0
+      },
+      {
+        "file": "ch06-손님이바뀌었습니다.md",
+        "sha256": "3dc3c2c42f304fe5aa4a32b76592f53a0ccdb185c01fa426fae07be3df0c0795",
+        "charactersIncludingWhitespaceAndTitle": 3565,
+        "bodyNormalizedCharacters": 2322,
+        "coveredBy20CharacterExactRuns": 0,
+        "coveragePercent": 0.0,
+        "exactNormalizedLinesAtLeast20Characters": 0
+      },
+      {
+        "file": "ch07-면접은끝났습니다.md",
+        "sha256": "f6c2b4caee76172d4f79ed27108efffa7d6842994d4c2e1d97275b364543fde8",
+        "charactersIncludingWhitespaceAndTitle": 3722,
+        "bodyNormalizedCharacters": 2455,
+        "coveredBy20CharacterExactRuns": 0,
+        "coveragePercent": 0.0,
+        "exactNormalizedLinesAtLeast20Characters": 0
+      },
+      {
+        "file": "ch08-회사는안팝니다.md",
+        "sha256": "cc318254cf5f403504d93f4a33144931a49743ae8229775f21ab6ad5f550438e",
+        "charactersIncludingWhitespaceAndTitle": 3937,
+        "bodyNormalizedCharacters": 2586,
+        "coveredBy20CharacterExactRuns": 0,
+        "coveragePercent": 0.0,
+        "exactNormalizedLinesAtLeast20Characters": 0
+      },
+      {
+        "file": "ch09-사장님몫입니다.md",
+        "sha256": "4a6e1a150aea9265a66a12b8e39a2eb492983da679b8c95c54e2a4fabac0f374",
+        "charactersIncludingWhitespaceAndTitle": 3817,
+        "bodyNormalizedCharacters": 2510,
+        "coveredBy20CharacterExactRuns": 0,
+        "coveragePercent": 0.0,
+        "exactNormalizedLinesAtLeast20Characters": 0
+      },
+      {
+        "file": "ch10-제자리도있습니까.md",
+        "sha256": "e9d36646a6adf028caaf507521f93c4747b1a64f781aaaa92f6b23e31b2245f1",
+        "charactersIncludingWhitespaceAndTitle": 4374,
+        "bodyNormalizedCharacters": 2893,
+        "coveredBy20CharacterExactRuns": 0,
+        "coveragePercent": 0.0,
+        "exactNormalizedLinesAtLeast20Characters": 0
+      }
+    ],
+    "chapterCount": 10,
+    "charactersIncludingWhitespaceAndTitle": 39835,
+    "bodyNormalizedCharacters": 26191,
+    "coveredCharacters": 0,
+    "coveragePercent": 0.0,
+    "exactNormalizedLinesAtLeast20Characters": 0
+  },
+  "inputPreservation": [
+    {
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/doksik-v1/2026-09-13-10화-재정렬.md",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/doksik-v1/2026-09-13-chaebol-ch01-돌아오다.md",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/doksik-v1/2026-09-13-chaebol-ch02-일성증권.md",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/doksik-v1/2026-09-13-chaebol-ch03-버블.md",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/doksik-v1/2026-09-13-chaebol-ch04-버블2.md",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/doksik-v1/2026-09-13-chaebol-ch05-걸프전.md",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/doksik-v1/2026-09-13-chaebol-ch06-걸프전2.md",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/doksik-v1/2026-09-13-chaebol-ch07-걸프전3.md",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/doksik-v1/2026-09-13-chaebol-ch08-제프리.md",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/doksik-v1/2026-09-13-chaebol-ch09-제프리2.md",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/doksik-v1/2026-09-13-chaebol-ch10-퀀텀.md",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/a2501/orca/workspaces/firefly_studio/rosefish/.firefly/drafts/doksik-v1/README.md",
+      "unchanged": true
+    }
+  ],
+  "sourceNameOrMetaResidues": [],
+  "repeatedLinesAtLeast20NormalizedCharacters": [],
+  "storyArithmeticAssertionsPassed": 8,
+  "combinedReadingFile": {
+    "path": "/Users/a2501/Desktop/firefly_studio/.firefly/drafts/doksik-v2/독식-밀착변주-v2-1-10화.md",
+    "sha256": "b5378714cdcfeeedf7be479d78438f803b819e42b5d2daf00b2a839189d2f278"
+  },
+  "qualityReview": "Author self-review only; no independent or human approval.",
+  "canonical": false,
+  "published": false
+}
